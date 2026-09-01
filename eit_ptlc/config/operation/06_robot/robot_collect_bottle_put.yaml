@@ -1,0 +1,126 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 collect.bottle.put 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+# 【手改·勿重生成 (G-1)】body 顶部条件式入口保证 prologue: 仅 enter_anchor==P1 时 home_ensure + tool_ensure (needed=3 小夹爪); 生成器重跑会抹掉
+schema: ptlc.script/v1
+kind: operation
+name: robot_collect_bottle_put
+label: 收集工位放瓶
+note: '小夹爪'
+ui: {subgroup: 收集工位, order: 52}
+vars:
+- {name: station_id, scope: local, type: STRING, io: in, default: default, comment: collect.bottle.put 主选择值, enum: [default]}
+# 入口锚点: 默认 P1=Home (自成一体, 与既有调用者一致); 上料转运可传 P52=中转B枢纽, 从取瓶停留处直接接手放瓶, 免 P52→P1→P70 空跑 (对称于下料 individual_put 的 enter_anchor=P70)
+- {name: enter_anchor, scope: local, type: STRING, io: in, default: P1, comment: 入口锚点 (默认 P1=Home; 上料可传 P52 交接)}
+resources: [robot]
+body:
+- {op: comment, text: '入口保证(手改): 仅 P1 入口时确保回零+换刀; P52 交接入口由分支锚断言把关 (上游取件流程已保证工具)'}
+- op: if
+  cond: {binop: ==, left: {var: enter_anchor}, right: {lit: P1}}
+  then:
+  - {op: call, action: robot.home_ensure, mode: RUN}
+  - {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 3}}, outputs: {}}
+- op: if
+  cond:
+    binop: ==
+    left: {var: station_id}
+    right: {lit: default}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {var: enter_anchor}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P70}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collect-bottle-put.far}
+      motion: {lit: move_l}
+      acc: {lit: 12}
+      vel: {lit: 15}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collect-bottle-put.near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P71}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: gripper-open}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collect-bottle-put.near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collect-bottle-put.far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P70}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P1}
+      motion: {lit: move_j}
+      acc: {lit: 50}
+      vel: {lit: 37}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs: []
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'collect.bottle.put: 无效选择值'}

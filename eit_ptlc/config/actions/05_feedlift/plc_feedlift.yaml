@@ -1,0 +1,107 @@
+# 玻璃上下料伺服 PLC L2 原子动作 (第5通道; 与 PLC 50_action/FeedLift_L2 动作码对齐)
+# 由 A10_上下料伺服流程 解构而来; 机器人吸料/放废料由上位机 Dobot 直驱, 穿插于下列原子之间.
+#
+# 两个传感器分工 (2026-07-27 现场目视确认, 别弄反):
+#   玻璃升降光电开关1/2 (侧面, %IX8.3/8.4) —— 检测**顶板是否升到取料位**; 这是测量用的
+#   玻璃升降接近开关1/2 (仓底, %IX8.5/8.6) —— 检测**仓内有没有板**; 这是物料互锁用的
+# 二者配合构成 feed_raise 的正当前置: 底部确认有板 + 侧面确认顶板到位。
+# ⚠ 因此**所有带接近开关的动作在空仓时都跑不通** (报 301/302), 这是设计如此不是缺陷。
+#
+# 上料编排: feed_raise(11) ->[机器人吸住玻璃]-> feed_lower(12) ->[机器人取走] (循环)
+#   feed_raise 无玻璃则报错 ErrorCode 301 交上位机; 光电搜索窗口由 preload_targets 写入 PLC.
+# 测量板数时必须 feed_clear(13) -> feed_raise(11) 两步: feed_raise 在光电已 TRUE 时是幂等直通
+#   (原地确认 300ms 即 DONE, 轴不动), 单发它只会读到上次停轴的陈旧位置。见 controller/feedlift_count.py。
+# 下料编排: unload_ready(21) ->[机器人放废料]-> unload_bury(22) (循环)
+
+feedlift.init:
+  kind: plc_l2
+  station: feedlift
+  action_code: 10
+  label: 板仓复位
+  hint: 清残留点动命令并校验双轴已回零, 不产生运动
+  desc: |-
+    执行步骤：清 1Z/2Z 的四个 jog 命令位与两轴相对移动命令位，随后校验 1Z、2Z 均已回零。
+    前置与安全：PLC须处于运行/就绪态；本动作不产生任何轴运动，只清残留命令位与读状态，故不受物料互锁约束，空仓也能跑。清位是必要的——搜索类动作被 L2_Reset 中止时 jog 位会停在 TRUE，feed_lower 中途被中止时 xMoveRel 也留 TRUE。
+    完成与异常：双轴 bHomed 均为 TRUE 即返回 DONE；5秒内未满足为 308。⚠ 308 只能由人工在 HMI 按【一键回原点】解决——1Z/2Z 回零通道不对上位机开放，本动作不会也不能自行回零。
+    PLC核对：现役 20260702.project，Application/50_action/FeedLift_L2 动作码10 → A10_init_初始化。
+  modes: []
+
+feedlift.feed_raise:
+  kind: plc_l2
+  station: feedlift
+  action_code: 11
+  label: 上料-升轴至取料光电
+  desc: |-
+    执行步骤：Start前写入1Z搜索上下边界；PLC先等待1Z已回零、接近开关1、上料进料传感器且Alarm.0为FALSE，随后仅向上JOG搜索“玻璃升降光电开关1=TRUE”，停轴并连续稳定300毫秒；抖动时最多两次、每次最多向上2毫米重捕获。
+    前置与安全：PLC须处于运行/就绪态，SearchLow必须小于SearchHigh，机器人退出升降区；本动作不使用绝对定位，只在上界内JOG。
+    完成与异常：光电TRUE稳定300毫秒后返回DONE；窗口非法为303，前置10秒未满足为301，到上界或两次重捕获失败为304，轴动作停滞由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/FeedLift_L2 动作码11 → A11_feed_raise。
+  preload_targets: [feedlift_1z_search_low, feedlift_1z_search_high]
+  modes: []
+
+feedlift.feed_clear:
+  kind: plc_l2
+  station: feedlift
+  action_code: 13
+  label: 上料-降轴至光电消失
+  desc: |-
+    执行步骤：Start前写入1Z搜索上下边界；PLC先等待1Z已回零、玻璃升降接近开关1（仓底有板）且Alarm.0为FALSE（上料机构有料），随后仅向下JOG搜索“玻璃升降光电开关1=FALSE”，停轴并连续稳定300毫秒；抖回TRUE时最多两次、每次最多向下2毫米重捕获。
+    前置与安全：PLC须处于运行/就绪态，SearchLow必须小于SearchHigh，机器人退出升降区；本动作不使用绝对定位，只在下界内JOG。⚠ 本动作仍受物料互锁约束，空仓时跑不通：门里的接近开关1是仓底的有无板检测、Alarm.0是“上料机构无物料”，两者在空仓时都不满足。相比feed_raise只少了上料进料传感器一项，并非“不检查有无料”——标定因此不能采空仓那一组，改用不同的已知非零张数即可（空仓基准位是拟合截距，由这些组外推得出）。
+    完成与异常：光电FALSE稳定300毫秒后返回DONE；窗口非法为303，前置10秒未满足为301（空仓是最常见成因），到下界或两次重捕获失败为307，轴动作停滞由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/FeedLift_L2 动作码13 → A13_feed_clear。
+  preload_targets: [feedlift_1z_search_low, feedlift_1z_search_high]
+  modes: []
+
+feedlift.feed_lower:
+  kind: plc_l2
+  station: feedlift
+  action_code: 12
+  label: 上料-降轴5mm让位
+  desc: |-
+    执行步骤：把1Z相对目标固定写为-5.0毫米并置xMoveRel，等待bReMoveDone后撤销相对移动命令。
+    前置与安全：PLC须处于运行/就绪态；机器人吸盘应已可靠吸住最上层玻璃并保持取料姿态。PLC动作内不检查吸盘、光电或剩余轴行程。
+    完成与异常：1Z相对移动完成位成立后返回DONE；PLC无显式伺服/限位错误分支，未完成由上位机停滞/绝对超时报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/FeedLift_L2 动作码12 → A12_feed_lower。
+  modes: []
+
+feedlift.unload_ready:
+  kind: plc_l2
+  station: feedlift
+  action_code: 21
+  label: 下料-到放废料位
+  desc: |-
+    执行步骤：Start前写入2Z窗口；PLC等待2Z已回零、下料出料传感器且Alarm.1为FALSE，然后仅向上JOG搜索“光电开关2=TRUE”，停轴稳定300毫秒；抖动时最多两次、每次最多向上2毫米重捕获。
+    前置与安全：PLC须处于运行/就绪态，SearchLow小于SearchHigh，机器人不得进入2Z搜索区；动作不向下反搜。
+    完成与异常：光电TRUE稳定300毫秒后返回DONE；窗口非法为303，前置10秒未满足为302，到上界或重捕获失败为305，其余停滞由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/FeedLift_L2 动作码21 → A21_unload_ready。
+  preload_targets: [feedlift_2z_search_low, feedlift_2z_search_high]
+  modes: []
+
+feedlift.unload_bury:
+  kind: plc_l2
+  station: feedlift
+  action_code: 22
+  label: 下料-埋料至光电消失
+  desc: |-
+    执行步骤：PLC等待2Z已回零、玻璃升降接近开关2（仓底有板）且Alarm.1为FALSE（下料机构未满），然后仅向下JOG搜索“光电开关2=FALSE”，停轴稳定300毫秒；抖回TRUE时最多两次、每次最多向下2毫米重捕获。
+    前置与安全：PLC须处于运行/就绪态，SearchLow小于SearchHigh；废玻璃已释放且机器人退出2Z区域。动作不反向上扫。⚠ 门里的接近开关2是仓底的有无板检测，空仓时为FALSE，故空仓跑不通——标定不要采空仓那一组，改用不同的已知非零张数即可。
+    完成与异常：光电FALSE稳定300毫秒后返回DONE；窗口非法为303，前置10秒未满足为302（空仓是最常见成因），到下界或重捕获失败为305，其余停滞由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/FeedLift_L2 动作码22 → A22_unload_bury。
+  preload_targets: [feedlift_2z_search_low, feedlift_2z_search_high]
+  modes: []
+
+feedlift.debug_check_photoelectric_edge:
+  kind: plc_l2
+  station: feedlift
+  action_code: 91
+  label: DEBUG-光电边沿确认诊断
+  desc: |-
+    执行步骤：按axis读取光电开关1或2，不发任何JOG或定位命令；仅检查该输入是否连续200毫秒等于expected_final。配置仍预下发搜索边界，但PLC动作码91不读取这些边界。
+    前置与安全：PLC须处于运行/就绪态且仅DEBUG模式；这是无运动的稳定态读数诊断，不是边沿搜索，不能用来验证搜索窗口或伺服运动。
+    完成与异常：输入连续200毫秒符合期望后返回DONE；axis不是1/2为ErrorCode 306；输入一直不符时PLC不会主动报错，而由上位机超时结束。
+    PLC核对：现役 20260702.project，Application/50_action/FeedLift_L2 动作码91 → A91_endcheck。
+  preload_targets: [feedlift_1z_search_low, feedlift_1z_search_high, feedlift_2z_search_low, feedlift_2z_search_high]
+  params:
+    - {name: axis, type: int, required: true, min: 1, max: 2, label: "轴号(1=1Z,2=2Z)", channel: FeedLift_DebugAxis}
+    - {name: expected_final, type: bool, required: true, label: "期望最终光电状态", channel: FeedLift_DebugExpectedFinal}
+  modes: [DEBUG]

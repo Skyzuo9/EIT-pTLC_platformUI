@@ -1,0 +1,195 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s6_develop_wait
+label: 5-1 展开等待
+ui:
+  role: segment
+# 原子流程 s6: develop_execute 的并行改写副本 (原文件一字不动, 手动站任务继续用)。
+# 与母本的唯一差别: 根 resources 为空 —— 整段液位等待 (硬上限 3600s) 不持有任何独占资源,
+# 8 个缸的 s6 可同时挂起; 三处 develop.drain 各包 with_resources [station:develop] 区间
+# 短取 (排液瞬间才要工位 L2 通道, 与他样品的 s3/s5/s8 按锁排队, 最坏延迟一个装卸窗)。
+# W2 防死锁律成立的形态: 根无独占 -> 等待排液锁时手上无其他独占, hold-and-wait 不成立。
+# 缸位互斥不经资源门: 调度器缸池账本保证同缸不会有两个样品 (tank_action:N 留给手动)。
+# 排液语义/优先级 (检测 > HITL > 硬上限) 与母本逐字一致, 见 develop_execute.yaml 长注释。
+flow:
+  atomic: true
+  sample: required
+  from: tank:{tank}
+  to: tank:{tank}
+  hitl: confirm
+  retry: resume
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8
+- name: auto_drain
+  scope: local
+  type: BOOL
+  io: in
+  default: true
+  comment: 液位自动触发排液 (批量并行默认 true; false=每样品人工HITL门, 流水线会等人)
+  ui:
+    label: 自动排液
+    group: 展开控制
+- name: dry_duration_s
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0.0
+  comment: 排液后原位干燥时长秒 (0=跳过; 直透 PLC Tank_Dry_S; 挥发/氧敏感样品慎开)
+  ui:
+    label: 原位干燥时长(s)
+    group: 展开控制
+    min: 0.0
+    max: 1800.0
+- name: wl_result
+  scope: local
+  type: DICT
+  io: var
+  default: {}
+  comment: develop.wait_level 返回 (status/front_percent/threshold/elapsed_s)
+- name: ref_result
+  scope: local
+  type: DICT
+  io: var
+  default: {}
+  comment: develop.capture_reference 返回 (ok/has_ref/elapsed_s)
+resources: []
+body:
+- op: comment
+  text: '起点先自动采集干板参考 (host 动作, 不占工位); 失败则液位检测不可用, 退化人工门'
+- op: call
+  action: develop.capture_reference
+  args:
+    target_tank:
+      var: tank
+  assign:
+    var: ref_result
+  mode: RUN
+- op: if
+  cond:
+    binop: ==
+    left:
+      field:
+        var: ref_result
+      name: ok
+    right:
+      lit: false
+  then:
+  - op: human
+    kind: confirm
+    on_cancel: raise
+    prompt:
+      lit: 参考图采集失败, 本次液位检测不可用; 展开完成后确认开始 PLC L2 排液
+  - op: with_resources
+    resources:
+    - station:develop
+    body:
+    - op: call
+      action: develop.drain
+      args:
+        target_tank:
+          var: tank
+        dry_duration_s:
+          var: dry_duration_s
+      mode: RUN
+  else:
+  - op: if
+    cond:
+      var: auto_drain
+    then:
+    - op: comment
+      text: 'T1 等待 (host 轮询液位, 空手): 命中预告才续 T2; degraded/hard_cap 直落排液'
+    - op: call
+      action: develop.wait_level
+      args:
+        target_tank:
+          var: tank
+        stage:
+          lit: t1
+      assign:
+        var: wl_result
+      mode: RUN
+    - op: if
+      cond:
+        binop: ==
+        left:
+          field:
+            var: wl_result
+          name: status
+        right:
+          lit: reached
+      then:
+      - op: comment
+        text: 'T2 等待: 硬上限 = 总预算 3600s 扣除 T1 已耗 (max 兜零)'
+      - op: call
+        action: develop.wait_level
+        args:
+          target_tank:
+            var: tank
+          stage:
+            lit: t2
+          hard_cap_s:
+            call: max
+            args:
+            - lit: 0.0
+            - binop: '-'
+              left:
+                lit: 3600.0
+              right:
+                field:
+                  var: wl_result
+                name: elapsed_s
+        assign:
+          var: wl_result
+        mode: RUN
+    - op: if
+      cond:
+        binop: ==
+        left:
+          field:
+            var: wl_result
+          name: status
+        right:
+          lit: degraded
+      then:
+      - op: human
+        kind: confirm
+        on_cancel: raise
+        prompt:
+          lit: 液位检测异常 (数据陈旧/掉流/前沿无效), 人工确认后开始 PLC L2 排液?
+    - op: comment
+      text: 'reached/hard_cap/人已确认 -> 排液 (短取工位, 用毕即还; 化学上排液须即时, 最坏等一个装卸窗)'
+    - op: with_resources
+      resources:
+      - station:develop
+      body:
+      - op: call
+        action: develop.drain
+        args:
+          target_tank:
+            var: tank
+          dry_duration_s:
+            var: dry_duration_s
+        mode: RUN
+    else:
+    - op: human
+      kind: confirm
+      on_cancel: raise
+      prompt:
+        lit: 展开完成? 确认开始 PLC L2 排液
+    - op: with_resources
+      resources:
+      - station:develop
+      body:
+      - op: call
+        action: develop.drain
+        args:
+          target_tank:
+            var: tank
+          dry_duration_s:
+            var: dry_duration_s
+        mode: RUN

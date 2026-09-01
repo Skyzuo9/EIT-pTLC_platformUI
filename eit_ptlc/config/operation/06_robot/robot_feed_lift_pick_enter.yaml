@@ -1,0 +1,96 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 feed-lift.pick-enter 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+# 【手改·勿重生成 (G-1)】body 顶部入口保证 prologue: home_ensure 确保回零 + tool_ensure 换刀 (needed=1 吸盘); 生成器重跑会抹掉
+schema: ptlc.script/v1
+kind: operation
+name: robot_feed_lift_pick_enter
+label: 升降仓吸板-进入
+note: '1/2 进入吸住玻璃'
+ui: {subgroup: 升降仓, order: 11}
+vars:
+- {name: station_id, scope: local, type: STRING, io: in, default: default, comment: feed-lift.pick-enter 主选择值, enum: [default]}
+resources: [robot]
+body:
+- {op: comment, text: '入口保证(手改): 确保在 home (安全邻域内自动回零) + 智能换刀到本流程固定工具 (吸盘)'}
+- {op: call, action: robot.home_ensure, mode: RUN}
+- {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 1}}, outputs: {}}
+- op: if
+  cond:
+    binop: ==
+    left: {var: station_id}
+    right: {lit: default}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: rail.ensure
+    args:
+      Rail_Target_Position: {lit: 1}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: rotary-down}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P5}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: feed-lift.approach_far}
+      motion: {lit: move_l}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: feed-lift.approach_near}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P21}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: suction-on}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P21}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs: []
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'feed-lift.pick-enter: 无效选择值'}

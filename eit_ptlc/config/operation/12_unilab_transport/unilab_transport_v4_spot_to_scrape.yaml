@@ -1,0 +1,26 @@
+schema: ptlc.script/v1
+kind: operation
+name: unilab_transport_v4_spot_to_scrape
+label: v4 转运 点样座→刮板台
+ui:
+  role: unilab_transport_v4
+  projection_only: true
+vars: []
+resources:
+- robot
+- station:rail
+- station:sampling
+- station:photo_scrape
+body:
+- op: run_script
+  script: sampling_unload
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_plate_load
+  inputs: {}
+  outputs: {}

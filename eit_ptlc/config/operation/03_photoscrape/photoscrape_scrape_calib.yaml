@@ -1,0 +1,158 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_scrape_calib
+label: 刮板-刮痕标定(自动)
+ui:
+  role: station_task
+  station: photo_scrape
+  order: 39
+# 刮痕自动标定: 在空白牺牲板上刮已知板 cm 位置的图案 → 拍照测实刮位置 → 差值即
+# 相机链+机床链+刀具链的合量误差 → 折进 gcode.plate_origin。
+#
+# 本 operation 只做机器动作(拍照/刮取/补拍/叠加), **不碰配置**。测量、写回 plate_origin、
+# 生成下一轮图案全部由前端「刮痕标定」面板在门里接管 —— 与 photoscrape_tool_align 同架构,
+# 保持"防 run 上下文越权改标定"原则不破。
+#
+# 与 jog 对刀(42/43/44)零交集: 刮取走 A40 CNC, 不受板区软限位窗空集影响, 真机可直接跑。
+#
+# 轮次门契约 (面板 ↔ VM):
+#   面板回 {action: "go", calib_summary_path: <本轮工作区 summary>} → 刮一轮并补拍
+#   面板回 {action: "finish"}                                      → 退环干净收尾放板
+vars:
+  - {name: sample_id,   scope: local, type: STRING, io: in, default: "", comment: 标定样品ID(视觉 case 目录同名)}
+  - {name: save_dir,    scope: local, type: STRING, io: in, default: "", comment: 原始照片保存目录}
+  - {name: ack,         scope: local, type: STRING, default: "",  comment: 首门确认选择}
+  - {name: shot,        scope: local, type: DICT,                 comment: 空白板建帧拍照结果(image_path)}
+  - {name: vis,         scope: local, type: DICT,                 comment: analyze 结果(只为拿 plate_bbox_px/normalize_applied)}
+  - {name: cnc,         scope: local, type: DICT,                 comment: cnc_path 结果(数组+pass_z_list)}
+  - {name: pz,          scope: local, type: FLOAT,                comment: 当前 pass 的 Z 切深}
+  - {name: scraped,     scope: local, type: DICT,                 comment: 本轮刮后拍照结果(image_path)}
+  - {name: calib_summary_path, scope: local, type: STRING, default: "", comment: 本轮标定图案 summary(面板经门带回)}
+  - {name: action,      scope: local, type: STRING, default: "",  comment: "轮次门指令: go=刮一轮 | finish=收尾"}
+  - {name: done,        scope: local, type: BOOL,   default: false}
+  - {name: bucket_ack,  scope: local, type: STRING, default: "",  comment: 取桶门应答(任意值都继续复位翻料缸)}
+# 占 staging-a: 全程持有接粉桶定位气缸 %QX7.5 (staging_a.locator_a), 与中转A流程互斥, 否则会被中途松开
+resources: [station:photo_scrape, staging-a]
+body:
+  - {op: comment, text: "首门=前置唯一防线: 必须是空白牺牲板(会被刮花)且接粉桶已放好(A40 同跑收集路径)"}
+  - op: human
+    kind: confirm
+    prompt: {lit: "刮痕标定确认: ① 刮板夹具已放入一块**空白牺牲板**(标定会在板上刮出图案, 板将报废) ② 接粉收集桶已放好(刮取动作同跑收集路径, 无桶则粉末散落)。确认继续?"}
+    assign_choice: {var: ack}
+  - op: if
+    cond: {binop: "!=", left: {var: ack}, right: {lit: ok}}
+    then:
+      - {op: raise, error: SCRAPE_CALIB_CANCELLED, message: {lit: "用户取消刮痕标定; 板未夹持, 无需释放"}}
+  - {op: comment, text: "(0) 工位初始化: 清真空/无刷/定位/粉末收集器定位/遮光/旋转/下压 全部残留输出 + 三轴归位"}
+  - {op: comment, text: "必须调: 上一次生产 run 的 A41 收尾会把旋转气缸(翻料缸)置 TRUE, 只有 A52/A10 会清 —— 不清就是在'收集器已翻倒'状态下刮 (2026-07-26 真机粉末飞溅复盘)"}
+  - {op: call, action: photoscrape.init, mode: RUN}
+  - {op: comment, text: "9X→335 停放位: A41 收尾翻料的互锁要求 9X>330; 不调则翻转时 9X 停在 CNC 收刀位"}
+  - {op: call, action: photoscrape.cam_x335, mode: RUN}
+  - {op: comment, text: "接粉桶定位气缸 %QX7.5: 全工程唯一驱动者就是这个动作(生产由 transfer_collector_staging_a_to_scrape 调)"}
+  - {op: call, action: staging_a.locator_a, mode: RUN, args: {target: {lit: true}}}
+  - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: true}}}
+  - {op: call, action: photoscrape.press_cylinder,  mode: RUN, args: {pressed: {lit: true}}}
+  - op: try
+    body:
+      - {op: comment, text: "(1) 建帧: 拍一张空白板 → analyze 拿 plate_bbox_px + normalize_applied"}
+      - {op: comment, text: "空白板无色谱带, analyze 必返 no_bands(ok=false) —— 此处不消费 vis.ok, 只要 case 目录成立即可 (process_pair 无早退, summary 照落建帧三件)"}
+      - {op: call, action: photoscrape.cam_photopos, mode: RUN, args: {ref_8y: {lit: photo_8y}}}
+      - {op: call, action: photoscrape.capture, mode: RUN,
+         args: {sample_id: {var: sample_id}, save_dir: {var: save_dir},
+                filename: {lit: calib_base.jpg}, profile: {lit: photoscrape}},
+         assign: {var: shot}}
+      - {op: call, action: photoscrape.cam_photohome, mode: RUN}
+      - {op: comment, text: "before=after=同一张: 只为建帧, 省一次拍照; 产出的 after_normalized.jpg 即轮1 差分基准"}
+      - {op: call, action: photoscrape.analyze, mode: RUN,
+         args: {sample_id: {var: sample_id},
+                before_path: {field: {var: shot}, name: image_path},
+                after_path: {field: {var: shot}, name: image_path}},
+         assign: {var: vis}}
+
+      - {op: comment, text: "(2) 轮次环: 面板在门里测上轮/写配置/生成本轮图案, 经 action 指挥继续或收尾"}
+      - op: while
+        cond: {unop: not, operand: {var: done}}
+        max_iter: 8
+        body:
+          - {op: assign, target: {var: action}, value: {lit: ""}}
+          - {op: assign, target: {var: calib_summary_path}, value: {lit: ""}}
+          - op: human
+            kind: input
+            prompt: {lit: "刮痕标定轮次门 — 由「刮痕标定」面板自动应答(测量上一轮 → 写回 plate_origin → 生成下一轮图案)。人工介入请填 action=finish 收尾。"}
+            fields:
+              - {var: calib_summary_path, label: 本轮标定summary}
+              - {var: action,             label: "指令(go/finish)"}
+          - op: if
+            cond: {binop: "!=", left: {var: action}, right: {lit: go}}
+            then:
+              - {op: comment, text: "非 go(含空/finish/未知): 一律收敛退环, 交收尾放板 —— 面板硬闸判据不通过时走这条"}
+              - {op: assign, target: {var: done}, value: {lit: true}}
+            else:
+              - {op: comment, text: "据本轮标定图案算真机路径 (cnc_path 未改动, 与视觉/手绘同契约)"}
+              - {op: call, action: photoscrape.cnc_path, mode: RUN,
+                 args: {summary_path: {var: calib_summary_path}, band_id: {lit: calib_01}},
+                 assign: {var: cnc}}
+              - {op: comment, text: "块写 4 数组+进给 (回读确认), 一次, scrape 循环前"}
+              - {op: call, action: photoscrape.write_cnc_path, mode: RUN,
+                 args: {sx: {field: {var: cnc}, name: g_sx}, sy: {field: {var: cnc}, name: g_sy},
+                        cx: {field: {var: cnc}, name: g_cx}, cy: {field: {var: cnc}, name: g_cy},
+                        feed: {field: {var: cnc}, name: g_scrape_feed}}}
+              - op: for
+                var: pz
+                in: {field: {var: cnc}, name: pass_z_list}
+                body:
+                  - {op: call, action: photoscrape.write_pass_z, mode: RUN, args: {z: {var: pz}}}
+                  - {op: call, action: photoscrape.scrape, mode: RUN}
+              - {op: comment, text: "刮后补拍 + 回放叠加: 产 scraped_normalized.jpg 落本轮工作区, 三件套齐则面板可测"}
+              - {op: comment, text: "此步失败不吞: 标定的全部依据就是这张回放帧, 拿不到就不该继续下一轮"}
+              - {op: call, action: photoscrape.cam_photopos, mode: RUN, args: {ref_8y: {lit: photo_8y}}}
+              - {op: call, action: photoscrape.capture, mode: RUN,
+                 args: {sample_id: {var: sample_id}, save_dir: {var: save_dir},
+                        filename: {lit: calib_scraped.jpg}, profile: {lit: photoscrape}},
+                 assign: {var: scraped}}
+              - {op: call, action: photoscrape.cam_photohome, mode: RUN}
+              - {op: call, action: photoscrape.scraped_overlay, mode: RUN,
+                 args: {summary_path: {var: calib_summary_path},
+                        scraped_path: {field: {var: scraped}, name: image_path}}}
+      - {op: comment, text: "刮取收尾复合动作: 关真空+关无刷电机+开旋转气缸(翻料), 与生产同"}
+      - {op: call, action: photoscrape.scrape_finish, mode: RUN}
+      - {op: comment, text: "等翻料缸真到动点再复位: A41/A52 都是开环(同扫描周期返回 DONE, 不等气缸反馈),"}
+      - {op: comment, text: "紧挨着调 = 毫秒级一开一关, 缸走不完行程, 粉没倒进桶后续会掉出去 (2026-07-27 真机复盘)"}
+      - {op: comment, text: "哨兵语义: 超时只 ok=false+WARN 不抛 —— 翻料没成不影响标定数值, 抛错反而把已完成的标定判成中止"}
+      - {op: call, action: photoscrape.wait_rot, mode: RUN, args: {target: {lit: extend}}}
+      - {op: comment, text: "翻料到位后先松接粉桶定位气缸 %QX7.5 —— 桶被夹着人取不下来 (2026-07-28 操作员反馈); 与开头 locator_a(true) 配对"}
+      - {op: call, action: staging_a.locator_a, mode: RUN, args: {target: {lit: false}}}
+      - {op: comment, text: "取桶门: 保持翻料位, 等人确认取走接粉桶后才复位 —— 立即翻回的话人根本来不及取, 翻料等于白翻 (2026-07-28 操作员反馈)"}
+      - {op: comment, text: "此门由通用 HITL 弹窗答(标定面板只代答首门与轮次门, 见 ScrapeCalibPanel)"}
+      - {op: comment, text: "on_cancel=continue: 标定数值此刻已成定局, 取消不该把成功的标定打成 ERROR; 且任何应答都必须走到复位 —— 翻料缸不能悬在动点"}
+      - op: human
+        kind: confirm
+        on_cancel: continue
+        prompt: {lit: "翻料完成, 接粉桶定位气缸已松开 —— 请取下接粉桶。确认后收集器翻回复位。"}
+        assign_choice: {var: bucket_ack}
+      - {op: comment, text: "复位旋转气缸: 不调则翻料缸永停动点, 下一轮标定/生产的刮取就在'已翻倒'状态下进行"}
+      - {op: call, action: photoscrape.retr_stoprot, mode: RUN}
+    catch:
+      - error: "*"
+        body:
+          - {op: comment, text: "任何失败先收物理输出: scrape_finish 关真空与无刷电机 —— 不调则 A40 开的真空/电机永久保持 TRUE"}
+          - {op: comment, text: "本身失败不再吞(已在 catch 内), 交外层 fault; 但气缸释放必须在它之后仍然执行, 故各自独立 try"}
+          - op: try
+            body:
+              - {op: call, action: photoscrape.scrape_finish, mode: RUN}
+              - {op: comment, text: "异常路径同样要等翻料到位再复位 —— 中止时桶里往往正有粉, 更不能白翻"}
+              - {op: call, action: photoscrape.wait_rot, mode: RUN, args: {target: {lit: extend}}}
+              - {op: call, action: photoscrape.retr_stoprot, mode: RUN}
+            catch:
+              - error: "*"
+                body:
+                  - {op: comment, text: "收尾动作本身也失败: 继续往下放板, 板不留压头下优先于输出复位"}
+          - {op: comment, text: "中止路径不设取桶门: 无人值守也必须收敛到安全态; 粉已倒进桶, 桶定位在下面释放, 事后取"}
+          - {op: comment, text: "释放下压+定位气缸放板(否则板卡压头下), 再抛干净中止"}
+          - {op: call, action: photoscrape.press_cylinder,  mode: RUN, args: {pressed: {lit: false}}}
+          - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: false}}}
+          - {op: call, action: staging_a.locator_a, mode: RUN, args: {target: {lit: false}}}
+          - {op: raise, error: SCRAPE_CALIB_ABORTED, message: {lit: "刮痕标定中止; 已关真空/无刷电机并放板"}}
+  - {op: comment, text: "接粉桶定位气缸已在取桶门前释放(配对见 try 内); 此处只放板"}
+  - {op: call, action: photoscrape.press_cylinder,  mode: RUN, args: {pressed: {lit: false}}}
+  - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: false}}}

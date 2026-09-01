@@ -1,0 +1,72 @@
+schema: ptlc.script/v1
+kind: operation
+name: collect_demo
+label: '[单站DEMO] 收集'
+vars:
+- name: collector_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 收集器回暂存A槽位 1-6
+- name: bottle_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 瓶槽位 1-6
+resources:
+- robot
+- station:collect
+body:
+- op: comment
+  text: '起手: 校验机器人在 P1 + 保证末端工具=夹爪(slot3)'
+- op: run_script
+  script: robot_startup_check
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 3
+  outputs: {}
+- op: human
+  kind: confirm
+  on_cancel: raise
+  prompt:
+    lit: '确认: 收集器已放入刮板接粉座 + 料架槽位有空收集瓶?'
+- op: comment
+  text: 机器人从料架取空收集瓶到暂存B
+- op: run_script
+  script: transfer_bottle_rack_to_staging_b
+  inputs:
+    slot_id:
+      var: bottle_slot
+  outputs: {}
+- op: comment
+  text: 地轨到收集位(位3)
+- op: call
+  action: rail.move
+  args:
+    Rail_Target_Position:
+      lit: 3
+  mode: RUN
+- op: comment
+  text: '收集全程 (复用 collect_cycle): 取收集器->放收集夹具(clamp握手)->放瓶->洗脱->取成品瓶->取收集器回暂存A'
+- op: run_script
+  script: collect_cycle
+  inputs:
+    collector_slot:
+      var: collector_slot
+    bottle_slot:
+      var: bottle_slot
+  outputs: {}
+- op: comment
+  text: 机器人把成品收集瓶从暂存B送回料架
+- op: run_script
+  script: transfer_bottle_staging_b_to_rack
+  inputs:
+    slot_id:
+      var: bottle_slot
+  outputs: {}

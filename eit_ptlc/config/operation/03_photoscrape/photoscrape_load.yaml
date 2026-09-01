@@ -1,0 +1,60 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_load
+label: 拍照刮板-上料
+ui:
+  role: station_phase
+  station: photo_scrape
+  phase: load
+  primary: true
+  order: 32
+vars:
+- name: collector_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 中转A内接粉收集器槽位 1-6
+resources:
+- robot
+- station:photo_scrape
+- station:rail
+- scrape-holder
+- staging-a
+body:
+- op: comment
+  text: "load/板: 机器人已用吸盘持板; 先安全建立刮板拍照位(位2)地轨窗口"
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 2
+  outputs: {}
+- op: comment
+  text: "load/板: 机器人放板到刮板夹具并定位夹紧"
+- op: run_script
+  script: robot_suction_put
+  inputs:
+    station_id:
+      lit: scrape
+  outputs: {}
+- op: call
+  action: photoscrape.locate_cylinder
+  mode: RUN
+  args:
+    clamped:
+      lit: true
+- op: comment
+  text: "load/接粉收集器: 只从中转A放入刮板夹具; 仓库到中转A补货不属于本工位"
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 3
+  outputs: {}
+- op: run_script
+  script: transfer_collector_staging_a_to_scrape
+  inputs:
+    slot_id:
+      var: collector_slot
+  outputs: {}

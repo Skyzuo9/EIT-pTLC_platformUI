@@ -1,0 +1,48 @@
+# 耗材换板决策 (host kind, 上位机纯读账本 + 读一个输入位, 不下发任何 PLC 指令)
+# ================================================================================
+# 这两个动作把"下一件耗材从哪来"从写死的 slot_id 变成按账本判定, 供 ensure_collector_staged /
+# ensure_bottle_staged 两个脚本做 if 分支 (与 robot_tool_ensure 读工具态再条件换刀同构)。
+#
+# ── 为什么货架侧只能信账本 ──────────────────────────────────────────────────
+# 货架 12 路在位光电与物理世界零耦合: 2026-07-26 现场三态 A/B 对照 (很多托盘/拿掉一块/全部
+# 拿掉) 读数完全相同、恒 0, 已排除极性与读法 (同字节的机器人工具检测读得到), 疑似传感器未
+# 安装或未供电 (详见 runtime/material_store.py 顶部注释与 config/material_topology.yaml)。
+# ⇒ "货架某库位有没有板"拿不到物理校验, 只能用 material_cells 账本 (实验员在物料页盘点录入)。
+#
+# ── 中转侧必须做传感器防呆 ──────────────────────────────────────────────────
+# 中转A (IX10.2) / 中转B (IX8.2) 两路可用且极性已实证 (2026-07-27 托盘对照 + PLC 程序语义互证
+# 为常开 NO)。账本一旦与现场失同步 (最常见来源: 面板直跑 robot_group_* 叶子脚本不入账, 见
+# config/material_bindings.yaml 的已知边界), 按错账搬整板就是撞机。故 plan_staging 在给出
+# 决策前用这一路核对中转区的有无, 对不上就抛错停机等人盘点, 而不是硬放。
+#
+# ⚠ 这两个动作都不写账本。真正的扣账仍由 config/material_bindings.yaml 绑在 transfer_* 脚本
+#   名上, 在脚本 DONE 时提交 —— 决策与记账分离, 失败与中断天然不入账。
+
+material.check_availability:
+  kind: host
+  method: material_check_availability
+  label: 物料-开工前耗材余量预检
+  desc: |-
+    执行步骤：对调用方点名的每类耗材各跑一次换板决策查询，判定这一轮能不能取到一件可用耗材；任一类取不到就报错止步，全部可取则返回各类的决策概要。
+    前置与安全：纯读动作，只查上位机物料账本，不读 PLC、不下发任何指令、不驱动任何运动，任何时刻可调用。刻意放在流程最开头（点样之前）——耗材不足若等到备耗材那一步才发现，样品已经点样、展开、准备刮取，中断代价是白费一个样品；在这里拦下时样品还没动，零损失。
+    完成与异常：账本中该类存在含未用孔的板时视为可用；某类全部板都无未用孔时返回 ERROR 并点名是哪一类，提示去物料页盘点补录。本动作只看账本余量，不核对中转在位传感器，也不预留任何孔位——预留由随后的实际取用完成。
+    实现核对：runtime/bootstrap.py::_material_check_availability 调用 runtime/material_store.py::MaterialStore.plan_staging。
+  modes: []
+  params:
+    - {name: need_collector, type: bool, required: false, default: false, label: "是否需要粉末收集器 (刮取启用时为真)"}
+    - {name: need_bottle, type: bool, required: false, default: false, label: "是否需要玻璃收集瓶 (收集启用时为真)"}
+    - {name: exclude_sample, type: string, required: false, default: "", label: "并行批次样品号 (判可用时不把本样品自己的预留算作占用; 空=匿名)"}
+
+material.plan_staging:
+  kind: host
+  method: material_plan_staging
+  label: 物料-耗材换板决策 (含中转在位防呆)
+  desc: |-
+    执行步骤：读物料账本判定该类耗材下一件从哪来——中转板还有未用孔就原地复用（NONE），中转区空就从货架取一块有料的板（PUT_NEW），中转板已耗尽就先把它送回原库位再取新板（SWAP）；再读该中转区的在位传感器与判定结果核对，一致才把决策返回给调用方。
+    前置与安全：纯读动作，只查账本并读一个输入字节，不下发任何 PLC 指令、不驱动轴或机器人运动、不修改账本。货架侧无可用在位信号，库位有无一律以账本为准；中转侧的核对是硬门，专防账实失同步下的整板撞机。
+    完成与异常：返回动作码、要取的货架库位、要送回的满板库位、本件要用的孔号与决策前中转板号；账本判定该类全部板无未用孔时返回 ERROR。中转在位与判定不符时同样返回 ERROR 并说明方向——判定要放新板而传感器报有板（账本漏记了上次搬入，硬放会撞），或判定要用中转板而传感器报空（板被人取走而账本还记着）。输入字节读回空值时报错而不当作全零。
+    实现核对：runtime/bootstrap.py::_material_plan_staging 调用 runtime/material_store.py::MaterialStore.plan_staging，并按 config/material_topology.yaml 声明的中转传感器位与极性折算在位。
+  modes: []
+  params:
+    - {name: kind, type: enum, required: true, options: [collector, bottle], label: "耗材种类 (collector=粉末收集器/中转A, bottle=玻璃收集瓶/中转B)"}
+    - {name: reserve_for, type: string, required: false, default: "", label: "并行批次样品号 (非空则排除他人预留并落本样品孔级预留; 空=旧行为, 手动直跑零变化)"}

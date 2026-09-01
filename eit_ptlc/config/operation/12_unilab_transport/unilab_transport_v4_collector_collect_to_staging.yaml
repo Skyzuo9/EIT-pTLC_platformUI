@@ -1,0 +1,46 @@
+schema: ptlc.script/v1
+kind: operation
+name: unilab_transport_v4_collector_collect_to_staging
+label: v4 转运 收集夹具→中转A
+ui:
+  role: unilab_transport_v4
+  projection_only: true
+vars:
+- name: slot_id
+  scope: local
+  type: INT
+  io: in
+  default: 1
+resources:
+- robot
+- station:rail
+- collect-holder
+- staging-a
+- station:collect
+body:
+- op: call
+  action: collect.retract
+  mode: RUN
+- op: run_script
+  script: robot_collect_holder_pick_enter
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: call
+  action: collect.release_clamp
+  mode: RUN
+- op: run_script
+  script: robot_collect_holder_pick_exit
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: run_script
+  script: robot_collector_return_put
+  inputs:
+    slot_id:
+      var: slot_id
+    enter_anchor:
+      lit: P70
+  outputs: {}

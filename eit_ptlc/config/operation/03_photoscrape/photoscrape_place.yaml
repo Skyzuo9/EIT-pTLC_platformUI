@@ -1,0 +1,28 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_place
+label: 拍照刮板-准备+放板 [helper/legacy plate-only]
+ui:
+  role: helper
+  station: photo_scrape
+  hidden: true
+  order: 35
+# PS-1 (派发单 §6): 替代 transfer_spotting_to_scrape / transfer_tank_to_scrape 的刮板侧。
+# 兼容入口: 准备(init/cam_x335) + 放板(robot_suction_put/locate_cylinder=true)。
+# 正式四段入口改为 photoscrape_prepare + photoscrape_load; load 还负责把中转A接粉收集器放入刮板夹具。
+# 序: cam_x335(刮板X到放板位335) ->[机器人放板]-> locate_cylinder(clamped=true, 定位气缸夹紧)。
+# PS-4: 展开前 before 实拍占位 —— 当前 analyze 仍用预置 before_path 图, before 实拍后续补。
+# 前提: 机器人已持板 (recipe 从上游站交来); 本兼容入口仍自行建立刮板拍照位(位2)地轨窗口。
+resources: [station:photo_scrape, station:rail, robot]
+body:
+  - {op: comment, text: "TODO 展开前 before 实拍占位, 当前 before_path 用预置图"}
+  - {op: comment, text: "【准备】工位初始化 (R2 拆站后 photoscrape.init 归 place 首步; 每次受板前复位, 真机验收双访 init 是否需去重)"}
+  - {op: call, action: photoscrape.init, mode: RUN}
+  - {op: comment, text: "【准备】刮板X到放板位335 (让位机器人放板)"}
+  - {op: call, action: photoscrape.cam_x335, mode: RUN}
+  - {op: comment, text: "【放料-板】先安全建立刮板拍照位(位2)地轨窗口"}
+  - {op: run_script, script: rail_move_safe, inputs: {target: {lit: 2}}, outputs: {}}
+  - {op: comment, text: "【放料-板】机器人放板 持板->刮板"}
+  - {op: run_script, script: robot_suction_put, inputs: {station_id: {lit: scrape}}, outputs: {}}
+  - {op: comment, text: "【放料-板】定位气缸夹紧 (locate_cylinder true 的唯一生产调用点)"}
+  - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: true}}}

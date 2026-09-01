@@ -1,0 +1,17 @@
+{
+  "name": "ptlc-twin-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PTLC 三维资产管线的 Node 侧工具(gltf-transform 优化)",
+  "scripts": {
+    "optimize": "node 04_optimize.mjs"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "^4.4.2",
+    "@gltf-transform/extensions": "^4.4.2",
+    "@gltf-transform/functions": "^4.4.2",
+    "draco3d": "^1.5.7",
+    "meshoptimizer": "^1.2.0"
+  }
+}

@@ -1,0 +1,53 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_multi_cycle
+label: 上样-周期(多样品, 一次装板点多条带)
+# 与 sampling_cycle 同一个四段骨架, 只把 execute 段换成 sampling_multi_execute:
+# 一次装板 -> 板上依次点 N 条带 (每样品自己的区域与参数) -> 一次卸板。
+# 上下料只做一次, 故 samples 里所有样品必须点在同一块板上; 每样品各一块板是另一件事 (未实现)。
+#
+# samples 刻意【不带 ui:】(非旋钮) 并逐层透传: 逐样品值若成了旋钮, 运行前覆盖会把所有样品
+# 压成同一个值 (见 sampling_multi_execute 文件头)。界面用 SamplingMultiPanel 录入这张表。
+ui:
+  role: station_task
+  station: sampling
+  primary: false
+  order: 15
+vars:
+- name: samples
+  scope: local
+  type: LIST
+  io: in
+  default: []
+  comment: '样品清单 [{well, x_start, x_end, y_height, ...可选参数}, ...]; 契约见 sampling_multi_execute'
+resources:
+- station:sampling
+- robot
+- station:feedlift
+body:
+- op: comment
+  text: 'prepare: 工位初始化、清洗、7Y 到放板位; vacuum 在 step 内 try/finally 闭合'
+- op: run_script
+  script: sampling_prepare
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'load: 机器人放板并夹紧定位; 跨站自动运行时由 handoff 事务先完成目标预约'
+- op: run_script
+  script: sampling_load
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'execute: 逐样品吸液 + 逐条带点样吹干 (板不动, 只换孔位与点样几何)'
+- op: run_script
+  script: sampling_multi_execute
+  inputs:
+    samples:
+      var: samples
+  outputs: {}
+- op: comment
+  text: 'unload: 松开定位夹具并取板; 机器人持板 home 不是跨样品可抢占空闲态'
+- op: run_script
+  script: sampling_unload
+  inputs: {}
+  outputs: {}

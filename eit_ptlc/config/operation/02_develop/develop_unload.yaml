@@ -1,0 +1,62 @@
+schema: ptlc.script/v1
+kind: operation
+name: develop_unload
+label: 展开-下料
+ui:
+  role: station_phase
+  station: develop
+  phase: unload
+  primary: true
+  order: 24
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8
+resources:
+- station:develop
+- robot
+- station:rail
+body:
+- op: comment
+  text: "unload: 先地轨就位再开盖 —— 地轨到展开区(位5) 必须早于 plate_retract, 否则板在开盖状态下白等一个移轨时长 (蒸气/干燥环境暴露)。原为 develop_execute 内 T1 命中后的 develop_standby, 挂在 execute 根上会让整段液位等待 (硬上限 3600s) 虚占机械臂与地轨, 故并入本段。rail_move_safe 自带 P1 确保式安全门 (地轨平移拖臂, 不可绕过); robot_tank_pick 入口的 rail.ensure(5) 保留为兜底, 此处已就位时退化为幂等空操作"
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 5
+  outputs: {}
+- op: comment
+  text: "unload: 开盖 (放板缸/展缸盖同一执行器回原点), 允许机器人取板出缸; 排液终态 Tank_State=98 盖保持关, 此处 just-in-time 开盖"
+- op: call
+  action: develop.plate_retract
+  args:
+    target_tank:
+      var: tank
+  mode: RUN
+- op: comment
+  text: "unload: 机器人取板出缸; Tank_State=98 表示已断液待取板 (板仍在缸内)"
+- op: run_script
+  script: robot_tank_pick
+  inputs:
+    tank_id:
+      var: tank
+  outputs: {}
+- op: comment
+  text: "unload: 板已出缸, 关盖回空缸待机态; 关盖须在 release_tank 之前, 保证 Tank_State 置 0 时缸盖已到动点"
+- op: call
+  action: develop.plate_extend
+  args:
+    target_tank:
+      var: tank
+  mode: RUN
+- op: comment
+  text: "unload: 机器人取板后释放缸资源 Tank_State=0"
+- op: call
+  action: develop.release_tank
+  args:
+    target_tank:
+      var: tank
+  mode: RUN

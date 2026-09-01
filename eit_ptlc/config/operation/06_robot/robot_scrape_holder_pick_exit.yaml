@@ -1,0 +1,93 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 scrape.holder.pick-exit 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+schema: ptlc.script/v1
+kind: operation
+name: robot_scrape_holder_pick_exit
+label: 刮板工位取收集器-退出
+note: '2/2 避让轨迹退出'
+ui: {subgroup: 刮板工位, order: 42}
+vars:
+- {name: station_id, scope: local, type: STRING, io: in, default: default, comment: scrape.holder.pick-exit 主选择值, enum: [default]}
+resources: [robot]
+body:
+- op: if
+  cond:
+    binop: ==
+    left: {var: station_id}
+    right: {lit: default}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P77}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: scrape-holder-pick.retreat-0}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: scrape-holder-pick.retreat-1}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: scrape-holder-pick.retreat-2}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: scrape-holder-pick.far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P67}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P1}
+      motion: {lit: move_j}
+      acc: {lit: 50}
+      vel: {lit: 37}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs: []
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'scrape.holder.pick-exit: 无效选择值'}

@@ -1,0 +1,16 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_collector_staging_a_to_rack
+label: 转运-收集器组 中转A→货架 (上位机, 参 slot_id)
+# 重规划自路线 consumable.collector-group-staging-a-to-rack. 纯机器人; 中转A整板取=位3(350), 货架位6放 (两段地轨).
+# 组中转点 P37/P39(工具2大夹爪整板抓) 示教在位3=350 (2026-07-06 用户真机金标准); 与个体小夹爪取点 P46-51@位2 是同货架两种(轨,点)配对, 勿混。
+vars:
+  - {name: slot_id, scope: local, type: INT, io: in, default: 1, comment: 货架槽位 1-6}
+resources: [robot, "station:rail", "consumable-group", "staging-a"]
+body:
+  - {op: comment, text: '取板前先松开中转A定位气缸 (自守卫: 夹紧态下拔整板会顶坏气缸/托盘); 取毕保持松开, 区已空不夹空气'}
+  - {op: call, action: staging_a.locator_a, mode: RUN, args: {target: {lit: false}}}
+  - {op: comment, text: 从中转A取收集器整板(位3=350, 金标准; 点 P39@位3) —— 地轨由 robot_group_staging_pick enter 处 rail.ensure(3) 自动到位}
+  - {op: run_script, script: robot_group_staging_pick, inputs: {rack_id: {lit: collector}}, outputs: {}}
+  - {op: comment, text: 放收集器组回货架(位6) —— 地轨由 robot_group_rack_put enter 处 rail.ensure(6) 自动到位}
+  - {op: run_script, script: robot_group_rack_put, inputs: {rack_id: {lit: collector}, slot_id: {var: slot_id}}, outputs: {}}

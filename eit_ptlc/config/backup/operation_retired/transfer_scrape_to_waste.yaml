@@ -1,0 +1,17 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_scrape_to_waste
+# [已退役 R2] 刮板/feedlift 侧并入 cycle, 不再被 recipe 引用。
+#   刮板取板段并入 06_photoscrape/photoscrape_pick; 废料放板段并入 08_feedlift/feedlift_unload_cycle。
+#   保留文件 (git 历史 + test_stations_l2)。
+label: 转运-刮板拍照→废料 (上位机)
+# 重规划自路线 plate.scrape-to-waste. 废料位与刮板同地轨位(位2).
+vars: []
+resources: [robot, "station:photoscrape"]
+body:
+  - {op: comment, text: 地轨到刮板区(位2); 松下压+取板}
+  - {op: call, action: rail.move, args: {Rail_Target_Position: {lit: 2}}, mode: RUN}
+  - {op: call, action: photoscrape.retr_release, mode: RUN}
+  - {op: run_script, script: robot_suction_pick, inputs: {station_id: {lit: scrape}}, outputs: {}}
+  - {op: comment, text: 放废料 (废料位同地轨位2)}
+  - {op: run_script, script: robot_suction_put, inputs: {station_id: {lit: waste}}, outputs: {}}

@@ -1,0 +1,18 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_pick
+label: 拍照刮板-下料取板 [helper]
+ui:
+  role: helper
+  station: photo_scrape
+  hidden: true
+  order: 37
+# PS-2 (派发单 §6): 替代 transfer_scrape_to_tank / transfer_scrape_to_waste 的刮板侧。
+# 正式四段下料入口和动作体均为 photoscrape_unload; 本文件只保留为旧脚本兼容入口。
+# 四段归属: 下料-板。接粉收集器下料由 collect_load(collect_cycle 内部)负责, 这里不重复 powder/press 释放。
+# 序: 委托 photoscrape_unload, 由正式 step 承载 locate_cylinder(false) ->[机器人取板]-> retr_stoprot。
+# 下料 step 会自行确保吸盘工具与刮板拍照位(位2)地轨窗口; 取出后机器人持板交回 recipe (->develop 或 ->feedlift 下料)。
+resources: [station:photo_scrape, station:rail, robot]
+body:
+  - {op: comment, text: "兼容入口: 正式下料动作体已移入 photoscrape_unload"}
+  - {op: run_script, script: photoscrape_unload, inputs: {}, outputs: {}}

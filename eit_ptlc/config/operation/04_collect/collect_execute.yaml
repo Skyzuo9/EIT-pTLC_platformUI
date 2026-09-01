@@ -1,0 +1,42 @@
+schema: ptlc.script/v1
+kind: operation
+name: collect_execute
+label: 收集-执行
+ui:
+  role: station_phase
+  station: collect
+  phase: execute
+  primary: true
+  order: 43
+vars:
+- name: solvent_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0.1
+  comment: 单次洗脱溶剂体积 mL
+- name: liquid_repeat_count
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 洗脱循环次数
+resources:
+- station:collect
+body:
+- op: comment
+  text: "执行: 升降/下压进入洗脱姿态, 完成设定次数洗脱循环, 再复位到取瓶姿态"
+- op: call
+  action: collect.lift_press
+  mode: RUN
+- op: call
+  action: collect.collect
+  mode: RUN
+  args:
+    solvent_volume_ml:
+      var: solvent_volume_ml
+    liquid_repeat_count:
+      var: liquid_repeat_count
+- op: call
+  action: collect.transport_extend
+  mode: RUN

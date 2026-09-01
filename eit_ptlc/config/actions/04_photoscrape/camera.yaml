@@ -1,0 +1,19 @@
+# 拍照动作 (camera): 夹在 cam_photopos(34) 就绪与 cam_photohome(35) 之间, 由上位机触发相机。
+# profile 预填 app.yaml camera.profiles 命名档, 流程内逐项覆写 (exposure_time/gain 等);
+# sample_id/save_dir 为定位拍照目标的控制参数 (来自流程输入变量), 其余声明参数视为相机参数覆盖。
+photoscrape.capture:
+  kind: camera
+  label: 拍照-触发相机采集
+  desc: |-
+    执行步骤：上位机按 profile 合并曝光、增益等本次覆盖参数，触发相机采集一帧，并按 sample_id/save_dir/filename 保存图像后返回实际文件路径。
+    前置与安全：应夹在 cam_photopos DONE 与 cam_photohome 之间，相机已连接且保存目录可写；本动作不移动工位轴。
+    完成与异常：图像采集并落盘成功返回 DONE；相机超时、参数非法或文件保存失败返回 ERROR。
+    实现核对：ActionExecutor._exec_camera 分离控制参数与相机覆盖后调用 CameraController.capture。
+  modes: []
+  params:
+    - {name: sample_id,     type: string, required: true, label: 样品ID}
+    - {name: save_dir,      type: string, required: true, label: 保存目录}
+    - {name: filename,      type: string, default: after.jpg, label: 文件名}
+    - {name: profile,       type: string, default: "",        label: 相机profile(空=仅用覆写)}
+    - {name: exposure_time, type: float,  label: 曝光µs(覆写), min: 1}
+    - {name: gain,          type: float,  label: 增益(覆写),   min: 0}

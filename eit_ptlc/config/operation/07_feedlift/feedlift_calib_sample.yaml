@@ -1,0 +1,97 @@
+schema: ptlc.script/v1
+kind: operation
+name: feedlift_calib_sample
+label: 板仓行程标定-采一组样本 (自检 → 清零 → 逼近 → 记样本)
+ui:
+  role: station_task
+  station: feedlift
+  order: 75
+# 「光电触发位 ↔ 板数」标定的一组采样。空仓采一组给出直线截距 (空仓基准位),
+# 再在不同已知张数下各采一组给出斜率 (堆叠节距); 建议 3 组以上 —— 两点必然共线,
+# 残差恒为 0 而没有信息, 3 组起残差 RMS 才是光电触发重复性的直接实测。
+#
+# 为什么必须做成编排而不是在路由里直调执行器: 直调不经 VM, 就不发 vm_*/operation_*
+# 事件, 也就不进 RunStore —— 运行历史里一条记录都不留, 现场看不出这几个动作到底
+# 执行没执行、卡在哪一步。走编排后每一步都可见、可单步、可回放。
+#
+# ⚠ 一次测量 = 清零 + 逼近 + 读位, 三步缺一不可 (feedlift_count.py:52-58):
+# 逼近动作在光电已 TRUE 时是幂等直通 (原地确认 300ms 即 DONE, 轴一步不动), 单发它只会
+# 读到上次停轴的陈旧位置 —— 2026-07-26 现场就是这么把装了 5 张板测成了与空仓一模一样
+# 的 498.619。清零先把光电退成 FALSE, 逼近才会真搜索, 且永远从同一侧同一方向压过触发点,
+# 回差因此是可重复的常量。
+#
+# 动作名不能按 magazine 动态取 (脚本校验器要求 call 的动作名静态存在), 故两个仓各走
+# 一条 if 分支; 两条分支的时序完全一致, 只是轴与动作码不同。
+vars:
+- name: magazine
+  scope: local
+  type: STRING
+  io: in
+  default: feed
+  comment: 板仓 (feed=上料仓1Z, waste=下料仓2Z)
+  enum: [feed, waste]
+  ui:
+    label: 板仓
+    group: 标定采样
+- name: plates
+  scope: local
+  type: INT
+  io: in
+  default: 0
+  comment: 此刻仓内实际张数 (空仓填 0); 节距精度直接由它决定, 必须准确
+  ui:
+    label: 此刻仓内张数
+    group: 标定采样
+    hint: 空仓填 0; 这个数必须与仓内实际张数一致
+    min: 0
+    max: 30
+- {name: z0, scope: local, type: DICT, comment: 清零动作后的轴位 (z_mm/axis)}
+- {name: z1, scope: local, type: DICT, comment: 逼近动作后的轴位 = 光电触发位}
+- {name: sample, scope: local, type: DICT, comment: 本组样本与重新拟合结果 (fit/reject_reason)}
+resources: [station:feedlift]
+body:
+- op: comment
+  text: "[phase: preflight] 发动作前的可见前置自检: 接近开关不到位就直接止步, 不白等 PLC 那 10 秒"
+- op: call
+  action: feedlift.preflight
+  args:
+    magazine: {var: magazine}
+
+- op: comment
+  text: "[phase: clear] 清零: 向下退到光电熄灭。缺了它, 随后的逼近就是幂等直通, 读回陈旧位置"
+- op: if
+  cond: {binop: ==, left: {var: magazine}, right: {lit: feed}}
+  then:
+  - {op: call, action: feedlift.feed_clear}
+  else:
+  - {op: call, action: feedlift.unload_bury}
+- op: call
+  action: feedlift.read_pos
+  args:
+    magazine: {var: magazine}
+  assign: {var: z0}
+
+- op: comment
+  text: "[phase: search] 逼近: 向上搜到光电点亮并停稳 300ms; 停轴位置即本组样本的触发位"
+- op: if
+  cond: {binop: ==, left: {var: magazine}, right: {lit: feed}}
+  then:
+  - {op: call, action: feedlift.feed_raise}
+  else:
+  - {op: call, action: feedlift.unload_ready}
+- op: call
+  action: feedlift.read_pos
+  args:
+    magazine: {var: magazine}
+  assign: {var: z1}
+
+- op: comment
+  text: "[phase: record] 自校验逼近位移 → 记样本 → 重新拟合并落盘; 拟合不合理时保留样本但不写常数"
+- op: call
+  action: feedlift.calib_record
+  args:
+    magazine: {var: magazine}
+    plates: {var: plates}
+    z_clear: {field: {var: z0}, name: z_mm}
+    z_trigger: {field: {var: z1}, name: z_mm}
+  assign: {var: sample}

@@ -1,0 +1,43 @@
+# 液位阈值等待 (host kind, 上位机纯轮询, 不进 PLC L2 FSM):
+# develop.wait_level 阻塞等待通道 front_percent 到阈值档 (t1/t2)。阈值真源在
+# ChannelConfig.params (trigger_percent_t2 / t1_offset) — 每通道每次同阈值 (D_f 常量前提)。
+# 返回三态 result.status (均为 DONE, 流程 if 分支消费):
+#   reached  = front_percent >= 阈值 (检测优先级最高)
+#   degraded = 传输/配置故障 (掉流/陈旧/无参考/未标定) → 流程升级 HITL; 前沿未到
+#              (no_front/front_none) 为正常等待不降级 — spec 2026-07-16
+#   hard_cap = 展开时长硬上限 → 流程兜底直排 (宁欠展开不过展开)
+# 优先级契约: 检测 > HITL > 硬上限; degraded 升级 HITL 后硬上限不再自动开火。
+# 设计: docs/superpowers/specs/2026-07-13-waterlevel-auto-drain-design.md
+develop.wait_level:
+  kind: host
+  method: wait_level
+  label: 展缸-液位等待
+  desc: |-
+    执行步骤：上位机按目标缸轮询液位快照，对 front_percent 与 t1/t2 通道阈值比较并按 confirm_n 连续命中去抖（按 observed_at 去重，只认不同检测拍），同时监测数据陈旧和展开硬上限。
+    前置与安全：通道须有本次运行参考图和有效标定；前沿未进入/front_none 继续等待，掉流、陈旧、无参考、整区判湿或配置故障进入 degraded，不直接操作 PLC 或真空。
+    完成与异常：命中返回 reached，检测降级返回 degraded，达到硬上限返回 hard_cap，三者均以 DONE结果供流程分支；服务异常才返回 ERROR。
+    实现核对：eit_ptlc/controller/waterlevel_trigger.py::wait_level，经 runtime/bootstrap.py 注入 ActionExecutor 的 host 方法表。
+  modes: []
+  params:
+    - {name: target_tank, type: int, required: true, min: 1, max: 8, label: 目标缸号}
+    - {name: stage, type: enum, required: true, options: [t1, t2], label: 阈值档}
+    - {name: staleness_s, type: float, required: false, default: 30.0, min: 4.0, max: 600.0, label: 检测降级判据 (s)}
+    - {name: hard_cap_s, type: float, required: false, default: 3600.0, min: 0.0, max: 14400.0, label: 展开时长硬上限 (s)}
+    - {name: confirm_n, type: int, required: false, default: 2, min: 1, max: 10, label: "命中确认拍数 (去抖, 按不同检测拍计)"}
+
+# 参考图自动采集 (host kind): 展开 run 起点拍干板基线 (板专属, 每 run 重拍)。
+# 返回 {ok, has_ref, elapsed_s}; ok=false (不可达/超时) 由流程升 HITL 退化人工门。
+# 设计: docs/superpowers/specs/2026-07-16-waterlevel-wait-semantics-autoref-design.md
+develop.capture_reference:
+  kind: host
+  method: capture_reference
+  label: 展缸-采集参考图
+  desc: |-
+    执行步骤：板入目标缸后向液位服务开启本次运行的干板参考采集窗口，等待稳定帧生成板专属基线，并返回 ok、has_ref 和耗时。
+    前置与安全：应在展开注液前、板已就位时调用；只操作上位机/液位服务，不驱动 PLC，超时会主动撤销未完成窗口。
+    完成与异常：参考图建立成功返回 ok=true；不可达或 timeout_s 到期返回 ok=false供流程升级人工门，通信/服务异常返回 ERROR。
+    实现核对：eit_ptlc/controller/waterlevel_trigger.py::capture_reference；服务未启用时 bootstrap 返回 ok=false 而非驱动物理设备。
+  modes: []
+  params:
+    - {name: target_tank, type: int, required: true, min: 1, max: 8, label: 目标缸号}
+    - {name: timeout_s, type: float, required: false, default: 90.0, min: 10.0, max: 600.0, label: 采集超时 (s)}

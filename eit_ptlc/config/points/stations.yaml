@@ -1,0 +1,41 @@
+version: 1
+# 点位共享登记表 (非工位点位本身, 故不进 plc/ 子目录):
+#   - plc_servo_container: PLC 伺服 OPC-UA 第二容器路径 (HMI_* 伺服节点所在 GVL; 区别于 Host_Computer)。
+#       末段 BrowseName 实为 HMI_Date (附图实证)。B 方案下 HMI struct 不再经 OPC 读写
+#       (伺服目标走 *_Target / 实际位走 *_ActPos), 此项仅存量一致性。
+#   - labels: 工位 key -> 显示名 (机器人/伺服 按 workstation 分组时美化标题; 缺省用 key 原值)。
+#   - group_order: 工位分组的展示顺序 (机器人/伺服两棵树共用), 按流程走向排; 未列出的按 key 字母序沉底。
+#
+# PLC 伺服点位本身按工位分散于 plc/<工位>.yaml (文件名即 workstation); 机器人点位真源在 robot/。
+
+plc_servo_container:
+  gvl_path: [DeviceSet, Inovance-ARM-Linux, Resources, Application, GlobalVars, HMI_Date]
+
+labels:
+  global: "全局"
+  area-1: "工具更换区"
+  area-5: "待定区"
+  vision: "视觉点位"
+  calibration: "标定点位"
+  unknown: "未归类"
+  tank: "展开缸区"
+  group-rack: "样品架区"
+  group-staging: "组中转区"
+  staging-a: "中转托盘位A"
+  staging-b: "中转托盘位B"
+  collect: "收集工位"
+  scrape: "刮板工位"
+  spotting: "点样工位"
+  photo: "拍照工位"
+  feed-lift: "上下料工位"
+  feedlift: "上下料位"
+  waste: "废液区"
+  rail: "地轨"
+  sampling: "上样伺服"
+
+# 展示顺序: 按产线流程走向 (上料 -> 点样 -> 展缸 -> 拍照/刮板 -> 收集 -> 中转 -> 货架),
+# 之后是与流程正交的辅助分组 (刀库/待定/地轨/全局/视觉/标定)。未列出的工位按 key 字母序排在最后。
+group_order:
+  [feed-lift, feedlift, waste, sampling, spotting, tank, photo, scrape,
+   collect, staging-a, staging-b, group-staging, group-rack,
+   area-1, area-5, rail, global, vision, calibration]

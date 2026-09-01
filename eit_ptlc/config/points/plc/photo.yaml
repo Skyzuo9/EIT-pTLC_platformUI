@@ -1,0 +1,7 @@
+# 拍照工位 PLC 伺服点位 (workstation=photo, 由文件名注入)。
+#
+# B 方案 / 路径 T —— 单一真源 = flat *_Target, HMI 改读它。
+#   拍照 8Y 原为硬编码常量 420 (无 HMI 槽位), 现走 Photo_8Y_Target → 逐点示教 (读 ActPos → 存 value → 下发)。
+#   值为 PC 侧真值 (持久化于本文件; flat 节点不 retain, 由 PC 连接后回推)。
+plc_servo_target:
+  - {key: photo_8y, node: Photo_8Y_Target, actpos: Photo_8Y_ActPos, label: "拍照8Y", value: 420.0, limits: {min: -500.0, max: 500.0}}

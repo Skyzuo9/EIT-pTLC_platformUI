@@ -1,0 +1,252 @@
+{
+  "1": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "right_to_left",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60,
+      "water_snr_threshold": 3.5,
+      "water_diff_threshold": 5.0
+    },
+    "calibration": {
+      "rotation_angle_deg": 0.8665927624189634,
+      "scale_factor": 0.024065417782574424,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 197,
+      "y": 8,
+      "w": 200,
+      "h": 595
+    }
+  },
+  "6": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "left_to_right",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60
+    },
+    "calibration": {
+      "rotation_angle_deg": 0.5856264148077176,
+      "scale_factor": 0.024124714897947864,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 400,
+      "y": 0,
+      "w": 200,
+      "h": 588
+    }
+  },
+  "2": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "right_to_left",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60
+    },
+    "calibration": {
+      "rotation_angle_deg": -0.6962686000719428,
+      "scale_factor": 0.02391076203722453,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 141,
+      "y": 17,
+      "w": 200,
+      "h": 576
+    }
+  },
+  "3": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "right_to_left",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60
+    },
+    "calibration": {
+      "rotation_angle_deg": -0.0,
+      "scale_factor": 0.0,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 150,
+      "y": 0,
+      "w": 200,
+      "h": 594
+    }
+  },
+  "4": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "right_to_left",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60
+    },
+    "calibration": {
+      "rotation_angle_deg": 0.5926938186167044,
+      "scale_factor": 0.0,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 150,
+      "y": 0,
+      "w": 200,
+      "h": 580
+    }
+  },
+  "5": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "left_to_right",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60
+    },
+    "calibration": {
+      "rotation_angle_deg": 1.6560493162756562,
+      "scale_factor": 0.0,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 400,
+      "y": 0,
+      "w": 200,
+      "h": 588
+    }
+  },
+  "7": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "left_to_right",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60
+    },
+    "calibration": {
+      "rotation_angle_deg": 1.1632062452411367,
+      "scale_factor": 0.0,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 400,
+      "y": 0,
+      "w": 200,
+      "h": 588
+    }
+  },
+  "8": {
+    "detect_params": {
+      "height_offset_cm": 0.0,
+      "height_gain": 1.0,
+      "roi_sobel_ksize": 5,
+      "roi_crop_x": 0.1,
+      "roi_crop_y": 0.1,
+      "water_sobely_ksize": -1,
+      "water_edge_threshold": 10.0,
+      "water_blur_ksize": 5,
+      "flow_direction": "left_to_right",
+      "front_contrast_threshold": 15.0,
+      "front_zone_width": 20,
+      "front_zone_gap": 3,
+      "front_arrival_frames": 30,
+      "front_departure_frames": 60
+    },
+    "calibration": {
+      "rotation_angle_deg": -0.1932396703826922,
+      "scale_factor": 0.0,
+      "capture_width": 800,
+      "capture_height": 600,
+      "tl_bl_real_cm": 4.2
+    },
+    "roi_manual": {
+      "x": 400,
+      "y": 2,
+      "w": 200,
+      "h": 588
+    }
+  }
+}

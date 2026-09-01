@@ -1,0 +1,38 @@
+{
+  "_why": "设备状态枚举的数字键集与英文名. 数值真源在 Python, 前端 stationStatus.js 是副本; 这份金样把两侧锁在一起. 中文措辞**不进契约** —— 那是 UI 文案, 改文案不该让测试红.",
+  "_python_truth": {
+    "robotMode": "eit_ptlc/driver/dobot_tcp_driver.py::RobotMode",
+    "l2State": "eit_ptlc/controller/plc_controller.py::PLCActionState",
+    "l2SafeState": "eit_ptlc/controller/plc_controller.py::PLCActionSafeState",
+    "robotLastAction": "eit_ptlc/driver/dobot_tcp_driver.py 里的 last_action=N 赋值点"
+  },
+  "robotMode": {
+    "1": "INIT",
+    "2": "BRAKE_OPEN",
+    "3": "POWEROFF",
+    "4": "DISABLED",
+    "5": "ENABLED_IDLE",
+    "6": "BACKDRIVE",
+    "7": "RUNNING",
+    "8": "SINGLE_MOVE",
+    "9": "ERROR",
+    "10": "PAUSE",
+    "11": "COLLISION"
+  },
+  "l2State": {
+    "0": "IDLE",
+    "10": "RUNNING",
+    "20": "DONE",
+    "30": "REJECTED",
+    "40": "ERROR",
+    "50": "INTERRUPTED"
+  },
+  "l2SafeState": {
+    "0": "UNKNOWN",
+    "10": "READY",
+    "20": "PLATE_HELD_UNVERIFIED",
+    "30": "RELEASE_READY_UNVERIFIED",
+    "90": "RECOVERY_REQUIRED"
+  },
+  "robotLastAction": [24, 25, 27, 28, 29]
+}

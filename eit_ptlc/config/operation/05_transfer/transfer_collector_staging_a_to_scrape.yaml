@@ -1,0 +1,72 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_collector_staging_a_to_scrape
+label: 转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id)
+vars:
+- name: slot_id
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 中转A槽位 1-6
+resources:
+- robot
+- station:rail
+- staging-a
+- scrape-holder
+- station:photo_scrape  # [#3] 放入后 press_cylinder(true) 夹紧收集器, 需持有刮板站
+body:
+- op: comment
+  text: 地轨到中转A(位2≡刮板/拍照 168.0, 与收集站位3异位); 从中转A取单个收集器
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 2
+  outputs: {}
+- op: comment
+  text: 中转A定位气缸保持动点后, 再从中转A取单个收集器
+- op: call
+  action: staging_a.locator_a
+  mode: RUN
+  args:
+    target:
+      lit: true
+- op: run_script
+  script: robot_individual_pick
+  inputs:
+    rack_id:
+      lit: collector
+    slot_id:
+      var: slot_id
+  outputs: {}
+- op: comment
+  text: 地轨到刮板区(位2); 放收集器到刮板夹具 (进-夹紧-退)
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 2
+  outputs: {}
+- op: run_script
+  script: robot_scrape_holder_put_enter
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: comment
+  text: '[#3] 收集器已精定位(put_enter 含微调); 机器人保持夹持, 先下压气缸夹紧收集器'
+- op: call
+  action: photoscrape.press_cylinder
+  mode: RUN
+  args:
+    pressed:
+      lit: true
+- op: comment
+  text: 夹紧确认后机器人松爪退出 (put_exit 开头 require_anchor P68 校验夹持期间未移位)
+- op: run_script
+  script: robot_scrape_holder_put_exit
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}

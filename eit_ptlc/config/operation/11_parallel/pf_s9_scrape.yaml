@@ -1,0 +1,58 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s9_scrape
+label: 7 拍照刮取
+ui:
+  role: segment
+# 原子流程 s9: 板在刮板台上拍照/分析/刮取, 只占 station:photo_scrape —— 机器人空闲,
+# 调度器可同时派其他样品的转运段。photoscrape_process 内含手绘/重识别等 human 门
+# (mode=manual 默认), 故 hitl: confirm; 批量全自动路径可经配方 batch 参数切 mode。
+flow:
+  atomic: true
+  sample: required
+  from: scrape_table
+  to: scrape_table
+  hitl: confirm
+  retry: resume
+vars:
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 拍照图保存目录
+- name: before_path
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: before图路径 (s4 输出, 经样品上下文注入)
+- name: mode
+  scope: local
+  type: STRING
+  io: in
+  default: manual
+  comment: 刮取路径模式 (manual=手绘门; 其余见 photoscrape_process)
+resources:
+- station:photo_scrape
+body:
+- op: comment
+  text: '拍照刮取: 板在刮板台上拍照/分析/刮取 (含手绘/重识别人工门); 仅占拍照刮板工位、不占机器人'
+- op: run_script
+  script: photoscrape_process
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+    before_path:
+      var: before_path
+    mode:
+      var: mode
+  outputs: {}

@@ -1,0 +1,25 @@
+schema: ptlc.script/v1
+kind: operation
+name: unilab_transport_v4_bottle_rack_to_staging
+label: v4 转运 transfer_bottle_rack_to_staging_b
+ui:
+  role: unilab_transport_v4
+  projection_only: true
+vars:
+- name: slot_id
+  scope: local
+  type: INT
+  io: in
+  default: 1
+resources:
+- robot
+- station:rail
+- consumable-group
+- staging-b
+body:
+- op: run_script
+  script: transfer_bottle_rack_to_staging_b
+  inputs:
+    slot_id:
+      var: slot_id
+  outputs: {}

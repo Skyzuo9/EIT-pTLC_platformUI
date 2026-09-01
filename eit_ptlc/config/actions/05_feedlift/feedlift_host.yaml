@@ -1,0 +1,86 @@
+# 板仓行程盘点 (host kind, 上位机纯读 + 纯算, 不进 PLC L2 FSM):
+# 读 FeedLift_1Z/2Z_ActPos (PLC_MainPRG 每扫描无条件镜像 fActPos) → 按实测标定节距
+# 换算仓内板数; 给了 z_prev 时额外做差分, 判定上一段编排实际取走几张。
+#
+# 必须在光电搜索动作 (feed_raise / unload_bury) DONE 之后调用 —— 那时轴已停并稳定
+# 300ms, 读到的位置才对应板堆高度; 其余时刻节点虽可读但无意义。
+#
+# 节距真源在 config/feedlift_calib.json, 由 /api/feedlift/calib/* 两步标定写入。
+# 未标定 (pitch_mm=0) 时本动作直接报错, 绝不用玻璃名义厚度 2.0mm 顶替 ——
+# 名义值换算误差 = 0.125 × 张数, 数到第 8 张即错满一张。
+#
+# ⚠ reconcile 只能置于板尚未移动的那次探测: 物料账本的 ±1 由脚本级绑定在 cycle
+# 终态 (operation_done / vm_node_done) 才提交 (material_store.py:429-438), 故 cycle
+# 中途账面仍是取板前的数; 在取板后的探测上对账会与随后的 −1 叠加成双倍扣减。
+feedlift.probe_stack:
+  kind: host
+  method: feedlift_probe
+  label: 板仓-行程盘点
+  desc: |-
+    执行步骤：上位机读取对应升降轴实际位置，按标定的空仓基准位与堆叠节距换算仓内板数；若调用方给出前一次探测位置，则再由两次位置之差推算这一段实际取走的张数；给了同次测量的清零位时先校验逼近动作确实搜索过；reconcile 为真时把实测张数写回物料账本并留痕。
+    前置与安全：必须在 feed_raise、unload_ready 或 unload_bury 返回 DONE 之后调用（轴已停稳 300 毫秒）；该板仓须已完成空仓与满仓两步标定；reconcile 只能置于板尚未移动的那次探测。这是纯读动作，不下发任何 PLC 指令、不驱动轴运动。
+    完成与异常：读数落在整数张位置且实取张数符合预期时返回板数、残差与预警标志；未标定、残差越界、换算张数超量程、实取张数与预期不符（双张/空吸）一律返回 ERROR 停机。给了清零位而逼近位移不大于零点零二毫米时同样返回 ERROR——那说明逼近是幂等直通、读数为上次停轴的陈旧值。账实不符不报错，以实测为准校正账本并留痕。
+    实现核对：runtime/bootstrap.py::_feedlift_probe 读 PLC 镜像并调用 controller/feedlift_count.py::evaluate。
+  modes: []
+  params:
+    - {name: magazine, type: enum, required: true, options: [feed, waste], label: "板仓 (feed=上料仓1Z, waste=下料仓2Z)"}
+    - {name: z_prev, type: float, required: false, label: "前一次探测的轴位置(mm), 给了才做差分判定"}
+    - {name: expect_taken, type: int, required: false, min: 0, max: 5, label: "期望取走张数 (与 z_prev 同时给出才生效)"}
+    - {name: reconcile, type: bool, required: false, default: false, label: "按实测校正账本 (只在板未移动前的那次探测置 true)"}
+    - {name: z_clear, type: float, required: false, label: "同次测量的清零位(mm); 给了才校验逼近动作确实搜索过"}
+
+# 发 L2 动作前的可见前置自检 (host kind, 纯读 IX8 + 纯判, 不驱动任何运动)。
+#
+# 为什么需要它: 四个 feedlift 光电搜索动作的前置门是「轴已回零 + 接近开关 + Alarm 为
+# FALSE」三项与, 任一不满足 PLC 就死等 10 秒再回 301/302。而这个整数码原样透到界面上
+# 只是 "error=301", 现场无从判断该查哪一项。本动作把其中**看得见的那一项**提前拦下。
+#
+# ⚠ 只能证伪不能证真: bHomed 与 Alarm 都没有暴露成 OPC 节点 (plc_nodes.yaml 的
+# FeedLift 段只有 ActPos 与搜索边界), 所以自检通过**不等于**动作会成功。返回体的
+# unobservable 字段如实列出这两项, 别把 ok=true 读成"这下能跑了"。
+feedlift.preflight:
+  kind: host
+  method: feedlift_preflight
+  label: 板仓-发动作前可见前置自检
+  desc: |-
+    执行步骤：读输入字节 IX8 与 PLC_Ready，按板仓取出对应的玻璃升降接近开关与光电开关状态（IX8 的 bit5/bit6 为接近开关1/2，bit3/bit4 为光电开关1/2），与 PLC 侧光电搜索动作的前置门比对。
+    前置与安全：纯读动作，不下发任何 PLC 指令、不驱动轴运动，任何时刻可调用。判定按 IX8 裸位等于 1 即满足，与 PLC 的 ST 判据逐位一致，不做常开常闭折算——物料对账那边按有料无料折算极性是另一回事，不可一并"修正"。
+    完成与异常：可见前置全部满足时返回各开关现值与 ok 为真；接近开关为 FALSE 或 PLC_Ready 为 FALSE 时返回 ERROR 并点名是哪一项，避免白等十秒的 301/302；IX8 读回空值时报错而不当作全零。轴是否已回零与 Alarm 是否为 FALSE 上位机读不到，一律列进 unobservable，故 ok 为真不代表随后的动作一定能跑。
+    实现核对：runtime/bootstrap.py::_feedlift_preflight 读 PLC 镜像并调用 controller/feedlift_count.py::preflight_gate。
+  modes: []
+  params:
+    - {name: magazine, type: enum, required: true, options: [feed, waste], label: "板仓 (feed=上料仓1Z, waste=下料仓2Z)"}
+
+# 取轴位 (host kind, 纯读)。编排里取位必须经动作层, 直接在路由里读 PLC 是不留痕的 ——
+# 看不出谁在什么时候读到了多少, 也就无从复盘一次标定到底采到了什么。
+feedlift.read_pos:
+  kind: host
+  method: feedlift_read_pos
+  label: 板仓-读升降轴位置
+  desc: |-
+    执行步骤：按板仓取对应轴号（feed 为 1Z，waste 为 2Z），读 FeedLift_1Z/2Z_ActPos 并四舍五入到三位小数返回。
+    前置与安全：纯读动作，不下发任何 PLC 指令、不驱动轴运动。节点由 PLC_MainPRG 每扫描无条件镜像 fActPos，故任何时刻可读；但只有在光电搜索动作返回 DONE 之后（轴已停稳 300 毫秒）读到的值才对应板堆高度，其余时刻数值有效但无意义。
+    完成与异常：返回板仓、轴号与位置毫米值；板仓标识非法或节点未下装时返回 ERROR。本动作只读不判，换算与判定见 feedlift.probe_stack。
+    实现核对：runtime/bootstrap.py::_feedlift_read_pos 调 PlcController.read_feedlift_pos。
+  modes: []
+  params:
+    - {name: magazine, type: enum, required: true, options: [feed, waste], label: "板仓 (feed=上料仓1Z, waste=下料仓2Z)"}
+
+# 记一组标定样本并重新拟合 (host kind, 纯算 + 落盘, 不驱动运动)。
+# 逼近位移自校验放在这里而不是放在编排里: 编排层不做算术是这套 VM 的既定分工
+# (见 feedlift_count.py::evaluate 的"纯函数, VM 零算术")。
+feedlift.calib_record:
+  kind: host
+  method: feedlift_calib_record
+  label: 板仓-记一组标定样本
+  desc: |-
+    执行步骤：先用清零位与触发位之差自校验逼近动作确实搜索过，再把（张数，触发位）追加进该板仓的采样表，对全部样本做最小二乘拟合得出空仓基准位与堆叠节距，最后落盘到 config/feedlift_calib.json。
+    前置与安全：必须在同一次测量的清零动作与逼近动作都返回 DONE 之后调用，且两个位置取自同一次测量；张数须是此刻仓内的实际张数，空仓填零，这个数直接决定节距精度。纯算与落盘动作，不下发任何 PLC 指令、不驱动轴运动。
+    完成与异常：返回本组样本、逼近位移、样本组数与拟合结果；逼近位移不大于零点零二毫米时返回 ERROR，说明逼近动作是幂等直通、读数为陈旧值，拒绝采用。拟合定不出直线或节距落在一点五到四毫米之外时保留样本但不写入标定常数，由 reject_reason 说明原因——样本是现场事实，坏常数才是要挡住的东西。
+    实现核对：runtime/bootstrap.py::_feedlift_calib_record 调 controller/feedlift_count.py 的 fit_calib 与 save_calib。
+  modes: []
+  params:
+    - {name: magazine, type: enum, required: true, options: [feed, waste], label: "板仓 (feed=上料仓1Z, waste=下料仓2Z)"}
+    - {name: plates, type: int, required: true, min: 0, label: "此刻仓内实际张数 (空仓填 0); 这个数必须准确"}
+    - {name: z_clear, type: float, required: true, label: "清零动作后的轴位置(mm)"}
+    - {name: z_trigger, type: float, required: true, label: "逼近动作后的轴位置(mm), 即光电触发位"}

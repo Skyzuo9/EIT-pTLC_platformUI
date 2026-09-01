@@ -1,0 +1,341 @@
+{
+  "schema": "ptlc.clip-index/v2",
+  "clips": [
+    {
+      "name": "robot.tool_pickup",
+      "label": "机械臂取工具",
+      "url": "/clips/robot.tool_pickup.yaml"
+    },
+    {
+      "name": "robot.tool_return",
+      "label": "机械臂还工具",
+      "url": "/clips/robot.tool_return.yaml"
+    },
+    {
+      "name": "develop.lid_cycle",
+      "label": "展缸盖波浪开合",
+      "url": "/clips/develop.lid_cycle.yaml"
+    },
+    {
+      "name": "plate.feed_pick",
+      "label": "上料仓取板",
+      "url": "/clips/plate.feed_pick.yaml"
+    },
+    {
+      "name": "plate.feed_exit",
+      "label": "持板退出料仓",
+      "url": "/clips/plate.feed_exit.yaml"
+    },
+    {
+      "name": "plate.spot_put",
+      "label": "放板到点样座(含视觉纠偏)",
+      "url": "/clips/plate.spot_put.yaml"
+    },
+    {
+      "name": "plate.spot_pick",
+      "label": "从点样座取板",
+      "url": "/clips/plate.spot_pick.yaml"
+    },
+    {
+      "name": "plate.scrape_put",
+      "label": "放板到刮板台",
+      "url": "/clips/plate.scrape_put.yaml"
+    },
+    {
+      "name": "plate.scrape_pick",
+      "label": "从刮板台取板",
+      "url": "/clips/plate.scrape_pick.yaml"
+    },
+    {
+      "name": "plate.waste_put",
+      "label": "废板入下料仓",
+      "url": "/clips/plate.waste_put.yaml"
+    },
+    {
+      "name": "plate.tank1_put",
+      "label": "板入展缸1",
+      "url": "/clips/plate.tank1_put.yaml"
+    },
+    {
+      "name": "plate.tank2_put",
+      "label": "板入展缸2",
+      "url": "/clips/plate.tank2_put.yaml"
+    },
+    {
+      "name": "plate.tank3_put",
+      "label": "板入展缸3",
+      "url": "/clips/plate.tank3_put.yaml"
+    },
+    {
+      "name": "plate.tank4_put",
+      "label": "板入展缸4",
+      "url": "/clips/plate.tank4_put.yaml"
+    },
+    {
+      "name": "plate.tank5_put",
+      "label": "板入展缸5",
+      "url": "/clips/plate.tank5_put.yaml"
+    },
+    {
+      "name": "plate.tank6_put",
+      "label": "板入展缸6",
+      "url": "/clips/plate.tank6_put.yaml"
+    },
+    {
+      "name": "plate.tank7_put",
+      "label": "板入展缸7",
+      "url": "/clips/plate.tank7_put.yaml"
+    },
+    {
+      "name": "plate.tank8_put",
+      "label": "板入展缸8",
+      "url": "/clips/plate.tank8_put.yaml"
+    },
+    {
+      "name": "plate.tank1_pick",
+      "label": "板出展缸1",
+      "url": "/clips/plate.tank1_pick.yaml"
+    },
+    {
+      "name": "plate.tank2_pick",
+      "label": "板出展缸2",
+      "url": "/clips/plate.tank2_pick.yaml"
+    },
+    {
+      "name": "plate.tank3_pick",
+      "label": "板出展缸3",
+      "url": "/clips/plate.tank3_pick.yaml"
+    },
+    {
+      "name": "plate.tank4_pick",
+      "label": "板出展缸4",
+      "url": "/clips/plate.tank4_pick.yaml"
+    },
+    {
+      "name": "plate.tank5_pick",
+      "label": "板出展缸5",
+      "url": "/clips/plate.tank5_pick.yaml"
+    },
+    {
+      "name": "plate.tank6_pick",
+      "label": "板出展缸6",
+      "url": "/clips/plate.tank6_pick.yaml"
+    },
+    {
+      "name": "plate.tank7_pick",
+      "label": "板出展缸7",
+      "url": "/clips/plate.tank7_pick.yaml"
+    },
+    {
+      "name": "plate.tank8_pick",
+      "label": "板出展缸8",
+      "url": "/clips/plate.tank8_pick.yaml"
+    },
+    {
+      "name": "plate.flow.sampling_load",
+      "label": "上样-上料",
+      "url": "/clips/plate.flow.sampling_load.yaml"
+    },
+    {
+      "name": "plate.flow.sampling_unload",
+      "label": "上样-下料",
+      "url": "/clips/plate.flow.sampling_unload.yaml"
+    },
+    {
+      "name": "plate.flow.photoscrape_load",
+      "label": "拍照刮板-板上料",
+      "url": "/clips/plate.flow.photoscrape_load.yaml"
+    },
+    {
+      "name": "plate.flow.photoscrape_unload",
+      "label": "拍照刮板-下料",
+      "url": "/clips/plate.flow.photoscrape_unload.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank1",
+      "label": "展开-上料 · 1号缸",
+      "url": "/clips/plate.flow.develop_load.tank1.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank2",
+      "label": "展开-上料 · 2号缸",
+      "url": "/clips/plate.flow.develop_load.tank2.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank3",
+      "label": "展开-上料 · 3号缸",
+      "url": "/clips/plate.flow.develop_load.tank3.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank4",
+      "label": "展开-上料 · 4号缸",
+      "url": "/clips/plate.flow.develop_load.tank4.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank5",
+      "label": "展开-上料 · 5号缸",
+      "url": "/clips/plate.flow.develop_load.tank5.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank6",
+      "label": "展开-上料 · 6号缸",
+      "url": "/clips/plate.flow.develop_load.tank6.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank7",
+      "label": "展开-上料 · 7号缸",
+      "url": "/clips/plate.flow.develop_load.tank7.yaml"
+    },
+    {
+      "name": "plate.flow.develop_load.tank8",
+      "label": "展开-上料 · 8号缸",
+      "url": "/clips/plate.flow.develop_load.tank8.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank1",
+      "label": "展开-下料 · 1号缸",
+      "url": "/clips/plate.flow.develop_unload.tank1.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank2",
+      "label": "展开-下料 · 2号缸",
+      "url": "/clips/plate.flow.develop_unload.tank2.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank3",
+      "label": "展开-下料 · 3号缸",
+      "url": "/clips/plate.flow.develop_unload.tank3.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank4",
+      "label": "展开-下料 · 4号缸",
+      "url": "/clips/plate.flow.develop_unload.tank4.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank5",
+      "label": "展开-下料 · 5号缸",
+      "url": "/clips/plate.flow.develop_unload.tank5.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank6",
+      "label": "展开-下料 · 6号缸",
+      "url": "/clips/plate.flow.develop_unload.tank6.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank7",
+      "label": "展开-下料 · 7号缸",
+      "url": "/clips/plate.flow.develop_unload.tank7.yaml"
+    },
+    {
+      "name": "plate.flow.develop_unload.tank8",
+      "label": "展开-下料 · 8号缸",
+      "url": "/clips/plate.flow.develop_unload.tank8.yaml"
+    }
+  ],
+  "families": [
+    {
+      "id": "transfer.tray",
+      "label": "托盘转移(整板)",
+      "hint": "大夹爪整板搬运; 货架 12 库位 ↔ 中转托盘位 A/B",
+      "nameTemplate": "transfer.tray.{kind}.{direction}.slot{slot}",
+      "params": [
+        {
+          "key": "kind",
+          "label": "托盘种类",
+          "options": [
+            {
+              "value": "collector",
+              "label": "粉末收集器组"
+            },
+            {
+              "value": "bottle",
+              "label": "样品瓶组"
+            }
+          ]
+        },
+        {
+          "key": "direction",
+          "label": "转移方向",
+          "options": [
+            {
+              "value": "to_staging",
+              "label": "货架 → 中转位"
+            },
+            {
+              "value": "to_rack",
+              "label": "中转位 → 货架"
+            }
+          ]
+        },
+        {
+          "key": "slot",
+          "label": "货架库位",
+          "range": [
+            1,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plate.develop",
+      "label": "展开工位(选缸)",
+      "hint": "机器人持板进出 8 个展缸; 含缸盖开合与地轨就位",
+      "nameTemplate": "plate.flow.develop_{phase}.tank{tank}",
+      "params": [
+        {
+          "key": "phase",
+          "label": "阶段",
+          "options": [
+            {
+              "value": "load",
+              "label": "上料(板入缸)"
+            },
+            {
+              "value": "unload",
+              "label": "下料(板出缸)"
+            }
+          ]
+        },
+        {
+          "key": "tank",
+          "label": "展缸号",
+          "range": [
+            1,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plate.tank",
+      "label": "展缸取放(单动作)",
+      "hint": "只有机械臂进出缸这一段, 不含缸盖与地轨",
+      "nameTemplate": "plate.tank{tank}_{direction}",
+      "params": [
+        {
+          "key": "direction",
+          "label": "方向",
+          "options": [
+            {
+              "value": "put",
+              "label": "放板入缸"
+            },
+            {
+              "value": "pick",
+              "label": "取板出缸"
+            }
+          ]
+        },
+        {
+          "key": "tank",
+          "label": "展缸号",
+          "range": [
+            1,
+            8
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+# 放板视觉纠偏动作 (kind=vision): 先按 pallas_vision.light_do_channel 点亮补光, 再触发拍照读取板位姿偏移, finally 关灯。
+# 识别路径由 pallas_vision.local_vision_enabled 路由: true=本地 OpenCV (大恒 .163, controller/local_plate_vision.py, 当前默认), false=回落 PALLASVision TCP/Bridge。
+# 仅用于上料区取板后、点样位放板前的视觉纠偏；后续跨站转移不再纠偏。
+vision.capture_plate_offset:
+  kind: vision
+  method: capture_plate_offset
+  label: 视觉-读取放板纠偏
+  desc: |-
+    执行步骤：启用真机视觉时，上位机串行取得视觉锁，按配置经机器人DO点亮补光并等待稳定后触发拍照读取dx、dy、drz，finally关闭补光；识别路径由pallas_vision.local_vision_enabled路由——true走本地OpenCV检测加真机标定线性换算（当前默认），false回落PALLASVision TCP/Bridge；识别失败两条路径统一返回err=111、valid=false哨兵而不抛硬故障，交由流程内人工分支重拍或中止；apply_rz=false时把drz归零。配置disabled或mock时直接返回中性零偏移，不触发补光或相机。
+    前置与安全：仅用于上料区取板后、点样位放板前；真机模式下视觉服务和机器人IO必须在线，偏移经过XY/角度范围校验，本动作不移动机器人。
+    完成与异常：合法或中性偏移返回DONE供move_to_point叠加；超限、协议/服务失败返回ERROR；若finally关灯失败也返回ERROR并要求人工确认灯状态，不能声称已经关闭。
+    实现核对：eit_ptlc/controller/pallas_vision_client.py::capture_plate_offset/_run_with_light，路由与本地算法见 eit_ptlc/tools/pallas_bridge.py::capture 与 eit_ptlc/controller/local_plate_vision.py::measure_offset，经 ActionExecutor._exec_vision 派发。
+  modes: []
+  params:
+    - {name: apply_rz, type: bool, required: false, default: false, label: 是否把角度偏移用于放板 Rz}

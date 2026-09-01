@@ -1,0 +1,30 @@
+schema: ptlc.script/v1
+kind: operation
+name: ptlc_full
+label: pTLC 全工位流程演示 [deprecated/manual, 非生产主线样板]
+ui:
+  role: legacy
+  hidden: true
+# 历史纯设备串联入口: 不作为阶段3/4生产主线样板。当前生产主干以 ptlc_full_v2 + 站内 cycle 为准。
+vars: []
+resources: [station:sampling, station:photo_scrape, station:collect, develop_prep, "tank_action:1"]
+body:
+  - {op: comment, text: 上样点样 (清洗->吸液 全程持真空资源; 点样在区间之外)}
+  - {op: call, action: sampling.init, mode: RUN}
+  - op: with_resources
+    resources: ["device:vacuum_pump"]
+    body:
+      - {op: call, action: sampling.clean, mode: RUN}
+      - {op: call, action: sampling.prep, mode: RUN}
+      - {op: call, action: sampling.aspirate, args: {plate_spec: {lit: "4×6"}, plate_no: {lit: "1"}, well: {lit: A1}}, mode: RUN}
+  - {op: call, action: sampling.spot_band_layer, mode: RUN, args: {ref_spot: {lit: spot_pose}}}
+  - {op: comment, text: 拍照前-相机位+回零}
+  - {op: call, action: photoscrape.cam_photopos, mode: RUN, args: {ref_8y: {lit: photo_8y}}}
+  - {op: call, action: photoscrape.cam_photohome, mode: RUN}
+  - {op: comment, text: 展开-上液 (排液走 Tank_Drain 数组, 不在 L2 动作)}
+  - {op: call, action: develop.fill, args: {target_tank: {lit: 1}}, mode: RUN}
+  - {op: comment, text: 刮取 + 收尾}
+  - {op: call, action: photoscrape.scrape, mode: RUN}
+  - {op: call, action: photoscrape.scrape_finish, mode: RUN}
+  - {op: comment, text: 收集}
+  - {op: call, action: collect.collect, mode: RUN}

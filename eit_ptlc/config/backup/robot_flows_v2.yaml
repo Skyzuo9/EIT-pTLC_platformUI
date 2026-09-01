@@ -1,0 +1,1144 @@
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  【冻结·勿运行】(G-1, 2026-06-24 裁定) —— 本模板视为冻结存档。                  ║
+# ║  生成的 config/operation/07_robot/*.yaml 现为【手改真源】。                    ║
+# ║  重运行 tools/gen_robot_point_operations.py 会【静默抹掉】手插的 tool_action   ║
+# ║  (rotary 等, 生成器自校验只比对 move 点序列、不校验 tool_action)。             ║
+# ║  如确需重生成: 须先把全部手改并回本模板、并扩展生成器支持 tool_action 插入,    ║
+# ║  再运行。                                                                     ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+version: 2
+config_version: "2.2.0-orchestration"
+
+derived_points:
+  - {point_id: tank.1.approach_far, base_point: P11, offset: [0, 267, 330, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.1.approach_mid, base_point: P11, offset: [0, 267, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.1.approach_near, base_point: P11, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: tank.2.approach_far, base_point: P12, offset: [0, 267, 151, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.2.approach_mid, base_point: P12, offset: [0, 267, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.2.approach_near, base_point: P12, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: tank.3.approach_far, base_point: P13, offset: [0, 267, 60, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.3.approach_mid, base_point: P13, offset: [0, 267, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.3.approach_near, base_point: P13, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: tank.4.approach_far, base_point: P14, offset: [0, 267, 20, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.4.approach_mid, base_point: P14, offset: [0, 267, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.4.approach_near, base_point: P14, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: tank.5.approach_far, base_point: P15, offset: [0, -287, 330, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.5.approach_mid, base_point: P15, offset: [0, -287, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.5.approach_near, base_point: P15, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: tank.6.approach_far, base_point: P16, offset: [0, -287, 151, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.6.approach_mid, base_point: P16, offset: [0, -287, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.6.approach_near, base_point: P16, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: tank.7.approach_far, base_point: P17, offset: [0, -287, 60, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.7.approach_mid, base_point: P17, offset: [0, -287, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.7.approach_near, base_point: P17, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: tank.8.approach_far, base_point: P18, offset: [0, -287, 20, 0, 0, 0], workstation: tank, role: approach_far}
+  - {point_id: tank.8.approach_mid, base_point: P18, offset: [0, -287, 15, 0, 0, 0], workstation: tank, role: approach_mid}
+  - {point_id: tank.8.approach_near, base_point: P18, offset: [0, 0, 15, 0, 0, 0], workstation: tank, role: approach_near}
+  - {point_id: feed-lift.approach_far, base_point: P21, offset: [0, 0, 200, 0, 0, 0], workstation: feed-lift, role: approach_far}
+  - {point_id: feed-lift.approach_near, base_point: P21, offset: [0, 0, 20, 0, 0, 0], workstation: feed-lift, role: approach_near}
+  - {point_id: waste.approach_far, base_point: P22, offset: [-150, 0, 40, 0, 0, 0], workstation: waste, role: approach_far}
+  - {point_id: waste.approach_near, base_point: P22, offset: [0, 0, 30, 0, 0, 0], workstation: waste, role: approach_near}
+  - {point_id: spotting.put.approach_far, base_point: P19, offset: [-180, 0, 20, 0, 0, 0], workstation: spotting, role: approach_far}
+  - {point_id: spotting.put.approach_near, base_point: P19, offset: [0, 0, 20, 0, 0, 0], workstation: spotting, role: approach_near}
+  - {point_id: spotting.put.retreat_near, base_point: P19, offset: [0, 0, -30, 0, 0, 0], workstation: spotting, role: retreat_near}
+  - {point_id: spotting.put.retreat_far, base_point: P19, offset: [-180, 0, -30, 0, 0, 0], workstation: spotting, role: retreat_far}
+  - {point_id: spotting.pick.approach_far, base_point: P19, offset: [-180, 0, -30, 0, 0, 0], workstation: spotting, role: approach_far}
+  - {point_id: spotting.pick.approach_near, base_point: P19, offset: [0, 0, -30, 0, 0, 0], workstation: spotting, role: approach_near}
+  - {point_id: spotting.pick.retreat_near, base_point: P19, offset: [0, 0, 20, 0, 0, 0], workstation: spotting, role: retreat_near}
+  - {point_id: spotting.pick.retreat_far, base_point: P19, offset: [-180, 0, 20, 0, 0, 0], workstation: spotting, role: retreat_far}
+  - {point_id: scrape.plate-put.approach_far, base_point: P65, offset: [-180, 0, 30, 0, 0, 0], workstation: scrape, role: approach_far}
+  - {point_id: scrape.plate-put.approach_near, base_point: P65, offset: [0, 0, 30, 0, 0, 0], workstation: scrape, role: approach_near}
+  - {point_id: scrape.plate-put.retreat_near, base_point: P65, offset: [0, 0, -20, 0, 0, 0], workstation: scrape, role: retreat_near}
+  - {point_id: scrape.plate-put.retreat_far, base_point: P65, offset: [-180, 0, -20, 0, 0, 0], workstation: scrape, role: retreat_far}
+  - {point_id: scrape.plate-pick.approach_far, base_point: P65, offset: [-180, 0, -30, 0, 0, 0], workstation: scrape, role: approach_far}
+  - {point_id: scrape.plate-pick.approach_near, base_point: P65, offset: [0, 0, -30, 0, 0, 0], workstation: scrape, role: approach_near}
+  - {point_id: scrape.plate-pick.retreat_near, base_point: P65, offset: [0, 0, 30, 0, 0, 0], workstation: scrape, role: retreat_near}
+  - {point_id: scrape.plate-pick.retreat_far, base_point: P65, offset: [-180, 0, 30, 0, 0, 0], workstation: scrape, role: retreat_far}
+  - {point_id: group-rack.p25.far, base_point: P25, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p25.mid, base_point: P25, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p25.near, base_point: P25, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p26.far, base_point: P26, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p26.mid, base_point: P26, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p26.near, base_point: P26, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p27.far, base_point: P27, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p27.mid, base_point: P27, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p27.near, base_point: P27, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p28.far, base_point: P28, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p28.mid, base_point: P28, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p28.near, base_point: P28, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p29.far, base_point: P29, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p29.mid, base_point: P29, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p29.near, base_point: P29, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p30.far, base_point: P30, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p30.mid, base_point: P30, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p30.near, base_point: P30, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p31.far, base_point: P31, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p31.mid, base_point: P31, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p31.near, base_point: P31, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p32.far, base_point: P32, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p32.mid, base_point: P32, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p32.near, base_point: P32, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p33.far, base_point: P33, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p33.mid, base_point: P33, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p33.near, base_point: P33, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p34.far, base_point: P34, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p34.mid, base_point: P34, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p34.near, base_point: P34, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p35.far, base_point: P35, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p35.mid, base_point: P35, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p35.near, base_point: P35, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: group-rack.p36.far, base_point: P36, offset: [200, 0, 12, 0, 0, 0], workstation: group-rack, role: approach_far}
+  - {point_id: group-rack.p36.mid, base_point: P36, offset: [200, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_mid}
+  - {point_id: group-rack.p36.near, base_point: P36, offset: [0, 0, 10, 0, 0, 0], workstation: group-rack, role: approach_near}
+  - {point_id: collector-group-staging-put.far, base_point: P37, offset: [0, 0, 100, 0, 0, 0], workstation: group-staging, role: approach_far}
+  - {point_id: collector-group-staging-put.mid, base_point: P37, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_mid}
+  - {point_id: collector-group-staging-put.near, base_point: P37, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_near}
+  - {point_id: collector-group-staging-pick.far, base_point: P39, offset: [0, 0, 100, 0, 0, 0], workstation: group-staging, role: approach_far}
+  - {point_id: collector-group-staging-pick.mid, base_point: P39, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_mid}
+  - {point_id: collector-group-staging-pick.near, base_point: P39, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_near}
+  - {point_id: bottle-group-staging-put.far, base_point: P38, offset: [0, 0, 100, 0, 0, 0], workstation: group-staging, role: approach_far}
+  - {point_id: bottle-group-staging-put.mid, base_point: P38, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_mid}
+  - {point_id: bottle-group-staging-put.near, base_point: P38, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_near}
+  - {point_id: bottle-group-staging-pick.far, base_point: P40, offset: [0, 0, 100, 0, 0, 0], workstation: group-staging, role: approach_far}
+  - {point_id: bottle-group-staging-pick.mid, base_point: P40, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_mid}
+  - {point_id: bottle-group-staging-pick.near, base_point: P40, offset: [0, 0, 10, 0, 0, 0], workstation: group-staging, role: approach_near}
+  - {point_id: staging-a.p46.high, base_point: P46, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a.p46.near, base_point: P46, offset: [0, 0, 20, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a.p47.high, base_point: P47, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a.p47.near, base_point: P47, offset: [0, 0, 20, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a.p48.high, base_point: P48, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a.p48.near, base_point: P48, offset: [0, 0, 20, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a.p49.high, base_point: P49, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a.p49.near, base_point: P49, offset: [0, 0, 20, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a.p50.high, base_point: P50, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a.p50.near, base_point: P50, offset: [0, 0, 20, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a.p51.high, base_point: P51, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a.p51.near, base_point: P51, offset: [0, 0, 20, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-b.p53.high, base_point: P53, offset: [0, 0, 200, 0, 0, 0], workstation: staging-b, role: approach_high}
+  - {point_id: staging-b.p53.near, base_point: P53, offset: [0, 0, 10, 0, 0, 0], workstation: staging-b, role: approach_near}
+  - {point_id: staging-b.p54.high, base_point: P54, offset: [0, 0, 200, 0, 0, 0], workstation: staging-b, role: approach_high}
+  - {point_id: staging-b.p54.near, base_point: P54, offset: [0, 0, 20, 0, 0, 0], workstation: staging-b, role: approach_near}
+  - {point_id: staging-b.p55.high, base_point: P55, offset: [0, 0, 200, 0, 0, 0], workstation: staging-b, role: approach_high}
+  - {point_id: staging-b.p55.near, base_point: P55, offset: [0, 0, 20, 0, 0, 0], workstation: staging-b, role: approach_near}
+  - {point_id: staging-b.p56.high, base_point: P56, offset: [0, 0, 200, 0, 0, 0], workstation: staging-b, role: approach_high}
+  - {point_id: staging-b.p56.near, base_point: P56, offset: [0, 0, 20, 0, 0, 0], workstation: staging-b, role: approach_near}
+  - {point_id: staging-b.p57.high, base_point: P57, offset: [0, 0, 200, 0, 0, 0], workstation: staging-b, role: approach_high}
+  - {point_id: staging-b.p57.near, base_point: P57, offset: [0, 0, 20, 0, 0, 0], workstation: staging-b, role: approach_near}
+  - {point_id: staging-b.p58.high, base_point: P58, offset: [0, 0, 200, 0, 0, 0], workstation: staging-b, role: approach_high}
+  - {point_id: staging-b.p58.near, base_point: P58, offset: [0, 0, 20, 0, 0, 0], workstation: staging-b, role: approach_near}
+  - {point_id: staging-a-return.p78.high, base_point: P78, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a-return.p78.near, base_point: P78, offset: [0, 0, 5, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a-return.p79.high, base_point: P79, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a-return.p79.near, base_point: P79, offset: [0, 0, 5, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a-return.p80.high, base_point: P80, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a-return.p80.near, base_point: P80, offset: [0, 0, 5, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a-return.p81.high, base_point: P81, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a-return.p81.near, base_point: P81, offset: [0, 0, 5, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a-return.p82.high, base_point: P82, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a-return.p82.near, base_point: P82, offset: [0, 0, 5, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: staging-a-return.p83.high, base_point: P83, offset: [0, 0, 200, 0, 0, 0], workstation: staging-a, role: approach_high}
+  - {point_id: staging-a-return.p83.near, base_point: P83, offset: [0, 0, 5, 0, 0, 0], workstation: staging-a, role: approach_near}
+  - {point_id: collect-bottle-put.far, base_point: P71, offset: [0, 0, 100, 0, 0, 0], workstation: collect, role: approach_far}
+  - {point_id: collect-bottle-put.near, base_point: P71, offset: [0, 0, 20, 0, 0, 0], workstation: collect, role: approach_near}
+  - {point_id: collect-bottle-pick.far, base_point: P72, offset: [0, 0, 100, 0, 0, 0], workstation: collect, role: approach_far}
+  - {point_id: collect-bottle-pick.near, base_point: P72, offset: [0, 0, 20, 0, 0, 0], workstation: collect, role: approach_near}
+  - {point_id: collect-holder-put.far, base_point: P73, offset: [0, 200, 0, 0, 0, 0], workstation: collect, role: approach_far}
+  - {point_id: collect-holder-put.near, base_point: P73, offset: [0, 20, 0, 0, 0, 0], workstation: collect, role: approach_near}
+  - {point_id: collect-holder-pick.far, base_point: P74, offset: [0, 200, 0, 0, 0, 0], workstation: collect, role: approach_far}
+  - {point_id: collect-holder-pick.near, base_point: P74, offset: [0, 20, 0, 0, 0, 0], workstation: collect, role: approach_near}
+  - {point_id: scrape-holder-put.far, base_point: P68, offset: [-180, 0, 0, 0, 0, 0], workstation: scrape, role: approach_far}
+  - {point_id: scrape-holder-put.near, base_point: P68, offset: [-20, 0, 0, 0, 0, 0], workstation: scrape, role: approach_near}
+  - {point_id: scrape-holder-put.x-plus, base_point: P68, offset: [1, 0, 0, 0, 0, 0], workstation: scrape, role: settle}
+  - {point_id: scrape-holder-put.x-minus, base_point: P68, offset: [-1, 0, 0, 0, 0, 0], workstation: scrape, role: settle}
+  - {point_id: scrape-holder-put.y-plus, base_point: P68, offset: [0, 1, 0, 0, 0, 0], workstation: scrape, role: settle}
+  - {point_id: scrape-holder-put.y-minus, base_point: P68, offset: [0, -1, 0, 0, 0, 0], workstation: scrape, role: settle}
+  - {point_id: scrape-holder-pick.far, base_point: P77, offset: [-180, 0, 0, 0, 0, 0], workstation: scrape, role: approach_far}
+  - {point_id: scrape-holder-pick.near, base_point: P77, offset: [-20, 0, 0, 0, 0, 0], workstation: scrape, role: approach_near}
+  - {point_id: scrape-holder-pick.retreat-0, base_point: P77, offset: [0, 0, -1, 0, 0, 0], workstation: scrape, role: retreat}
+  - {point_id: scrape-holder-pick.retreat-1, base_point: P77, offset: [-10, 0, -1, 0, 0, 0], workstation: scrape, role: retreat}
+  - {point_id: scrape-holder-pick.retreat-2, base_point: P77, offset: [-30, 0, -1, 0, 0, 0], workstation: scrape, role: retreat}
+
+motion_profiles:
+  tool-ready-in: {acc: 100, vel: 50, cp: 50}
+  tool-high-in: {acc: 100, vel: 50, cp: 20}
+  tool-near-in: {acc: 20, vel: 15, cp: 0}
+  tool-target-in: {acc: 10, vel: 5, cp: 0}
+  tool-near-out: {acc: 10, vel: 10, cp: 0}
+  tool-high-out: {acc: 30, vel: 20, cp: 20}
+  tool-ready-out: {acc: 100, vel: 50, cp: 50}
+  home-return: {acc: 50, vel: 37, cp: 2}
+  route-ready: {acc: 100, vel: 50, cp: 20}
+  route-far-in: {acc: 20, vel: 15, cp: 0}
+  route-mid-in: {acc: 20, vel: 15, cp: 2}
+  route-near-in: {acc: 10, vel: 10, cp: 0}
+  route-target-in: {acc: 10, vel: 5, cp: 0}
+  route-near-out: {acc: 10, vel: 10, cp: 0}
+  route-far-out: {acc: 30, vel: 20, cp: 0}
+  route-transition: {acc: 30, vel: 30, cp: 0}
+
+point_sets:
+  tool-slot-1:
+    route_group: tool-change
+    points:
+      home: robot-main.home
+      ready: robot-main.tool-change.ready
+      approach_high: robot-main.tool-change.slot-1.approach-high
+      approach_near: robot-main.tool-change.slot-1.approach-near
+      target: robot-main.tool-change.slot-1.target
+    extensions:
+      put_after_ready:
+        - {id: slot-1-aux-prepare, type: tool_action, action: tool-change-aux-on}
+  tool-slot-2:
+    route_group: tool-change
+    points:
+      home: robot-main.home
+      ready: robot-main.tool-change.ready
+      approach_high: robot-main.tool-change.slot-2.approach-high
+      approach_near: robot-main.tool-change.slot-2.approach-near
+      target: robot-main.tool-change.slot-2.target
+  tool-slot-3:
+    route_group: tool-change
+    points:
+      home: robot-main.home
+      ready: robot-main.tool-change.ready
+      approach_high: robot-main.tool-change.slot-3.approach-high
+      approach_near: robot-main.tool-change.slot-3.approach-near
+      target: robot-main.tool-change.slot-3.target
+  tank-1:
+    route_group: tank-a
+    points: {home: P1, transit_outer: P75, transit_inner: P84, ready: P59, approach_far: tank.1.approach_far, approach_mid: tank.1.approach_mid, approach_near: tank.1.approach_near, target: P11}
+    extensions:
+      tank_enter:
+        - {id: enter-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+        - {id: enter-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+      tank_exit:
+        - {id: leave-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+        - {id: leave-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+  tank-2:
+    route_group: tank-a
+    points: {home: P1, transit_outer: P75, transit_inner: P84, ready: P59, approach_far: tank.2.approach_far, approach_mid: tank.2.approach_mid, approach_near: tank.2.approach_near, target: P12}
+    extensions:
+      tank_enter:
+        - {id: enter-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+        - {id: enter-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+      tank_exit:
+        - {id: leave-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+        - {id: leave-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+  tank-3:
+    route_group: tank-a
+    points: {home: P1, transit_outer: P75, transit_inner: P84, ready: P59, approach_far: tank.3.approach_far, approach_mid: tank.3.approach_mid, approach_near: tank.3.approach_near, target: P13}
+    extensions:
+      tank_enter:
+        - {id: enter-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+        - {id: enter-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+      tank_exit:
+        - {id: leave-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+        - {id: leave-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+  tank-4:
+    route_group: tank-a
+    points: {home: P1, transit_outer: P75, transit_inner: P84, ready: P59, approach_far: tank.4.approach_far, approach_mid: tank.4.approach_mid, approach_near: tank.4.approach_near, target: P14}
+    extensions:
+      tank_enter:
+        - {id: enter-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+        - {id: enter-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+      tank_exit:
+        - {id: leave-tank-inner, type: move, role: transit_inner, motion: move_j, profile: route-transition}
+        - {id: leave-tank-outer, type: move, role: transit_outer, motion: move_j, profile: route-transition}
+  tank-5:
+    route_group: tank-b
+    points: {home: P1, ready: P3, approach_far: tank.5.approach_far, approach_mid: tank.5.approach_mid, approach_near: tank.5.approach_near, target: P15}
+  tank-6:
+    route_group: tank-b
+    points: {home: P1, ready: P3, approach_far: tank.6.approach_far, approach_mid: tank.6.approach_mid, approach_near: tank.6.approach_near, target: P16}
+  tank-7:
+    route_group: tank-b
+    points: {home: P1, ready: P3, approach_far: tank.7.approach_far, approach_mid: tank.7.approach_mid, approach_near: tank.7.approach_near, target: P17}
+  tank-8:
+    route_group: tank-b
+    points: {home: P1, ready: P3, approach_far: tank.8.approach_far, approach_mid: tank.8.approach_mid, approach_near: tank.8.approach_near, target: P18}
+  feed-lift-pick:
+    route_group: feed-lift-pick
+    points:
+      home: P1
+      ready: P5
+      approach_far: feed-lift.approach_far
+      approach_near: feed-lift.approach_near
+      target: P21
+      retreat_near: feed-lift.approach_near
+      retreat_far: feed-lift.approach_far
+  spotting-put:
+    route_group: spotting-put
+    points:
+      home: P1
+      ready: P4
+      approach_far: spotting.put.approach_far
+      approach_near: spotting.put.approach_near
+      target: P19
+      retreat_near: spotting.put.retreat_near
+      retreat_far: spotting.put.retreat_far
+    extensions:
+      flip_before_put:
+        - {id: spotting-flip-up, type: tool_action, action: rotary-up}
+      flip_after_put:
+        - {id: spotting-flip-down, type: tool_action, action: rotary-down}
+  spotting-pick:
+    route_group: spotting-pick
+    points:
+      home: P1
+      ready: P4
+      approach_far: spotting.pick.approach_far
+      approach_near: spotting.pick.approach_near
+      target: P19
+      retreat_near: spotting.pick.retreat_near
+      retreat_far: spotting.pick.retreat_far
+    extensions:
+      flip_before_pick:
+        - {id: spotting-flip-up, type: tool_action, action: rotary-up}
+  scrape-plate-put:
+    route_group: scrape-plate-put
+    points:
+      home: P1
+      ready: P63
+      approach_far: scrape.plate-put.approach_far
+      approach_near: scrape.plate-put.approach_near
+      target: P65
+      retreat_near: scrape.plate-put.retreat_near
+      retreat_far: scrape.plate-put.retreat_far
+  scrape-plate-pick:
+    route_group: scrape-plate-pick
+    points:
+      home: P1
+      ready: P63
+      approach_far: scrape.plate-pick.approach_far
+      approach_near: scrape.plate-pick.approach_near
+      target: P65
+      retreat_near: scrape.plate-pick.retreat_near
+      retreat_far: scrape.plate-pick.retreat_far
+  waste-put:
+    route_group: waste-put
+    points:
+      home: P1
+      ready: P5
+      approach_far: waste.approach_far
+      approach_near: waste.approach_near
+      target: P22
+      retreat_near: waste.approach_near
+      retreat_far: waste.approach_far
+  group-rack-collector-1:
+    route_group: collector-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p25.far, approach_mid: group-rack.p25.mid, approach_near: group-rack.p25.near, target: P25}
+  group-rack-collector-2:
+    route_group: collector-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p26.far, approach_mid: group-rack.p26.mid, approach_near: group-rack.p26.near, target: P26}
+  group-rack-collector-3:
+    route_group: collector-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p27.far, approach_mid: group-rack.p27.mid, approach_near: group-rack.p27.near, target: P27}
+  group-rack-collector-4:
+    route_group: collector-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p28.far, approach_mid: group-rack.p28.mid, approach_near: group-rack.p28.near, target: P28}
+  group-rack-collector-5:
+    route_group: collector-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p29.far, approach_mid: group-rack.p29.mid, approach_near: group-rack.p29.near, target: P29}
+  group-rack-collector-6:
+    route_group: collector-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p30.far, approach_mid: group-rack.p30.mid, approach_near: group-rack.p30.near, target: P30}
+  group-rack-bottle-1:
+    route_group: bottle-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p31.far, approach_mid: group-rack.p31.mid, approach_near: group-rack.p31.near, target: P31}
+  group-rack-bottle-2:
+    route_group: bottle-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p32.far, approach_mid: group-rack.p32.mid, approach_near: group-rack.p32.near, target: P32}
+  group-rack-bottle-3:
+    route_group: bottle-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p33.far, approach_mid: group-rack.p33.mid, approach_near: group-rack.p33.near, target: P33}
+  group-rack-bottle-4:
+    route_group: bottle-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p34.far, approach_mid: group-rack.p34.mid, approach_near: group-rack.p34.near, target: P34}
+  group-rack-bottle-5:
+    route_group: bottle-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p35.far, approach_mid: group-rack.p35.mid, approach_near: group-rack.p35.near, target: P35}
+  group-rack-bottle-6:
+    route_group: bottle-group-rack
+    points: {home: P1, ready: P7, approach_far: group-rack.p36.far, approach_mid: group-rack.p36.mid, approach_near: group-rack.p36.near, target: P36}
+  collector-group-staging-put:
+    route_group: collector-group-staging-put
+    points: {home: P1, ready: P4, approach_far: collector-group-staging-put.far, approach_mid: collector-group-staging-put.mid, approach_near: collector-group-staging-put.near, target: P37}
+  collector-group-staging-pick:
+    route_group: collector-group-staging-pick
+    points: {home: P1, ready: P4, approach_far: collector-group-staging-pick.far, approach_mid: collector-group-staging-pick.mid, approach_near: collector-group-staging-pick.near, target: P39}
+  bottle-group-staging-put:
+    route_group: bottle-group-staging-put
+    points: {home: P1, ready: P52, approach_far: bottle-group-staging-put.far, approach_mid: bottle-group-staging-put.mid, approach_near: bottle-group-staging-put.near, target: P38}
+  bottle-group-staging-pick:
+    route_group: bottle-group-staging-pick
+    points: {home: P1, ready: P52, approach_far: bottle-group-staging-pick.far, approach_mid: bottle-group-staging-pick.mid, approach_near: bottle-group-staging-pick.near, target: P40}
+  collector-slot-1:
+    route_group: collector-slot
+    points: {home: P1, ready: P45, approach_high: staging-a.p46.high, approach_near: staging-a.p46.near, target: P46}
+  bottle-slot-1:
+    route_group: bottle-slot
+    points: {home: P1, ready: P52, approach_high: staging-b.p53.high, approach_near: staging-b.p53.near, target: P53}
+  collector-return-slot-1:
+    route_group: collector-return-slot
+    points: {home: P1, ready: P45, approach_high: staging-a-return.p78.high, approach_near: staging-a-return.p78.near, target: P78}
+  collector-slot-2:
+    route_group: collector-slot
+    points: {home: P1, ready: P45, approach_high: staging-a.p47.high, approach_near: staging-a.p47.near, target: P47}
+  bottle-slot-2:
+    route_group: bottle-slot
+    points: {home: P1, ready: P52, approach_high: staging-b.p54.high, approach_near: staging-b.p54.near, target: P54}
+  collector-return-slot-2:
+    route_group: collector-return-slot
+    points: {home: P1, ready: P45, approach_high: staging-a-return.p79.high, approach_near: staging-a-return.p79.near, target: P79}
+  collector-slot-3:
+    route_group: collector-slot
+    points: {home: P1, ready: P45, approach_high: staging-a.p48.high, approach_near: staging-a.p48.near, target: P48}
+  bottle-slot-3:
+    route_group: bottle-slot
+    points: {home: P1, ready: P52, approach_high: staging-b.p55.high, approach_near: staging-b.p55.near, target: P55}
+  collector-return-slot-3:
+    route_group: collector-return-slot
+    points: {home: P1, ready: P45, approach_high: staging-a-return.p80.high, approach_near: staging-a-return.p80.near, target: P80}
+  collector-slot-4:
+    route_group: collector-slot
+    points: {home: P1, ready: P45, approach_high: staging-a.p49.high, approach_near: staging-a.p49.near, target: P49}
+  bottle-slot-4:
+    route_group: bottle-slot
+    points: {home: P1, ready: P52, approach_high: staging-b.p56.high, approach_near: staging-b.p56.near, target: P56}
+  collector-return-slot-4:
+    route_group: collector-return-slot
+    points: {home: P1, ready: P45, approach_high: staging-a-return.p81.high, approach_near: staging-a-return.p81.near, target: P81}
+  collector-slot-5:
+    route_group: collector-slot
+    points: {home: P1, ready: P45, approach_high: staging-a.p50.high, approach_near: staging-a.p50.near, target: P50}
+  bottle-slot-5:
+    route_group: bottle-slot
+    points: {home: P1, ready: P52, approach_high: staging-b.p57.high, approach_near: staging-b.p57.near, target: P57}
+  collector-return-slot-5:
+    route_group: collector-return-slot
+    points: {home: P1, ready: P45, approach_high: staging-a-return.p82.high, approach_near: staging-a-return.p82.near, target: P82}
+  collector-slot-6:
+    route_group: collector-slot
+    points: {home: P1, ready: P45, approach_high: staging-a.p51.high, approach_near: staging-a.p51.near, target: P51}
+  bottle-slot-6:
+    route_group: bottle-slot
+    points: {home: P1, ready: P52, approach_high: staging-b.p58.high, approach_near: staging-b.p58.near, target: P58}
+  collector-return-slot-6:
+    route_group: collector-return-slot
+    points: {home: P1, ready: P45, approach_high: staging-a-return.p83.high, approach_near: staging-a-return.p83.near, target: P83}
+  collect-bottle-put:
+    route_group: collect-bottle-put
+    points: {home: P1, ready: P70, approach_far: collect-bottle-put.far, approach_near: collect-bottle-put.near, target: P71}
+  collect-bottle-pick:
+    route_group: collect-bottle-pick
+    points: {home: P1, ready: P70, approach_far: collect-bottle-pick.far, approach_near: collect-bottle-pick.near, target: P72}
+  collect-holder-put:
+    route_group: collect-holder-put
+    points: {home: P1, ready: P70, approach_far: collect-holder-put.far, approach_near: collect-holder-put.near, target: P73}
+  collect-holder-pick:
+    route_group: collect-holder-pick
+    points: {home: P1, ready: P70, approach_far: collect-holder-pick.far, approach_near: collect-holder-pick.near, target: P74}
+  scrape-holder-put:
+    route_group: scrape-holder-put
+    points: {home: P1, ready: P67, approach_far: scrape-holder-put.far, approach_near: scrape-holder-put.near, target: P68, settle_x_plus: scrape-holder-put.x-plus, settle_x_minus: scrape-holder-put.x-minus, settle_y_plus: scrape-holder-put.y-plus, settle_y_minus: scrape-holder-put.y-minus}
+  scrape-holder-pick:
+    route_group: scrape-holder-pick
+    points: {home: P1, ready: P67, approach_far: scrape-holder-pick.far, approach_near: scrape-holder-pick.near, target: P77, retreat_0: scrape-holder-pick.retreat-0, retreat_1: scrape-holder-pick.retreat-1, retreat_2: scrape-holder-pick.retreat-2}
+  gripper-test-p2:
+    route_group: test-only
+    points:
+      home: robot-main.home
+      target: robot-main.tool-change.ready
+
+selectors:
+  tool_id:
+    "1": tool-slot-1
+    "2": tool-slot-2
+    "3": tool-slot-3
+  tank_id:
+    "1": tank-1
+    "2": tank-2
+    "3": tank-3
+    "4": tank-4
+    "5": tank-5
+    "6": tank-6
+    "7": tank-7
+    "8": tank-8
+  suction_pick_station:
+    spotting: spotting-pick
+    scrape: scrape-plate-pick
+  feed_lift_pick: {default: feed-lift-pick}
+  suction_put_station:
+    spotting: spotting-put
+    scrape: scrape-plate-put
+    waste: waste-put
+  group_rack_slot:
+    collector:
+      "1": group-rack-collector-1
+      "2": group-rack-collector-2
+      "3": group-rack-collector-3
+      "4": group-rack-collector-4
+      "5": group-rack-collector-5
+      "6": group-rack-collector-6
+    bottle:
+      "1": group-rack-bottle-1
+      "2": group-rack-bottle-2
+      "3": group-rack-bottle-3
+      "4": group-rack-bottle-4
+      "5": group-rack-bottle-5
+      "6": group-rack-bottle-6
+  group_staging_pick:
+    collector: collector-group-staging-pick
+    bottle: bottle-group-staging-pick
+  group_staging_put:
+    collector: collector-group-staging-put
+    bottle: bottle-group-staging-put
+  individual_slot:
+    collector:
+      "1": collector-slot-1
+      "2": collector-slot-2
+      "3": collector-slot-3
+      "4": collector-slot-4
+      "5": collector-slot-5
+      "6": collector-slot-6
+    bottle:
+      "1": bottle-slot-1
+      "2": bottle-slot-2
+      "3": bottle-slot-3
+      "4": bottle-slot-4
+      "5": bottle-slot-5
+      "6": bottle-slot-6
+  collector_return_slot_id:
+    "1": collector-return-slot-1
+    "2": collector-return-slot-2
+    "3": collector-return-slot-3
+    "4": collector-return-slot-4
+    "5": collector-return-slot-5
+    "6": collector-return-slot-6
+  collect_bottle_put: {default: collect-bottle-put}
+  collect_bottle_pick: {default: collect-bottle-pick}
+  collect_holder_put: {default: collect-holder-put}
+  collect_holder_pick: {default: collect-holder-pick}
+  scrape_holder_put: {default: scrape-holder-put}
+  scrape_holder_pick: {default: scrape-holder-pick}
+  test_id:
+    p2: gripper-test-p2
+
+templates:
+  tool.pick:
+    description: "Legacy-equivalent GetTool_Path"
+    selector: tool_id
+    selector_param: tool_id
+    route_groups: [tool-change]
+    entry_role: home
+    exit_role: home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: tool-ready-in}
+      - {id: enter-high, type: move, role: approach_high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-lock, type: tool_action, action: quick-change-lock}
+      - {id: tool-change-aux-on, type: tool_action, action: tool-change-aux-on}
+      # 联轴锁定+辅助完成=工具已挂上手腕, 显式声明权威工具态(取本分支 tool_id), 驱动据此门控 DO2/DO6 双义
+      - {id: declare-mounted-tool, type: set_mounted_tool, from_selector: true}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, role: approach_high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: tool-ready-out}
+      - {id: legacy-settle, type: wait, duration_ms: 500}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  tool.put:
+    description: "Legacy-equivalent PutTool_Path"
+    selector: tool_id
+    selector_param: tool_id
+    route_groups: [tool-change]
+    entry_role: home
+    exit_role: home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: tool-ready-in}
+      - {id: put-extension, type: extension, extension: put_after_ready}
+      - {id: enter-high, type: move, role: approach_high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-release, type: tool_action, action: quick-change-release}
+      - {id: tool-change-aux-off, type: tool_action, action: tool-change-aux-off}
+      # 联轴释放+辅助关闭=工具已卸离手腕, 声明裸腕(0); 此后任何语义工具动作在驱动被拒, 直到下次挂刀/声明
+      - {id: declare-bare-wrist, type: set_mounted_tool, tool_id: 0}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, role: approach_high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: tool-ready-out}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  tank.pick:
+    description: "Pick a plate from tank 1..8 with preserved route groups"
+    selector: tank_id
+    selector_param: tank_id
+    route_groups: [tank-a, tank-b]
+    entry_role: home
+    exit_role: home
+    steps:
+      # 翻面: 进缸前下翻吸盘气缸 (旧 lua PL1 开头 DO(6,1) 等 DI2); 仅吸盘工具允许, 驱动门控
+      - {id: flip-down-enter, type: tool_action, action: rotary-down}
+      - {id: tank-enter-extension, type: extension, extension: tank_enter}
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: enter-mid, type: move, role: approach_mid, motion: move_l, profile: route-mid-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: suction-on, type: tool_action, action: suction-on}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-mid, type: move, role: approach_mid, motion: move_l, profile: route-far-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: tank-exit-extension, type: extension, extension: tank_exit}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  tank.put:
+    description: "Put a plate into tank 1..8 with preserved route groups"
+    selector: tank_id
+    selector_param: tank_id
+    route_groups: [tank-a, tank-b]
+    entry_role: home
+    exit_role: home
+    steps:
+      # 翻面: 进缸前下翻吸盘气缸 (旧 lua PL1 开头 DO(6,1) 等 DI2); 仅吸盘工具允许, 驱动门控
+      - {id: flip-down-enter, type: tool_action, action: rotary-down}
+      - {id: tank-enter-extension, type: extension, extension: tank_enter}
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: enter-mid, type: move, role: approach_mid, motion: move_l, profile: route-mid-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: suction-off, type: tool_action, action: suction-off}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-mid, type: move, role: approach_mid, motion: move_l, profile: route-far-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: tank-exit-extension, type: extension, extension: tank_exit}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  feed-lift.pick-enter:
+    description: "Grip plate in lift; host PLC raises lift before exit"
+    selector: feed_lift_pick
+    selector_param: station_id
+    route_groups: [feed-lift-pick]
+    entry_role: home
+    exit_role: target
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-ready}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-transition}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-near-in}
+      - {id: suction-on, type: tool_action, action: suction-on}
+  feed-lift.pick-exit:
+    description: "Exit lift after real PLC raised condition"
+    selector: feed_lift_pick
+    selector_param: station_id
+    route_groups: [feed-lift-pick]
+    entry_role: target
+    exit_role: home
+    steps:
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-transition}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  suction.pick:
+    description: "Pick plate from a fixed station"
+    selector: suction_pick_station
+    selector_param: station_id
+    route_groups: [spotting-pick, scrape-plate-pick]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      # 翻面: 取板前上翻 (旧 lua PL2_2 DO(2,1) 等 DI1); 仅 spotting 定义此 extension, scrape 解析为空
+      - {id: flip-before-pick, type: extension, extension: flip_before_pick}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: suction-on, type: tool_action, action: suction-on}
+      - {id: retreat-near, type: move, role: retreat_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-far, type: move, role: retreat_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  suction.put:
+    description: "Put plate at a fixed station"
+    selector: suction_put_station
+    selector_param: station_id
+    route_groups: [spotting-put, scrape-plate-put, waste-put]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      # 翻面: 置板前上翻 (旧 lua PL2 开头 DO(2,1) 等 DI1); 仅 spotting 定义, scrape/waste 解析为空
+      - {id: flip-before-put, type: extension, extension: flip_before_put}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: suction-off, type: tool_action, action: suction-off}
+      # 翻面: 释板后下翻复位 (旧 lua PL2 结尾 DO(6,1) 等 DI2); 仅 spotting 定义
+      - {id: flip-after-put, type: extension, extension: flip_after_put}
+      - {id: retreat-near, type: move, role: retreat_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-far, type: move, role: retreat_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  group-rack.pick:
+    description: "Pick a consumable group from an explicit rack slot"
+    selector: group_rack_slot
+    selector_param: rack_id
+    secondary_param: slot_id
+    route_groups: [collector-group-rack, bottle-group-rack]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: enter-mid, type: move, role: approach_mid, motion: move_l, profile: route-mid-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-close, type: tool_action, action: gripper-close}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-mid, type: move, role: approach_mid, motion: move_l, profile: route-far-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  group-rack.put:
+    description: "Return a consumable group to an explicit rack slot"
+    selector: group_rack_slot
+    selector_param: rack_id
+    secondary_param: slot_id
+    route_groups: [collector-group-rack, bottle-group-rack]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: enter-mid, type: move, role: approach_mid, motion: move_l, profile: route-mid-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-open, type: tool_action, action: gripper-open}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-mid, type: move, role: approach_mid, motion: move_l, profile: route-far-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  group-staging.pick:
+    description: "Pick a consumable group from staging A or B"
+    selector: group_staging_pick
+    selector_param: rack_id
+    route_groups: [collector-group-staging-pick, bottle-group-staging-pick]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: enter-mid, type: move, role: approach_mid, motion: move_l, profile: route-mid-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-close, type: tool_action, action: gripper-close}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-mid, type: move, role: approach_mid, motion: move_l, profile: route-far-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  group-staging.put:
+    description: "Put a consumable group at staging A or B"
+    selector: group_staging_put
+    selector_param: rack_id
+    route_groups: [collector-group-staging-put, bottle-group-staging-put]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: enter-mid, type: move, role: approach_mid, motion: move_l, profile: route-mid-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-open, type: tool_action, action: gripper-open}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-mid, type: move, role: approach_mid, motion: move_l, profile: route-far-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  individual.pick:
+    description: "Pick one collector or bottle from an explicit slot"
+    selector: individual_slot
+    selector_param: rack_id
+    secondary_param: slot_id
+    route_groups: [collector-slot, bottle-slot]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-high, type: move, role: approach_high, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-close, type: tool_action, action: gripper-close}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-high, type: move, role: approach_high, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  individual.put:
+    description: "Put one collector or bottle into an explicit slot"
+    selector: individual_slot
+    selector_param: rack_id
+    secondary_param: slot_id
+    route_groups: [collector-slot, bottle-slot]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-high, type: move, role: approach_high, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-target-in}
+      - {id: gripper-open, type: tool_action, action: gripper-open}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-high, type: move, role: approach_high, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  collector.return.put:
+    description: "Put a collector into an explicit staging-A return slot"
+    selector: collector_return_slot_id
+    selector_param: slot_id
+    route_groups: [collector-return-slot]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-high, type: move, role: approach_high, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-target-in}
+      - {id: gripper-open, type: tool_action, action: gripper-open}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-high, type: move, role: approach_high, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  collect.bottle.put:
+    description: "Put one bottle into the collection station"
+    selector: collect_bottle_put
+    selector_param: station_id
+    route_groups: [collect-bottle-put]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-open, type: tool_action, action: gripper-open}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  collect.bottle.pick:
+    description: "Pick one bottle from the collection station"
+    selector: collect_bottle_pick
+    selector_param: station_id
+    route_groups: [collect-bottle-pick]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-close, type: tool_action, action: gripper-close}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  collect.holder.put-enter:
+    description: "Enter collection holder clamp; host PLC completes clamping"
+    selector: collect_holder_put
+    selector_param: station_id
+    route_groups: [collect-holder-put]
+    entry_role: home
+    exit_role: target
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+  collect.holder.put-exit:
+    description: "Release holder after host PLC confirms clamp"
+    selector: collect_holder_put
+    selector_param: station_id
+    route_groups: [collect-holder-put]
+    entry_role: target
+    exit_role: home
+    steps:
+      - {id: gripper-open, type: tool_action, action: gripper-open}
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  collect.holder.pick-enter:
+    description: "Grip holder before host PLC releases clamp"
+    selector: collect_holder_pick
+    selector_param: station_id
+    route_groups: [collect-holder-pick]
+    entry_role: home
+    exit_role: target
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-far-in}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-close, type: tool_action, action: gripper-close}
+  collect.holder.pick-exit:
+    description: "Exit after host PLC confirms clamp release"
+    selector: collect_holder_pick
+    selector_param: station_id
+    route_groups: [collect-holder-pick]
+    entry_role: target
+    exit_role: home
+    steps:
+      - {id: retreat-near, type: move, role: approach_near, motion: move_l, profile: route-near-out}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  scrape.holder.put-enter:
+    description: "Enter scrape holder clamp; host PLC completes clamping"
+    selector: scrape_holder_put
+    selector_param: station_id
+    route_groups: [scrape-holder-put]
+    entry_role: home
+    exit_role: target
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-ready}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-target-in}
+  scrape.holder.put-exit:
+    description: "Settle and release holder after host PLC confirms clamp"
+    selector: scrape_holder_put
+    selector_param: station_id
+    route_groups: [scrape-holder-put]
+    entry_role: target
+    exit_role: home
+    steps:
+      - {id: settle-x-plus, type: move, role: settle_x_plus, motion: move_l, profile: route-target-in}
+      - {id: settle-x-minus, type: move, role: settle_x_minus, motion: move_l, profile: route-target-in}
+      - {id: settle-target-1, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: settle-y-minus, type: move, role: settle_y_minus, motion: move_l, profile: route-target-in}
+      - {id: settle-y-plus, type: move, role: settle_y_plus, motion: move_l, profile: route-target-in}
+      - {id: settle-target-2, type: move, role: target, motion: move_l, profile: route-target-in}
+      - {id: gripper-open, type: tool_action, action: gripper-open}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+  scrape.holder.pick-enter:
+    description: "Grip scrape holder before host PLC releases clamp"
+    selector: scrape_holder_pick
+    selector_param: station_id
+    route_groups: [scrape-holder-pick]
+    entry_role: home
+    exit_role: target
+    steps:
+      - {id: enter-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: enter-far, type: move, role: approach_far, motion: move_l, profile: route-transition}
+      - {id: enter-near, type: move, role: approach_near, motion: move_l, profile: route-near-in}
+      - {id: enter-target, type: move, role: target, motion: move_l, profile: route-near-in}
+      - {id: gripper-close, type: tool_action, action: gripper-close}
+  scrape.holder.pick-exit:
+    description: "Exit after host PLC confirms clamp release"
+    selector: scrape_holder_pick
+    selector_param: station_id
+    route_groups: [scrape-holder-pick]
+    entry_role: target
+    exit_role: home
+    steps:
+      - {id: retreat-0, type: move, role: retreat_0, motion: move_l, profile: route-near-out}
+      - {id: retreat-1, type: move, role: retreat_1, motion: move_l, profile: route-target-in}
+      - {id: retreat-2, type: move, role: retreat_2, motion: move_l, profile: route-target-in}
+      - {id: retreat-far, type: move, role: approach_far, motion: move_l, profile: route-far-out}
+      - {id: leave-ready, type: move, role: ready, motion: move_j, profile: route-ready}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+
+test_templates:
+  test.gripper:
+    description: "Isolated gripper test at P2"
+    selector: test_id
+    selector_param: test_id
+    route_groups: [test-only]
+    entry_role: home
+    exit_role: home
+    steps:
+      - {id: home-open-gripper, type: tool_action, action: rotary-up}
+      - {id: move-to-p2, type: move, role: target, motion: move_j, profile: tool-ready-in}
+      - {id: p2-close-gripper, type: tool_action, action: rotary-down}
+      - {id: return-home, type: move, role: home, motion: move_j, profile: home-return}
+      - {id: home-open-gripper-again, type: tool_action, action: gripper-open}
+
+routes:
+  plate.feed-to-spotting:
+    description: "Feed lift to spotting"
+    robot_lock_scope: transaction
+    resources: [{type: sample}, {type: feed-lift}, {type: spotting}]
+    steps:
+      - {id: lift-ready, type: plc_wait, condition: feed-lift.pick-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: lift-pick-enter, type: robot_flow, template: feed-lift.pick-enter, params: {station_id: {value: default}}}
+      - {id: lift-raise, type: plc_action, action: feed-lift.raise}
+      - {id: lift-raised, type: plc_wait, condition: feed-lift.raised, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: lift-pick-exit, type: robot_flow, template: feed-lift.pick-exit, params: {station_id: {value: default}}}
+      - {id: lift-picked, type: plc_action, action: feed-lift.confirm-picked}
+      - {id: camera-calibrate, type: camera_action, action: plate.calibrate}
+      - {id: spotting-prepare-receive, type: plc_action, action: spotting.prepare-receive}
+      - {id: spotting-put, type: robot_flow, template: suction.put, params: {station_id: {value: spotting}}}
+      - {id: spotting-clamp-plate, type: plc_action, action: spotting.clamp-plate}
+
+  plate.spotting-to-scrape:
+    description: "Spotting to photo/scrape station"
+    robot_lock_scope: transaction
+    resources: [{type: sample}, {type: spotting}, {type: scrape}]
+    steps:
+      - {id: spotting-prepare-release, type: plc_action, action: spotting.prepare-release}
+      - {id: spotting-pick, type: robot_flow, template: suction.pick, params: {station_id: {value: spotting}}}
+      - {id: spotting-finish-release, type: plc_action, action: spotting.finish-release}
+      - {id: scrape-ready, type: plc_wait, condition: scrape.plate-receive-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: scrape-put, type: robot_flow, template: suction.put, params: {station_id: {value: scrape}}}
+      - {id: scrape-loaded, type: plc_action, action: scrape.confirm-plate-loaded}
+      - {id: before-develop-photo, type: camera_action, action: plate.capture-before-develop}
+
+  plate.scrape-to-tank:
+    description: "Photo/scrape station to selected tank"
+    params:
+      tank_id: {type: int, min: 1, max: 8}
+    robot_lock_scope: transaction
+    resources: [{type: sample}, {type: scrape}, {type: tank, id: {param: tank_id}}]
+    steps:
+      - {id: scrape-release-ready, type: plc_wait, condition: scrape.plate-release-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: scrape-pick, type: robot_flow, template: suction.pick, params: {station_id: {value: scrape}}}
+      - {id: scrape-released, type: plc_action, action: scrape.confirm-plate-released}
+      - {id: tank-select, type: plc_action, action: tank.select}
+      - {id: tank-ready, type: plc_wait, condition: tank.receive-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: tank-put, type: robot_flow, template: tank.put, params: {tank_id: {param: tank_id}}}
+      - {id: tank-loaded, type: plc_action, action: tank.confirm-loaded}
+
+  plate.tank-to-scrape:
+    description: "Selected tank to photo/scrape station"
+    params:
+      tank_id: {type: int, min: 1, max: 8}
+    robot_lock_scope: transaction
+    resources: [{type: sample}, {type: tank, id: {param: tank_id}}, {type: scrape}]
+    steps:
+      - {id: tank-select, type: plc_action, action: tank.select}
+      - {id: tank-release-ready, type: plc_wait, condition: tank.release-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: tank-pick, type: robot_flow, template: tank.pick, params: {tank_id: {param: tank_id}}}
+      - {id: tank-released, type: plc_action, action: tank.confirm-released}
+      - {id: scrape-ready, type: plc_wait, condition: scrape.plate-receive-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: scrape-put, type: robot_flow, template: suction.put, params: {station_id: {value: scrape}}}
+      - {id: scrape-loaded, type: plc_action, action: scrape.confirm-plate-loaded}
+      - {id: after-develop-photo, type: camera_action, action: plate.capture-after-develop}
+
+  plate.scrape-to-waste:
+    description: "Photo/scrape station to waste"
+    robot_lock_scope: transaction
+    resources: [{type: sample}, {type: scrape}, {type: waste}]
+    steps:
+      - {id: scrape-release-ready, type: plc_wait, condition: scrape.plate-release-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: scrape-pick, type: robot_flow, template: suction.pick, params: {station_id: {value: scrape}}}
+      - {id: scrape-released, type: plc_action, action: scrape.confirm-plate-released}
+      - {id: waste-ready, type: plc_wait, condition: waste.receive-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: waste-put, type: robot_flow, template: suction.put, params: {station_id: {value: waste}}}
+      - {id: waste-loaded, type: plc_action, action: waste.confirm-loaded}
+
+  consumable.bottle-group-rack-to-staging-b:
+    description: "Bottle group warehouse to staging B"
+    params: {rack_id: {type: enum, values: [bottle]}, slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: consumable-group, id: {param: slot_id}}, {type: staging-b}]
+    steps:
+      - {id: rack-pick, type: robot_flow, template: group-rack.pick, params: {rack_id: {param: rack_id}, slot_id: {param: slot_id}}}
+      - {id: staging-put, type: robot_flow, template: group-staging.put, params: {rack_id: {param: rack_id}}}
+
+  consumable.collector-group-rack-to-staging-a:
+    description: "Powder collector group warehouse to staging A"
+    params: {rack_id: {type: enum, values: [collector]}, slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: consumable-group, id: {param: slot_id}}, {type: staging-a}]
+    steps:
+      - {id: rack-pick, type: robot_flow, template: group-rack.pick, params: {rack_id: {param: rack_id}, slot_id: {param: slot_id}}}
+      - {id: staging-put, type: robot_flow, template: group-staging.put, params: {rack_id: {param: rack_id}}}
+
+  consumable.bottle-group-staging-b-to-rack:
+    description: "Old bottle group staging B to warehouse"
+    params: {rack_id: {type: enum, values: [bottle]}, slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: staging-b}, {type: consumable-group, id: {param: slot_id}}]
+    steps:
+      - {id: staging-pick, type: robot_flow, template: group-staging.pick, params: {rack_id: {param: rack_id}}}
+      - {id: rack-put, type: robot_flow, template: group-rack.put, params: {rack_id: {param: rack_id}, slot_id: {param: slot_id}}}
+
+  consumable.collector-group-staging-a-to-rack:
+    description: "Old collector group staging A to warehouse"
+    params: {rack_id: {type: enum, values: [collector]}, slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: staging-a}, {type: consumable-group, id: {param: slot_id}}]
+    steps:
+      - {id: staging-pick, type: robot_flow, template: group-staging.pick, params: {rack_id: {param: rack_id}}}
+      - {id: rack-put, type: robot_flow, template: group-rack.put, params: {rack_id: {param: rack_id}, slot_id: {param: slot_id}}}
+
+  consumable.collector-staging-a-to-scrape:
+    description: "Single collector staging A to scrape holder"
+    params: {rack_id: {type: enum, values: [collector]}, slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: staging-a, id: {param: slot_id}}, {type: scrape-holder}]
+    steps:
+      - {id: collector-pick, type: robot_flow, template: individual.pick, params: {rack_id: {param: rack_id}, slot_id: {param: slot_id}}}
+      - {id: holder-ready, type: plc_wait, condition: scrape.holder-receive-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: holder-enter, type: robot_flow, template: scrape.holder.put-enter, params: {station_id: {value: default}}}
+      - {id: clamp-holder, type: plc_action, action: scrape.clamp-holder}
+      - {id: holder-clamped, type: plc_wait, condition: scrape.holder-clamped, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: holder-exit, type: robot_flow, template: scrape.holder.put-exit, params: {station_id: {value: default}}}
+      - {id: holder-put-done, type: plc_action, action: scrape.confirm-holder-put}
+
+  consumable.collector-scrape-to-collect:
+    description: "Collector scrape holder to collection station"
+    robot_lock_scope: transaction
+    resources: [{type: scrape-holder}, {type: collect-holder}]
+    steps:
+      - {id: scrape-pick-ready, type: plc_wait, condition: scrape.holder-pick-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: scrape-pick-enter, type: robot_flow, template: scrape.holder.pick-enter, params: {station_id: {value: default}}}
+      - {id: scrape-release, type: plc_action, action: scrape.release-holder}
+      - {id: scrape-released, type: plc_wait, condition: scrape.holder-released, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: scrape-pick-exit, type: robot_flow, template: scrape.holder.pick-exit, params: {station_id: {value: default}}}
+      - {id: scrape-picked, type: plc_action, action: scrape.confirm-holder-picked}
+      - {id: collect-put-ready, type: plc_wait, condition: collect.holder-receive-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: collect-put-enter, type: robot_flow, template: collect.holder.put-enter, params: {station_id: {value: default}}}
+      - {id: collect-clamp, type: plc_action, action: collect.clamp-holder}
+      - {id: collect-clamped, type: plc_wait, condition: collect.holder-clamped, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: collect-put-exit, type: robot_flow, template: collect.holder.put-exit, params: {station_id: {value: default}}}
+      - {id: collect-put-done, type: plc_action, action: collect.confirm-holder-put}
+
+  consumable.bottle-staging-b-to-collect:
+    description: "Single bottle staging B to collection station"
+    params: {rack_id: {type: enum, values: [bottle]}, slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: staging-b, id: {param: slot_id}}, {type: collect-bottle}]
+    steps:
+      - {id: bottle-pick, type: robot_flow, template: individual.pick, params: {rack_id: {param: rack_id}, slot_id: {param: slot_id}}}
+      - {id: collect-ready, type: plc_wait, condition: collect.bottle-receive-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: bottle-put, type: robot_flow, template: collect.bottle.put, params: {station_id: {value: default}}}
+      - {id: bottle-put-done, type: plc_action, action: collect.confirm-bottle-put}
+
+  consumable.collector-collect-to-staging-a:
+    description: "Collection station collector to selected staging-A slot"
+    params: {slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: collect-holder}, {type: staging-a, id: {param: slot_id}}]
+    steps:
+      - {id: collect-pick-ready, type: plc_wait, condition: collect.holder-pick-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: collect-pick-enter, type: robot_flow, template: collect.holder.pick-enter, params: {station_id: {value: default}}}
+      - {id: collect-release, type: plc_action, action: collect.release-holder}
+      - {id: collect-released, type: plc_wait, condition: collect.holder-released, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: collect-pick-exit, type: robot_flow, template: collect.holder.pick-exit, params: {station_id: {value: default}}}
+      - {id: staging-put, type: robot_flow, template: collector.return.put, params: {slot_id: {param: slot_id}}}
+      - {id: holder-returned, type: plc_action, action: collect.confirm-holder-returned}
+
+  consumable.bottle-collect-to-staging-b:
+    description: "Collection station bottle to selected staging-B slot"
+    params: {rack_id: {type: enum, values: [bottle]}, slot_id: {type: int, min: 1, max: 6}}
+    robot_lock_scope: transaction
+    resources: [{type: collect-bottle}, {type: staging-b, id: {param: slot_id}}]
+    steps:
+      - {id: bottle-pick-ready, type: plc_wait, condition: collect.bottle-pick-ready, timeout_s: 120, poll_interval_s: 0.1}
+      - {id: bottle-pick, type: robot_flow, template: collect.bottle.pick, params: {station_id: {value: default}}}
+      - {id: staging-put, type: robot_flow, template: individual.put, params: {rack_id: {param: rack_id}, slot_id: {param: slot_id}}}
+      - {id: bottle-returned, type: plc_action, action: collect.confirm-bottle-returned}

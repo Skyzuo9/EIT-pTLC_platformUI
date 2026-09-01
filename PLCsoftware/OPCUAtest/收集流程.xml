@@ -1,0 +1,702 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-18T00:43:55.0933428" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站.project" modificationDateTime="2026-06-17T21:37:38.1461871">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="Collection_process_收集流程" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="准备step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="收集step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="TON_0">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="搬运step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="ton3s">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="ton5s">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="i">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="stepTimer">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="R_TRIG">
+              <type>
+                <array>
+                  <dimension lower="1" upper="5" />
+                  <baseType>
+                    <derived name="R_TRIG" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+            <variable name="泵初始化完成">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="初始化STEP">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="ton">
+              <type>
+                <array>
+                  <dimension lower="1" upper="10" />
+                  <baseType>
+                    <derived name="TON" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">// TON自复位：Q变TRUE后IN立即变FALSE，下周期复位，形成循环脉冲
+ton3s(IN := bEnable AND NOT ton3s.Q, PT := T#3S);
+
+// Q脉冲时翻转输出（Q仅维持一个周期，无需上升沿检测）
+IF ton3s.Q THEN
+    bOutput := NOT bOutput;
+END_IF
+
+// ── 1. 急停联锁（最高优先级）──
+IF NOT 急停 THEN
+    collect_Step  := 0;
+    collect_Done  := FALSE;
+    collect_Error := TRUE;
+    collect_Busy  := FALSE;
+	准备step:=0;
+	收集step:=0;
+	搬运step:=0;
+	初始化STEP:=0;
+	泵初始化完成:=FALSE;
+    stepTimer(IN := FALSE, PT := T#0S);
+    RETURN;
+END_IF
+
+// ── 2. 复位脉冲（用于错误恢复 / 强制清状态）──
+IF collect_Reset THEN
+    collect_Step  := 0;
+    collect_Done  := FALSE;
+    collect_Error := FALSE;
+    collect_Busy  := FALSE;
+    stepTimer(IN := FALSE, PT := T#0S);
+    RETURN;
+END_IF
+
+// ── 3. Enable=FALSE 时清 Done（次周期复位握手）──
+//    上位机收到 Done 后会拉低 collect_Enable，本段确保下一周期 Done 自动归零，
+//    避免 Done 残留导致 step 0 误判。
+IF NOT collect_Enable THEN
+    collect_Done := FALSE;
+END_IF
+
+// ── 4. 派生 collect_Busy（写者唯一：本 POU 是唯一写者，禁止他处赋值）──
+collect_Busy := (collect_Step &gt;= 10)
+                    AND (collect_Step &lt;= 80)
+                    AND (NOT collect_Done);
+
+
+
+
+
+
+IF MODE_State=1 THEN
+	CASE collect_Step OF
+		0 :                      // 空闲：等待 Enable 上升
+			 IF collect_Enable AND (NOT collect_Done) THEN
+				collect_Step := 5;
+			 END_IF
+		
+		5:	
+		    A00_initialization_初始化();
+			IF 收集平台下压气缸原点 AND 收集平台夹持气缸原点 AND 收集平台升降气缸原点 AND 收集平台推出气缸原点 AND 泵初始化完成 THEN
+				collect_Step:=10;
+				泵初始化完成:=FALSE;
+			END_IF
+			
+			
+				
+		10:                    //就位
+				A10_preparation_准备();
+			IF collect_prepare_OK THEN
+				collect_prepare_OK:=FALSE;
+				collect_Step:=20;
+			END_IF
+			
+			
+			
+		20:                    //收集    	
+			A20_collect_收集();
+			IF collect_OK THEN
+				
+				FOR i := 1 TO collect_count BY 1 DO
+					;   // 占位：单次打液动作（实机替换为真实调用）
+				END_FOR
+				collect_OK:=FALSE;
+				collect_Step:=30;
+			END_IF
+			
+			
+		30:                    //物料搬运
+			A30_transport_物料搬运();
+			 IF 收集工位放收集器完成 THEN
+				 收集工位放收集器完成:=FALSE;
+				collect_Done := TRUE;
+				collect_Step:=0;
+			 END_IF	
+			 
+			 
+		90: // 故障：等待外部 collect_Reset 脉冲（已在顶部统一处理）
+			collect_Error := TRUE;   // 故障态本身不动作，仅等待复位
+	END_CASE
+END_IF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Collection_process_收集流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="ab0a8590-dab9-49d3-9b37-273fda30353e" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>ab0a8590-dab9-49d3-9b37-273fda30353e</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A20_collect_收集">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">ton[1](IN:=收集step=10,PT:=T#0.5S);
+ton[2](IN:=收集step=30,PT:=T#10S);
+R_TRIG[5](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+CASE 收集step OF
+	0 :
+		IF collect_forward_instructions&lt;&gt;'' THEN
+			收集进液自动:=TRUE;
+			
+			
+		END_IF
+		IF %MW1300=0 AND 泵站位符=FALSE  THEN
+			转发转存:=collect_forward_instructions; 
+			%MW1300:=LEN(STR:= 转发转存);   //发送字节数
+			泵站位符:=TRUE;
+			收集step:=10;
+		END_IF
+	10:
+		IF %MW1300=0 AND ton[1].Q THEN
+			转发转存:='/3Q$R';          //查询泵状态指令
+			%MW1300:=LEN(STR:= 转发转存);
+		END_IF
+		
+		
+		IF R_TRIG[5].Q THEN
+			泵站位符:=FALSE;
+			收集step:=20;
+		END_IF
+	
+
+	20:
+		IF TRUE  THEN    //注射泵完成//
+			转发转存:='';
+			%MW300:=128;
+			收集进液自动:=FALSE;
+			收集排液自动:=TRUE;
+			收集正压排液自动:=TRUE;
+			收集计数:=收集计数+1;
+			收集step:=30;
+		END_IF
+	30:
+		IF ton[2].Q THEN
+			TON_0(IN:=TRUE, PT:=T#5S , Q=&gt; , ET=&gt; );
+			IF 收集计数&gt;=collect_count AND TON_0.Q THEN
+				收集计数:=0;
+				收集step:=40;
+			ELSE
+				收集排液自动:=FALSE;
+				收集正压排液自动:=FALSE;
+				收集step:=0;
+			END_IF
+		END_IF
+	40:
+		
+			收集排液自动:=FALSE;
+			收集正压排液自动:=FALSE;
+			collect_OK:=TRUE;
+			收集step:=0;
+
+		
+
+		
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Collection_process_收集流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="ab0a8590-dab9-49d3-9b37-273fda30353e">
+                      <pathStructure isFolder="False" name="A20_collect_收集" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="e628d9bb-b86f-459c-8d95-834e869dc827" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>e628d9bb-b86f-459c-8d95-834e869dc827</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A00_initialization_初始化">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">R_TRIG[1](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+
+//初始化流程
+CASE 初始化STEP OF
+	0:
+		收集下压气缸手动:=FALSE;
+		收集下压气缸自动:=FALSE;
+		收集夹持气缸手动:=FALSE;
+		收集夹持气缸自动:=FALSE;
+		收集升降气缸手动:=FALSE;
+		收集升降气缸自动:=FALSE;
+		收集伸缩气缸手动:=FALSE;
+		收集伸缩气缸自动:=FALSE;
+		收集进液手动:=FALSE;
+		收集进液自动:=FALSE;
+		收集排液手动:=FALSE;
+		收集排液自动:=FALSE;
+		收集正压排液手动:=FALSE;
+		收集正压排液自动:=FALSE;
+		溶液收集瓶定位手动:=FALSE;
+		收集工位允许放收集瓶:=FALSE;
+		收集工位允许放收集器:=FALSE;
+		收集工位允许机器人退出工位:=FALSE;
+		收集工位允许机器人取收集瓶放暂存工位:=FALSE;
+		收集工位允许取收集器:=FALSE;
+		收集工位机器人取收集器放回暂存工位:=FALSE;
+		
+	
+		收集工位放收集瓶完成:=FALSE;
+		收集工位放收集器到工位:=FALSE;
+	
+		收集工位机器人退出完成:=FALSE;
+		
+		收集工位机器人放收集瓶到暂存工位完成:=FALSE;
+		
+		收集工位机器人到达收集器位置:=FALSE;
+
+		collect_prepare_OK:=FALSE;
+		collect_OK:=FALSE;
+		收集工位放收集器完成:=FALSE;
+		收集step:=0;
+		准备step:=0;
+		搬运step:=0;
+		IF %MW1300=0 AND NOT 泵站位符 THEN
+			泵站位符:=TRUE;
+			转发转存:='/3Z0,2,2R$R';     //泵初始化指令 
+			%MW1300:=LEN(STR:= 转发转存);   //发送字节数
+			初始化STEP:=10;
+		END_IF
+	10:
+		IF %MW1300=0 THEN
+			转发转存:='/3Q$R';          //查询泵状态指令
+			%MW1300:=LEN(STR:= 转发转存);
+		END_IF
+		
+		IF R_TRIG[1].Q THEN
+			泵站位符:=FALSE;
+			泵初始化完成:=TRUE;
+			初始化STEP:=0;
+		END_IF
+END_CASE
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+		
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Collection_process_收集流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="ab0a8590-dab9-49d3-9b37-273fda30353e">
+                      <pathStructure isFolder="False" name="A00_initialization_初始化" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="aa784137-18b9-4e3e-8dff-945751912f0f" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>aa784137-18b9-4e3e-8dff-945751912f0f</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A30_transport_物料搬运">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE 搬运step OF
+	0 :                     //复位气缸
+		收集下压气缸自动:=FALSE;
+		
+		搬运step:=5;
+	5:
+		IF 收集平台下压气缸原点 THEN
+			收集升降气缸自动:=FALSE;
+			搬运step:=10;
+		END_IF
+	10:                    //复位伸缩气缸
+		IF 收集平台升降气缸原点 THEN
+			收集伸缩气缸自动:=TRUE;
+			搬运step:=20;
+		END_IF
+	20:                    //允许机器人收集瓶
+		IF 收集平台推出气缸动点 THEN
+			收集工位允许机器人取收集瓶放暂存工位:=TRUE;
+			搬运step:=30;
+		END_IF
+	30:
+		IF 收集工位机器人放收集瓶到暂存工位完成 THEN
+			收集工位允许机器人取收集瓶放暂存工位:=FALSE;
+			收集工位机器人放收集瓶到暂存工位完成:=FALSE;
+			收集伸缩气缸自动:=FALSE;
+			收集工位允许取收集器:=TRUE;
+			搬运step:=40;
+		END_IF
+	40:
+		IF 收集工位机器人到达收集器位置 THEN
+				收集工位机器人到达收集器位置:=FALSE;
+			收集夹持气缸自动:=FALSE;
+			收集工位允许取收集器:=FALSE;
+			搬运step:=50;
+		END_IF
+	50:
+		IF 收集平台夹持气缸原点 THEN
+			收集工位机器人取收集器放回暂存工位:=TRUE;
+			搬运step:=60;
+		END_IF
+	60:
+		 IF 收集工位放收集器完成 THEN
+		 	搬运step:=0;
+		 END_IF
+		
+		
+		
+
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Collection_process_收集流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="ab0a8590-dab9-49d3-9b37-273fda30353e">
+                      <pathStructure isFolder="False" name="A30_transport_物料搬运" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="579fa048-2fd5-4cc5-9bd7-c5589b62fe8e" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>579fa048-2fd5-4cc5-9bd7-c5589b62fe8e</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A10_preparation_准备">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">//准备工作
+CASE 准备step OF	
+	0:
+		IF 收集平台夹持气缸原点 AND 收集平台下压气缸原点 THEN
+		收集工位允许放收集器:=TRUE;
+		准备step:=10;
+		END_IF
+	10:
+		IF 收集工位放收集器到工位 THEN
+			收集夹持气缸自动:=TRUE;
+			收集工位允许放收集器:=FALSE;
+			准备step:=20;
+		END_IF
+	20:
+		IF 收集平台夹持气缸动点 THEN
+			收集工位允许机器人退出工位:=TRUE;
+			准备step:=30;
+		END_IF
+		
+	30:
+		IF 收集工位机器人退出完成 THEN
+			
+			收集工位机器人退出完成:=FALSE;
+			收集工位允许机器人退出工位:=FALSE;
+			准备step:=40;
+		END_IF
+	40 :
+		IF 收集平台推出气缸原点 AND NOT 收集平台瓶子有无传感器 THEN
+			收集伸缩气缸自动:=TRUE;
+			准备step:=50;
+		END_IF
+	50:
+		IF 收集平台推出气缸动点 THEN
+			收集工位允许放收集瓶:=TRUE;
+			准备step:=60;
+		END_IF
+	60:
+	    IF 收集工位放收集瓶完成 THEN
+	    	收集工位允许放收集瓶:=FALSE;
+			收集工位放收集瓶完成:=FALSE;
+			收集伸缩气缸自动:=FALSE;
+			准备step:=70;
+	    END_IF
+	70:
+		IF 收集平台推出气缸原点 AND 收集平台瓶子有无传感器 THEN
+			收集升降气缸自动:=TRUE;
+			准备step:=80;
+		ELSIF 收集平台推出气缸原点 AND NOT 收集平台瓶子有无传感器 THEN
+			收集伸缩气缸自动:=FALSE;
+			准备step:=40;
+		END_IF
+
+	80:
+		IF 收集平台升降气缸动点  THEN
+			收集下压气缸自动:=TRUE;
+			collect_prepare_OK:=TRUE;
+			准备step:=0;
+		END_IF
+		
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Collection_process_收集流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="ab0a8590-dab9-49d3-9b37-273fda30353e">
+                      <pathStructure isFolder="False" name="A10_preparation_准备" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="f4955e0d-2a21-42e4-a9f5-b7fc9d7d8e45" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>f4955e0d-2a21-42e4-a9f5-b7fc9d7d8e45</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="40_Man">
+          <Object Name="Collection_process_收集流程" ObjectId="ab0a8590-dab9-49d3-9b37-273fda30353e">
+            <Object Name="A20_collect_收集" ObjectId="e628d9bb-b86f-459c-8d95-834e869dc827" />
+            <Object Name="A00_initialization_初始化" ObjectId="aa784137-18b9-4e3e-8dff-945751912f0f" />
+            <Object Name="A30_transport_物料搬运" ObjectId="579fa048-2fd5-4cc5-9bd7-c5589b62fe8e" />
+            <Object Name="A10_preparation_准备" ObjectId="f4955e0d-2a21-42e4-a9f5-b7fc9d7d8e45" />
+          </Object>
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

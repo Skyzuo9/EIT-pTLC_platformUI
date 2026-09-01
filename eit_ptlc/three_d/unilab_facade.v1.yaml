@@ -1,0 +1,170 @@
+schema: unilab.ptlc-three-d-facade/v1
+package: eit_ptlc
+
+# These are references to the PlatformUI source-of-truth assets.  The UniLab
+# domain facade must never copy or regenerate the large scene GLB.
+assets:
+  scene:
+    path: models/machine.official-cr5.glb
+    sha256: 6162f80092c5a12aa9552244243fe8579683fdf5c408f8a066377a3978a1ee60
+    media_type: model/gltf-binary
+  scene_manifest:
+    path: models/device-manifest.official-cr5.json
+    sha256: 449679c11b1d5380309a0477e3543a8670c7264a4d937d932f44de15a38c9616
+    media_type: application/json
+  rig_source:
+    path: pipeline/rig_map.yaml
+    sha256: 4f4920d8e9a0b572fa8c73a3b8d1c9df5b23586ce25ea8611f3190b5c46ce69c
+    media_type: application/yaml
+  action_motion_map:
+    path: generated/action-motion-map.json
+    sha256: 568b189bd7c839acf27012851ca8de973fece9cf80e9b007a8c9e90ca9d55729
+    media_type: application/json
+  payload_poses:
+    path: generated/payload-poses.json
+    sha256: d4fa74ec6d8201bd840e02eb36dcd572f8f6eaaf7c2a84254184a7b87c431af8
+    media_type: application/json
+  payload_grips:
+    path: generated/payload-grips.json
+    sha256: ff119458c3fe7a65fb21b40169de6ba030d1b3f3b397308e2b17316fed43dd67
+    media_type: application/json
+  clip_index:
+    path: clips/index.json
+    sha256: 8a25c3a62207bb03a65158d580bec31874fffe2632331514bd130506e0e92dee
+    media_type: application/json
+  robot_points:
+    path: generated/robot-points.json
+    sha256: d4d8a03ee3e9dfb248c6d9eee69b12d69a7069d41aaf9fadada644fd7cd14c00
+    media_type: application/json
+  provenance:
+    path: unilab_provenance.v1.yaml
+    sha256: 59a156383e81e0d1f4aa5a3cb331336a7407d38d1871a11bc69688f647396745
+    media_type: application/yaml
+
+catalog:
+  shared_scene_template: ptlc_shared_scene
+  shared_scene_model_ref: ptlc_shared_scene
+  declaration: catalog.py
+  entry: models/machine.official-cr5.glb
+  format: glb
+  instance_mode: clone_subtree
+
+# Keys are the public PlatformUI action namespaces exposed as UniLab proxy
+# devices.  A station_id selects a subtree already named by scene_manifest;
+# material is a logical projection over the manifest inventory/attachments.
+device_visuals:
+  collect:
+    station_id: COLLECT
+    exclude_node_paths:
+      - ST_COLLECT/ACTUATOR_COL_EXTEND/样品瓶-2
+  develop: {station_id: DEVELOP}
+  feedlift:
+    station_id: FEEDLIFT
+    exclude_node_paths:
+      - ST_FEEDLIFT/AXIS_AXIS_1Z/CARRIAGE.001/INV_MAGAZINE_FEED_TEMPLATE
+  material: {manifest_section: inventory}
+  photoscrape: {station_id: PHOTOSCRAPE}
+  pump: {station_id: PUMP}
+  rail:
+    station_id: RAIL
+    exclude_station_ids: [ROBOT]
+  robot: {station_id: ROBOT}
+  sampling: {station_id: SAMPLING}
+  staging_a:
+    station_id: STAGINGA
+    exclude_node_paths:
+      - ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A
+      - ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B
+  vision: {station_id: VISION}
+
+materials:
+  attachment_collection: attachments
+  state_collection: states
+  pose_asset: payload_poses
+  grip_asset: payload_grips
+  follow_runtime: web/src/three-d/twin/bindings/TrayBinding.js
+  pick_controller: web/src/three-d/twin/scene/MaterialPickController.js
+
+# Rules map physical-graph members to independently instantiable scene
+# entities.  Fully-qualified graph classes are normalized to their final id.
+graph_entities:
+  devices:
+    plc_sampling: {kind: gltf_subtree, namespace: sampling}
+    plc_develop: {kind: gltf_subtree, namespace: develop}
+    plc_collect: {kind: gltf_subtree, namespace: collect}
+    plc_photoscrape: {kind: gltf_subtree, namespace: photoscrape}
+    plc_feedlift: {kind: gltf_subtree, namespace: feedlift}
+    plc_rail: {kind: gltf_subtree, namespace: rail}
+    robot: {kind: moveit_with_gltf_projection, namespace: robot}
+    plc_pump: {kind: gltf_subtree, namespace: pump}
+    vision: {kind: gltf_subtree, namespace: vision}
+    plc_staginga: {kind: gltf_subtree, namespace: staging_a}
+    material: {kind: logical_manifest_section, namespace: material}
+  resources:
+    ptlc_source_sample_vial:
+      kind: gltf_attachment
+      attachment_id: STA_COLLECT_BOTTLE
+    ptlc_plate:
+      kind: procedural_plate
+      provider_kind: platformui_javascript
+      source_module: web/src/three-d/twin/scene/plates/PlateFaceLayer.js
+      state_module: web/src/three-d/twin/bindings/plateTraceState.js
+      geometry_module: web/src/three-d/twin/scene/plates/plateGeometry.js
+      anchor_inventory: magazines
+      anchor_id: feed
+      part_lineage_gap: procedural_plate_part_file
+    ptlc_collector_rack:
+      kind: gltf_attachment_by_site
+      site_map: {staging-a: INV_STAGING_A}
+      exclude_attachment_ids:
+        - INV_STAGING_A_ITEM_1
+        - INV_STAGING_A_ITEM_2
+        - INV_STAGING_A_ITEM_3
+        - INV_STAGING_A_ITEM_4
+        - INV_STAGING_A_ITEM_5
+        - INV_STAGING_A_ITEM_6
+    ptlc_vial_rack:
+      kind: gltf_attachment_by_site
+      site_map: {staging-b: INV_STAGING_B}
+      exclude_attachment_ids:
+        - INV_STAGING_B_ITEM_1
+        - INV_STAGING_B_ITEM_2
+        - INV_STAGING_B_ITEM_3
+        - INV_STAGING_B_ITEM_4
+        - INV_STAGING_B_ITEM_5
+        - INV_STAGING_B_ITEM_6
+    ptlc_powder_collector:
+      kind: gltf_attachment_by_parent_site
+      site_prefix: collector-item-
+      attachment_prefix: INV_STAGING_A_ITEM_
+    ptlc_collection_vial:
+      kind: gltf_attachment_by_parent_site
+      site_prefix: bottle-item-
+      attachment_prefix: INV_STAGING_B_ITEM_
+
+# The GLB contains an articulated CR5 projection, but it is a display target,
+# never the planning/execution authority.  UniLab keeps its existing MoveIt
+# provider and drives both the URDF view and the PlatformUI overlay from the
+# same joint-state stream.
+motion:
+  planning_authority: moveit
+  model:
+    type: package_moveit
+    format: urdf
+    model_ref: package://unilab_arm_cr5/models/model.yaml
+    provider: unilab_arm_cr5:build_moveit_model
+    upstream_repository: https://github.com/Dobot-Arm/DOBOT_6Axis_ROS2_V4
+    upstream_commit: 37730d08b08c74061ae10d4fa5565b4c4c914885
+    upstream_xacro: cra_description/urdf/cr5_robot.xacro
+  trajectory:
+    source: moveit
+    execute_action: /execute_trajectory
+  joint_display:
+    source: moveit_joint_states
+    topic: /joint_states
+    joint_count: 6
+    platform_manifest_path: robot.joints
+  static_scene:
+    asset: scene
+    supplies_motion_authority: false
+    robot_articulation: joint_state_projection_only

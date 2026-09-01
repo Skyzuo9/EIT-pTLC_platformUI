@@ -1,0 +1,69 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s4_photo_before
+label: 3 展开前拍照
+ui:
+  role: segment
+# 原子流程 s4: 点样座 -> 刮板台。取点样后板 -> 放刮板台夹紧 -> 拍 before.jpg -> 板留台。
+# 与 photoscrape_before_photo_cycle 的差别: 不执行末段 unload (那会把板取回机器人手上,
+# 违反边界停放律 —— 段边界样品必须在停放位而非机器人手中); 取板进缸由 s5 承接。
+flow:
+  atomic: true
+  sample: required
+  from: spot_seat
+  to: scrape_table
+  hitl: confirm
+  retry: manual
+vars:
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 拍照图保存目录
+- name: before_path
+  scope: local
+  type: STRING
+  io: out
+  default: ''
+  comment: before图输出路径 (跨段上下文, s9 刮取用)
+resources:
+- robot
+- station:sampling
+- station:photo_scrape
+- station:rail
+body:
+- op: comment
+  text: 'unload: 松开点样定位并取板; 机器人持板 (段内在手, 不落边界)'
+- op: run_script
+  script: sampling_unload
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: '刮板侧准备 + 板上料 (地轨到拍照区位2由 plate_load 自管; 位1≡位2=168mm 实为零位移)'
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_plate_load
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: '拍 before.jpg; 段末板仍被定位夹具夹在刮板台上 (稳定停放), 机器人空手'
+- op: run_script
+  script: photoscrape_before_photo_capture
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+  outputs:
+    before_path:
+      var: before_path

@@ -1,0 +1,147 @@
+schema: ptlc.script/v1
+kind: operation
+name: system_init_all
+label: 全工站初始化
+ui:
+  role: system
+  primary: true
+  order: 1
+# 全工站一键初始化: 跑五个工位的 *.init 原子, 不做任何额外机构移动。
+#
+# 只收 init, 不收工艺: *_prepare 编排虽然开头也调 *.init, 但还含清洗/润洗/上液(耗液耗时),
+#   那是"工艺准备"不是"机构初始化"; 本脚本刻意只调裸 init。
+# 不含的三个工位各有其因:
+#   Pump      —— vacuum_on/off 是资源钩子, 由资源门按引用计数唯一驱动, 单独调会掐掉
+#                在跑流程仍在用的真空 (api/app.py 的 run_action 也据此显式拒绝直调)。
+#   Rail      —— 目标态动作, 无"初始化"语义; 归位属于编排层 rail_move_safe 的事。
+#   StagingA  —— 同上, 定位气缸只有目标态。
+# 机器人只校验不移动: 首步 require_anchor 是只读的 (超差即 UNSAFE, 全程不动臂),
+#   刻意不用 home_ensure —— 后者在安全邻域内会自行 move_j, 是否回零该由操作者决定。
+#   该步不包 try: photoscrape.init 要动三根轴而各站 init 都没有 safety_anchor 硬门,
+#   臂不在 P1 就必须在任何东西动起来之前停住, 不能进失败清单继续往下跑。
+#
+# ── 为什么是"两支并行"这个切法 (2026-07-28, 改并行前逐条核对过 PLC 源码) ──────────
+#
+# 分支按**注射泵 485 总线**切, 不是按工位数平均切。依据是 20260702.project 的 ST:
+#
+#   转发转存 / %MW1300 / 接收字符(AT %MW1001) 是全站**唯一**一套串口收发缓冲,
+#   1~4 号注射泵挂同一条 485。三个工位的 A10_init 都要发泵指令:
+#     Sampling_L2  A10 step10 -> '/4Z0,1,1R'  (泵4)
+#     Develop_L2   A10 step0  -> '/1Z0,2,2R' 或 '/2Z0,2,2R'  (按 Expand_Group 选泵1/泵2)
+#     Collect_L2   A10 step0  -> '/3Z0,2,2R'  (泵3)
+#   三者都规规矩矩取了互斥: IF %MW1300=0 AND NOT 泵站位符 THEN 泵站位符:=TRUE; ...
+#   收到泵空闲上升沿后 泵站位符:=FALSE 释放。
+#
+# 正因为这把锁是**有效**的, 把它们并起来毫无意义: 并发只会让后到者卡在自己的 step0
+# 自旋等锁, 一秒都省不到 —— 却要额外承担 %MX2005.5 (全局"泵空闲"位, **不区分是哪台泵**)
+# 在多站交替持有总线时的边沿归属风险。零收益 + 非零风险, 所以三站钉死在同一分支里,
+# 靠"顺序执行"这个结构本身保证互斥, 完全不依赖 PLC 侧仲裁的完备性。
+#
+#   br0 (无泵支): photoscrape.init -> feedlift.init
+#       两者都不碰 转发转存/%MW1300 —— 已直读 PLC 确认:
+#       PhotoScrape_L2 A10 只清各路手/自动输出并走 10Z->0 / 9X->335 / 8Y->0;
+#       FeedLift_L2    A10 只清 1Z/2Z 的 jog 与 xMoveRel 命令位再校验 bHomed, 无轴运动。
+#   br1 (泵总线支): sampling.init -> 逐缸 develop.init x8 -> collect.init
+#
+# 空间安全: 各站 A10 的前置只要求"机器人退出轴运动区", 都不涉及对方工位; 而 require_anchor
+#   已在 parallel 之前把臂钉在 P1。photoscrape 三轴(8Y/9X/10Z)与上样四轴(4X/5Z/6X/7Y)
+#   分属不同工位不同轴组, 无耦合, 故 photoscrape 不必再像改并行前那样"排最前"。
+#
+# 收益: 总时长 = max(br0, br1)。br1 含 8 次展缸 init 几乎必然更长, 即省下 br0 整段。
+#   这是几十秒量级的改善, 不是成倍加速 —— 瓶颈是展缸那条**不可并**的链 (见下方 for 注释)。
+#
+# 并行下的两个已知 VM 缺口 (都不影响本脚本经 API 跑, 但改这里前要知道):
+#   - vm/thread.py 的 _checkpoint 用单个 _resume_evt + 单个 status: 若从编辑器**单步调试**
+#     本脚本, 一次 resume 会同时放行两支。走 POST /api/plc/stations/init_all 不设断点, 无影响。
+#   - last_result / current_aid 会被后写者覆盖 -> 前端指令指针高亮跳变;
+#     _active_nodes 本就按并行设计过(列表留重复项), 两支同时高亮是正常的。
+# 变量: failed 跨两支共享是安全的 —— assign 从求值到写入之间没有 await, asyncio 下不可打断。
+#   但**失败站的排列顺序变为不确定**(按完成先后), 任何地方都别再假设它是工位顺序。
+#   tank 只在 br1 用, 不跨分支。以上两条由 tests/test_station_init_offline.py 的结构测试锁住。
+vars:
+  - {name: failed, scope: local, type: STRING, default: "", comment: 失败工站清单(空=全部成功)}
+  - {name: tank,   scope: local, type: INT,    default: 0,  comment: 展缸逐缸初始化的缸号游标}
+resources: [robot, station:photo_scrape, station:sampling, station:develop,
+            station:collect, station:feedlift]
+body:
+  - {op: comment, text: "安全预检(只读, 硬门): 臂须停在 P1, 否则 photoscrape 三轴归位有撞臂风险"}
+  - {op: call, action: robot.require_anchor, mode: RUN, args: {point_id: {lit: robot-main.home}}}
+
+  - {op: comment, text: "每站独立 try: 失败只记清单不中断, 两支都跑完再收口, 免得反复重跑才发现第二个故障站"}
+
+  - op: parallel
+    join: all
+    branches:
+
+      # ── br0 无泵支: 全程不碰 485 总线 ────────────────────────────────────
+      - - {op: comment, text: "br0 不碰泵总线: photoscrape 三轴归位 + feedlift 纯清位"}
+
+        - op: try
+          body:
+            - {op: call, action: photoscrape.init, mode: RUN}
+          catch:
+            - error: "*"
+              body:
+                - {op: assign, target: {var: failed},
+                   value: {binop: +, left: {var: failed}, right: {lit: "拍照刮板 "}}}
+
+        - op: try
+          body:
+            - {op: call, action: feedlift.init, mode: RUN}
+          catch:
+            - error: "*"
+              body:
+                - {op: assign, target: {var: failed},
+                   value: {binop: +, left: {var: failed}, right: {lit: "上下料升降 "}}}
+
+      # ── br1 泵总线支: 三站顺序即互斥, 不可拆散也不可再并 ──────────────────
+      - - {op: comment, text: "br1 顺序独占泵总线: 泵4 -> 泵1/2 逐缸 -> 泵3; 拆散这三站会碰 485"}
+
+        - op: try
+          body:
+            - {op: call, action: sampling.init, mode: RUN}
+          catch:
+            - error: "*"
+              body:
+                - {op: assign, target: {var: failed},
+                   value: {binop: +, left: {var: failed}, right: {lit: "上样 "}}}
+
+        # 展缸 init 是按缸的: 每次只清所选缸的阀路/气缸 + 该组泵, 故整站初始化要逐缸跑一遍。
+        # 缸数固定 8 (plc_nodes.yaml 的 Tank_* 数组与 resources.yaml 的 tank_action:1..8 同为 8)。
+        # try 包在循环**内**: 某一缸失败不该带掉其余七缸, 清单里按缸点名。
+        # 这个 for **不能**改成 parallel: 8 个缸共用同一个 Develop_L2 状态机 (都是动作码 10,
+        # 靠 Expand_Target_Tank 选缸), 上位机侧 controller/plc_controller.py 还按工位前缀
+        # 加了 asyncio.Lock —— 并了也只是在这两处排队, 纯增复杂度零收益。
+        - op: for
+          var: tank
+          start: {lit: 1}
+          stop: {lit: 9}
+          body:
+            - op: try
+              body:
+                - {op: call, action: develop.init, mode: RUN, args: {target_tank: {var: tank}}}
+              catch:
+                - error: "*"
+                  body:
+                    - {op: assign, target: {var: failed},
+                       value: {binop: +, left: {var: failed},
+                               right: {binop: +, left: {lit: "展开缸"},
+                                       right: {binop: +, left: {call: str, args: [{var: tank}]},
+                                               right: {lit: " "}}}}}
+
+        - op: try
+          body:
+            - {op: call, action: collect.init, mode: RUN}
+          catch:
+            - error: "*"
+              body:
+                - {op: assign, target: {var: failed},
+                   value: {binop: +, left: {var: failed}, right: {lit: "收集 "}}}
+
+  - {op: comment, text: "收口: 有失败则整体 ERROR 并点名 —— 不能静默 DONE, 否则调用方以为全站已就绪"}
+  - op: if
+    cond: {binop: "!=", left: {var: failed}, right: {lit: ""}}
+    then:
+      - op: raise
+        error: INIT_PARTIAL_FAIL
+        message: {binop: +, left: {lit: "以下工站初始化失败: "}, right: {var: failed}}

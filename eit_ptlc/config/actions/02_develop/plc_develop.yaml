@@ -1,0 +1,195 @@
+# 展缸工位 PLC L2 原子动作 (与 PLC 50_action/Develop_L2 动作码对齐)
+# 所有动作均按目标缸号作用: 派发器在接受请求时由 Expand_Target_Tank 推导 Group/Number,
+# 故每个动作触发前主机须先写 Expand_Target_Tank (1-8).
+# 用户面参数统一为语义名 target_tank (A4): 无 profile 的动作经 param.channel 声明式别名
+# 直透 PLC 节点 Expand_Target_Tank; 有 profile 的 (clean_line/rinse_fill/fill) 由 builder 翻译。
+# 速度/延时 (DT V/M: asp_speed/disp_speed/step_delay) 为可选覆写, 缺省回退 translator 泵档常量。
+# 阶段2收口边界:
+# - 参数契约: 本文件所有 develop.* RUN 动作均以 target_tank(1-8) 作为用户面缸号参数。
+# - 放板缸正反向: 当前 PLC L2 暴露为 code 31/32 两个方向动作, 已形成 retract/extend 闭环;
+#   不强行合并为 BOOL 目标态 action, 因为 PLC 侧尚无消费目标 BOOL 的 L2 参数。
+# - 排液生产原语: develop.drain(code 50) 触发对应 Tank_Drain_Enable 并等待
+#   Tank_Drain_Done/Tank_State=99; develop.release_tank(code 51) 仅在机器人取板后释放
+#   Tank_State=0。二者均走 PLC L2 + ActionExecutor/VM, 不使用 raw output。
+
+develop.init:
+  kind: plc_l2
+  station: develop
+  action_code: 10
+  label: 展开工位复位
+  hint: 清全部输出并初始化注射泵, 用于中断后恢复
+  desc: |-
+    执行步骤：Develop_L2先把1–8号缸换算为组号/组内号；所选缸的气缸、进液、排液、吹气手/自动输出全部清零，再按组向1号或2号注射泵发送Z0,2,2R初始化命令并轮询Q状态。
+    前置与安全：PLC须处于运行/就绪态，target_tank必须为1–8；初始化只作用于所选缸，不包含机器人放板、缸盖到位或溶剂注入。
+    完成与异常：收到对应泵空闲上升沿后返回DONE；PLC不等待所清零阀/气缸的反馈，缸号越界在派发器以ErrorCode 102拒绝，泵无响应由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码10 → A10_init_初始化。
+  modes: []
+  params:
+    - {name: target_tank, type: int, required: true, label: 目标缸号, min: 1, max: 8, channel: Expand_Target_Tank}
+
+develop.clean_line:
+  kind: plc_l2
+  station: develop
+  action_code: 20
+  label: 展缸-清洗管路
+  desc: |-
+    执行步骤：Develop_L2确定目标缸组后，A20只取得共享泵总线、发送上位机生成的Expand_forward_instructions，按组循环发送/1Q或/2Q；收到泵空闲上升沿后再等待3秒并置Expand_Group_clean_OK。
+    前置与安全：PLC须处于运行/就绪态，target_tank、配方和泵指令必须有效；该PLC子程序自身不打开目标缸进/排液阀、不启真空，也不按rinse_repeat_count循环，所需流路必须由工艺编排另行保证。
+    完成与异常：泵空闲并完成3秒收尾后返回DONE；本子程序无阀反馈和显式泵错误分支，泵不空闲或指令链停滞由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码20 → A20_pipeline_清洗管路。
+  modes: []
+  params:
+    - {name: target_tank, type: int, required: true, min: 1, max: 8, label: 目标缸号}
+    - {name: solvent_volume_ml, type: float, required: false, default: 2.0, min: 0.1, max: 25.0, label: 展开剂总体积 (mL)}
+    - {name: solvent_ratio_1, type: float, required: false, default: 1.0, min: 0.0, max: 100.0, label: 溶剂1权重}
+    - {name: solvent_ratio_2, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂2权重}
+    - {name: solvent_ratio_3, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂3权重}
+    - {name: solvent_ratio_4, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂4权重}
+    - {name: rinse_repeat_count, type: int, required: false, default: 1, min: 1, max: 20, label: 润洗重复次数}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: disp_speed, type: int, required: false, min: 1, max: 500, label: "打液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+develop.rinse_fill:
+  kind: plc_l2
+  station: develop
+  action_code: 21
+  label: 展缸-润洗注液
+  desc: |-
+    执行步骤：把所选缸的进液阀、排液阀和气缸自动输出都置TRUE，随后按Expand_rinse_count重复发送Expand_forward_instructions并按组查询/1Q或/2Q；最后等待5秒并置Expand_Group_clean_OK，阀和气缸保持当前输出供后续抽吸承接。
+    前置与安全：PLC须处于运行/就绪态，目标缸与泵指令必须有效；本动作不启动大真空泵，标准编排应随后显式开真空并调用rinse_suction。PLC不检查三类执行件的到位反馈。
+    完成与异常：指定泵循环完成并等待5秒后返回DONE；DONE不代表阀或气缸到位，PLC子程序无显式设备错误分支，泵不空闲由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码21 → A21_rinse_润洗展缸。
+  modes: []
+  # 单趟吸+打为泵内原子执行, 全程 L2 字段静默: 液量上限 25mL @ 旋钮速度下限 V50 ≈ 240s, 留 25% 裕量;
+  # 绝对上限须严格大于停滞预算, 并覆盖多趟循环 (最慢速 ≤7 趟)
+  stall_timeout: 300.0
+  action_timeout: 1800.0
+  params:
+    - {name: target_tank, type: int, required: true, min: 1, max: 8, label: 目标缸号}
+    - {name: solvent_volume_ml, type: float, required: false, default: 2.0, min: 0.1, max: 25.0, label: 展开剂总体积 (mL)}
+    - {name: solvent_ratio_1, type: float, required: false, default: 1.0, min: 0.0, max: 100.0, label: 溶剂1权重}
+    - {name: solvent_ratio_2, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂2权重}
+    - {name: solvent_ratio_3, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂3权重}
+    - {name: solvent_ratio_4, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂4权重}
+    - {name: rinse_repeat_count, type: int, required: false, default: 1, min: 1, max: 20, label: 润洗重复次数}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: disp_speed, type: int, required: false, min: 1, max: 500, label: "打液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+develop.rinse_suction:
+  kind: plc_l2
+  station: develop
+  action_code: 26
+  label: 展缸-润洗抽吸
+  desc: |-
+    执行步骤：承接A21已打开的排液路径；先等待settle_s秒沉降，再要求对应展缸组的废液检测传感器连续TRUE empty_s秒，随后关闭进液阀、打开吹气阀blow_s秒，最后关闭排液阀和吹气阀。
+    前置与安全：PLC须处于运行/就绪态，target_tank为1–8；调用前必须由上位机pump.vacuum_on，正常和异常路径都必须关闭真空。PLC只读组级废液传感器，不直接确认真空泵运行。
+    完成与异常：吹气结束、排液/吹气命令关闭后返回DONE；cap_s秒内废液传感器未连续满足判ErrorCode 402，其余阀反馈不参与完成条件，停滞由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码26 → A26_rinse_suction；四个时长经Tank_Suction_*通道直透，改值免下装。
+  modes: []
+  # 停滞预算须严格 > PLC 侧 402 窗口 (cap_s), 否则竞态把明确的 402 错报为结果不明确。
+  # A26 全程不写 Develop_L2_Step (L2 字段静默), 故本预算须覆盖整动作最坏时长:
+  #   成功路径 = max(settle_s, empty_s) + blow_s = max(30,60)+60 = 120s
+  #   失败路径 = cap_s = 120s (402 直接结束, 不进吹气段)
+  # 两者 < 180 各留 60s 裕量; 该不变式由 test_develop_four_stage_offline 钉死, 放宽任一 max 都会被接住。
+  stall_timeout: 180.0
+  params:
+    - {name: target_tank, type: int, required: true, label: 目标缸号, min: 1, max: 8, channel: Expand_Target_Tank}
+    # 四个时长均须带 default: 缺 default 会退化成"PLC 保持旧值"语义, 对超时参数是隐性状态残留
+    - {name: settle_s, type: float, required: false, default: 3.0, min: 0.0, max: 30.0, label: 入场沉降s, channel: Tank_Suction_Settle_S}
+    - {name: empty_s, type: float, required: false, default: 10.0, min: 1.0, max: 60.0, label: 走空判据s, channel: Tank_Suction_Empty_S}
+    - {name: blow_s, type: float, required: false, default: 30.0, min: 0.0, max: 60.0, label: 吹扫时长s, channel: Tank_Suction_Blow_S}
+    - {name: cap_s, type: float, required: false, default: 120.0, min: 10.0, max: 120.0, label: 抽吸超时s, channel: Tank_Suction_Cap_S}
+
+develop.fill:
+  kind: plc_l2
+  station: develop
+  action_code: 22
+  label: 展缸-上液
+  desc: |-
+    执行步骤：把所选缸进液阀自动输出置TRUE，按Expand_up_liquid_count重复发送上位机生成的Expand_forward_instructions，并按组轮询/1Q或/2Q；全部循环后清除该进液阀并置Expand_up_liquid_OK。
+    前置与安全：PLC须处于运行/就绪态，缸号1–8、配比、体积和泵指令须先通过上位机校验，目标缸应可接液；PLC不读取进液阀到位反馈。
+    完成与异常：全部泵循环收到空闲上升沿且进液输出清除后返回DONE；PLC子程序无显式泵/阀错误分支，未完成由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码22 → A22_up_liquid_上液。
+  modes: []
+  # 单趟吸+打为泵内原子执行, 全程 L2 字段静默: 液量上限 25mL @ 旋钮速度下限 V50 ≈ 240s, 留 25% 裕量;
+  # 绝对上限须严格大于停滞预算, 并覆盖多趟循环 (最慢速 ≤7 趟)
+  stall_timeout: 300.0
+  action_timeout: 1800.0
+  params:
+    - {name: target_tank, type: int, required: true, min: 1, max: 8, label: 目标缸号}
+    - {name: solvent_volume_ml, type: float, required: false, default: 2.0, min: 0.1, max: 25.0, label: 展开剂总体积 (mL)}
+    - {name: solvent_ratio_1, type: float, required: false, default: 1.0, min: 0.0, max: 100.0, label: 溶剂1权重}
+    - {name: solvent_ratio_2, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂2权重}
+    - {name: solvent_ratio_3, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂3权重}
+    - {name: solvent_ratio_4, type: float, required: false, default: 0.0, min: 0.0, max: 100.0, label: 溶剂4权重}
+    - {name: up_liquid_repeat_count, type: int, required: false, default: 1, min: 1, max: 20, label: 上液重复次数}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: disp_speed, type: int, required: false, min: 1, max: 500, label: "打液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+develop.drain:
+  kind: plc_l2
+  station: develop
+  action_code: 50
+  label: 展缸-排液闭环
+  desc: |-
+    执行步骤：Develop_L2置目标缸Tank_Drain_Enable；独立Develop_TankDrain FSM取得该缸大真空泵票并开排液阀，废液组传感器持续满足drain_duration或达到drain_cap后开吹气，依次完成blow与dry计时，最后关排液/吹气、撤泵票、置Done和Tank_State=98。
+    前置与安全：PLC须处于运行/就绪态；仅Tank_State为0/40可新启动，10/90以501拒绝，50/55/56允许重挂，98/99幂等完成。缸盖全程不动；该动作非幂等、不自动重发，参数是全局标量，当前只能串行派发。
+    完成与异常：Tank_State=98/99或Tank_Drain_Done成立后L2返回DONE；急停会关泵票及阀并把在途缸置90，FSM态90映射ErrorCode 502；硬上限只锁存CapHit并继续吹扫，不直接报错。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码50 + Application/40_Man/Develop_TankDrain/A50_Expand_liquid_discharge_排液。
+  modes: []
+  stall_timeout: 180.0
+  action_timeout: 900.0
+  params:
+    - {name: target_tank, type: int, required: true, label: 目标缸号, min: 1, max: 8, channel: Expand_Target_Tank}
+    - {name: drain_duration_s, type: float, required: false, default: 5.0, min: 0.0, max: 600.0, label: 抽液判据时长s, channel: Tank_Drain_S}
+    - {name: drain_cap_s, type: float, required: false, default: 120.0, min: 1.0, max: 1800.0, label: 抽液硬上限s, channel: Tank_Drain_Cap_S}
+    - {name: blow_s, type: float, required: false, default: 30.0, min: 0.0, max: 600.0, label: 吹扫时长s, channel: Tank_Blow_S}
+    - {name: dry_duration_s, type: float, required: false, default: 0.0, min: 0.0, max: 1800.0, label: 原位干燥时长s, channel: Tank_Dry_S}
+
+develop.release_tank:
+  kind: plc_l2
+  station: develop
+  action_code: 51
+  label: 解除展缸占用
+  hint: 只把「已完成」状态的展缸放开, 不动任何泵阀气缸
+  desc: |-
+    执行步骤：动作码51只检查所选缸Tank_State；状态为98、兼容99或已为0时，清Tank_Drain_Enable、Tank_Drain_Done并把Tank_State写0，不驱动泵、阀、气缸或缸盖。
+    前置与安全：PLC须处于运行/就绪态；机器人必须已完全取板且无需继续占用该缸，不得用本动作代替drain。
+    完成与异常：状态归0后同一扫描返回DONE；其它Tank_State以ErrorCode 511在接受门拒绝或运行态报ERROR，缸号越界为102。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码51内联状态释放逻辑。
+  modes: []
+  params:
+    - {name: target_tank, type: int, required: true, label: 目标缸号, min: 1, max: 8, channel: Expand_Target_Tank}
+
+develop.plate_retract:
+  kind: plc_l2
+  station: develop
+  action_code: 31
+  label: 展缸开盖(取板)
+  hint: 打开所选展缸的盖以便取板, 等到位反馈
+  desc: |-
+    执行步骤：按Expand_Group/Expand_Number选择目标缸，把对应气缸自动输出置FALSE，并持续等待该缸“气缸原点”输入成立。
+    前置与安全：PLC须处于运行/就绪态；机器人进入前确认气缸运动区无干涉。取板通常在Tank_State=98后调用，但PLC动作码31不检查Tank_State。
+    完成与异常：对应原点反馈成立后返回DONE；缸号越界在派发器以102拒绝，气缸不到位没有独立ErrorCode，会由上位机停滞/绝对超时报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码31 → A31_放板缸回原点。
+  modes: []
+  params:
+    - {name: target_tank, type: int, required: true, label: 目标缸号, min: 1, max: 8, channel: Expand_Target_Tank}
+
+develop.plate_extend:
+  kind: plc_l2
+  station: develop
+  action_code: 32
+  label: 展缸关盖
+  hint: 关闭所选展缸的盖, 等到位反馈
+  desc: |-
+    执行步骤：按Expand_Group/Expand_Number选择目标缸，把对应气缸自动输出置TRUE，并持续等待该缸“气缸动点”输入成立。
+    前置与安全：PLC须处于运行/就绪态；机器人必须已放板并退出缸盖运动区，板件正确落座。本动作不注液、不启动展开计时，也不检查机器人位置。
+    完成与异常：对应动点反馈成立后返回DONE；缸号越界为102，气缸不到位无独立ErrorCode，由上位机停滞/绝对超时报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Develop_L2 动作码32 → A32_放板缸到动点。
+  modes: []
+  params:
+    - {name: target_tank, type: int, required: true, label: 目标缸号, min: 1, max: 8, channel: Expand_Target_Tank}

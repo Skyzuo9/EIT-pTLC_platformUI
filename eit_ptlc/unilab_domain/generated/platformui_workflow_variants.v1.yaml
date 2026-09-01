@@ -1,0 +1,542 @@
+schema: unilab.platformui-workflow-variants/v1
+generated_from: eit_ptlc/config/recipes/parallel_v1.yaml
+source_sha256: d28ba90e1f93770bbab38a6bf201ad848e2bca813684aea856c05b20b6e2f1c0
+source_recipe: parallel_v1
+source_segments:
+- pf_af0_batch_startup
+- pf_s1_load
+- pf_s2_spot
+- pf_s3_tank_prep
+- pf_s4_photo_before
+- pf_s5_to_tank
+- pf_s6_develop_wait
+- pf_s7_consumables
+- pf_s8_to_scrape
+- pf_s9_scrape
+- pf_s10_collect
+- pf_s11_unload
+material_contract: eit_ptlc/config/recipes/parallel_v1.materials.yaml
+material_segment_workflows:
+- segment_id: af0
+  operation_name: pf_af0_batch_startup
+  workflow_uuid: d5079b84-dd0e-5026-9a51-bcdfbe86786c
+  source: eit_ptlc/workflows/pf_af0_batch_startup_material_v1.py
+  portable_inputs: []
+  portable_outputs: []
+  station_materials: []
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits: {}
+- segment_id: s1
+  operation_name: pf_s1_load
+  workflow_uuid: d290f93c-61d6-55ae-9eee-e2582de6afa0
+  source: eit_ptlc/workflows/pf_s1_load_material_v1.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - &id001
+    name: sampling_wash_solvent
+    role: consumed
+    authority: PlatformUI
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: &id002
+      target_device: plc_sampling
+      mount: plc_sampling
+      site: plate
+- segment_id: s2
+  operation_name: pf_s2_spot
+  workflow_uuid: 1957469b-c632-56a8-a950-59fcdc2b2e5a
+  source: eit_ptlc/workflows/pf_s2_spot_material_v1.py
+  portable_inputs:
+  - sample_vial
+  - plate
+  portable_outputs:
+  - sample_vial
+  - plate
+  station_materials:
+  - &id003
+    name: sampling_rinse_solvent
+    role: consumed
+    authority: PlatformUI
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: spotting
+  commits: {}
+- segment_id: s3
+  operation_name: pf_s3_tank_prep
+  workflow_uuid: 35242728-92f7-5156-88b4-365e1630d5ff
+  source: eit_ptlc/workflows/pf_s3_tank_prep_material_v1.py
+  portable_inputs: []
+  portable_outputs: []
+  station_materials:
+  - &id004
+    name: developing_solvent_1
+    role: consumed
+    authority: PlatformUI
+  - &id005
+    name: developing_solvent_2
+    role: consumed
+    authority: PlatformUI
+  - &id006
+    name: developing_solvent_3
+    role: consumed
+    authority: PlatformUI
+  - &id007
+    name: developing_solvent_4
+    role: consumed
+    authority: PlatformUI
+  - &id008
+    name: prepared_developing_bath
+    role: produced_in_tank
+    authority: PlatformUI
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits: {}
+- segment_id: s4
+  operation_name: pf_s4_photo_before
+  workflow_uuid: a8686956-7ff7-5fe6-8ac1-82e8e4bc712e
+  source: eit_ptlc/workflows/pf_s4_photo_before_material_v1.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials: []
+  operation_outputs:
+    before_path: STRING
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: &id009
+      target_device: plc_photoscrape
+      mount: plc_photoscrape
+      site: plate
+- segment_id: s5
+  operation_name: pf_s5_to_tank
+  workflow_uuid: 7f0a7e8d-2f59-56e9-a8d4-88f120ec2910
+  source: eit_ptlc/workflows/pf_s5_to_tank_material_v1.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - &id010
+    name: prepared_developing_bath
+    role: required
+    authority: PlatformUI
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: &id011
+      target_device: plc_develop
+      mount: plc_develop
+      site_parameter: tank_site
+- segment_id: s6
+  operation_name: pf_s6_develop_wait
+  workflow_uuid: cbdc04be-4b79-597d-aeae-e1981e6b226b
+  source: eit_ptlc/workflows/pf_s6_develop_wait_material_v1.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - &id012
+    name: prepared_developing_bath
+    role: consumed_and_drained
+    authority: PlatformUI
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits: {}
+- segment_id: s7
+  operation_name: pf_s7_consumables
+  workflow_uuid: 578553d9-0bd1-5528-9dc3-3197b51ac72c
+  source: eit_ptlc/workflows/pf_s7_consumables_material_v1.py
+  portable_inputs:
+  - collector
+  - vial
+  portable_outputs:
+  - collector
+  - vial
+  station_materials: []
+  operation_outputs:
+    collector_hole: INT
+    bottle_hole: INT
+  bind_inputs: {}
+  lineage: null
+  commits:
+    collector: &id013
+      target_device: plc_photoscrape
+      mount: plc_photoscrape
+      site: collector
+- segment_id: s8
+  operation_name: pf_s8_to_scrape
+  workflow_uuid: d9b8a129-594f-5bdd-a0be-d63a3027fdbe
+  source: eit_ptlc/workflows/pf_s8_to_scrape_material_v1.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials: []
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: &id014
+      target_device: plc_photoscrape
+      mount: plc_photoscrape
+      site: plate
+- segment_id: s9
+  operation_name: pf_s9_scrape
+  workflow_uuid: fc971558-26d6-5422-9b1f-ea25da3af912
+  source: eit_ptlc/workflows/pf_s9_scrape_material_v1.py
+  portable_inputs:
+  - plate
+  - collector
+  portable_outputs:
+  - plate
+  - collector
+  station_materials: []
+  operation_outputs: {}
+  bind_inputs:
+    before_path: STRING
+  lineage: scraping
+  commits: {}
+- segment_id: s10
+  operation_name: pf_s10_collect
+  workflow_uuid: c22a5058-d936-5f1d-85ba-decef8cff52f
+  source: eit_ptlc/workflows/pf_s10_collect_material_v1.py
+  portable_inputs:
+  - collector
+  - vial
+  portable_outputs:
+  - collector
+  - vial
+  station_materials:
+  - &id015
+    name: collection_elution_solvent
+    role: consumed
+    authority: PlatformUI
+  operation_outputs: {}
+  bind_inputs:
+    collector_hole: INT
+    bottle_hole: INT
+  lineage: collection
+  commits:
+    collector: &id016
+      target_device: plc_staginga
+      mount: staging_a_stack
+      site_parameter: collector_site
+    vial: &id017
+      target_device: plc_staginga
+      mount: staging_b_stack
+      site_parameter: bottle_site
+- segment_id: s11
+  operation_name: pf_s11_unload
+  workflow_uuid: 2d9caf43-123e-5289-880b-9fdf8c8697e0
+  source: eit_ptlc/workflows/pf_s11_unload_material_v1.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - &id018
+    name: waste_magazine_seed_plate
+    role: required
+    authority: PlatformUI
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: &id019
+      target_device: plc_feedlift
+      mount: plc_feedlift
+      site: waste-stack
+runtime_segment_workflows_v2:
+- segment_id: af0
+  operation_name: pf_af0_batch_startup
+  workflow_uuid: 42edb8c6-91d8-5da7-8473-8522af81ca27
+  source: eit_ptlc/workflows/pf_af0_batch_startup_runtime_v2.py
+  portable_inputs: []
+  portable_outputs: []
+  station_materials: []
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits: {}
+- segment_id: s1
+  operation_name: pf_s1_load
+  workflow_uuid: 8b19fb70-5e1c-507f-8496-231e65339141
+  source: eit_ptlc/workflows/pf_s1_load_runtime_v2.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - *id001
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: *id002
+- segment_id: s2
+  operation_name: pf_s2_spot
+  workflow_uuid: 8cea4a6a-8f36-535f-bd94-ea2da47606bd
+  source: eit_ptlc/workflows/pf_s2_spot_runtime_v2.py
+  portable_inputs:
+  - sample_vial
+  - plate
+  portable_outputs:
+  - sample_vial
+  - plate
+  station_materials:
+  - *id003
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: spotting
+  commits: {}
+- segment_id: s3
+  operation_name: pf_s3_tank_prep
+  workflow_uuid: 0ab6a6ae-48e0-50df-b938-6f0395bd06b8
+  source: eit_ptlc/workflows/pf_s3_tank_prep_runtime_v2.py
+  portable_inputs: []
+  portable_outputs: []
+  station_materials:
+  - *id004
+  - *id005
+  - *id006
+  - *id007
+  - *id008
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits: {}
+- segment_id: s4
+  operation_name: pf_s4_photo_before
+  workflow_uuid: a2cd9847-57f6-5e64-af97-8e74bfac38c6
+  source: eit_ptlc/workflows/pf_s4_photo_before_runtime_v2.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials: []
+  operation_outputs:
+    before_path: STRING
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: *id009
+- segment_id: s5
+  operation_name: pf_s5_to_tank
+  workflow_uuid: b0c52f6e-2618-5ab9-abf8-34ff39600610
+  source: eit_ptlc/workflows/pf_s5_to_tank_runtime_v2.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - *id010
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: *id011
+- segment_id: s6
+  operation_name: pf_s6_develop_wait
+  workflow_uuid: 5f5e63da-c47a-58b8-be85-aed688aa91f0
+  source: eit_ptlc/workflows/pf_s6_develop_wait_runtime_v2.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - *id012
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits: {}
+- segment_id: s7
+  operation_name: pf_s7_consumables
+  workflow_uuid: 315ab724-2b09-53c9-b11d-8feba62449f6
+  source: eit_ptlc/workflows/pf_s7_consumables_runtime_v2.py
+  portable_inputs:
+  - collector
+  - vial
+  portable_outputs:
+  - collector
+  - vial
+  station_materials: []
+  operation_outputs:
+    collector_hole: INT
+    bottle_hole: INT
+  bind_inputs: {}
+  lineage: null
+  commits:
+    collector: *id013
+- segment_id: s8
+  operation_name: pf_s8_to_scrape
+  workflow_uuid: 8fc3216e-33b8-5b57-8b9a-4d23adbb7db1
+  source: eit_ptlc/workflows/pf_s8_to_scrape_runtime_v2.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials: []
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: *id014
+- segment_id: s9
+  operation_name: pf_s9_scrape
+  workflow_uuid: 24c631bb-245d-543e-9b4c-7c80ff0fb702
+  source: eit_ptlc/workflows/pf_s9_scrape_runtime_v2.py
+  portable_inputs:
+  - plate
+  - collector
+  portable_outputs:
+  - plate
+  - collector
+  station_materials: []
+  operation_outputs: {}
+  bind_inputs:
+    before_path: STRING
+  lineage: scraping
+  commits: {}
+- segment_id: s10
+  operation_name: pf_s10_collect
+  workflow_uuid: 75e34240-fd00-51bd-80bf-78f384e9f0bd
+  source: eit_ptlc/workflows/pf_s10_collect_runtime_v2.py
+  portable_inputs:
+  - collector
+  - vial
+  portable_outputs:
+  - collector
+  - vial
+  station_materials:
+  - *id015
+  operation_outputs: {}
+  bind_inputs:
+    collector_hole: INT
+    bottle_hole: INT
+  lineage: collection
+  commits:
+    collector: *id016
+    vial: *id017
+- segment_id: s11
+  operation_name: pf_s11_unload
+  workflow_uuid: 26220c7a-7d51-59ec-88a0-d1350cbcdbb1
+  source: eit_ptlc/workflows/pf_s11_unload_runtime_v2.py
+  portable_inputs:
+  - plate
+  portable_outputs:
+  - plate
+  station_materials:
+  - *id018
+  operation_outputs: {}
+  bind_inputs: {}
+  lineage: null
+  commits:
+    plate: *id019
+typed_station_operations:
+- operation_name: sampling_prepare
+  namespace: sampling
+  inputs:
+  - flush_volume_ml
+  - outer_wash_volume_ml
+  - spot_head_volume_ml
+  - asp_speed
+  - flush_disp_speed
+  - spot_head_disp_speed
+  - step_delay
+- operation_name: sampling_execute
+  namespace: sampling
+  inputs:
+  - plate_spec
+  - plate_no
+  - well
+  - spot_x_start
+  - spot_x_end
+  - spot_y_height
+  - sample_volume_ml
+  - dry_cycles
+  - spot_speed_mm_s
+  - dry_speed_mm_s
+  - spot_disp_speed
+  - over_aspirate_ml
+  - air_gap_ml
+  - rinse_rounds
+  - rinse_volume_ml
+  - mix_volume_ml
+  - mix_count
+- operation_name: develop_prepare
+  namespace: develop
+  inputs:
+  - tank
+  - solvent_ratio_1
+  - solvent_ratio_2
+  - solvent_ratio_3
+  - solvent_ratio_4
+  - tank_rinse_volume_ml
+  - develop_volume_ml
+  - rinse_repeat_count
+  - up_liquid_repeat_count
+  - tank_asp_speed
+  - tank_disp_speed
+  - tank_suction_empty_s
+  - tank_suction_cap_s
+- operation_name: pf_s6_develop_wait
+  namespace: develop
+  inputs:
+  - tank
+  - auto_drain
+  - dry_duration_s
+- operation_name: photoscrape_before_photo_capture
+  namespace: photoscrape
+  inputs:
+  - sample_id
+  - save_dir
+- operation_name: photoscrape_process
+  namespace: photoscrape
+  inputs:
+  - sample_id
+  - save_dir
+  - before_path
+  - band_id
+  - mode
+  - fixed_summary_path
+  - fixed_band_id
+  - reconcile_photo
+- operation_name: collect_execute
+  namespace: collect
+  inputs:
+  - solvent_volume_ml
+  - liquid_repeat_count
+variants:
+- id: ptlc_parallel_v4
+  workflow_uuid: 1a424e61-d0fe-5489-86ae-11ca393d21b8
+  source: eit_ptlc/workflows/ptlc_parallel_v4.py
+  operation_projection: named_typed_action
+- id: ptlc_parallel_station_operation_v1
+  workflow_uuid: c76bb7fd-add3-58b7-b950-bdf494c9af80
+  source: eit_ptlc/workflows/ptlc_parallel_station_operation_v1.py
+  operation_projection: generic_run_station_operation_action
+- id: ptlc_parallel_operation_review_v1
+  workflow_uuid: b2a6a5ef-07e9-5d3e-9695-f0ac1f26700f
+  source: eit_ptlc/workflows/ptlc_parallel_operation_review_v1.py
+  operation_projection: expandable_scheme_1_subworkflows
+- id: ptlc_parallel_segments_v1
+  workflow_uuid: 62a2f155-1b29-5ac2-b8bf-463656c98621
+  source: eit_ptlc/workflows/ptlc_parallel_segments_v1.py
+  operation_projection: expandable_material_segment_subworkflows
+- id: ptlc_parallel_segments_v2
+  workflow_uuid: 6b2cc909-7fbc-56b0-88ac-0e98f279a7ea
+  source: eit_ptlc/workflows/ptlc_parallel_segments_v2.py
+  operation_projection: hierarchical_display_atomic_runtime_subworkflows

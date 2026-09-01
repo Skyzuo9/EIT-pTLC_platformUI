@@ -1,0 +1,42 @@
+schema: ptlc.script/v1
+kind: operation
+name: rail_move_safe
+label: 地轨-安全移动 (先校验机械臂在安全位再移动)
+ui:
+  role: helper
+  hidden: true
+# 通用件: 地轨移动会带着机械臂整体平移, 移动前必须保证机械臂在安全位 (P1=robot-main.home)。
+#   确保式: 不在位时按安全邻域策略自动回零 (robot.home_ensure); 邻域外/吸盘持真空则硬停, 操作员处置。
+#   rail.move 原语自带同一确保式安全门 (executor safety_anchor), 此处显式声明编排层语义并留执行轨迹。
+vars:
+  - name: target
+    scope: local
+    type: INT
+    io: in
+    default: 1
+    comment: 地轨目标位
+    # 标签带数字前缀: 既让操作员看得懂, 又与日志/PLC 槽号对得上。
+    # 与 config/actions/06_rail/plc_rail.yaml 的 Rail_Target_Position 同一张表。
+    enum:
+      - {value: 1, label: 1 上样}
+      - {value: 2, label: 2 拍照}
+      - {value: 3, label: 3 收集}
+      - {value: 4, label: 4 工具}
+      - {value: 5, label: 5 展开}
+      - {value: 6, label: 6 仓库}
+resources: [robot, station:rail]
+body:
+  - {op: comment, text: 确保机械臂在安全位 P1 (安全邻域内自动回零; 邻域外/持真空停流程)}
+  - op: call
+    action: robot.home_ensure
+    args:
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - {op: comment, text: 安全位确认 -> 移动地轨到目标位}
+  - op: call
+    action: rail.move
+    args:
+      Rail_Target_Position: {var: target}
+    mode: RUN

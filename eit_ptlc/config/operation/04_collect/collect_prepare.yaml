@@ -1,0 +1,15 @@
+schema: ptlc.script/v1
+kind: operation
+name: collect_prepare
+label: 收集-准备
+ui:
+  role: station_phase
+  station: collect
+  phase: prepare
+  primary: true
+  order: 41
+vars: []
+resources: ["station:collect"]
+body:
+  - {op: comment, text: "准备: 复位收集站气缸/阀/泵, 必须早于接粉收集器放入"}
+  - {op: call, action: collect.init, mode: RUN}

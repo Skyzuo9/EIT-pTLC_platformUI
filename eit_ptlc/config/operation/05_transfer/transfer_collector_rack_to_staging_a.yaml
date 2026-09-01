@@ -1,0 +1,18 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_collector_rack_to_staging_a
+label: 转运-收集器组 货架→中转A (上位机, 参 slot_id)
+# 重规划自路线 consumable.collector-group-rack-to-staging-a. 纯机器人; 货架位6取, 中转A整板放=位3(350) (两段地轨).
+# 与 transfer_collector_staging_a_to_rack 取板对称: 同一块板同一物理位, 组中转点 P37/P39 示教在位3=350 (金标准), 故放/取地轨须一致=位3。
+vars:
+  - {name: slot_id, scope: local, type: INT, io: in, default: 1, comment: 货架槽位 1-6}
+resources: [robot, "station:rail", "consumable-group", "staging-a"]
+body:
+  - {op: comment, text: 从货架(位6)取收集器组 —— 地轨由 robot_group_rack_pick enter 处 rail.ensure(6) 自动到位}
+  - {op: run_script, script: robot_group_rack_pick, inputs: {rack_id: {lit: collector}, slot_id: {var: slot_id}}, outputs: {}}
+  - {op: comment, text: '放板前先松开中转A定位气缸 (自守卫: 不依赖调用方留下的气缸态, 否则整板会怼上夹紧的气缸)'}
+  - {op: call, action: staging_a.locator_a, mode: RUN, args: {target: {lit: false}}}
+  - {op: comment, text: 放收集器整板入中转A(位3=350, 金标准; 点 P37@位3) —— 地轨由 robot_group_staging_put enter 处 rail.ensure(3) 自动到位}
+  - {op: run_script, script: robot_group_staging_put, inputs: {rack_id: {lit: collector}}, outputs: {}}
+  - {op: comment, text: 板已落位, 夹紧定位气缸 (终态板被固定, 后续小夹爪取单件才不会把整板带走)}
+  - {op: call, action: staging_a.locator_a, mode: RUN, args: {target: {lit: true}}}

@@ -1,0 +1,91 @@
+schema: unilab.ptlc-three-d-provenance/v1
+package: eit_ptlc
+
+# 可提交仓库里能够证明的完整链路。原始 CAD 按 PlatformUI 的既有政策留在
+# hardware_root，不把 SLDASM/SLDPRT 猜写成仓库内文件。
+source:
+  system: SolidWorks
+  hardware_root: E:/eit_lab/eit_lab_hardware/eit_ptlc_station
+  assembly: E:/eit_lab/eit_lab_hardware/eit_ptlc_station/TLC设备总装.SLDASM
+  fallback_step: E:/eit_lab/eit_lab_hardware/eit_ptlc_station/TLC设备总装.STEP
+  repository_presence: external-excluded
+  declaration: SOURCE_ASSETS.yaml
+
+export:
+  preferred:
+    tool: SolidWorks XR exporter
+    artifact: exports/TLC_full_native.glb
+    repository_presence: generated-excluded
+  fallback:
+    tool: STEP AP214 + cascadio
+    artifact: exports/TLC_full_AP214.STEP
+    repository_presence: generated-excluded
+
+pipeline:
+  config: pipeline/pipeline.yaml
+  stages:
+    - pipeline/00_export_gltf.py
+    - pipeline/03_clean_model.py
+    - pipeline/sync_ptlc_robot.py
+    - pipeline/gen_twin_manifest.py
+    - pipeline/04_optimize.mjs
+  rig: pipeline/rig_map.yaml
+  final_scene: models/machine.official-cr5.glb
+  final_manifest: models/device-manifest.official-cr5.json
+
+scene_entity_contract:
+  instancing: shared_glb_subtree
+  selector: exact_gltf_node_path_and_index
+  transform_authorities:
+    asset: glTF local/world matrices
+    graph: UniLab graph local/world matrices
+    transport: PlatformUI payload pose + TOOL_MOUNT grip
+  motion_authority:
+    robot: MoveIt
+    glb_robot: joint_state_projection_only
+
+known_lineage:
+  - id: full_assembly_to_scene
+    status: known
+    source: E:/eit_lab/eit_lab_hardware/eit_ptlc_station/TLC设备总装.SLDASM
+    export: exports/TLC_full_native.glb
+    output: models/machine.official-cr5.glb
+  - id: manifest_to_scene_selectors
+    status: known
+    source: models/device-manifest.official-cr5.json
+    output: glTF node path/index/mesh subtree
+  - id: payload_follow_contract
+    status: known
+    source:
+      - generated/payload-poses.json
+      - generated/payload-grips.json
+      - web/src/three-d/twin/bindings/TrayBinding.js
+      - web/src/three-d/twin/scene/MaterialPickController.js
+    output: home/graph-parent/TOOL_MOUNT bindings
+  - id: plate_procedural_projection
+    status: known
+    source:
+      - web/src/three-d/twin/bindings/plateTraceState.js
+      - web/src/three-d/twin/scene/plates/PlateFaceLayer.js
+      - web/src/three-d/twin/scene/plates/plateGeometry.js
+    output: procedural plate attached to an inventory magazine selector
+
+gaps:
+  - id: exact_part_for_scene_selector
+    status: gap
+    scope: station and payload selector roots
+    reason: >-
+      原始 CAD 与中间 work/structure.json 按仓库政策排除；现有 manifest 能精确证明
+      装配体、最终 GLB 以及节点路径，但不能对所有节点无猜测地还原到唯一 SLDPRT。
+    repair_evidence:
+      - 原始 TLC设备总装.SLDASM
+      - 导出时生成的 work/structure.json
+  - id: procedural_plate_part_file
+    status: gap
+    scope: ptlc_plate
+    reason: >-
+      rig_map 能证明 feed/waste 玻璃实例与 GLB 锚点，板面本身由前端程序化生成；
+      当前仓库没有把该实例映射到唯一 SLDPRT 路径的证据。
+    repair_evidence:
+      - 原始 TLC设备总装.SLDASM
+      - 玻璃实例对应的 SolidWorks 零件路径

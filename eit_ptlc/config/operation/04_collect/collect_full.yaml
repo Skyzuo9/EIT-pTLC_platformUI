@@ -1,0 +1,25 @@
+schema: ptlc.script/v1
+kind: operation
+name: collect_full
+# [弃用 2026-06-24] 纯气缸原子黑盒, 缺机器人放瓶/取瓶交错缝且 init/clamp 顺序错位 (见缺口A5)。
+# 顶层流程改用 collect_cycle (气缸原子↔机器人收集器/瓶 交错)。本文件暂留仅供 test_stations_l2_offline 加载校验。
+label: "收集-完整流程 [弃用, 见 collect_cycle] (纯设备原子串联)"
+ui:
+  role: legacy
+  hidden: true
+vars: []
+resources: [station:collect]
+body:
+  - {op: call, action: collect.init, mode: RUN}
+  - {op: comment, text: 机器人放收集器后夹紧}
+  - {op: call, action: collect.clamp, mode: RUN}
+  - {op: comment, text: 机器人退出后伸出}
+  - {op: call, action: collect.extend, mode: RUN}
+  - {op: comment, text: 机器人放瓶后缩回升降下压}
+  - {op: call, action: collect.lift_press, mode: RUN}
+  - {op: call, action: collect.collect, mode: RUN}
+  - {op: call, action: collect.transport_extend, mode: RUN}
+  - {op: comment, text: 机器人取瓶到中转后缩回}
+  - {op: call, action: collect.retract, mode: RUN}
+  - {op: comment, text: 机器人到收集器后松夹持}
+  - {op: call, action: collect.release_clamp, mode: RUN}

@@ -1,0 +1,241 @@
+# 物料拓扑 (单一真源)
+# ==================
+# 唯一真源: 有哪些物料种类、每类有哪些位置、每个位置对应哪个 PLC 传感器。
+# 后端 runtime/material_store.py 的 load_topology 读它, 前端经 GET /api/materials/topology 读它 ——
+# 左 Dock 的种类导航与物料页的分区顺序全部由本文件驱动, 两侧不再各自硬编码。
+#
+# ── 传感器为什么用「字节 + 位」而不是中文点名 (三条实证) ────────────────────
+#   1. OPC UA 浏览名是 GBK 编码, asyncua 按 UTF-8 解会成带代理字符的乱码, 按中文名查找脆弱
+#      (还原需 name.encode("utf-8","surrogateescape").decode("gbk"));
+#   2. 字节节点 IX8-IX12 是 ASCII 名、在 Host_Computer 容器、经 plc.read_host_var 已验证可读;
+#   3. 字节读+取位 与 直读 IO 容器 bit 节点 已交叉验证一致 —— 机器人工具检测1/2/3 两条路都得 [1,1,0]。
+#   中文点名保留在 name 字段里作文档与现场对照用, 不参与寻址。
+#
+# ── polarity: 必填, 无默认值 ────────────────────────────────────────────────
+#   nc = 常闭: 空闲输出 True, 有料时被拉低 -> **False = 有料**
+#   no = 常开: 空闲输出 False, 有料时置位 -> **True  = 有料**
+#        ⚠ yaml 1.1 把裸 no 解析成布尔 False, 常开必须写成带引号的 "no" (加载器会专门报这个坑)
+#   刻意不设默认: 极性猜错会让整页在位显示全反, 且这个坑本项目已经踩过两次:
+#   最初按 "bit=1 表示有板"(即 NO) 解读; 2026-07-26 金属触碰实验误判为 NC 翻转一轮
+#   (当时料架上有托盘, raw=1 其实是 NO 的有料态, 被当成了"空闲 True");
+#   2026-07-27 托盘对照 + PLC 程序语义(NOT 传感器=中转位空)互证该族确为 NO, 翻回。
+#   verified: 是否已现场实证该点极性; false 时页面标注"极性未核实", 对账结果仅供参考。
+
+schema: ptlc.material_topology/v1
+
+# 顺序即左 Dock 与页面分区顺序; key 即页面锚点 (#tray / #feed / #glass / #solvent)
+categories:
+
+  # ── 盘位: 托盘(整板)能放的地方 —— 货架 + 两个中转, 共三处 ──────────────
+  - key: tray
+    label: 盘位
+    hint: 托盘存放与中转 · 货架(12库位) + 中转托盘位A/B
+    locations:
+      # 货架 12 库位: 软件记 72 格孔位余量, 传感器只做板级校验。
+      # ⚠ 2026-07-26 现场实测这 12 路无信号 (传感器指示灯不亮 = 未供电), 软件侧全通等硬件修好。
+      #   三态 A/B 对照 (很多托盘 / 拿掉一块 / 全部拿掉) 读数完全相同, 已排除极性与读法问题。
+      - id: rack
+        label: 货架
+        area: null                     # 货架不是中转区, 无 staging_occupancy 行
+        rack_slots: true               # 特例: 按 (kind, plate) 展开 12 个在位点, 见下 rack_bits
+        sensor:
+          name: 料库检测1..12
+          rack_bits:                   # 12 个位, 顺序 = collector 1-6 然后 bottle 1-6
+            - {byte: IX11, bit: 0}
+            - {byte: IX11, bit: 1}
+            - {byte: IX11, bit: 2}
+            - {byte: IX11, bit: 3}
+            - {byte: IX11, bit: 4}
+            - {byte: IX11, bit: 5}
+            - {byte: IX11, bit: 6}
+            - {byte: IX11, bit: 7}
+            - {byte: IX12, bit: 0}
+            - {byte: IX12, bit: 1}
+            - {byte: IX12, bit: 2}
+            - {byte: IX12, bit: 3}
+          polarity: nc
+          verified: false
+          # 2026-07-27 同族单点(中转A/B+上料1/2)已实证为 NO ⇒ 本组"同类 NC 推定"失效。
+          # 但信号未接入, 解码怎么翻都无意义; 暂维持 nc 不动。
+          # 【2026-08-02】verified:false 的行页面只显读数不判定 (ok=None, 不再红/绿), 故翻
+          #   极性也不会再造成 12 行全标红; 板级在架改由物料页人工账 rack_occupancy 维护
+          #   (有板/无板, 参与统计剔除与换板/预填/批次准入过滤)。
+          # ⚠ 正因这 12 路不可用, 换板决策 (material.plan_staging) 对货架侧只信账本, 不做在位核对;
+          #   能防撞的只有下面中转A/B 那两路。硬件接通并按 no 重验、翻 verified:true 后, 判定
+          #   自动恢复 —— 那时对比对象就是人工在架账。
+          note: 2026-07-26 实测未供电(指示灯不亮)恒 False; 同族 07-27 实证 NO, 硬件接通后按 no 重验再翻
+
+      # 中转A: 服务刮板/拍照工位 (transfer_collector_staging_a_to_scrape 从此取件)
+      - id: staging-a
+        label: 中转托盘位A (刮板拍照)
+        area: staging-a                # 对应 staging_occupancy.area, 软件记板号
+        sensor:
+          name: 刮板拍照暂存工位传感器
+          byte: IX10
+          bit: 2
+          polarity: "no"
+          verified: true
+          note: 2026-07-27 现场实证 空位=0; PLC 机器人程序按 NOT 传感器 判"中转位空可放板", NO 语义互证
+
+      # 中转B: 服务收集平台 (transfer_bottle_staging_b_to_collect 从此取件)
+      - id: staging-b
+        label: 中转托盘位B (收集平台)
+        area: staging-b
+        sensor:
+          name: 收集平台暂存工位传感器
+          byte: IX8
+          bit: 2
+          polarity: "no"
+          verified: true
+          note: 2026-07-27 现场实证 空位=0; 同型号随中转A一并按 NO 互证
+
+    # ── 单件内容物的量纲与名义容量 (装量条的分母) ──────────────────────────
+    # 声明它才有装量条: 没声明的 kind 前端整条不渲染 —— 与 presenceText 返回 '—' 同一条
+    # 纪律, "不知道"不许画成 0%。加载器拒绝 capacity<=0, 免得有人用 0 把这条绕过去。
+    #
+    # ⚠ 两个量都**没有任何测量硬件**, 与溶剂瓶余量同一处境:
+    #   粉量 = 视觉谱带轮廓面积 × gcode.scrape.total_depth_mm × gcode.scrape.bulk_factor
+    #   液量 = collect.collect 的 solvent_volume_ml × liquid_repeat_count
+    #   估错只能人工覆盖 (POST /api/materials/cell_amount)。
+    #
+    # capacity 的出处是三维那边量出来的内腔几何 (three_d/pipeline/rig_map.yaml 的
+    # inventory.consumables.contents), 这里是它的**镜像**, 改一处要改两处:
+    #   collector 粉桶  自由粉腔 Ø26 × 可用深 20mm ⇒ π·13²·20 = 10617 mm³
+    #                   (筒身 100.5mm 里只有 [-20.0,+2.0] 这 22mm 没被滤芯端面挡住,
+    #                    声明留 2mm 余量取 20)
+    #   bottle    样品瓶 内径 22 × 可用深 78mm ⇒ π·11²·78 = 29.65 mL
+    #                   ("40mL" 是瓶身标称即灌到瓶口, 这里记的是液柱能表达的可用腔容;
+    #                    可用深 78 = 实测肩高 83.0 − 瓶底 5.0, **瓶颈那 12mm 不算体积** ——
+    #                    2026-08-07 由 rig_map 那份剖面实测订正, 原值 85/32.31 顶进了颈里)
+    contents:
+      - {kind: collector, label: 硅胶粉, unit: mm³, capacity: 10617.0}
+      - {kind: bottle,    label: 淋洗液, unit: mL,  capacity: 29.65}
+
+  # ── 件位: 单件耗材在工位夹具上的停放位 ──────────────────────────────────
+  # 小夹爪 (3 号刀) 从中转孔位拔出一个粉桶/样品瓶, 送到工位上的夹具里 —— 从那一刻起到
+  # 它被取回中转板之前, 这件耗材**既不在中转孔里, 也不在夹爪上**。此前账本里没有这个
+  # 位置, 于是 payload_transit 那一行从"放下"起就再没人清 (那几个放料脚本在
+  # material_bindings.yaml 里一条绑定都没有), 一路挂到几分钟后归还才落地。
+  # 实测后果: 三维把瓶/桶焊在机械臂上跟着飞完整个拍照-展开-收集周期。
+  #
+  # ⚠ 与 seat (板位) 是两回事, 别合并:
+  #   seat 记的是**薄层板**(玻璃板)停在点样座/刮板拍照台, 纯人工账、不参与任何判断;
+  #   本段记的是**单件耗材**(粉桶/样品瓶)在工位夹具上, 由流程事件自动记账,
+  #   且承担一条硬规则 —— 有座位行 ⇒ 该件不在托盘孔里, 三维必须把那个孔画空。
+  #
+  # id 与上位机 operation 的 resources 名逐字一致 (config/operation/05_transfer/
+  # transfer_collector_staging_a_to_scrape.yaml 的 resources 段), 不发明新词表 ——
+  # 与 seat 的 id 复用调度器 _SINGLE_SLOTS 同一条约定。
+  #
+  # kind 是**准入约束**不是描述: 放件时若在途载荷的种类与此处声明不符, 账本只告警留痕
+  # 绝不迁移 (与 _do_transit_place 一贯的"身份以在途行为准"同一纪律)。
+  - key: holder
+    label: 件位
+    hint: 单件耗材在工位夹具上 · 刮板夹具 / 收集工位 · 由流程事件自动记账
+    payload_seats:
+      - {id: scrape-holder,  label: 刮板夹具 (接粉收集器位), kind: collector}
+      - {id: collect-holder, label: 收集工位夹具 (接粉收集器位), kind: collector}
+      - {id: collect-bottle, label: 收集工位 (样品瓶位), kind: bottle}
+    # 收集工位瓶位是三个件位里唯一有传感器的: PLC 拿它做 A22/A23 的硬互锁
+    # (伸出要求传感器=无瓶, 升降下压缺瓶报 ErrorCode 201, 见 plc_collect.yaml)。
+    # location id 与 payload_seat id 同字串刻意为之 (两个命名空间互不冲突),
+    # 前端/审查按 id 直接对上, 零映射。
+    locations:
+      - id: collect-bottle
+        label: 收集工位瓶位传感器
+        area: null
+        sensor:
+          name: 收集平台瓶子有无传感器
+          byte: IX8
+          bit: 1
+          polarity: "no"
+          verified: false
+          note: "%IX8.1; 极性按同族推定 NO (中转A/B/上料 2026-07-27 实证 NO), 未单独实证 —— 现场放瓶/取瓶各读一次后翻 true, 审查判定自动激活"
+
+  # ── 上料: 上样料架两处托盘位 ────────────────────────────────────────────
+  # 两处都有可用传感器, 现值即真值 ⇒ 刻意不建软件账 (再建一份只会漂移),
+  # 故这两处只读、也不参与"账实不一致"判定。
+  - key: feed
+    label: 上料
+    hint: 上样料架两处托盘位 · 纯传感器读数, 无软件账
+    locations:
+      - id: feed-1
+        label: 上样料架1
+        area: null
+        sensor:
+          name: 上样料架检测1
+          byte: IX9
+          bit: 0
+          polarity: "no"
+          verified: true
+          note: 2026-07-27 托盘对照实证 NO (空=0); 7-26 金属触碰判 NC 系误判 (当时架上有托盘)
+      - id: feed-2
+        label: 上样料架2
+        area: null
+        sensor:
+          name: 上样料架检测2
+          byte: IX9
+          bit: 1
+          polarity: "no"
+          verified: true
+          note: 2026-07-27 托盘对照实证 NO (有托盘=1); 同批次同型号与 检测1 互证
+
+  # ── 玻璃板: 升降上下料仓张数 ────────────────────────────────────────────
+  # 张数由 feedlift_load_cycle/-unload_cycle 的 ±1 记账为主线, 另有
+  # feedlift.probe_stack 按 1Z/2Z 光电触发位 + 实测堆叠节距反算绝对张数做对账校正
+  # (controller/feedlift_count.py, 已实现)。此处只声明仓号/显示名/容量。
+  - key: glass
+    label: 玻璃板
+    hint: 升降上料仓(1Z) / 下料仓(2Z) 张数 · 光电行程可实测对账
+    magazines:
+      - {id: feed, label: 上料仓 (1Z), capacity: 30}
+      - {id: waste, label: 下料仓 (2Z), capacity: 30}
+
+  # ── 溶剂: 瓶内余量 mL ──────────────────────────────────────────────────
+  # 硬件无任何体积测量 (PLC 只有二值的废液管走空检测, 展缸液位是相机相对幅值),
+  # 余量按注液/洗脱动作参数 体积x次数x配比 扣减, 见 config/material_bindings.yaml 的 actions 段。
+  - key: solvent
+    label: 溶剂
+    hint: 溶剂1-4 + 洗脱液余量 mL · 按动作参数扣减, 无体积测量硬件
+    bottles:
+      - {id: solvent_1, label: 溶剂1, capacity_ml: 1000.0}
+      - {id: solvent_2, label: 溶剂2, capacity_ml: 1000.0}
+      - {id: solvent_3, label: 溶剂3, capacity_ml: 1000.0}
+      - {id: solvent_4, label: 溶剂4, capacity_ml: 1000.0}
+      - {id: eluent, label: 洗脱液, capacity_ml: 1000.0}
+
+  # ── 板位: 薄层板单板停放位 (点样座 / 刮板拍照台) ──────────────────────────
+  # 这两处无任何在位传感器: IX8-IX12 的已用位已逐位盘过 (货架 12 位 IX11.0-7 + IX12.0-3,
+  # 中转A IX10.2, 中转B IX8.2, 上样料架 IX9.0/9.1, 升降 IX8.3-8.6, 旋转气缸 IX9.6/9.7,
+  # 机器人工具检测 IX12.4-6), 里面没有这两处的板检测 —— 故只有人工账、不参与在位对账。
+  #
+  # id 与调度器位置词表**逐字一致** (operation/scheduler.py 的 _SINGLE_SLOTS, 前端
+  # three-d/twin/bindings/PlateSlots.js 的 PLATE_SLOT), 这样物料页并列显示调度器的
+  # samples.position 做对照时不需要任何映射表。
+  #
+  # ⚠ 用途边界 (2026-08-13 订正): **流程会写它** (位置经 plate_seat、工艺阶段经
+  #   plate_stage, 见 material_bindings.yaml), 但仍**不参与任何耗材孔决策与统计口径**
+  #   —— 不进 plan_staging / next_fresh / 输入框预填 / 批次准入 / reserve_count / summary,
+  #   也不写 samples.position (调度器那份账仍是有批次跑着时的唯一权威)。
+  #   单测 test_seat_untouched_by_decisions 是这条边界的看门狗, 断言一字未改 ——
+  #   它断的是"设了座位不影响那三样", 与"谁在写座位"正交。
+  # 为什么还要它: 这几处此前在物料账本里毫无表达, 唯一的位置账是调度器 samples.position,
+  #   而那份账只在有批次跑着时才有内容 —— 于是"人手动把板拿走了"这件事无处同步,
+  #   人工分段跑与仿真沙盒里"板走到哪一步了"也完全表达不出来。
+  - key: seat
+    label: 板位
+    hint: 薄层板单板停放位 · 点样座 / 刮板拍照台 · 纯人工账, 无传感器
+    seats:
+      - {id: spot_seat, label: 点样座 (上样板位)}
+      - {id: scrape_table, label: 刮板拍照台 (拍照板位)}
+      # 2026-08-13 补 8 个展缸位: 此前"哪块板在哪个缸"只存在于调度器的缸池状态,
+      #   于是没有批次跑着的时候 (人工分段跑 / 仿真沙盒) 这件事无处表达。缸位与上面
+      #   两处同性质 —— 都无在位传感器, 都靠流程与人工共同维护。
+      - {id: tank_1, label: 1 号展缸}
+      - {id: tank_2, label: 2 号展缸}
+      - {id: tank_3, label: 3 号展缸}
+      - {id: tank_4, label: 4 号展缸}
+      - {id: tank_5, label: 5 号展缸}
+      - {id: tank_6, label: 6 号展缸}
+      - {id: tank_7, label: 7 号展缸}
+      - {id: tank_8, label: 8 号展缸}

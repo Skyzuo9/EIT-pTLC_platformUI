@@ -1,0 +1,312 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_process
+label: 拍照刮板-执行
+ui:
+  role: station_phase
+  station: photo_scrape
+  phase: execute
+  primary: true
+  order: 33
+# PS-3 (派发单 §6): 由 photoscrape_full 工艺整体折入; 6 变量契约 / pass 循环 / 视觉 / human 门不变。
+# 正式四段执行入口即本 operation; body 由可追踪 action / human 门组成, 便于真机步进和异常定位。
+#
+# ── 路径来源统一模型 (2026-07-04 重构, 见 memory[ptlc-photoscrape-path-source]) ──
+# 拍照刮板消费的是一个"刮取路径产物"(summary: bbox_cm+contour_cm)。视觉是一种来源, 手绘是**同契约**
+# 另一种来源。故不设"是否接入视觉"的全局开关, 而是**每次运行**在下发前的统一门里选路径来源:
+#   mode=auto   : 视觉候选有效 → 直接下发; 无效 → **降级人工**(不盲跑, 1b)。
+#   mode=manual : 永远进门。门(kind=choose)在板照片+路径叠加图上选:
+#       下发   → 用当前候选(视觉/手绘)下发
+#       手绘   → 开画布画闭合区域 → 提交 summary(前端 /sketch_commit) → 回门(候选=手绘路径)
+#       跳过   → 无谱带/跳过刮板 → cnc_path(placeholder) 0 pass 空跑, 干净收尾
+#       中止   → 释放下压+定位气缸放板后 raise, 板不卡压头下
+# 手绘产出的 summary_path 由人工回复带回, 交**未改动的** cnc_path 动作; 与视觉候选完全同形。
+#
+# ── 重拍不在本 action 内解决 ──
+# 拍照/视觉只跑一次(段首)。要换一张新照片 = 由 run-control 复位(reset 到本 action)重执行(同入参→重拍)。
+# 相机/硬件类错误自然 fault 交 run-control; 视觉**分析**类结果(no_bands/before_invalid/analyze_error)非致命,
+# 全部落到门(有照片就能手绘)。故删除旧的 recapture_before / recover_choice=1/2 内部重拍状态机。
+#
+# 收尾: 开头 press_cylinder(true) 是唯一生产下压点(板/收集器已放入, 此处夹紧开拍); 任何中止路径都
+#   press_cylinder(false)+locate_cylinder(false) 放板, 确保板不留压头下 (press 生产释放点原在 collect_load)。
+vars:
+  - {name: sample_id,    scope: local, type: STRING, io: in, default: "",        comment: 样品ID}
+  - {name: save_dir,     scope: local, type: STRING, io: in, default: "",        comment: 拍照图保存目录}
+  - {name: before_path,  scope: local, type: STRING, io: in, default: "",        comment: before图路径(显影前/测试预置图)}
+  - {name: band_id,      scope: local, type: STRING, io: in, default: band_01,   comment: 选带ID(manual 模式人工覆盖; auto 用默认)}
+  - {name: mode,         scope: local, type: STRING, io: in, default: manual,    comment: "路径来源模式", enum: [{value: auto, label: "auto (视觉直发, 失败降级人工)"}, {value: manual, label: "manual (永远进人工门)"}]}
+  - {name: shot,         scope: local, type: DICT,                               comment: 拍照动作结果(image_path)}
+  - {name: vis,          scope: local, type: DICT,                               comment: 视觉分析结果(ok/reason/message/summary_path/band_ids/annotated_url)}
+  - {name: cnc,          scope: local, type: DICT,                               comment: cnc_path 动作结果(数组+pass_z_list)}
+  - {name: pz,           scope: local, type: FLOAT,                              comment: 当前 pass 的 Z 切深}
+  - {name: cand_summary_path,  scope: local, type: STRING, default: "",    comment: 当前候选路径的 summary.json(视觉或手绘)}
+  - {name: cand_band_id,       scope: local, type: STRING, default: band_01, comment: 当前候选的 band_id}
+  - {name: cand_annotated_url, scope: local, type: STRING, default: "",    comment: 当前候选图 URL；选带前为识别图，cnc_path 成功后必须切为同次真机数组预览}
+  - {name: cand_valid,         scope: local, type: BOOL,   default: false, comment: 当前候选是否已算出可下发路径(cnc 就绪)}
+  - {name: dispatched,         scope: local, type: BOOL,   default: false, comment: 是否已确定下发(退出门环)}
+  - {name: skip_scrape,        scope: local, type: BOOL,   default: false, comment: 人工选跳过刮板(走安全占位 0 pass)}
+  - {name: gate_choice,        scope: local, type: STRING, default: "",    comment: 门选择(dispatch/sketch/skip/abort)}
+  - {name: gate_preview,       scope: local, type: STRING, default: "",    comment: 下发门数值复核串(pass数/Z切深/进给/点数; cand_valid 时填)}
+  - {name: sketch_summary_path,  scope: local, type: STRING, default: "", comment: 手绘提交后带回的 summary.json(前端 /sketch_commit 产)}
+  - {name: sketch_band_id,       scope: local, type: STRING, default: manual_01, comment: 手绘 band_id}
+  - {name: sketch_annotated_url, scope: local, type: STRING, default: "", comment: 手绘路径叠加图 URL}
+  - {name: reanalyze_summary_path,  scope: local, type: STRING, default: "", comment: 重识别带回的 summary.json(前端 /reanalyze 覆写同 case_dir)}
+  - {name: reanalyze_band_id,       scope: local, type: STRING, default: band_01, comment: 重识别选带 band_id}
+  - {name: reanalyze_annotated_url, scope: local, type: STRING, default: "", comment: 重识别路径叠加图 URL}
+  - {name: fixed_summary_path, scope: local, type: STRING, io: in, default: "",        comment: "固定路径实验: 非空则用此 summary 覆盖视觉/手绘, 直接下发跳过人工门"}
+  - {name: fixed_band_id,      scope: local, type: STRING, io: in, default: fixed_01,  comment: 固定路径 band_id(与 fixed_scrape_path 脚本默认对齐)}
+  - {name: reconcile_photo, scope: local, type: BOOL, io: in, default: true,     comment: "刮后对账照片开关(漂移哨兵/标定验收唯一凭据); 生产嫌节拍可关"}
+  - {name: scraped_shot,    scope: local, type: DICT,                            comment: 刮后对账拍照结果(image_path)}
+resources: [station:photo_scrape]
+body:
+  - {op: comment, text: "【执行】接粉收集器已由 transfer_collector_staging_a_to_scrape 放入并定位; 板已由 photoscrape_place 放入定位"}
+  - {op: comment, text: "【执行】下压气缸压下 (press_cylinder true 的唯一生产调用点; 此处夹紧开拍)"}
+  - {op: call, action: photoscrape.press_cylinder, mode: RUN, args: {pressed: {lit: true}}}
+
+  - {op: comment, text: "(1) 上位机触发相机拍照 (只拍一次; 重拍=run-control 复位重执行本 action)"}
+  - {op: call, action: photoscrape.cam_photopos, mode: RUN, args: {ref_8y: {lit: photo_8y}}}
+  - {op: call, action: photoscrape.capture, mode: RUN,
+     args: {sample_id: {var: sample_id}, save_dir: {var: save_dir},
+            filename: {lit: after.jpg}, profile: {lit: photoscrape}},
+     assign: {var: shot}}
+  - {op: call, action: photoscrape.cam_photohome, mode: RUN}
+
+  - {op: comment, text: "(2) 视觉分析 before+after → 结构化 vis{ok/reason/summary_path/band_ids/annotated_url}(可恢复失败不抛)"}
+  - {op: call, action: photoscrape.analyze, mode: RUN,
+     args: {sample_id: {var: sample_id}, before_path: {var: before_path},
+            after_path: {field: {var: shot}, name: image_path}},
+     assign: {var: vis}}
+  - {op: assign, target: {var: cand_annotated_url}, value: {field: {var: vis}, name: annotated_url}}
+
+  - {op: comment, text: "(3) 初始候选(视觉): manual 人工选带; 视觉成功且算出路径 → cand_valid"}
+  - {op: comment, text: "固定路径实验(fixed_summary_path 非空)时整块跳过: 不选带、不算视觉候选(3b 会覆盖); analyze/拍照已在(2)照常, 前后照留档"}
+  - op: if
+    cond: {binop: and,
+           left: {field: {var: vis}, name: ok},
+           right: {binop: ==, left: {var: fixed_summary_path}, right: {lit: ""}}}
+    then:
+      - op: if
+        cond: {binop: ==, left: {var: mode}, right: {lit: manual}}
+        then:
+          - op: human
+            kind: input
+            prompt: {binop: +,
+                     left: {binop: +, left: {lit: "识别到的条带: "},
+                            right: {call: str, args: [{field: {var: vis}, name: band_ids}]}},
+                     right: {lit: " — 对照标注图输入要刮取的 band_id"}}
+            image: {field: {var: vis}, name: annotated_url}
+            fields: [{var: band_id, label: 条带ID}]
+      - op: try
+        body:
+          - {op: comment, text: "据视觉 summary + 选带算 CNC 路径; 成功即候选就绪"}
+          - {op: call, action: photoscrape.cnc_path, mode: RUN,
+             args: {summary_path: {field: {var: vis}, name: summary_path}, band_id: {var: band_id}},
+             assign: {var: cnc}}
+          - {op: assign, target: {var: cand_summary_path}, value: {field: {var: vis}, name: summary_path}}
+          - {op: assign, target: {var: cand_band_id},      value: {var: band_id}}
+          - {op: assign, target: {var: cand_annotated_url}, value: {field: {var: cnc}, name: preview_url}}
+          - {op: assign, target: {var: cand_valid},        value: {lit: true}}
+        catch:
+          - error: "*"
+            body:
+              - {op: comment, text: "路径生成失败(几何/选带非法): cand_valid 仍 false, 落到门人工处置"}
+
+  - {op: comment, text: "(3b) 固定路径实验(回收率): fixed_summary_path 非空 → 用它算路径覆盖候选, 自动下发跳过门; 默认空则本块不进, 生产行为逐字节不变"}
+  - op: if
+    cond: {binop: "!=", left: {var: fixed_summary_path}, right: {lit: ""}}
+    then:
+      - {op: call, action: photoscrape.cnc_path, mode: RUN,
+         args: {summary_path: {var: fixed_summary_path}, band_id: {var: fixed_band_id}},
+         assign: {var: cnc}}
+      - {op: assign, target: {var: cand_summary_path}, value: {var: fixed_summary_path}}
+      - {op: assign, target: {var: cand_band_id},      value: {var: fixed_band_id}}
+      - {op: assign, target: {var: cand_annotated_url}, value: {field: {var: cnc}, name: preview_url}}
+      - {op: assign, target: {var: cand_valid},        value: {lit: true}}
+      - {op: assign, target: {var: dispatched},        value: {lit: true}}
+
+  - {op: comment, text: "(4) 自动模式: 候选有效 → 直接下发; 无效 → 不设 dispatched, 落到门(降级人工 1b)"}
+  - op: if
+    cond: {binop: and, left: {binop: ==, left: {var: mode}, right: {lit: auto}}, right: {var: cand_valid}}
+    then:
+      - {op: assign, target: {var: dispatched}, value: {lit: true}}
+
+  - {op: comment, text: "(5) 统一门环(manual 或 auto 降级): 下发/手绘/跳过/中止"}
+  - op: while
+    cond: {unop: not, operand: {var: dispatched}}
+    body:
+      - {op: assign, target: {var: gate_choice}, value: {lit: ""}}
+      - {op: comment, text: "(#9) 恢复下发前数值复核: cand_valid 时把 pass数/每-pass Z切深/进给/点数 拼进门 prompt (2D 叠加图看不出 Z 切深)"}
+      - {op: assign, target: {var: gate_preview}, value: {lit: ""}}
+      - op: if
+        cond: {var: cand_valid}
+        then:
+          - {op: assign, target: {var: gate_preview}, value: {binop: +, left: {lit: " | 复核 pass="}, right: {call: str, args: [{field: {var: cnc}, name: pass_count}]}}}
+          - {op: assign, target: {var: gate_preview}, value: {binop: +, left: {var: gate_preview}, right: {binop: +, left: {lit: " Z切深="}, right: {call: str, args: [{field: {var: cnc}, name: pass_z_list}]}}}}
+          - {op: assign, target: {var: gate_preview}, value: {binop: +, left: {var: gate_preview}, right: {binop: +, left: {lit: " 进给="}, right: {call: str, args: [{field: {var: cnc}, name: g_scrape_feed}]}}}}
+          - {op: assign, target: {var: gate_preview}, value: {binop: +, left: {var: gate_preview}, right: {binop: +, left: {lit: " 点数="}, right: {call: str, args: [{call: len, args: [{field: {var: cnc}, name: g_sx}]}]}}}}
+      - op: human
+        kind: choose
+        prompt: {binop: +,
+                 left: {binop: +,
+                        left: {binop: +, left: {lit: "拍照刮板下发门 ("},
+                               right: {field: {var: vis}, name: message}},
+                        right: {var: gate_preview}},
+                 right: {lit: "). 对照叠加图选择: 下发当前路径 / 手绘区域 / 跳过刮板 / 中止取板"}}
+        image: {var: cand_annotated_url}
+        context: {field: {var: vis}, name: summary_path}
+        assign_choice: {var: gate_choice}
+        options:
+          - {value: dispatch,  label: 下发当前路径}
+          - {value: align,     label: 对位检查}
+          - {value: reanalyze, label: 重新识别(调参)}
+          - {value: sketch,    label: 手绘区域}
+          - {value: skip,      label: 跳过刮板}
+          - {value: abort,     label: 中止取板}
+      - op: if
+        cond: {binop: and, left: {binop: ==, left: {var: gate_choice}, right: {lit: dispatch}}, right: {var: cand_valid}}
+        then:
+          - {op: assign, target: {var: dispatched}, value: {lit: true}}
+        elifs:
+          - cond: {binop: ==, left: {var: gate_choice}, right: {lit: sketch}}
+            body:
+              - {op: comment, text: "手绘: 画布画闭合区域→前端 /sketch_commit 落 summary→带回 summary_path; 再算真机路径"}
+              - {op: assign, target: {var: sketch_summary_path}, value: {lit: ""}}
+              - op: human
+                kind: sketch
+                prompt: {lit: "在板照片上画一条闭合曲线圈出要刮取的区域(视觉未框到板时先点四角标板), 预览满意后提交"}
+                image: {var: cand_annotated_url}
+                context: {field: {var: vis}, name: summary_path}
+                fields:
+                  - {var: sketch_summary_path,  label: 手绘summary}
+                  - {var: sketch_band_id,       label: 手绘band}
+                  - {var: sketch_annotated_url, label: 手绘叠加图}
+              - op: if
+                cond: {binop: "!=", left: {var: sketch_summary_path}, right: {lit: ""}}
+                then:
+                  - op: try
+                    body:
+                      - {op: call, action: photoscrape.cnc_path, mode: RUN,
+                         args: {summary_path: {var: sketch_summary_path}, band_id: {var: sketch_band_id}},
+                         assign: {var: cnc}}
+                      - {op: assign, target: {var: cand_summary_path},  value: {var: sketch_summary_path}}
+                      - {op: assign, target: {var: cand_band_id},       value: {var: sketch_band_id}}
+                      - {op: assign, target: {var: cand_annotated_url}, value: {field: {var: cnc}, name: preview_url}}
+                      - {op: assign, target: {var: cand_valid},         value: {lit: true}}
+                    catch:
+                      - error: "*"
+                        body:
+                          - {op: comment, text: "手绘路径生成失败: cand_valid 仍旧值, 回门重画/改选"}
+          - cond: {binop: ==, left: {var: gate_choice}, right: {lit: reanalyze}}
+            body:
+              - {op: comment, text: "重新识别(调参): 面板调识别参数→前端 /reanalyze 在本 run before/after 重跑→带回 summary_path; 再算真机路径 (同手绘门形)"}
+              - {op: assign, target: {var: reanalyze_summary_path}, value: {lit: ""}}
+              - op: human
+                kind: reanalyze
+                prompt: {lit: "调整识别参数后在本 run 的 before/after 上重跑分析, 选带满意后「用此结果」下发"}
+                image: {var: cand_annotated_url}
+                context: {field: {var: vis}, name: summary_path}
+                fields:
+                  - {var: reanalyze_summary_path,  label: 重识别summary}
+                  - {var: reanalyze_band_id,       label: 重识别band}
+                  - {var: reanalyze_annotated_url, label: 重识别叠加图}
+              - op: if
+                cond: {binop: "!=", left: {var: reanalyze_summary_path}, right: {lit: ""}}
+                then:
+                  - op: try
+                    body:
+                      - {op: call, action: photoscrape.cnc_path, mode: RUN,
+                         args: {summary_path: {var: reanalyze_summary_path}, band_id: {var: reanalyze_band_id}},
+                         assign: {var: cnc}}
+                      - {op: assign, target: {var: cand_summary_path},  value: {var: reanalyze_summary_path}}
+                      - {op: assign, target: {var: cand_band_id},       value: {var: reanalyze_band_id}}
+                      - {op: assign, target: {var: cand_annotated_url}, value: {field: {var: cnc}, name: preview_url}}
+                      - {op: assign, target: {var: cand_valid},         value: {lit: true}}
+                    catch:
+                      - error: "*"
+                        body:
+                          - {op: comment, text: "重识别路径生成失败: cand_valid 仍旧值, 回门重调/改选"}
+          - cond: {binop: ==, left: {var: gate_choice}, right: {lit: align}}
+            body:
+              - {op: comment, text: "对位检查 (spec 0716 §6 D3): 刀头走位核对刀; 气缸保持压紧; 内环失败已自回零, 此处吞错回门"}
+              - op: try
+                body:
+                  - op: if
+                    cond: {var: cand_valid}
+                    then:
+                      - op: run_script
+                        script: photoscrape_align_loop
+                        inputs:
+                          start_valid: {lit: true}
+                          start_x_mm: {field: {var: cnc}, name: start_x_mm}
+                          start_y_mm: {field: {var: cnc}, name: start_y_mm}
+                        outputs: {}
+                    else:
+                      - {op: run_script, script: photoscrape_align_loop, inputs: {start_valid: {lit: false}}, outputs: {}}
+                catch:
+                  - error: "*"
+                    body:
+                      - {op: comment, text: "对位检查失败(已回零): 回门, 不阻断下发/手绘/中止选择"}
+          - cond: {binop: ==, left: {var: gate_choice}, right: {lit: skip}}
+            body:
+              - {op: comment, text: "跳过刮板: 置标志, 收敛退环; 环后 cnc_path(placeholder) 生成 0 pass 空数组"}
+              - {op: assign, target: {var: skip_scrape}, value: {lit: true}}
+              - {op: assign, target: {var: dispatched},  value: {lit: true}}
+          - cond: {binop: ==, left: {var: gate_choice}, right: {lit: abort}}
+            body:
+              - {op: comment, text: "中止取板: 释放下压+定位气缸放板(否则板卡压头下), 再 raise 干净中止"}
+              - {op: call, action: photoscrape.press_cylinder, mode: RUN, args: {pressed: {lit: false}}}
+              - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: false}}}
+              - {op: raise, error: PHOTOSCRAPE_ABORTED,
+                 message: {lit: "用户中止拍照刮板; 已释放下压/定位气缸放板"}}
+        else:
+          - {op: comment, text: "空/未知选择(或在无有效候选时点下发): 不改状态, 重新出门"}
+
+  - {op: comment, text: "(6) 收尾: 跳过→安全占位数组(pass_count=0); 否则 cnc 已在候选阶段算好"}
+  - op: if
+    cond: {var: skip_scrape}
+    then:
+      - {op: comment, text: "无谱带/跳过刮板: cnc_path(placeholder=true) → pass_count=0 全 0 数组, scrape 一次不跑, 空跑收尾"}
+      - {op: call, action: photoscrape.cnc_path, mode: RUN,
+         args: {summary_path: {lit: ""}, band_id: {lit: ""}, placeholder: {lit: true}},
+         assign: {var: cnc}}
+
+  - {op: comment, text: "块写 4 数组+进给 (回读确认), 一次, scrape 循环前"}
+  - {op: call, action: photoscrape.write_cnc_path, mode: RUN,
+     args: {sx: {field: {var: cnc}, name: g_sx}, sy: {field: {var: cnc}, name: g_sy},
+            cx: {field: {var: cnc}, name: g_cx}, cy: {field: {var: cnc}, name: g_cy},
+            feed: {field: {var: cnc}, name: g_scrape_feed}}}
+  - {op: comment, text: "上位机循环 pass: 逐层写 Z 切深(回读确认)→触发单 pass; PLC 不内部循环 (跳过刮板时 pass_z_list 空, 0 次)"}
+  - {op: comment, text: "scrape(40) 按下发路径同跑刮取(g_sx/g_sy)+收集(g_cx/g_cy), 无独立收集步"}
+  - op: for
+    var: pz
+    in: {field: {var: cnc}, name: pass_z_list}
+    body:
+      - {op: call, action: photoscrape.write_pass_z, mode: RUN, args: {z: {var: pz}}}
+      - {op: call, action: photoscrape.scrape, mode: RUN}
+  - {op: comment, text: "(7) 刮后对账照片(哨兵非工艺步): 板仍压紧+相机回同一拍照位 → scraped.jpg 与 after.jpg 像素对齐; 叠同一 preview payload = 说好的vs刮到的; 失败不 fault (reconcile_photo=false 或跳过刮板时不拍)"}
+  - op: if
+    cond: {binop: and, left: {var: reconcile_photo},
+           right: {unop: not, operand: {var: skip_scrape}}}
+    then:
+      - op: try
+        body:
+          - {op: call, action: photoscrape.cam_photopos, mode: RUN, args: {ref_8y: {lit: photo_8y}}}
+          - {op: call, action: photoscrape.capture, mode: RUN,
+             args: {sample_id: {var: sample_id}, save_dir: {var: save_dir},
+                    filename: {lit: scraped.jpg}, profile: {lit: photoscrape}},
+             assign: {var: scraped_shot}}
+          - {op: call, action: photoscrape.cam_photohome, mode: RUN}
+          - {op: call, action: photoscrape.scraped_overlay, mode: RUN,
+             args: {summary_path: {var: cand_summary_path},
+                    scraped_path: {field: {var: scraped_shot}, name: image_path}}}
+        catch:
+          - error: "*"
+            body:
+              - {op: comment, text: "对账补拍/叠加失败不阻断收尾; best-effort 收相机(此步再失败交外层 fault, 相机确需人工)"}
+              - {op: call, action: photoscrape.cam_photohome, mode: RUN}
+  - {op: comment, text: "【执行收尾】刮取收尾复合动作; 不替代定位/下压/接粉夹具目标态释放"}
+  - {op: call, action: photoscrape.scrape_finish, mode: RUN}
+  - {op: comment, text: "确认翻料缸真到动点: A41 是开环(同扫描周期返回 DONE, 不等气缸反馈), 生产此前从不确认 ——"}
+  - {op: comment, text: "气压不足/机构卡滞导致压根没翻是完全看不见的哑故障(粉留在转运路径上, 后续掉出去)"}
+  - {op: comment, text: "复位在 collect_load(机器人取走粉桶之后), 故这里只确认不复位; 哨兵语义, 超时只 WARN 不抛"}
+  - {op: call, action: photoscrape.wait_rot, mode: RUN, args: {target: {lit: extend}}}

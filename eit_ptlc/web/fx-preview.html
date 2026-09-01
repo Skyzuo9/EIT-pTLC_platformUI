@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AR 增强显示效果预览</title>
+  <script>
+    // 首屏防闪烁(照 index.html 的手法), 但本沙盒默认深色 —— 展示度优先, 深色是主展示形态.
+    // URL ?theme= 优先于 localStorage(截图矩阵靠它切主题, 不能被本机存的主题干扰).
+    (function () {
+      try {
+        var q = new URLSearchParams(location.search).get('theme')
+        var theme = q === 'light' ? 'light' : 'dark'
+        document.documentElement.dataset.theme = theme
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark'
+      }
+    })()
+  </script>
+</head>
+<body class="three-d-app">
+  <!--
+    AR 增强显示效果预览沙盒 - 只在开发期用, 不进生产构建.
+    vite 默认 build 入口只有 index.html, 本文件不会被打包(验收时用 dist 清单确认).
+    用法: /fx-preview.html?scenario=showcase (悬停看白卡, 点击聚焦, 点门开关门)
+          完整参数表见 src/three-d-fx-preview/README.md
+    结论落定后: 本文件 + src/three-d-fx-preview/ 可整体删除, 或按 README 的
+    "阶段B合入路径"把选中的效果内核搬进 twin/.
+
+    第四轮: 页面套仿正式应用外壳(侧栏/顶栏/页签由 shell.js 填充, 全局样式零成本
+    复用 src/style.css) —— 让沙盒看起来像未来实际使用的界面.
+  -->
+  <div class="console console--three-d console--monitor-collapsed" style="--rail-w:64px">
+    <div class="area-rail"><nav class="rail" id="fxsh-rail" aria-label="主导航"></nav></div>
+    <div class="area-status"><div class="statusbar" id="fxsh-status"></div></div>
+    <main class="area-center area-center--flush">
+      <div class="fxsh-workspace">
+        <nav class="app__nav" id="fxsh-tabs" aria-label="工作台切换"></nav>
+        <main class="app__body">
+          <div id="fx-app">
+            <div id="fx-cards"></div>
+          </div>
+          <aside id="fx-panel"></aside>
+        </main>
+      </div>
+    </main>
+  </div>
+  <div id="fx-msg" hidden></div>
+  <script>
+    // 双击/file:// 直接打开时模块脚本与 /api 都不可用, 页面必然全白 ——
+    // 与其空白, 不如把正确打开方式糊在脸上(此时连 CSS 都没有, 样式只能内联).
+    if (location.protocol === 'file:') {
+      document.addEventListener('DOMContentLoaded', function () {
+        var msg = document.getElementById('fx-msg')
+        msg.hidden = false
+        msg.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;'
+          + 'justify-content:center;background:#0f1522;color:#dfe9f5;text-align:center;'
+          + 'font:15px/2 "Microsoft YaHei",sans-serif;padding:24px;z-index:99;'
+        msg.innerHTML = '本页不能用文件方式(file://)直接打开 —— 需要 vite 开发服务器托管。<br>'
+          + '请点击: <a style="color:#36d1ff;font-size:18px" '
+          + 'href="http://127.0.0.1:15173/fx-preview.html?scenario=showcase">'
+          + 'http://127.0.0.1:15173/fx-preview.html?scenario=showcase</a><br><br>'
+          + '<span style="color:#8598b4">前提: ① cd eit_ptlc/web &amp;&amp; npm run dev(起 15173)'
+          + ' ② 18080 后端在线(模型走 /api 代理)。<br>详见 src/three-d-fx-preview/README.md</span>'
+      })
+    }
+  </script>
+  <script type="module" src="/src/three-d-fx-preview/main.js"></script>
+</body>
+</html>

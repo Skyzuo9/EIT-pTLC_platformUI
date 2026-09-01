@@ -1,0 +1,70 @@
+schema: ptlc.script/v1
+kind: operation
+name: collect_unload
+label: 收集-下料
+ui:
+  role: station_phase
+  station: collect
+  phase: unload
+  primary: true
+  order: 44
+vars:
+- name: collector_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 收集器回中转A槽位 1-6
+- name: bottle_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 瓶中转B槽位 1-6
+resources:
+- robot
+- station:collect
+- station:rail
+- collect-holder
+- collect-bottle
+- staging-a
+- staging-b
+body:
+- op: comment
+  text: 先取成品瓶回中转B; 执行段已复位下压/升降并伸出到取瓶位, 中转B板锁由独立补货/回库链处理
+- op: run_script
+  script: transfer_bottle_collect_to_staging_b
+  inputs:
+    slot_id:
+      var: bottle_slot
+  outputs: {}
+- op: comment
+  text: '下料/取接粉收集器: 瓶已移出后缩回, 再进入夹具、松夹、退出'
+- op: call
+  action: collect.retract
+  mode: RUN
+- op: run_script
+  script: robot_collect_holder_pick_enter
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: call
+  action: collect.release_clamp
+  mode: RUN
+- op: run_script
+  script: robot_collect_holder_pick_exit
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: comment
+  text: '收集器 return 用点 P78-83, 与 pick 点 P46-51 是同一排货位的两种(轨,点)配对: P78-83@位3 ≡ P46-51@位2 (坐标验证同世界坐标±2mm, 地轨与臂X反向耦合)。holder 在收集站位3 取毕, return 也落位3 → 全程不移轨, 从收集枢纽 P70 直接交接回中转A 免回 P1。⚠️此处位3只对 return 点 P78-83 成立, 勿据此把 pick(P46-51)也翻位3'
+- op: run_script
+  script: robot_collector_return_put
+  inputs:
+    slot_id:
+      var: collector_slot
+    enter_anchor:
+      lit: P70
+  outputs: {}

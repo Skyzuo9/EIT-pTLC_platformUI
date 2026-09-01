@@ -1,0 +1,58 @@
+# 设备资源表
+# ==========
+# 声明跨流程共享的设备资源及其占用模式, 供 operation/resources.py 的 ResourceGate 使用。
+# 流程只声明"我这段需要哪个资源", 物理开关由资源层按引用计数唯一驱动。
+#
+# mode:
+#   exclusive - 一次只允许一个持有者 (工位/机器人/展缸动作), 后到者等待。
+#   shared    - 允许多个持有者并存, 计数 0->1 执行 activate, 1->0 执行 deactivate。
+#
+# 约束 (由 vm/schema.py 强制):
+#   call/parallel 节点级只允许 shared; exclusive 可声明在脚本根 resources, 也可声明在
+#   with_resources 区间 —— 但受 W1/W2 防死锁律约束: 区间不得重取已持独占 (W1, Lock 非重入),
+#   且独占区间只允许出现在"根 resources 无独占"的脚本 (W2, 禁 hold-and-wait; 典型即展开
+#   等待段: 根空手等待, 排液瞬间短取 station:develop)。任何协程等独占锁时手上必无其他独占,
+#   嵌套持锁互等不存在。
+
+schema: ptlc.resources/v1
+
+resources:
+
+  # ── 共享设备 ──────────────────────────────────────────────────────────
+  # 大真空泵: 展缸抽吸与上样清洗共用同一台泵 (PLC 线圈 %QX2.4)。
+  # PLC 侧 PLC_Pump_泵管理 每扫描把 大真空泵站位[0..11] 做 OR 驱动线圈; 展缸排液 FSM
+  # 自治持 [0..8], 上位机只占 [11]。此处的引用计数决定 [11] 这一个 bit: 任一流程在真空
+  # 区间内即置位, 全部退出才清位, 因此短流程收尾不会掐掉长流程仍在用的真空。
+  device:vacuum_pump:
+    label: 大真空泵
+    mode: shared
+    activate: pump.vacuum_on
+    deactivate: pump.vacuum_off
+
+  # ── 工位 (PLC L2 控制域) ──────────────────────────────────────────────
+  station:sampling:     {label: 上样工位,     mode: exclusive}
+  station:develop:      {label: 展开工位,     mode: exclusive}
+  station:collect:      {label: 收集工位,     mode: exclusive}
+  station:photo_scrape: {label: 刮板拍照工位, mode: exclusive}
+  station:feedlift:     {label: 升降上料工位, mode: exclusive}
+  station:rail:         {label: 地轨,         mode: exclusive}
+  develop_prep:         {label: 展开准备,     mode: exclusive}
+
+  # ── 机器人与机械空间 ──────────────────────────────────────────────────
+  robot:            {label: 机械臂,         mode: exclusive}
+  staging-a:        {label: 中转托盘位A,    mode: exclusive}
+  staging-b:        {label: 中转托盘位B,    mode: exclusive}
+  scrape-holder:    {label: 刮板接粉夹具,   mode: exclusive}
+  collect-holder:   {label: 收集器夹具,     mode: exclusive}
+  collect-bottle:   {label: 收集瓶位,       mode: exclusive}
+  consumable-group: {label: 耗材整组,       mode: exclusive}
+
+  # ── 展缸动作 (每缸一个独占资源, 不用 capacity=8 的单锁) ────────────────
+  tank_action:1: {label: 展缸1动作, mode: exclusive}
+  tank_action:2: {label: 展缸2动作, mode: exclusive}
+  tank_action:3: {label: 展缸3动作, mode: exclusive}
+  tank_action:4: {label: 展缸4动作, mode: exclusive}
+  tank_action:5: {label: 展缸5动作, mode: exclusive}
+  tank_action:6: {label: 展缸6动作, mode: exclusive}
+  tank_action:7: {label: 展缸7动作, mode: exclusive}
+  tank_action:8: {label: 展缸8动作, mode: exclusive}

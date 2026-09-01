@@ -1,0 +1,49 @@
+schema: ptlc.script/v1
+kind: operation
+name: feedlift_unload_cycle
+label: 废料下料-周期 (伺服升轴接料↔机械臂放废板 交错; R2 单站 cycle)
+ui:
+  role: cycle
+  primary: true
+  order: 80
+# 复刻旧机器人 PL4_2_Path_Put(FID8 放废料 / global.lua:430) 与旧 PLC FeedLift_L2 下料编排的内部同步。
+# 契约序 (plc_feedlift.yaml:5): unload_ready(21 到放废料位) ->[机器人放废板]-> unload_bury(22 埋料至光电消失)
+#   旧 PL4_2_Path_Put 落板前 DO(6,1);DO(2,0) 等 DI(2)(rotary-down) -> Xp_vac(0) 放料 (global.lua:430).
+# 前提: 机器人已持废板 (recipe 从 photoscrape 取板交来)。
+# 本 cycle 自管末端工具与地轨, 且顺序不可对调: 先 robot_tool_ensure(1) 换到吸盘, 再 rail_move_safe(1)
+#   确保地轨在废料下料站(位1≡位2, 物理可达); 已在位则 L2 派发幂等快速确认, 不在位则先校验机械臂在 P1 安全位再移轨。
+#   ⚠ 换刀必须排在移轨之前 —— robot_tool_ensure 需要换刀时会自己 rail_move_safe(4) 把地轨开到工具站(500.0)
+#   且换完不还原。若先移轨再换刀 (换刀藏在下面 robot_suction_put 的入口 prologue 里), 位1 那趟就被推翻成
+#   168->500->168 白跑一趟, 还会把 unload_ready 与探测夹在地轨往返中间。
+#   当前已挂吸盘时 tool_ensure 整段跳过, 只花一次 robot.query。
+# 退役 transfer_scrape_to_waste 的废料放板段并入此 cycle (R2: 仅碰 feedlift 动作 + feedlift 侧机器人接口 op)。
+# 废料 rotary-down 随 robot_suction_put 的 waste 分支 (06_robot 真源)。
+resources: [station:feedlift, robot]
+# 废板数由「光电触发位 + 2Z 行程」实测 (见 controller/feedlift_count.py), 用于绝对盘点与
+# 快满预警。只在 unload_ready 之后探测一次, 不做差分, 两条物理原因:
+#   1. unload_ready 搜索光电2=TRUE, unload_bury 搜索光电2=FALSE, 两者差一个光电回差,
+#      相减得不到板厚 —— 差分必须同边沿比较, 而同边沿的前值要跨 cycle 存, 不划算;
+#   2. 废板是机器人一张张放的, 不存在上料仓那种"一次吸走两张"的故障模式。
+# 探测必须放在机器人放板之前: 账面 ±1 由脚本级绑定在 cycle 终态才提交, 放板后对账会双倍计数。
+#
+# ⚠ 开头那次 unload_bury 是清零: unload_ready 在光电2已 TRUE 时会幂等直通 (原地确认 300ms
+# 即 DONE, 轴不动), 那样读到的是陈旧位置。现役 A22 的启动门同时要求下料仓接近开关为 TRUE，
+# 所以仓内必须已有至少一张承托/种子板；物理零张仓不是合法生产起点。稳态下上个 cycle 末尾的
+# bury 已让光电2=FALSE, 这次 bury 只是幂等空转几乎不费节拍。补它是为了让两个 cycle 遵守
+# 同一条「测量必先清零」契约，而不是依赖“上个 cycle 最后一个动作恰好把状态留对了”。
+vars:
+  - {name: p0, scope: local, type: DICT, comment: 放板前废料堆探测 (z_mm/count/residual)}
+body:
+  - {op: comment, text: "[phase: prepare] 先换刀再移轨: 换刀需要动作时会自己把地轨开到工具站(位4)且不还原, 排在移轨之后会让位1那趟白跑 (168->500->168)"}
+  - {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 1}}, outputs: {}}
+  - {op: comment, text: "[phase: prepare] 确定地轨在废料下料站(位1≡位2); 不在则先安全移轨(先校验机械臂在 P1 安全位再移)"}
+  - {op: run_script, script: rail_move_safe, inputs: {target: {lit: 1}}, outputs: {}}
+  - {op: comment, text: "[phase: load] 先降轴至光电消失(清零)再升轴到放废料位 —— 探测前必须清零, 见下方说明"}
+  - {op: call, action: feedlift.unload_bury, mode: RUN}
+  - {op: call, action: feedlift.unload_ready, mode: RUN}
+  - {op: call, action: feedlift.probe_stack, mode: RUN,
+     args: {magazine: {lit: waste}, reconcile: {lit: true}}, assign: {var: p0}}
+  - {op: comment, text: "[phase: execute] 机器人放废板 (降 P22->suction-off 松料->退回 P1)"}
+  - {op: run_script, script: robot_suction_put, inputs: {station_id: {lit: waste}}, outputs: {}}
+  - {op: comment, text: "[phase: unload] 埋料至光电消失"}
+  - {op: call, action: feedlift.unload_bury, mode: RUN}

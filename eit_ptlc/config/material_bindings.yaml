@@ -1,0 +1,330 @@
+# 物料记账绑定表
+# ==============
+# 唯一真源: 哪个脚本的一次成功调用 (vm_node_done status=DONE) 构成一次物料事实。
+# 由 runtime/material_store.py 作为 VM 事件 sink 消费; 不改执行链路, 不改任何 operation YAML。
+#
+# 为什么绑脚本名而不是点位:
+#   (rack_id, slot_id) 已经是脚本的一等入参, 一次取板的语义就是这次调用本身。
+#   点位当键是错的: collect_unload.yaml:62 注明 P78-83@位3 ≡ P46-51@位2 是同一排六个物理孔
+#   (点位当键会记成 12 个孔); P37/P39 同为一个托盘位的放/取两套点; 且 robot_individual_put
+#   的松爪发生在 staging-a.p46.near 而永不到基准点 P46。
+#
+# 为什么位置迁移绑 transfer_* 层而不是 robot_* 叶子:
+#   transfer_* 是手写的, 一次调用 = 一次完整逻辑移动。robot_* 是 tools/gen_robot_point_operations.py
+#   的生成物 (重跑会抹掉手改), 且单跑一个 robot_group_rack_pick 只完成半个移动 (板停在夹爪里)。
+#
+# 【2026-08-05 补】上面那半个移动现在也记 —— 叶子层另绑一组 transit_* (见下方"在途"一节),
+#   写的是 payload_transit 表 (载荷此刻在哪把夹爪上), 不碰位置账。于是:
+#     * 直跑 robot_group_rack_pick 不再静默失同步, 账本明确记着"板N在大爪上";
+#     * 取放中途取消/断电有痕迹, 物料页可一键清账 (POST /api/materials/transit);
+#     * 三维实时页据此把托盘挂到 TOOL_MOUNT 上跟手走, 而不是终点瞬变。
+#   两层并存 = 叶子层细粒度推进 + transfer 层粗粒度收口: transit_place 已落位时,
+#   transfer 层的 staging_load/unload 退化为幂等校验 (流水记"与在途落位一致", 不重复迁移)。
+#   保留 transfer 层的理由仍是上面那条 —— 叶子是生成物, 万一改名/重生成, 收口层还兜得住。
+#
+# 两段结构:
+#   bindings  按「脚本名」绑 (op: run_script 节点, 或作为根脚本运行)
+#   actions   按「动作名」绑 (op: call 节点) —— 液体扣减挂在动作上, 因为量就在动作参数里
+#
+# effect 语义 (闭集, 见 material_store.py 的 _EFFECTS / _ACTION_EFFECTS):
+#   staging_load    整板从货架库位 plate_from 进中转区 area
+#   staging_unload  整板从中转区 area 回货架库位 plate_from (与载入库位比对, 不一致则告警留痕)
+#   consume         中转板上 hole_from 号孔的耗材被取走消耗   FRESH -> USED
+#   fill            件归还中转板上 hole_from 号孔, 打上样品号   (state 保持 USED)
+#   plate_take      从 magazine 取走一张玻璃板 (计数 −1)
+#   plate_put       向 magazine 放入一张玻璃板 (计数 +1)
+#   liquid_draw     从溶剂瓶抽液: 量 = volume_from × (count_from 缺省 1), 按 ratio_from 权重分摊到 bottles
+#                   可选下半段: to_seat=把抽出的总量注进该座上那只瓶所属的托盘格 (liquid_ml),
+#                   wet_seat=顺带把该座上那只粉桶标"已淋洗" (三维据此把粉末换成湿色)
+#   scrape_arm      cnc_path 算出的本次刮取产粉量入**内存暂存** (不落账, 不留流水);
+#                   后到覆盖不累加。取的是动作 **result** 的键, 不是入参
+#   powder_fill     scrape_finish 翻料倒粉: 把 arm 的量记到 seat 上那只粉桶所属的托盘格 (powder_mm3)
+#   transit_pick    载荷离开原位进 carrier 夹爪 (源位标空; 整板从货架取时 plate_from 即库位号,
+#                   从中转取时板号读账本不猜)
+#   transit_place   载荷离开 carrier 落到 to_loc (身份以在途行为准, 入参只作比对)
+
+schema: ptlc.material_bindings/v1
+
+bindings:
+
+  # ── 整板转运: 货架 <-> 中转区 ────────────────────────────────────────────
+  transfer_collector_rack_to_staging_a:
+    effect: staging_load
+    kind: collector
+    area: staging-a
+    plate_from: slot_id
+
+  transfer_collector_staging_a_to_rack:
+    effect: staging_unload
+    kind: collector
+    area: staging-a
+    plate_from: slot_id
+
+  transfer_bottle_rack_to_staging_b:
+    effect: staging_load
+    kind: bottle
+    area: staging-b
+    plate_from: slot_id
+
+  transfer_bottle_staging_b_to_rack:
+    effect: staging_unload
+    kind: bottle
+    area: staging-b
+    plate_from: slot_id
+
+  # ── 单件消耗: 从中转板取走耗材 ──────────────────────────────────────────
+  transfer_collector_staging_a_to_scrape:
+    effect: consume
+    kind: collector
+    area: staging-a
+    hole_from: slot_id
+
+  transfer_bottle_staging_b_to_collect:
+    effect: consume
+    kind: bottle
+    area: staging-b
+    hole_from: slot_id
+
+  # ── 单件归还: 件回到中转板原孔, 打样品号 ────────────────────────────────
+  transfer_bottle_collect_to_staging_b:
+    effect: fill
+    kind: bottle
+    area: staging-b
+    hole_from: slot_id
+
+  # 唯一绑在 robot_* 上的一条: 收集器归还无 transfer 层包装, 由
+  # config/operation/04_collect/collect_unload.yaml 调用, 本身即一次完整逻辑移动 (还回原孔)。
+  robot_collector_return_put:
+    effect: fill
+    kind: collector
+    area: staging-a
+    hole_from: slot_id
+
+  # ── 玻璃板计数: 一个 cycle 恰好一张板 ──────────────────────────────────
+  # feedlift_load_cycle  = feed_raise 顶板 -> 机器人吸住 -> feed_lower 让位 -> 持板退回, 上料仓 −1
+  # feedlift_unload_cycle = unload_ready 接料 -> 机器人放废板 -> unload_bury 埋料,   下料仓 +1
+  # 「玻璃升降光电开关1/2」本身只是 jog 有界搜索的边界开关, 不是计数器; 但其触发时的
+  # 1Z/2Z 轴位置与板堆高度一一对应, 故 feedlift.probe_stack 用「触发位 + 实测堆叠节距」
+  # 反算绝对张数, 在两个 cycle 内校正下面这份软件计数 (见 controller/feedlift_count.py)。
+  # 下面的 ±1 仍是账本主线, 实测只在板未移动前那次探测上做对账校正。
+  feedlift_load_cycle:
+    effect: plate_take
+    magazine: feed
+  feedlift_unload_cycle:
+    effect: plate_put
+    magazine: waste
+
+  # ── 薄层板的板位与工艺阶段 (2026-08-13 新增) ────────────────────────────────
+  # 此前账本里薄层板只有"仓里几张"与"座上有没有", **没有工艺阶段** —— 于是三维四态板
+  # 只有空白那一态可达, "2 号板已点样正在 3 号缸展开"这个状态既表达不了也设定不了。
+  # 边界与 seat 表的声明一致: 流程写它, 但它**不参与任何耗材孔决策与统计口径**。
+  #
+  # 座名一律**逐条列全**(seat_map), 不做前缀拼接 —— 拼错一个字会静默落到不存在的座上,
+  # 列全了启动就报错。映射表里没有的入参值 = 这次调用不记板位 (放废料仓走 plate_put)。
+  robot_suction_put:
+    effect: plate_seat
+    present: true
+    seat_from: station_id
+    seat_map: {spotting: spot_seat, scrape: scrape_table}
+  robot_suction_pick:
+    effect: plate_seat
+    present: false
+    seat_from: station_id
+    seat_map: {spotting: spot_seat, scrape: scrape_table}
+
+  # 阶段里程碑: 与前端 twin/bindings/plateTraceState.STAGE_MILESTONES **逐条同表**
+  # (那边从调度器 jobs 推导, 这边从流程完成推导, 同一条工艺事实两个观测面)。
+  # 漂移由 test_plate_stage_milestones_offline 锁住 —— 改一边必须改另一边。
+  sampling_execute: {effect: plate_stage, stage: spotted, seat: spot_seat}
+  sampling_multi_execute: {effect: plate_stage, stage: spotted, seat: spot_seat}
+  sampling_cycle: {effect: plate_stage, stage: spotted, seat: spot_seat}
+  sampling_multi_cycle: {effect: plate_stage, stage: spotted, seat: spot_seat}
+  pf_s2_spot: {effect: plate_stage, stage: spotted, seat: spot_seat}
+  develop_execute:
+    effect: plate_stage
+    stage: developed
+    seat_from: tank
+    seat_map: {1: tank_1, 2: tank_2, 3: tank_3, 4: tank_4,
+               5: tank_5, 6: tank_6, 7: tank_7, 8: tank_8}
+  develop_cycle:
+    effect: plate_stage
+    stage: developed
+    seat_from: tank
+    seat_map: {1: tank_1, 2: tank_2, 3: tank_3, 4: tank_4,
+               5: tank_5, 6: tank_6, 7: tank_7, 8: tank_8}
+  pf_s6_develop_wait:
+    effect: plate_stage
+    stage: developed
+    seat_from: tank
+    seat_map: {1: tank_1, 2: tank_2, 3: tank_3, 4: tank_4,
+               5: tank_5, 6: tank_6, 7: tank_7, 8: tank_8}
+  photoscrape_process: {effect: plate_stage, stage: scraped, seat: scrape_table}
+  photoscrape_cycle: {effect: plate_stage, stage: scraped, seat: scrape_table}
+  pf_s9_scrape: {effect: plate_stage, stage: scraped, seat: scrape_table}
+
+  # ── 在途: 载荷此刻在哪把夹爪上 (绑叶子层, 只写 payload_transit, 不碰位置账) ──────
+  # carrier 名与 rig_map / device-manifest 的机构 id 逐字一致 (大爪 rob_grip_plate96 →
+  # gripper_plate96, 小爪 rob_grip_vial → gripper_vial), 错一个字前端静默不动。
+  # kind 一律从 rack_id 入参取: 同一个叶子脚本按 rack_id 服务 collector 与 bottle 两种,
+  # 在这里写死 kind 会有一半绑错。
+  # ⚠ 1 号吸盘刀 (玻璃板) 刻意不在此列 —— 薄层板的位置权威是 experiments.db 的
+  #   samples.position, 经 /api/scheduler/snapshot 下发, 收进来就成了第二套板账本。
+
+  # 整板 (2 号大夹爪)
+  robot_group_rack_pick:
+    effect: transit_pick
+    carrier: gripper_plate96
+    payload: tray
+    kind_from: rack_id
+    from_loc: rack
+    plate_from: slot_id        # 货架库位号即板号
+  robot_group_staging_put:
+    effect: transit_place
+    carrier: gripper_plate96
+    to_loc: staging
+  robot_group_staging_pick:
+    effect: transit_pick
+    carrier: gripper_plate96
+    payload: tray
+    kind_from: rack_id
+    from_loc: staging          # 板号读 staging_occupancy, 该脚本本就没有 slot_id 入参
+  robot_group_rack_put:
+    effect: transit_place
+    carrier: gripper_plate96
+    to_loc: rack
+    plate_from: slot_id        # 只作比对: 与在途板号不一致时告警留痕, 不按入参迁移
+
+  # 单件 (3 号小夹爪)。放件侧只绑 robot_individual_put ——
+  # robot_collector_return_put 已绑 fill (上面那条), 它的在途行由 _do_fill 顺带收口,
+  # 一个脚本名在本表里只能有一条绑定。
+  robot_individual_pick:
+    effect: transit_pick
+    carrier: gripper_vial
+    payload: item
+    kind_from: rack_id
+    from_loc: staging
+    hole_from: slot_id
+  robot_individual_put:
+    effect: transit_place
+    carrier: gripper_vial
+    to_loc: staging
+
+  # ── 站侧交接 (3 号小夹爪 ↔ 工位夹具) ──────────────────────────────────
+  # 这六个脚本物理上确实开合小爪 (逐个核过: put 侧各恰好 1 个 gripper-open = 松爪放件;
+  # pick 侧各恰好 1 个 gripper-close = 合爪夹件, 之前那个 open 是接近时张开), 但此前
+  # **一条绑定都没有**。后果不是"少记一笔", 而是在途行从放件那
+  # 一刻起再没人清 —— _do_consume 刻意不碰在途, 于是那一行会一直挂到几分钟后
+  # robot_individual_put / robot_collector_return_put 归还中转板时才由 _do_fill 收口。
+  # 三维照着账本画, 就是瓶/桶焊在机械臂上飞完整个拍照-展开-收集周期 (2026-08-05 实测)。
+  #
+  # to_loc/from_loc = station 时**必须写 seat**, 且**不写任何身份取参**:
+  #   写 seat 是因为同一种耗材有两个工位座 (刮板夹具与收集工位夹具都收 collector),
+  #     kind 反查不出来 —— 这与 staging 那边"不写死区名"的理由方向相反, 但同一条原则:
+  #     能唯一确定的就不写, 不能唯一确定的必须写明。
+  #   不写取参是因为这几个脚本只有 station_id 入参, 身份只可能从放件时写下的座位行读回;
+  #     从入参取就是猜。加载器会拒绝在 station 分支上出现 kind_from/plate_from/hole_from。
+  robot_collect_bottle_put:
+    effect: transit_place
+    carrier: gripper_vial
+    to_loc: station
+    seat: collect-bottle
+  robot_collect_bottle_pick:
+    effect: transit_pick
+    carrier: gripper_vial
+    payload: item
+    from_loc: station
+    seat: collect-bottle
+  robot_scrape_holder_put_exit:
+    effect: transit_place
+    carrier: gripper_vial
+    to_loc: station
+    seat: scrape-holder
+  robot_scrape_holder_pick_enter:
+    effect: transit_pick
+    carrier: gripper_vial
+    payload: item
+    from_loc: station
+    seat: scrape-holder
+  robot_collect_holder_put_exit:
+    effect: transit_place
+    carrier: gripper_vial
+    to_loc: station
+    seat: collect-holder
+  robot_collect_holder_pick_enter:
+    effect: transit_pick
+    carrier: gripper_vial
+    payload: item
+    from_loc: station
+    seat: collect-holder
+
+# ── 动作级绑定 (op: call): 液体扣减 ──────────────────────────────────────
+# 量全部来自动作自身参数, 不引入任何标定常数:
+#   总量 = volume_from × count_from(缺省1); ratio_from 存在时按权重分摊到 bottles 同序位,
+#   权重全零则不扣 (配比未填 = 没走那路溶剂); ratio_from 缺省则全额记到 bottles[0]。
+#
+# 【2026-08-05 已覆盖】维护面板单发动作 (POST /api/actions/{name}/run) 现在也扣账。
+#   该路由绕过 VM 与资源门, 只发 operation_start + step_start/step_done; step_done 现已
+#   携带 params (api/app.py 为三维展缸液面补的), 于是 material_store.on_event 多一条
+#   step_done 分支查本段 actions 即可扣, 无需事件配对。
+#   与 VM 路径**互斥不重复**: VM 只发 vm_node_*, 合成路径只发 step_*, 二者不同时出现。
+#   为什么单发要记而玻璃板/中转占用不必 —— 判据是能不能自愈, 不是触发路径:
+#     溶剂无任何传感器, 漏记的偏差单向累积且只会偏高("以为还有, 其实没了"), 而单发上液
+#     恰是调试期最频繁的动作; 玻璃板张数有 feedlift.probe_stack 每 cycle 反算校正,
+#     中转占用有已验证光电 + plan_staging 开工前防呆硬停 —— 那两类能自愈, 维持流程级即可。
+#   单发扣账在流水 detail 里标 "[面板单发]"。试机空跑 (没接管路/没装瓶) 造成的假数据,
+#   由人在物料页覆盖式改回余量 —— 前提是他能一眼认出哪几条是手点出来的, 故必须留痕。
+actions:
+
+  # 展缸-上液 (动作码 22; 动作名是 develop.fill, 不是 develop.up_liquid ——
+  # 后者根本不存在, 绑错名字会静默永不触发, 故有 test_material_bindings_match_catalog 钉住)
+  develop.fill:
+    effect: liquid_draw
+    volume_from: solvent_volume_ml
+    count_from: up_liquid_repeat_count
+    ratio_from: [solvent_ratio_1, solvent_ratio_2, solvent_ratio_3, solvent_ratio_4]
+    bottles: [solvent_1, solvent_2, solvent_3, solvent_4]
+
+  # 展缸-润洗注液 (动作码 21): 同样是 4 路配比 + 自带 rinse_repeat_count
+  develop.rinse_fill:
+    effect: liquid_draw
+    volume_from: solvent_volume_ml
+    count_from: rinse_repeat_count
+    ratio_from: [solvent_ratio_1, solvent_ratio_2, solvent_ratio_3, solvent_ratio_4]
+    bottles: [solvent_1, solvent_2, solvent_3, solvent_4]
+
+  # 收集-加液/排液洗脱循环: 单独一瓶洗脱液, 无配比
+  collect.collect:
+    effect: liquid_draw
+    volume_from: solvent_volume_ml
+    count_from: liquid_repeat_count
+    bottles: [eluent]
+    # 抽出来的洗脱液穿过收集夹具上那只粉桶, 落进收集位上那只 40mL 样品瓶 —— 抽与注是同一次
+    # 转移的两头, 故做成 liquid_draw 的可选下半段而不是第二条绑定 (YAML 一个 key 只能有
+    # 一条绑定, collect.collect 这个名字已经被 liquid_draw 占了)。
+    # develop.fill / develop.rinse_fill 不写这两个字段 => 行为完全不变 (零回归)。
+    # 两个座的身份都从 payload_seat 读回, 不从入参猜。
+    to_seat: collect-bottle      # 液量记到这只瓶所属的托盘格 (liquid_ml)
+    wet_seat: collect-holder     # 顺带把这只粉桶标"已淋洗" (三维粉末变色的依据)
+
+  # ── 刮取产粉量 (两段式) ─────────────────────────────────────────────────
+  # 为什么分两条: cnc_path 是全链**唯一**知道谱带真实轮廓面积的地方 (PLC 只收机床 mm 数组,
+  # 反算不回来), 但它跑完时一粒粉都还没刮, 而且在 operation/03_photoscrape/
+  # photoscrape_process.yaml 里会跑好几遍 (候选/重画/占位) —— 绑它落账 = 重试即重复记。
+  #
+  # scrape_finish(A41) 才是倒粉进桶的那一刻 (关吸粉无刷电机 + 旋转气缸翻料倒粉,
+  # 见 actions/04_photoscrape/plc_photoscrape.yaml 与 rot_host.yaml 的头注), 且它在流程里
+  # **恰好出现一次、在 pass 循环之后、不在任何 try 里** —— 刮取中途失败根本到不了它,
+  # 天然不记账, 不需要额外的失败处理。
+  #
+  # ⚠ volume_from_result 取的是**动作 result** 里的键, 不是入参 —— 体积是 cnc_path 算出来的,
+  #   它的 params 里没有这个东西。这也是它逃出 test_bindings_match_catalog 那道取参名核对
+  #   的原因, 替代看门狗是 test_scrape_arm_keys_exist_in_action_result。
+  photoscrape.cnc_path:
+    effect: scrape_arm
+    volume_from_result: scrape_volume_mm3   # = 轮廓面积 × total_depth_mm × bulk_factor
+    area_from_result: scrape_area_mm2       # 只进流水备注, 供人核对这一笔是量的还是估的
+    source_from_result: scrape_area_source  # contour=鞋带面积 | bbox=老 summary 的退化估计
+
+  photoscrape.scrape_finish:
+    effect: powder_fill
+    seat: scrape-holder        # 刮板夹具; 桶的身份从 payload_seat 读回, 不从入参猜

@@ -1,0 +1,45 @@
+# 展缸盖波浪开合演示片段.
+#
+# 值语义与 PLC DO 逐字一致(rig_map tank_lids / manifest linkages 同源):
+#   1 = 动点 = 关盖 = GLB 建模基准态(位移/角度输出 0)
+#   0 = 原点 = 开盖 —— 盖被四个直线轴承锁在竖直导向轴上, 只**垂直抬起**(默认 80mm),
+#       水平滑车退 60.7mm 带动摆臂转 47.4°, 盖本身不做任何水平位移.
+# 开度是 rig_map tank_lids.lift_mm 一个数说了算(摆角/滑车行程都是它的函数), 改完
+# 重跑 manifest 即生效, 本片段不带任何行程数字, 因此调开度不必动这里.
+# home 必须显式全 1 —— 通道隐式初值是 0, 缺省会让未到步骤的盖在 t=0 就呈开盖态,
+# 与 rig.home() 恢复的关盖基准位打架.
+schema: ptlc.clip/v1
+name: develop.lid_cycle
+label: 展缸盖波浪开合
+description: 8 缸错峰开盖→保持→错峰关盖; 与实时链共用 dev_t*_cyl* 联动组绑定.
+home:
+  linkages:
+    dev_t1_cyl1: 1
+    dev_t1_cyl2: 1
+    dev_t1_cyl3: 1
+    dev_t1_cyl4: 1
+    dev_t2_cyl1: 1
+    dev_t2_cyl2: 1
+    dev_t2_cyl3: 1
+    dev_t2_cyl4: 1
+steps:
+  - { label: 展开工位机位, at: 0, dur: 1.2, do: { camera: { station: DEVELOP } } }
+  # 波浪开盖: 按展缸编号 1..8 每 0.3s 错峰(奇数缸=架1/dev_t1, 偶数缸=架2/dev_t2)
+  - { label: 开盖 展缸1, at: 0.8, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl1, to: 0 } } }
+  - { label: 开盖 展缸2, at: 1.1, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl1, to: 0 } } }
+  - { label: 开盖 展缸3, at: 1.4, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl2, to: 0 } } }
+  - { label: 开盖 展缸4, at: 1.7, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl2, to: 0 } } }
+  - { label: 开盖 展缸5, at: 2.0, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl3, to: 0 } } }
+  - { label: 开盖 展缸6, at: 2.3, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl3, to: 0 } } }
+  - { label: 开盖 展缸7, at: 2.6, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl4, to: 0 } } }
+  - { label: 开盖 展缸8, at: 2.9, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl4, to: 0 } } }
+  - { label: 全开保持, at: 4.1, dur: 1.5, do: { wait: {} } }
+  # 同序错峰关盖
+  - { label: 关盖 展缸1, at: 5.6, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl1, to: 1 } } }
+  - { label: 关盖 展缸2, at: 5.9, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl1, to: 1 } } }
+  - { label: 关盖 展缸3, at: 6.2, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl2, to: 1 } } }
+  - { label: 关盖 展缸4, at: 6.5, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl2, to: 1 } } }
+  - { label: 关盖 展缸5, at: 6.8, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl3, to: 1 } } }
+  - { label: 关盖 展缸6, at: 7.1, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl3, to: 1 } } }
+  - { label: 关盖 展缸7, at: 7.4, dur: 1.2, ease: inout, do: { linkage: { id: dev_t1_cyl4, to: 1 } } }
+  - { label: 关盖 展缸8, at: 7.7, dur: 1.2, ease: inout, do: { linkage: { id: dev_t2_cyl4, to: 1 } } }

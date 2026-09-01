@@ -1,0 +1,21 @@
+name: collect_only
+stages:
+- name: spotting
+  enabled: false
+  params: {}
+- name: before_photo
+  enabled: false
+  params: {}
+- name: develop
+  enabled: false
+  params: {}
+- name: scrape
+  enabled: false
+  params: {}
+- name: collect
+  enabled: true
+  params:
+    solvent_volume_ml: 2.0
+    solvent_channel: 2
+    liquid_repeat_count: 1
+    powder_return_slot: 1   # 粉末收集器在暂存 A 的孔位（1-6），操作员根据实际放置填写

@@ -1,0 +1,67 @@
+schema: ptlc.script/v1
+kind: operation
+name: unilab_transport_v4_collector_scrape_to_collect
+label: v4 转运 刮板接粉夹具→收集夹具
+ui:
+  role: unilab_transport_v4
+  projection_only: true
+vars: []
+resources:
+- robot
+- station:rail
+- scrape-holder
+- collect-holder
+- station:photo_scrape
+- station:collect
+body:
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 2
+  outputs: {}
+- op: run_script
+  script: robot_scrape_holder_pick_enter
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: call
+  action: photoscrape.press_cylinder
+  mode: RUN
+  args:
+    pressed:
+      lit: false
+- op: run_script
+  script: robot_scrape_holder_pick_exit
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: call
+  action: photoscrape.retr_stoprot
+  mode: RUN
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 3
+  outputs: {}
+- op: run_script
+  script: robot_collect_holder_put_enter
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: call
+  action: collect.clamp
+  mode: RUN
+- op: run_script
+  script: robot_collect_holder_put_exit
+  inputs:
+    station_id:
+      lit: default
+  outputs: {}
+- op: call
+  action: collect.extend
+  mode: RUN

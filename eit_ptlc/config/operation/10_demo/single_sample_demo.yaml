@@ -1,0 +1,383 @@
+schema: ptlc.script/v1
+kind: operation
+name: single_sample_demo
+label: '[全流程DEMO] 单样品闭环'
+ui:
+  role: demo
+  primary: true
+  order: 90
+vars:
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: DEMO-001
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: var/photoscrape/single_sample_demo
+  comment: 拍照图保存目录
+- name: plate_spec
+  scope: local
+  type: STRING
+  io: in
+  default: 4×6
+  comment: 上样吸液孔板规格
+- name: plate_no
+  scope: local
+  type: STRING
+  io: in
+  default: '1'
+  comment: 上样吸液盘位号
+- name: well
+  scope: local
+  type: STRING
+  io: in
+  default: A1
+  comment: 上样吸液孔位
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 展开目标缸号
+- name: band_id
+  scope: local
+  type: STRING
+  io: in
+  default: band_01
+  comment: 默认刮取条带ID
+- name: collector_rack_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 接粉收集器板库位 1-6
+- name: collector_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 暂存A接粉收集器槽位 1-6
+- name: bottle_rack_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 收集瓶板库位 1-6
+- name: bottle_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 暂存B收集瓶槽位 1-6
+- name: solvent_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0.1
+  comment: 单次洗脱溶剂体积 mL
+- name: liquid_repeat_count
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 洗脱循环次数
+- name: before_path
+  scope: local
+  type: STRING
+  io: var
+  default: ''
+  comment: before 图路径
+resources:
+- robot
+- station:feedlift
+- station:sampling
+- station:photo_scrape
+- station:develop
+- station:collect
+- station:rail
+- consumable-group
+- staging-a
+- staging-b
+- scrape-holder
+- collect-holder
+- collect-bottle
+body:
+- op: comment
+  text: '0) 起手: STEP验收入口; 确认真机安全态、耗材板/硅胶板库位与输入参数一致'
+- op: run_script
+  script: robot_startup_check
+  inputs: {}
+  outputs: {}
+- op: human
+  kind: confirm
+  on_cancel: raise
+  prompt:
+    lit: '确认: 机器人在安全态且末端已空(吸盘无残留板/夹爪无残留件); 实物挂载工具与系统记录(robot_tool_state.json)一致, 将据此换到吸盘;
+      升降上料有待处理板; 接粉收集器板/收集瓶板位于输入库位; 将按 STEP 逐段验证单样品闭环'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 1
+  outputs: {}
+- op: comment
+  text: S1) Sampling prepare
+- op: run_script
+  script: sampling_prepare
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'S2) Sampling load: 升降上料取板 + 放入上样位并定位 (feedlift 已并入 sampling_load)'
+- op: run_script
+  script: sampling_load
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'S3) Sampling execute: 吸液、点样、吹干'
+- op: run_script
+  script: sampling_execute
+  inputs:
+    plate_spec:
+      var: plate_spec
+    plate_no:
+      var: plate_no
+    well:
+      var: well
+  outputs: {}
+- op: comment
+  text: 'S4) Sampling unload / handoff scaffold: 松上样定位并取板; 机器人持板去 before-photo'
+- op: run_script
+  script: sampling_unload
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: P0-before) PhotoScrape before-photo prepare/load/execute/unload 四段变体
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_plate_load
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_before_photo_capture
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+  outputs:
+    before_path:
+      var: before_path
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'H1) handoff scaffold: before-photo 后机器人持板, 先安全移轨到展开位(位5)'
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 5
+  outputs: {}
+- op: comment
+  text: D1) Develop prepare
+- op: run_script
+  script: develop_prepare
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: 'D2) Develop load: 机器人持板入缸'
+- op: run_script
+  script: develop_load
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: 'D3) Develop execute: 展开完成门 + 排液闭环'
+- op: run_script
+  script: develop_execute
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: 'D4) Develop unload / handoff scaffold: 出缸后机器人持板回刮板'
+- op: run_script
+  script: develop_unload
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: 'P1-after) PhotoScrape after-develop prepare/load: 先只放板, 让机器人空出后再搬两块耗材板'
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_plate_load
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'C0) helper: 耗材板搬运; 工具2大夹爪搬运整板, 收集器板到暂存A, 收集瓶板到暂存B'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 2
+  outputs: {}
+- op: run_script
+  script: transfer_collector_rack_to_staging_a
+  inputs:
+    slot_id:
+      var: collector_rack_slot
+  outputs: {}
+- op: run_script
+  script: transfer_bottle_rack_to_staging_b
+  inputs:
+    slot_id:
+      var: bottle_rack_slot
+  outputs: {}
+- op: comment
+  text: C0.1) 暂存A/B两个定位气缸到动点
+- op: try
+  body:
+  - op: call
+    action: staging_a.locator_a
+    mode: RUN
+    args:
+      target:
+        lit: true
+  - op: call
+    action: staging_a.locator_b
+    mode: RUN
+    args:
+      target:
+        lit: true
+  - op: comment
+    text: C0.2) 单个耗材搬运前切工具3小夹爪
+  - op: run_script
+    script: robot_tool_ensure
+    inputs:
+      needed:
+        lit: 3
+    outputs: {}
+  - op: comment
+    text: P2-after-load-helper) 单个接粉收集器从暂存A进入刮板接粉夹具
+  - op: run_script
+    script: transfer_collector_staging_a_to_scrape
+    inputs:
+      slot_id:
+        var: collector_slot
+    outputs: {}
+  - op: comment
+    text: 'P3) PhotoScrape execute: after拍照、视觉/CNC确认、刮取'
+  - op: run_script
+    script: photoscrape_process
+    inputs:
+      sample_id:
+        var: sample_id
+      save_dir:
+        var: save_dir
+      before_path:
+        var: before_path
+      band_id:
+        var: band_id
+    outputs: {}
+  - op: comment
+    text: C1) Collect prepare
+  - op: run_script
+    script: collect_prepare
+    inputs: {}
+    outputs: {}
+  - op: comment
+    text: 'C2) Collect load / handoff scaffold: 接粉收集器由刮板到收集站; 瓶由暂存B到收集位'
+  - op: run_script
+    script: collect_load
+    inputs:
+      bottle_slot:
+        var: bottle_slot
+    outputs: {}
+  - op: comment
+    text: 'C3) Collect execute: 洗脱并复位到取瓶姿态'
+  - op: run_script
+    script: collect_execute
+    inputs:
+      solvent_volume_ml:
+        var: solvent_volume_ml
+      liquid_repeat_count:
+        var: liquid_repeat_count
+    outputs: {}
+  - op: comment
+    text: 'C4) Collect unload: 成品瓶回暂存B, 接粉收集器回暂存A'
+  - op: run_script
+    script: collect_unload
+    inputs:
+      collector_slot:
+        var: collector_slot
+      bottle_slot:
+        var: bottle_slot
+    outputs: {}
+  finally:
+  - op: comment
+    text: 'cleanup: 释放暂存A/B定位气缸; 刮板异常恢复交给人工或专用恢复脚本'
+  - op: call
+    action: staging_a.locator_b
+    mode: RUN
+    args:
+      target:
+        lit: false
+  - op: call
+    action: staging_a.locator_a
+    mode: RUN
+    args:
+      target:
+        lit: false
+- op: comment
+  text: 'C5) helper: 暂存A/B板已释放; 切回工具2大夹爪, 两块耗材板回库'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 2
+  outputs: {}
+- op: run_script
+  script: transfer_bottle_staging_b_to_rack
+  inputs:
+    slot_id:
+      var: bottle_rack_slot
+  outputs: {}
+- op: run_script
+  script: transfer_collector_staging_a_to_rack
+  inputs:
+    slot_id:
+      var: collector_rack_slot
+  outputs: {}
+- op: comment
+  text: 'P4) PhotoScrape unload: 硅胶板从刮板夹具取出'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 1
+  outputs: {}
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'H9) helper: FeedLift 废料下料; 末态废板埋入, 机器人回安全态'
+- op: run_script
+  script: feedlift_unload_cycle
+  inputs: {}
+  outputs: {}

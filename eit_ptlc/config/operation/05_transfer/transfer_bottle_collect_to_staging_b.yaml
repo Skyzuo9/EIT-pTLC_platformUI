@@ -1,0 +1,17 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_bottle_collect_to_staging_b
+label: 转运-单瓶 收集工位→中转B (上位机, 参 slot_id)
+# 重规划自路线 consumable.bottle-collect-to-staging-b. 收集位(位3)内取瓶并放回中转B.
+vars:
+  - {name: slot_id, scope: local, type: INT, io: in, default: 1, comment: 中转B回位槽位 1-6}
+resources: [robot, "station:rail", "collect-bottle", "staging-b"]
+body:
+  - {op: comment, text: 从收集工位(位3)取瓶 —— 地轨由 robot_collect_bottle_pick enter 处 rail.ensure(3) 自动到位}
+  - {op: run_script, script: robot_collect_bottle_pick, inputs: {station_id: {lit: default}}, outputs: {}}
+  # 原子动作不嵌套地轨: 地轨已在段首保证在位3, 取放全程不再移轨 (基本原则, 免交叉调试困难);
+  # 取毕机械臂停在收集枢纽 P70, 放瓶动作从 P70 直接接手 (enter_anchor=P70), 免 P70→P1→P52 回家空跑
+  - {op: comment, text: 放瓶前先压住中转B整板 (板浮动会插孔失准; 同扫描周期 DONE, 不拖 P70 交接)}
+  - {op: call, action: staging_a.locator_b, mode: RUN, args: {target: {lit: true}}}
+  - {op: comment, text: 地轨保持收集位(位3, 全程不再移轨); 从 P70 直接交接放瓶回中转B}
+  - {op: run_script, script: robot_individual_put, inputs: {rack_id: {lit: bottle}, slot_id: {var: slot_id}, enter_anchor: {lit: P70}}, outputs: {}}

@@ -1,0 +1,45 @@
+name: scarpeandcollect_pTLC
+stages:
+- name: spotting
+  enabled: false
+  params:
+    sample_volume_ml: 5.0
+    air_buffer_ml: 3.0
+    wash_volume_ml: 25.0
+    source_x: 1
+    source_y: 1
+    cleaning_count: 3
+- name: before_photo
+  enabled: false
+  params: {}
+- name: develop
+  enabled: false
+  params:
+    rinse_mode: cylinder
+    target_tank: 1
+    solvent_volume_ml: 2.0
+    solvent_ratio_1: 0.0
+    solvent_ratio_2: 0.0
+    solvent_ratio_3: 0.0
+    solvent_ratio_4: 0.0
+    solvent_ratio_5: 0.0
+    develop_duration_min: 1.0
+    rinse_repeat_count: 1
+    up_liquid_repeat_count: 1
+- name: scrape
+  enabled: true
+  params:
+    num_passes: 1
+    total_depth_mm: 0.5
+    feed_rate: 0
+    plunge_rate: 0
+    path_strategy: contour
+    keep_ratio: 0.8
+    overlap_ratio: 0.4
+- name: collect
+  enabled: true
+  params:
+    solvent_volume_ml: 4.0
+    solvent_channel: 2
+    liquid_repeat_count: 1
+    powder_return_slot: 0

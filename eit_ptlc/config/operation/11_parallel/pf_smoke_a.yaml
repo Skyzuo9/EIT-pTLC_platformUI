@@ -1,0 +1,24 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_smoke_a
+label: 并行冒烟段A-占上样位 (集成验收用)
+ui:
+  role: helper
+  hidden: true
+# 并行系统冒烟配方 (parallel_smoke) 的段A: 只发一个上样工位 L2 初始化, 把样品从料仓
+# "搬"到点样座 (调度语义上的位移; 无机器人)。用途: sim 集成验收 —— 两个样品的段A 在
+# station:sampling 上互斥 (A 离开点样座前 B 进不来), 不依赖相机/视觉仿真保真度。
+flow:
+  atomic: true
+  sample: required
+  from: feedlift
+  to: spot_seat
+  hitl: none
+  retry: restart
+vars: []
+resources:
+- station:sampling
+body:
+- op: call
+  action: sampling.init
+  mode: RUN

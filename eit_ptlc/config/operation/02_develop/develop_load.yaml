@@ -1,0 +1,43 @@
+schema: ptlc.script/v1
+kind: operation
+name: develop_load
+label: 展开-上料
+ui:
+  role: station_phase
+  station: develop
+  phase: load
+  primary: true
+  order: 22
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8
+resources:
+- station:develop
+- robot
+body:
+- op: comment
+  text: 'load: 机器人放板入缸; 前提是 handoff 已让机器人持板到展开位'
+- op: call
+  action: develop.plate_retract
+  args:
+    target_tank:
+      var: tank
+  mode: RUN
+- op: run_script
+  script: robot_tank_put
+  inputs:
+    tank_id:
+      var: tank
+  outputs: {}
+- op: comment
+  text: 'load: 放板缸到动点, 完成入缸夹持'
+- op: call
+  action: develop.plate_extend
+  args:
+    target_tank:
+      var: tank
+  mode: RUN

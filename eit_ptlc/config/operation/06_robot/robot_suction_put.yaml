@@ -1,0 +1,829 @@
+# 【手改·勿重生成 (G-1)】body 顶部入口保证 prologue: home_ensure 确保回零 + tool_ensure 换刀 (needed=1 吸盘); 生成器重跑会抹掉
+schema: ptlc.script/v1
+kind: operation
+name: robot_suction_put
+label: 台面放板
+note: '吸盘; 点样台/刮板台/废料仓'
+ui: {subgroup: 台面取放, order: 22}
+vars:
+- name: station_id
+  scope: local
+  type: STRING
+  io: in
+  default: spotting
+  comment: suction.put 主选择值
+  enum: [spotting, scrape, waste]
+- name: voff_rz
+  scope: local
+  type: DICT
+  io: var
+  comment: 缺口B 视觉纠偏第一次拍照结果, 用于先修 Rz (dx_mm/dy_mm/drz_deg/err/valid)
+- name: voff_xy
+  scope: local
+  type: DICT
+  io: var
+  comment: 缺口B 视觉纠偏第二次拍照结果, 用于验证残余 Rz 并修正 dx/dy
+- name: drz_threshold_deg
+  scope: local
+  type: FLOAT
+  io: var
+  default: '0.8'
+  comment: 二次拍照后允许的 Rz 残差阈值 (deg)
+resources:
+- robot
+body:
+- {op: comment, text: '入口保证(手改): 确保在 home (安全邻域内自动回零) + 智能换刀到本流程固定工具 (吸盘)'}
+- {op: call, action: robot.home_ensure, mode: RUN}
+- {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 1}}, outputs: {}}
+- op: if
+  cond:
+    binop: ==
+    left:
+      var: station_id
+    right:
+      lit: spotting
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id:
+        lit: P1
+      joint_tol_deg:
+        lit: 2
+      pos_tol_mm:
+        lit: 5
+      rot_tol_deg:
+        lit: 5
+    mode: RUN
+  - op: call
+    action: rail.ensure
+    args:
+      Rail_Target_Position: {lit: 1}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P4
+      motion:
+        lit: move_j
+      acc:
+        lit: 60
+      vel:
+        lit: 50
+      cp:
+        lit: 20
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action:
+        lit: rotary-up
+      timeout_ms:
+        lit: 3000
+    mode: RUN
+  - op: comment
+    text: 视觉拍照 photo
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P86
+      motion:
+        lit: move_j
+      acc:
+        lit: 30
+      vel:
+        lit: 30
+      cp:
+        lit: 0
+    mode: RUN
+  - op: comment
+    text: 视觉拍照 photo
+  - op: comment
+    text: '拍照前整定: 视觉触发路径无内建 settle, 先驻留让机械臂到位后残振衰减再拍 (photo #1)'
+  - op: call
+    action: robot.dwell
+    args:
+      duration_ms:
+        lit: 300
+    mode: RUN
+  - op: call
+    action: vision.capture_plate_offset
+    args:
+      apply_rz:
+        lit: true
+    assign:
+      var: voff_rz
+    mode: RUN
+  - op: comment
+    text: 'photo #1 err==111 识别失败: 暂停人工处置 (确认=重拍一次; 再失败则 raise 中止)'
+  - op: if
+    cond:
+      binop: ==
+      left:
+        field:
+          var: voff_rz
+        name: valid
+      right:
+        lit: false
+    then:
+    - op: human
+      kind: confirm
+      on_cancel: raise
+      prompt:
+        lit: 相机识别失败(err=111), 已停。确认=重拍一次; 取消=中止放板
+    - op: call
+      action: vision.capture_plate_offset
+      args:
+        apply_rz:
+          lit: true
+      assign:
+        var: voff_rz
+      mode: RUN
+    - op: if
+      cond:
+        binop: ==
+        left:
+          field:
+            var: voff_rz
+          name: valid
+        right:
+          lit: false
+      then:
+      - op: raise
+        error: VISION_CORRECT_FAILED
+        message:
+          lit: 相机二次识别仍失败(err=111), 中止放板
+  - op: comment
+    text: 'Correction at P86: rotate Rz first so the plate angle matches the template.'
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P86
+      motion:
+        lit: move_l
+      acc:
+        lit: 12
+      vel:
+        lit: 10
+      cp:
+        lit: 0
+      dx_mm:
+        lit: 0
+      dy_mm:
+        lit: 0
+      drz_deg:
+        field:
+          var: voff_rz
+        name: drz_deg
+    mode: RUN
+  - op: comment
+    text: '视觉拍照 #2 after Rz correction: verify residual Rz and re-measure current dx/dy.'
+  - op: comment
+    text: '拍照前整定: Rz 纠偏 move 到位后先驻留让残振衰减再拍, 提升二次纠偏 dx/dy 读数稳定性 (photo #2)'
+  - op: call
+    action: robot.dwell
+    args:
+      duration_ms:
+        lit: 300
+    mode: RUN
+  - op: call
+    action: vision.capture_plate_offset
+    args:
+      apply_rz:
+        lit: true
+    assign:
+      var: voff_xy
+    mode: RUN
+  - op: comment
+    text: 'photo #2 err==111 识别失败: 暂停人工处置 (确认=重拍一次; 再失败则 raise 中止)'
+  - op: if
+    cond:
+      binop: ==
+      left:
+        field:
+          var: voff_xy
+        name: valid
+      right:
+        lit: false
+    then:
+    - op: human
+      kind: confirm
+      on_cancel: raise
+      prompt:
+        lit: 相机二次识别失败(err=111), 已停。确认=重拍一次; 取消=中止放板
+    - op: call
+      action: vision.capture_plate_offset
+      args:
+        apply_rz:
+          lit: true
+      assign:
+        var: voff_xy
+      mode: RUN
+    - op: if
+      cond:
+        binop: ==
+        left:
+          field:
+            var: voff_xy
+          name: valid
+        right:
+          lit: false
+      then:
+      - op: raise
+        error: VISION_CORRECT_FAILED
+        message:
+          lit: 相机二次识别重拍仍失败(err=111), 中止放板
+  - op: if
+    cond:
+      binop: '>'
+      left:
+        call: abs
+        args:
+        - field:
+            var: voff_xy
+          name: drz_deg
+      right:
+        var: drz_threshold_deg
+    then:
+    - op: raise
+      error: VISION_RZ_NOT_CONVERGED
+      message:
+        lit: 二次拍照后 Rz 残差仍超阈值, 中止放板
+  - op: comment
+    text: 'Correction preview at P86: translate XY from photo #2 while keeping the
+      Rz correction from photo #1.'
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P86
+      motion:
+        lit: move_l
+      acc:
+        lit: 12
+      vel:
+        lit: 10
+      cp:
+        lit: 0
+      dx_mm:
+        field:
+          var: voff_xy
+        name: dx_mm
+      dy_mm:
+        field:
+          var: voff_xy
+        name: dy_mm
+      drz_deg:
+        field:
+          var: voff_rz
+        name: drz_deg
+    mode: RUN
+  - op: comment
+    text: Final spotting put carries photo
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P4
+      motion:
+        lit: move_j
+      acc:
+        lit: 60
+      vel:
+        lit: 50
+      cp:
+        lit: 20
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: spotting.put.approach_far
+      motion:
+        lit: move_l
+      acc:
+        lit: 12
+      vel:
+        lit: 15
+      cp:
+        lit: 0
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: spotting.put.approach_near
+      motion:
+        lit: move_l
+      acc:
+        lit: 6
+      vel:
+        lit: 10
+      cp:
+        lit: 0
+      dx_mm:
+        field:
+          var: voff_xy
+        name: dx_mm
+      dy_mm:
+        field:
+          var: voff_xy
+        name: dy_mm
+      drz_deg:
+        field:
+          var: voff_rz
+        name: drz_deg
+    mode: RUN
+  - op: comment
+    text: Release at P19 with closed-loop correction from vision photo
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P19
+      motion:
+        lit: move_l
+      acc:
+        lit: 6
+      vel:
+        lit: 5
+      cp:
+        lit: 0
+      dx_mm:
+        field:
+          var: voff_xy
+        name: dx_mm
+      dy_mm:
+        field:
+          var: voff_xy
+        name: dy_mm
+      drz_deg:
+        field:
+          var: voff_rz
+        name: drz_deg
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action:
+        lit: suction-off
+      timeout_ms:
+        lit: 3000
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: spotting.put.retreat_near
+      motion:
+        lit: move_l
+      acc:
+        lit: 6
+      vel:
+        lit: 10
+      cp:
+        lit: 0
+      dx_mm:
+        field:
+          var: voff_xy
+        name: dx_mm
+      dy_mm:
+        field:
+          var: voff_xy
+        name: dy_mm
+      drz_deg:
+        field:
+          var: voff_rz
+        name: drz_deg
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: spotting.put.retreat_far
+      motion:
+        lit: move_l
+      acc:
+        lit: 18
+      vel:
+        lit: 20
+      cp:
+        lit: 0
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P4
+      motion:
+        lit: move_j
+      acc:
+        lit: 60
+      vel:
+        lit: 50
+      cp:
+        lit: 20
+    mode: RUN
+  - op: comment
+    text: 'Safety fix: execute rotary-down only after returning to fixed transition
+      point P4.'
+  - op: call
+    action: robot.tool_action
+    args:
+      action:
+        lit: rotary-down
+      timeout_ms:
+        lit: 3000
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: P1
+      motion:
+        lit: move_j
+      acc:
+        lit: 50
+      vel:
+        lit: 37
+      cp:
+        lit: 2
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id:
+        lit: P1
+      joint_tol_deg:
+        lit: 2
+      pos_tol_mm:
+        lit: 5
+      rot_tol_deg:
+        lit: 5
+    mode: RUN
+  elifs:
+  - cond:
+      binop: ==
+      left:
+        var: station_id
+      right:
+        lit: scrape
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id:
+          lit: P1
+        joint_tol_deg:
+          lit: 2
+        pos_tol_mm:
+          lit: 5
+        rot_tol_deg:
+          lit: 5
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P63
+        motion:
+          lit: move_j
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action:
+          lit: rotary-up
+        timeout_ms:
+          lit: 3000
+      mode: RUN
+    - op: comment
+      text: No later vision correction after spotting; scrape put uses nominal locator
+        points.
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P63
+        motion:
+          lit: move_j
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: scrape.plate-put.approach_far
+        motion:
+          lit: move_l
+        acc:
+          lit: 12
+        vel:
+          lit: 15
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: scrape.plate-put.approach_near
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 10
+        cp:
+          lit: 0
+      mode: RUN
+    - op: comment
+      text: Release at nominal P65; no later vision correction after spotting.
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P65
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 5
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action:
+          lit: suction-off
+        timeout_ms:
+          lit: 3000
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: scrape.plate-put.retreat_near
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 10
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: scrape.plate-put.retreat_far
+        motion:
+          lit: move_l
+        acc:
+          lit: 18
+        vel:
+          lit: 20
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P63
+        motion:
+          lit: move_j
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 20
+      mode: RUN
+    - op: comment
+      text: Release at nominal P65; no later vision correction after spotting.
+    - op: call
+      action: robot.tool_action
+      args:
+        action:
+          lit: rotary-down
+        timeout_ms:
+          lit: 3000
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P1
+        motion:
+          lit: move_j
+        acc:
+          lit: 50
+        vel:
+          lit: 37
+        cp:
+          lit: 2
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id:
+          lit: P1
+        joint_tol_deg:
+          lit: 2
+        pos_tol_mm:
+          lit: 5
+        rot_tol_deg:
+          lit: 5
+      mode: RUN
+  - cond:
+      binop: ==
+      left:
+        var: station_id
+      right:
+        lit: waste
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id:
+          lit: P1
+        joint_tol_deg:
+          lit: 2
+        pos_tol_mm:
+          lit: 5
+        rot_tol_deg:
+          lit: 5
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 1}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action:
+          lit: rotary-down
+        timeout_ms:
+          lit: 3000
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P5
+        motion:
+          lit: move_j
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: waste.approach_far
+        motion:
+          lit: move_l
+        acc:
+          lit: 12
+        vel:
+          lit: 15
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: waste.approach_near
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 10
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P22
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 5
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action:
+          lit: suction-off
+        timeout_ms:
+          lit: 3000
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: waste.approach_near
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 10
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: waste.approach_far
+        motion:
+          lit: move_l
+        acc:
+          lit: 18
+        vel:
+          lit: 20
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P5
+        motion:
+          lit: move_j
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: P1
+        motion:
+          lit: move_j
+        acc:
+          lit: 50
+        vel:
+          lit: 37
+        cp:
+          lit: 2
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id:
+          lit: P1
+        joint_tol_deg:
+          lit: 2
+        pos_tol_mm:
+          lit: 5
+        rot_tol_deg:
+          lit: 5
+      mode: RUN
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message:
+      lit: 'suction.put: 无效选择值'

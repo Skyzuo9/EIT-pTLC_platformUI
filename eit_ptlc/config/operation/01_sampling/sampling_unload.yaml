@@ -1,0 +1,43 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_unload
+label: 上样-下料
+ui:
+  role: station_phase
+  station: sampling
+  phase: unload
+  primary: true
+  order: 14
+# 上样四段之四: 松开本站定位夹具, 机器人从上样位取板并退回 P1。
+# 自动跨站时本 step 必须处于 handoff(A -> B) 事务内; 机器人持板 home 不是可抢占空闲态。
+vars: []
+resources:
+- robot
+- station:sampling
+body:
+- op: comment
+  text: 'unload: 松开定位夹具 -> 机器人从上样位取板; robot_suction_pick 末尾回 P1 并 require_anchor'
+- op: comment
+  text: 跨站自动运行时必须由 handoff(A -> B) 包裹; 机器人持板 home 不是可抢占空闲态
+- op: comment
+  text: '取板前先把 7Y 带板从喷涂位退回放板位, 使取/放同点 (机器人在 P19 取, 与放板同点); 必须先回位再松夹, 反之会在 7Y 行程中移/丢板'
+- op: call
+  action: sampling.place_axis
+  mode: RUN
+- op: call
+  action: sampling.place_release
+  mode: RUN
+- op: comment
+  text: 自守卫地轨在上样位(位1); 幂等, 使本 step 可单独点跑
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 1
+  outputs: {}
+- op: run_script
+  script: robot_suction_pick
+  inputs:
+    station_id:
+      lit: spotting
+  outputs: {}

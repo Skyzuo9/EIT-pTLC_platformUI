@@ -1,0 +1,58 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_unload
+label: 拍照刮板-下料
+ui:
+  role: station_phase
+  station: photo_scrape
+  phase: unload
+  primary: true
+  order: 34
+vars: []
+resources:
+- robot
+- station:photo_scrape
+- station:rail
+body:
+- op: comment
+  text: "unload/板: 若生产 recipe 需要先转走接粉收集器, 应在 execute 与本 step 间执行 collect_load handoff"
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 1
+  outputs: {}
+- op: comment
+  text: "unload/板: 换刀可能把地轨带到工具位; 松定位前先安全回到刮板拍照位(位2)"
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 2
+  outputs: {}
+- op: comment
+  text: "unload/板: 先松下压气缸再松定位气缸。press 生产释放点原仅在 collect_load(转走接粉收集器时),
+    独立/短流程(无 collect 段)会漏放, 板卡在压头下。此处补放 press(false) 幂等——full 流程 collect_load
+    已放过, 再放无副作用; 保证任何路径下板都不卡压头下, 机器人方可安全取板。"
+- op: call
+  action: photoscrape.press_cylinder
+  mode: RUN
+  args:
+    pressed:
+      lit: false
+- op: comment
+  text: "unload/板: 松定位气缸"
+- op: call
+  action: photoscrape.locate_cylinder
+  mode: RUN
+  args:
+    clamped:
+      lit: false
+- op: comment
+  text: "unload/板: 机器人从刮板夹具取板并持板"
+- op: run_script
+  script: robot_suction_pick
+  inputs:
+    station_id:
+      lit: scrape
+  outputs: {}

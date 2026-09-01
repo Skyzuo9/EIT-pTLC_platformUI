@@ -1,0 +1,39 @@
+# 点样工位 PLC 伺服点位 (workstation=spotting, 由文件名注入)。
+#
+# B 方案 / 路径 T —— 单一真源 = flat *_Target, HMI 改读它, position[] 退役 (无代差)。
+#   每根连续伺服轴一个可示教 flat 目标轴位; 多轴共同定义一个工艺位姿时聚为一个组合点位。
+#
+# 点样位置 (spot_pose): 一次点样行程由三根轴共同定义 —— 6X 起点 + 6X 终点 (同轴两位置) + 7Y 高度。
+#   故合为单一组合点位 (plc_servo_composite): 示教在同一面板逐成员 jog 采点 (读 ActPos → 存 value),
+#   动作以一个 point_ref 引用本组合, 触发前按成员序整体下发各 *_Target。
+#   值为 PC 侧单一示教基准 (teach-verify 唯一写者持久化于本文件; flat 节点不 retain, PLC 重启即丢由 PC 回推)。
+#   按带/按板的几何差异不在此复制, 由 operation 逐带经 x_start/x_end/y_height 运行前临时覆盖 (push 时叠加, 不回写本文件)。
+#
+# 放板位 (spot_7y_place): 7Y 上还有一个**未被 B 方案收编**的位置 —— 机器人往点样座放板时
+#   板托座该停的地方。PLC 的 Sampling_L2/A31_放板移轴 原文读 `HMI_点样轴7Y.position[1]`,
+#   而该变量是 `RETAIN PERSISTENT AT %MB132448` 且工程源码无初值 —— 值只活在在线 PLC 的
+#   保持内存里, 收编成 flat *_Target 是 PLC 侧排期的事。
+#   所以这里按**地轨收编前的同款表达法** (plc_servo struct 槽位点) 先把真值记下来:
+#   2026-08-05 经 OPC 实读 HMI_点样轴7Y.position = [56.0, -20.0, 0...]
+#     position[1] = 56.0  = 本点 (放板位, A31_放板移轴)
+#     position[2] = -20.0 = 上面组合点位的 y_height (与 Spot_7Y_Target 逐字对上, 交叉验证)
+#   ⚠ PLC 侧没有对应的 flat 节点, 故本点**只读不下发**: 它是三维/文档的取数口, 不是示教口。
+#     现场重新示教后需重新实读并更新本值 (同一条 OPC 路径)。
+#   带 actpos: 它与 rig_map 的 axes[axis_7y].telemetry.key 同名, 于是
+#   gen_twin_manifest.check_axis_limits 的**主规则**直接接管本点 (那里的 rail 特例注释原话:
+#   "控制侧日后给这些点补上 actpos 字段后主规则自动接管")。三维前端的 axisIndex 也靠它
+#   把点位派生到轴上, 不必再手工对照。
+plc_servo:
+- {key: spot_7y_place, label: "点样7Y-放板位", node: HMI_点样轴7Y, actpos: Spot_7Y_ActPos,
+   slot: 1, value: 56.0, limits: {min: -100.0, max: 100.0}}
+
+plc_servo_composite:
+- key: spot_pose
+  label: "点样位置"
+  members:
+  - {key: x_start, label: "X起点", node: Spot_6X_StartTarget, actpos: 
+      Spot_6X_ActPos, value: 70.0, limits: {min: -500.0, max: 500.0}}
+  - {key: x_end, label: "X终点", node: Spot_6X_EndTarget, actpos: Spot_6X_ActPos, 
+      value: 240.0, limits: {min: -500.0, max: 500.0}}
+  - {key: y_height, label: "Y高度", node: Spot_7Y_Target, actpos: Spot_7Y_ActPos, 
+      value: -20.0, limits: {min: -500.0, max: 500.0}}

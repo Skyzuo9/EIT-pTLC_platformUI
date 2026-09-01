@@ -1,0 +1,29 @@
+# 上样伺服工位 PLC 伺服点位 (workstation=sampling, 由文件名注入)。
+#
+# B 方案 / 路径 T —— 单一真源 = flat *_Target, HMI 改读它, position[] 退役 (无代差):
+#   上位机示教 = 每根连续伺服轴一个可示教 flat 目标点 (plc_servo_target)。HMI struct 绑定折叠为
+#   目标点的 hmi_node/hmi_slot 元数据 (仅作召回参照 + 记录本 *_Target 取代的 position[槽位])。
+#   故本文件不再有独立的 plc_servo struct 槽位点 (上样 4X / 上样Y / 5Z 均以 target 表达)。
+#
+# 上样 4X / 上样Y: 仿射轴 (CalibrationService.push_well 按孔实时算目标写 *_Target, 不消费 value)。
+#   limit_source=true → value 占位、禁止手动存值/下发; 示教走孔板标定 (/points/calibration):
+#   jog 到 3 孔读 *_ActPos → solve 仿射 → 持久化 calibration.yaml。limits 仅作写前钳制数据源。
+#   注: "上样Y" 的 HMI 物理轴标签是 "打样瓶上料轴3Y" (厂商命名); 旧 feed 工位的 "上料轴3Y" 系笔误,
+#       实为本上样Y, 已并入本工位 (其活目标即 sampling_3y / Sampling_3Y_Target)。
+# 上样 5Z: 升降轴, 逐点示教 (jog 读 ActPos → 存 value → 下发 *_Target)。两档:
+#   sample_5z     (HMI slot 1) 升降档
+#   sample_5z_dip (HMI slot 2) 吸样下探深度 —— PLC 的 Sampling_L2/A50_absorb_吸收液体
+#                 原文 `上样轴5Z轴DATE.fAbsTarget := HMI_上样轴5Z轴.position[2]`
+#   value 来源: 2026-08-05 经 OPC 实读 HMI_上样轴5Z轴.position = [45.0, 46.5, 0...]
+#   (此前两条都是 0.0 占位; 0 是抬针位, 拿它当下探深度等于"针没扎下去")。
+#   pending=true 不变: PLC 端 Sampling_5Z_Target/ActPos flat 节点待建 (排期: 5Z/服务位批次) →
+#   可离线存值 (PC 真源), 但"读实际位/下发"在节点就绪前禁用。
+# 上样 4X 清洗位: 4X 轴上的固定离散工位 (非孔, 仿射算不出) → 独立离散示教点 (非 limit_source: jog 读 ActPos → 存 value → 下发)。
+#   与 sampling_4x 共享物理轴/ActPos/limits; 替代旧 HMI_上样轴4X轴.position[9] (PLC 清洗 step 改读本 flat 节点)。
+#   Sampling_4X_WashTarget flat 节点已下载 (0624 真机生效), pending 已清 → jog 读 ActPos / 存 value / 下发 全可用。
+plc_servo_target:
+  - {key: sampling_4x,      node: Sampling_4X_Target,     actpos: Sampling_4X_ActPos, hmi_node: HMI_上样轴4X轴,        label: "上样4X (仿射/限位源)",            value: 0.0, limit_source: true, limits: {min: -5.0, max: 110.0}}
+  - {key: sampling_3y,      node: Sampling_3Y_Target,     actpos: Sampling_3Y_ActPos, hmi_node: HMI_打样瓶上料轴3Y,    label: "上样Y (仿射/限位源; HMI:打样瓶上料轴3Y)", value: 0.0, limit_source: true, limits: {min: -20.0, max: 245.0}}
+  - {key: sample_5z,        node: Sampling_5Z_Target,     actpos: Sampling_5Z_ActPos, hmi_node: HMI_上样轴5Z轴,   hmi_slot: 1, label: "上样5Z 升降",                value: 45.0, pending: true,      limits: {min: -5.0, max: 50.0}}
+  - {key: sample_5z_dip,    node: Sampling_5Z_Target,     actpos: Sampling_5Z_ActPos, hmi_node: HMI_上样轴5Z轴,   hmi_slot: 2, label: "上样5Z 吸样下探深度",        value: 46.5, pending: true,      limits: {min: -5.0, max: 50.0}}
+  - {key: sampling_4x_wash, node: Sampling_4X_WashTarget, actpos: Sampling_4X_ActPos, hmi_node: HMI_上样轴4X轴,   hmi_slot: 9, label: "上样4X 清洗位 (离散示教)",     value: 0.0, limits: {min: -5.0, max: 110.0}}

@@ -1,0 +1,289 @@
+schema: unilab.platformui-operation-review/v1
+generated_from: eit_ptlc/config/operation/**/*.yaml
+source_sha256: e531cb0df2f38c1720fdc3db17488fa33b48d306244760f33483e8024588ca23
+semantics:
+  projection_actions_disabled: true
+  loop_projection: marker_only_body_not_expanded
+  repeated_subworkflow_projection: first_definition_then_reference_marker
+  enabled_execution_nodes_per_root: 1
+  execution: single_unchanged_platformui_root_operation
+  resource_gate_authority: eit_ptlc.operation.resources.ResourceGate
+  control_flow_authority: eit_ptlc.operation.vm.VmThread
+root_count: 12
+unique_operation_count: 70
+unique_source_action_call_count: 1402
+unique_control_counts:
+  assign: 48
+  comment: 216
+  for: 2
+  human: 12
+  if: 58
+  raise: 34
+  try: 10
+  while: 2
+  with_resources: 5
+segment_expanded_action_count: 2270
+segment_expanded_control_counts:
+  assign: 32
+  comment: 294
+  for: 2
+  human: 13
+  if: 107
+  raise: 68
+  try: 2
+  while: 1
+  with_resources: 5
+roots:
+- root_operation: pf_af0_batch_startup
+  workflow_uuid: da8d24df-05cc-55af-841f-d9801c0420d9
+  source: eit_ptlc/workflows/pf_af0_batch_startup_action_review_v1.py
+  root_resources:
+  - robot
+  - station:rail
+  operation_count: 6
+  display_operation_count: 6
+  expanded_action_count: 75
+  expanded_control_counts:
+    assign: 1
+    comment: 9
+    human: 1
+    if: 5
+    raise: 3
+  deduplicated_subworkflow_reference_count: 0
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 97
+- root_operation: pf_s1_load
+  workflow_uuid: 5fa6553b-dc7c-577e-ad22-f0061a57475e
+  source: eit_ptlc/workflows/pf_s1_load_action_review_v1.py
+  root_resources:
+  - robot
+  - station:feedlift
+  - station:sampling
+  - station:rail
+  operation_count: 11
+  display_operation_count: 11
+  expanded_action_count: 154
+  expanded_control_counts:
+    assign: 1
+    comment: 36
+    human: 2
+    if: 13
+    raise: 9
+    with_resources: 1
+  deduplicated_subworkflow_reference_count: 3
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 227
+- root_operation: pf_s2_spot
+  workflow_uuid: b631569f-12fd-5b92-a2b4-2c6ecd9d8403
+  source: eit_ptlc/workflows/pf_s2_spot_action_review_v1.py
+  root_resources:
+  - station:sampling
+  operation_count: 3
+  display_operation_count: 3
+  expanded_action_count: 2
+  expanded_control_counts:
+    assign: 4
+    comment: 9
+    for: 1
+    if: 1
+    raise: 3
+  deduplicated_subworkflow_reference_count: 0
+  bypassed_loop_count: 1
+  bypassed_loop_body_node_count: 4
+  bypassed_loop_body_action_count: 3
+  projection_node_count: 21
+- root_operation: pf_s3_tank_prep
+  workflow_uuid: b9e28440-a333-5b78-a62d-a90d0b4f83ca
+  source: eit_ptlc/workflows/pf_s3_tank_prep_action_review_v1.py
+  root_resources:
+  - station:develop
+  operation_count: 2
+  display_operation_count: 2
+  expanded_action_count: 5
+  expanded_control_counts:
+    comment: 5
+    with_resources: 1
+  deduplicated_subworkflow_reference_count: 0
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 11
+- root_operation: pf_s4_photo_before
+  workflow_uuid: 234f5206-adbb-53b0-a3c5-2bddcd65d9a0
+  source: eit_ptlc/workflows/pf_s4_photo_before_action_review_v1.py
+  root_resources:
+  - robot
+  - station:sampling
+  - station:photo_scrape
+  - station:rail
+  operation_count: 11
+  display_operation_count: 11
+  expanded_action_count: 162
+  expanded_control_counts:
+    assign: 2
+    comment: 38
+    human: 2
+    if: 12
+    raise: 8
+  deduplicated_subworkflow_reference_count: 3
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 235
+- root_operation: pf_s5_to_tank
+  workflow_uuid: 286ecda1-c222-5ed5-a43b-613f3c2a7da7
+  source: eit_ptlc/workflows/pf_s5_to_tank_action_review_v1.py
+  root_resources:
+  - robot
+  - station:rail
+  - station:photo_scrape
+  - station:develop
+  operation_count: 9
+  display_operation_count: 9
+  expanded_action_count: 242
+  expanded_control_counts:
+    assign: 1
+    comment: 18
+    if: 7
+    raise: 5
+  deduplicated_subworkflow_reference_count: 4
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 280
+- root_operation: pf_s6_develop_wait
+  workflow_uuid: ea15b5e8-6ed1-5cdd-a2c6-61b3f3176103
+  source: eit_ptlc/workflows/pf_s6_develop_wait_action_review_v1.py
+  root_resources: []
+  operation_count: 1
+  display_operation_count: 1
+  expanded_action_count: 6
+  expanded_control_counts:
+    comment: 4
+    human: 3
+    if: 4
+    with_resources: 3
+  deduplicated_subworkflow_reference_count: 0
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 22
+- root_operation: pf_s7_consumables
+  workflow_uuid: 74e6871d-47cb-54b5-a72f-75e724f3dbd6
+  source: eit_ptlc/workflows/pf_s7_consumables_action_review_v1.py
+  root_resources:
+  - robot
+  - station:rail
+  - consumable-group
+  - staging-a
+  - staging-b
+  - scrape-holder
+  - station:photo_scrape
+  operation_count: 19
+  display_operation_count: 19
+  expanded_action_count: 674
+  expanded_control_counts:
+    assign: 9
+    comment: 46
+    if: 16
+    raise: 10
+  deduplicated_subworkflow_reference_count: 14
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 776
+- root_operation: pf_s8_to_scrape
+  workflow_uuid: 2289f4bd-8020-533c-9a9c-0ea4b6f679f6
+  source: eit_ptlc/workflows/pf_s8_to_scrape_action_review_v1.py
+  root_resources:
+  - robot
+  - station:rail
+  - station:develop
+  - station:photo_scrape
+  operation_count: 10
+  display_operation_count: 10
+  expanded_action_count: 269
+  expanded_control_counts:
+    assign: 1
+    comment: 34
+    human: 2
+    if: 12
+    raise: 8
+  deduplicated_subworkflow_reference_count: 3
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 337
+- root_operation: pf_s9_scrape
+  workflow_uuid: 6660af5f-106f-50cc-9955-f8c4642faed9
+  source: eit_ptlc/workflows/pf_s9_scrape_action_review_v1.py
+  root_resources:
+  - station:photo_scrape
+  operation_count: 3
+  display_operation_count: 2
+  expanded_action_count: 16
+  expanded_control_counts:
+    assign: 11
+    comment: 23
+    for: 1
+    human: 1
+    if: 6
+    try: 2
+    while: 1
+  deduplicated_subworkflow_reference_count: 0
+  bypassed_loop_count: 2
+  bypassed_loop_body_node_count: 49
+  bypassed_loop_body_action_count: 6
+  projection_node_count: 67
+- root_operation: pf_s10_collect
+  workflow_uuid: 9fac83e2-795f-5a9e-bc6f-8203028b5539
+  source: eit_ptlc/workflows/pf_s10_collect_action_review_v1.py
+  root_resources:
+  - robot
+  - station:collect
+  - station:rail
+  - scrape-holder
+  - collect-holder
+  - collect-bottle
+  - staging-a
+  - staging-b
+  - station:photo_scrape
+  operation_count: 23
+  display_operation_count: 23
+  expanded_action_count: 505
+  expanded_control_counts:
+    assign: 1
+    comment: 37
+    if: 19
+    raise: 14
+  deduplicated_subworkflow_reference_count: 9
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 591
+- root_operation: pf_s11_unload
+  workflow_uuid: ad5c26a6-4c80-5bec-a6e9-8c77f477abbe
+  source: eit_ptlc/workflows/pf_s11_unload_action_review_v1.py
+  root_resources:
+  - robot
+  - station:photo_scrape
+  - station:rail
+  - station:feedlift
+  operation_count: 9
+  display_operation_count: 9
+  expanded_action_count: 160
+  expanded_control_counts:
+    assign: 1
+    comment: 35
+    human: 2
+    if: 12
+    raise: 8
+  deduplicated_subworkflow_reference_count: 5
+  bypassed_loop_count: 0
+  bypassed_loop_body_node_count: 0
+  bypassed_loop_body_action_count: 0
+  projection_node_count: 231

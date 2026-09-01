@@ -1,0 +1,46 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s8_to_scrape
+label: 6 出缸上刮板台
+ui:
+  role: segment
+# 原子流程 s8: 展开缸N -> 刮板台。开盖出缸取板 -> 放回刮板台夹紧。
+# develop_unload 内含地轨到位5与出缸全序; 段末缸空 (调度器在本段 DONE 后释放缸池)。
+flow:
+  atomic: true
+  sample: required
+  from: tank:{tank}
+  to: scrape_table
+  hitl: confirm
+  retry: manual
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8 (与 s5 同缸)
+resources:
+- robot
+- station:rail
+- station:develop
+- station:photo_scrape
+body:
+- op: comment
+  text: '出缸: 开盖 -> plate_retract -> robot_tank_pick (持板出缸); 地轨到位由脚本自管'
+- op: run_script
+  script: develop_unload
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: '放回刮板台: cam_x335 -> 机器人放板 -> locate_cylinder(true); 段末板夹在台上 (稳定停放)'
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_plate_load
+  inputs: {}
+  outputs: {}

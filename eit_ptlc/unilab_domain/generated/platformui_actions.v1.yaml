@@ -1,0 +1,3352 @@
+schema: unilab.platformui-actions/v1
+generated_from: eit_ptlc/config/actions/**/*.yaml
+source_sha256: 6cca5ae683983ca82397836f4a65dddc90eac355ec668c20a12a6b195609db00
+external_action_count: 93
+typed_operation_action_count: 7
+proxy_device_count: 11
+actions:
+- name: collect.bottle_locator
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: bottle_locator
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target
+    type: bool
+    required: true
+    default: null
+    label: 中转B定位气缸目标
+    options: []
+    minimum: null
+    maximum: null
+    channel: StagingA_LocatorB_Target
+    scale: null
+    unit: ''
+- name: collect.clamp
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: clamp
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: collect.collect
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: collect
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: solvent_volume_ml
+    type: float
+    required: false
+    default: 2.0
+    label: 溶剂体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: liquid_repeat_count
+    type: int
+    required: false
+    default: 1
+    label: 重复打液次数
+    options: []
+    minimum: 1
+    maximum: 20
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: disp_speed
+    type: int
+    required: false
+    default: null
+    label: 打液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: collect.extend
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: extend
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: collect.init
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: init
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: collect.lift_press
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: lift_press
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: collect.release_clamp
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: release_clamp
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: collect.retract
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: retract
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: collect.transport_extend
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: transport_extend
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: develop.capture_reference
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: capture_reference
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: ''
+    scale: null
+    unit: ''
+  - name: timeout_s
+    type: float
+    required: false
+    default: 90.0
+    label: 采集超时 (s)
+    options: []
+    minimum: 10.0
+    maximum: 600.0
+    channel: ''
+    scale: null
+    unit: ''
+- name: develop.clean_line
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: clean_line
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_volume_ml
+    type: float
+    required: false
+    default: 2.0
+    label: 展开剂总体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_1
+    type: float
+    required: false
+    default: 1.0
+    label: 溶剂1权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_2
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂2权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_3
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂3权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_4
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂4权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: rinse_repeat_count
+    type: int
+    required: false
+    default: 1
+    label: 润洗重复次数
+    options: []
+    minimum: 1
+    maximum: 20
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: disp_speed
+    type: int
+    required: false
+    default: null
+    label: 打液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: develop.drain
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: drain
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: Expand_Target_Tank
+    scale: null
+    unit: ''
+  - name: drain_duration_s
+    type: float
+    required: false
+    default: 5.0
+    label: 抽液判据时长s
+    options: []
+    minimum: 0.0
+    maximum: 600.0
+    channel: Tank_Drain_S
+    scale: null
+    unit: ''
+  - name: drain_cap_s
+    type: float
+    required: false
+    default: 120.0
+    label: 抽液硬上限s
+    options: []
+    minimum: 1.0
+    maximum: 1800.0
+    channel: Tank_Drain_Cap_S
+    scale: null
+    unit: ''
+  - name: blow_s
+    type: float
+    required: false
+    default: 30.0
+    label: 吹扫时长s
+    options: []
+    minimum: 0.0
+    maximum: 600.0
+    channel: Tank_Blow_S
+    scale: null
+    unit: ''
+  - name: dry_duration_s
+    type: float
+    required: false
+    default: 0.0
+    label: 原位干燥时长s
+    options: []
+    minimum: 0.0
+    maximum: 1800.0
+    channel: Tank_Dry_S
+    scale: null
+    unit: ''
+- name: develop.fill
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: fill
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_volume_ml
+    type: float
+    required: false
+    default: 2.0
+    label: 展开剂总体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_1
+    type: float
+    required: false
+    default: 1.0
+    label: 溶剂1权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_2
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂2权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_3
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂3权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_4
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂4权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: up_liquid_repeat_count
+    type: int
+    required: false
+    default: 1
+    label: 上液重复次数
+    options: []
+    minimum: 1
+    maximum: 20
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: disp_speed
+    type: int
+    required: false
+    default: null
+    label: 打液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: develop.init
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: init
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: Expand_Target_Tank
+    scale: null
+    unit: ''
+- name: develop.plate_extend
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: plate_extend
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: Expand_Target_Tank
+    scale: null
+    unit: ''
+- name: develop.plate_retract
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: plate_retract
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: Expand_Target_Tank
+    scale: null
+    unit: ''
+- name: develop.release_tank
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: release_tank
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: Expand_Target_Tank
+    scale: null
+    unit: ''
+- name: develop.rinse_fill
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: rinse_fill
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_volume_ml
+    type: float
+    required: false
+    default: 2.0
+    label: 展开剂总体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_1
+    type: float
+    required: false
+    default: 1.0
+    label: 溶剂1权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_2
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂2权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_3
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂3权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: solvent_ratio_4
+    type: float
+    required: false
+    default: 0.0
+    label: 溶剂4权重
+    options: []
+    minimum: 0.0
+    maximum: 100.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: rinse_repeat_count
+    type: int
+    required: false
+    default: 1
+    label: 润洗重复次数
+    options: []
+    minimum: 1
+    maximum: 20
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: disp_speed
+    type: int
+    required: false
+    default: null
+    label: 打液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: develop.rinse_suction
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: rinse_suction
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: Expand_Target_Tank
+    scale: null
+    unit: ''
+  - name: settle_s
+    type: float
+    required: false
+    default: 3.0
+    label: 入场沉降s
+    options: []
+    minimum: 0.0
+    maximum: 30.0
+    channel: Tank_Suction_Settle_S
+    scale: null
+    unit: ''
+  - name: empty_s
+    type: float
+    required: false
+    default: 10.0
+    label: 走空判据s
+    options: []
+    minimum: 1.0
+    maximum: 60.0
+    channel: Tank_Suction_Empty_S
+    scale: null
+    unit: ''
+  - name: blow_s
+    type: float
+    required: false
+    default: 30.0
+    label: 吹扫时长s
+    options: []
+    minimum: 0.0
+    maximum: 60.0
+    channel: Tank_Suction_Blow_S
+    scale: null
+    unit: ''
+  - name: cap_s
+    type: float
+    required: false
+    default: 120.0
+    label: 抽吸超时s
+    options: []
+    minimum: 10.0
+    maximum: 120.0
+    channel: Tank_Suction_Cap_S
+    scale: null
+    unit: ''
+- name: develop.wait_level
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: wait_level
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: target_tank
+    type: int
+    required: true
+    default: null
+    label: 目标缸号
+    options: []
+    minimum: 1
+    maximum: 8
+    channel: ''
+    scale: null
+    unit: ''
+  - name: stage
+    type: enum
+    required: true
+    default: null
+    label: 阈值档
+    options:
+    - value: t1
+      label: t1
+    - value: t2
+      label: t2
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: staleness_s
+    type: float
+    required: false
+    default: 30.0
+    label: 检测降级判据 (s)
+    options: []
+    minimum: 4.0
+    maximum: 600.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: hard_cap_s
+    type: float
+    required: false
+    default: 3600.0
+    label: 展开时长硬上限 (s)
+    options: []
+    minimum: 0.0
+    maximum: 14400.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: confirm_n
+    type: int
+    required: false
+    default: 2
+    label: 命中确认拍数 (去抖, 按不同检测拍计)
+    options: []
+    minimum: 1
+    maximum: 10
+    channel: ''
+    scale: null
+    unit: ''
+- name: feedlift.calib_record
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: calib_record
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: magazine
+    type: enum
+    required: true
+    default: null
+    label: 板仓 (feed=上料仓1Z, waste=下料仓2Z)
+    options:
+    - value: feed
+      label: feed
+    - value: waste
+      label: waste
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: plates
+    type: int
+    required: true
+    default: null
+    label: 此刻仓内实际张数 (空仓填 0); 这个数必须准确
+    options: []
+    minimum: 0
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: z_clear
+    type: float
+    required: true
+    default: null
+    label: 清零动作后的轴位置(mm)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: z_trigger
+    type: float
+    required: true
+    default: null
+    label: 逼近动作后的轴位置(mm), 即光电触发位
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: feedlift.debug_check_photoelectric_edge
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: debug_check_photoelectric_edge
+  kind: plc_l2
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: axis
+    type: int
+    required: true
+    default: null
+    label: 轴号(1=1Z,2=2Z)
+    options: []
+    minimum: 1
+    maximum: 2
+    channel: FeedLift_DebugAxis
+    scale: null
+    unit: ''
+  - name: expected_final
+    type: bool
+    required: true
+    default: null
+    label: 期望最终光电状态
+    options: []
+    minimum: null
+    maximum: null
+    channel: FeedLift_DebugExpectedFinal
+    scale: null
+    unit: ''
+- name: feedlift.feed_clear
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: feed_clear
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: feedlift.feed_lower
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: feed_lower
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: feedlift.feed_raise
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: feed_raise
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: feedlift.init
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: init
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: feedlift.preflight
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: preflight
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: magazine
+    type: enum
+    required: true
+    default: null
+    label: 板仓 (feed=上料仓1Z, waste=下料仓2Z)
+    options:
+    - value: feed
+      label: feed
+    - value: waste
+      label: waste
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: feedlift.probe_stack
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: probe_stack
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: magazine
+    type: enum
+    required: true
+    default: null
+    label: 板仓 (feed=上料仓1Z, waste=下料仓2Z)
+    options:
+    - value: feed
+      label: feed
+    - value: waste
+      label: waste
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: z_prev
+    type: float
+    required: false
+    default: null
+    label: 前一次探测的轴位置(mm), 给了才做差分判定
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: expect_taken
+    type: int
+    required: false
+    default: null
+    label: 期望取走张数 (与 z_prev 同时给出才生效)
+    options: []
+    minimum: 0
+    maximum: 5
+    channel: ''
+    scale: null
+    unit: ''
+  - name: reconcile
+    type: bool
+    required: false
+    default: false
+    label: 按实测校正账本 (只在板未移动前的那次探测置 true)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: z_clear
+    type: float
+    required: false
+    default: null
+    label: 同次测量的清零位(mm); 给了才校验逼近动作确实搜索过
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: feedlift.read_pos
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: read_pos
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: magazine
+    type: enum
+    required: true
+    default: null
+    label: 板仓 (feed=上料仓1Z, waste=下料仓2Z)
+    options:
+    - value: feed
+      label: feed
+    - value: waste
+      label: waste
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: feedlift.unload_bury
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: unload_bury
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: feedlift.unload_ready
+  namespace: feedlift
+  unilab_device_id: plc_feedlift
+  unilab_action: unload_ready
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: material.check_availability
+  namespace: material
+  unilab_device_id: material
+  unilab_action: check_availability
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: need_collector
+    type: bool
+    required: false
+    default: false
+    label: 是否需要粉末收集器 (刮取启用时为真)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: need_bottle
+    type: bool
+    required: false
+    default: false
+    label: 是否需要玻璃收集瓶 (收集启用时为真)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: exclude_sample
+    type: string
+    required: false
+    default: ''
+    label: 并行批次样品号 (判可用时不把本样品自己的预留算作占用; 空=匿名)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: material.plan_staging
+  namespace: material
+  unilab_device_id: material
+  unilab_action: plan_staging
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: kind
+    type: enum
+    required: true
+    default: null
+    label: 耗材种类 (collector=粉末收集器/中转A, bottle=玻璃收集瓶/中转B)
+    options:
+    - value: collector
+      label: collector
+    - value: bottle
+      label: bottle
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: reserve_for
+    type: string
+    required: false
+    default: ''
+    label: 并行批次样品号 (非空则排除他人预留并落本样品孔级预留; 空=旧行为, 手动直跑零变化)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: photoscrape.align_home
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: align_home
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.align_move
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: align_move
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: x_mm
+    type: float
+    required: true
+    default: null
+    label: 目标X(mm)
+    options: []
+    minimum: null
+    maximum: null
+    channel: PhotoScrape_Align_TargetX
+    scale: null
+    unit: ''
+  - name: y_mm
+    type: float
+    required: true
+    default: null
+    label: 目标Y(mm)
+    options: []
+    minimum: null
+    maximum: null
+    channel: PhotoScrape_Align_TargetY
+    scale: null
+    unit: ''
+- name: photoscrape.align_readout
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: align_readout
+  kind: host
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.align_z
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: align_z
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: z_mm
+    type: float
+    required: true
+    default: null
+    label: 目标Z(mm)
+    options: []
+    minimum: null
+    maximum: null
+    channel: PhotoScrape_Align_TargetZ
+    scale: null
+    unit: ''
+- name: photoscrape.analyze
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: analyze
+  kind: vision
+  modes: []
+  retryable: false
+  params:
+  - name: sample_id
+    type: string
+    required: true
+    default: null
+    label: 样品ID
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: before_path
+    type: string
+    required: true
+    default: null
+    label: before图路径
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: after_path
+    type: string
+    required: true
+    default: null
+    label: after图路径
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: image_plate_orientation
+    type: enum
+    required: false
+    default: null
+    label: 板朝向覆盖
+    options:
+    - value: rot0
+      label: rot0
+    - value: rot90cw
+      label: rot90cw
+    - value: rot180
+      label: rot180
+    - value: rot270cw
+      label: rot270cw
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: auto_rectify_tilt
+    type: bool
+    required: false
+    default: null
+    label: 倾斜自动矫正覆盖
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: rectify_min_angle_deg
+    type: float
+    required: false
+    default: null
+    label: 最小矫正角覆盖 (deg)
+    options: []
+    minimum: 0
+    maximum: 45
+    channel: ''
+    scale: null
+    unit: ''
+  - name: min_row_score
+    type: float
+    required: false
+    default: null
+    label: 行评分阈值覆盖
+    options: []
+    minimum: 0
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: image_plate_rotation_deg
+    type: float
+    required: false
+    default: null
+    label: 相机滚转角覆盖 (deg)
+    options: []
+    minimum: -180
+    maximum: 180
+    channel: ''
+    scale: null
+    unit: ''
+- name: photoscrape.cam_photohome
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: cam_photohome
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.cam_photopos
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: cam_photopos
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: ref_8y
+    type: point_ref
+    required: true
+    default: null
+    label: 8Y-点位
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: photoscrape.cam_x335
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: cam_x335
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.capture
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: capture
+  kind: camera
+  modes: []
+  retryable: false
+  params:
+  - name: sample_id
+    type: string
+    required: true
+    default: null
+    label: 样品ID
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: save_dir
+    type: string
+    required: true
+    default: null
+    label: 保存目录
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: filename
+    type: string
+    required: false
+    default: after.jpg
+    label: 文件名
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: profile
+    type: string
+    required: false
+    default: ''
+    label: 相机profile(空=仅用覆写)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: exposure_time
+    type: float
+    required: false
+    default: null
+    label: 曝光µs(覆写)
+    options: []
+    minimum: 1
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: gain
+    type: float
+    required: false
+    default: null
+    label: 增益(覆写)
+    options: []
+    minimum: 0
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: photoscrape.cnc_path
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: cnc_path
+  kind: vision
+  modes: []
+  retryable: false
+  params:
+  - name: summary_path
+    type: string
+    required: true
+    default: null
+    label: 视觉summary.json路径
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: band_id
+    type: string
+    required: true
+    default: null
+    label: 选带ID
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: strategy
+    type: enum
+    required: false
+    default: null
+    label: 路径策略(略=用配置)
+    options:
+    - value: contour
+      label: contour
+    - value: boustrophedon
+      label: boustrophedon
+    - value: zigzag
+      label: zigzag
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: keep_ratio
+    type: float
+    required: false
+    default: null
+    label: 刮取每列保留比(略=用配置)
+    options: []
+    minimum: 0.01
+    maximum: 1.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: placeholder
+    type: bool
+    required: false
+    default: false
+    label: 安全占位(跳过刮板;0 pass)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: photoscrape.init
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: init
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.locate_cylinder
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: locate_cylinder
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: clamped
+    type: bool
+    required: true
+    default: null
+    label: 是否夹紧定位
+    options: []
+    minimum: null
+    maximum: null
+    channel: PhotoScrape_CamLocate_Target
+    scale: null
+    unit: ''
+- name: photoscrape.press_cylinder
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: press_cylinder
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: pressed
+    type: bool
+    required: true
+    default: null
+    label: 是否下压
+    options: []
+    minimum: null
+    maximum: null
+    channel: PhotoScrape_CamPress_Target
+    scale: null
+    unit: ''
+- name: photoscrape.retr_stoprot
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: retr_stoprot
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.scrape
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: scrape
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.scrape_finish
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: scrape_finish
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: photoscrape.scraped_overlay
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: scraped_overlay
+  kind: vision
+  modes: []
+  retryable: false
+  params:
+  - name: summary_path
+    type: string
+    required: true
+    default: null
+    label: 下发候选summary路径
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: scraped_path
+    type: string
+    required: true
+    default: null
+    label: 刮后照片路径
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: photoscrape.wait_rot
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: wait_rot
+  kind: host
+  modes: []
+  retryable: false
+  params:
+  - name: target
+    type: enum
+    required: false
+    default: null
+    label: 等哪一端 (extend=动点/翻倒, home=原点/刮取位)
+    options:
+    - value: extend
+      label: extend
+    - value: home
+      label: home
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: timeout_s
+    type: float
+    required: false
+    default: null
+    label: 等到位上限 (s, 缺省 6.0)
+    options: []
+    minimum: 0.5
+    maximum: 30.0
+    channel: ''
+    scale: null
+    unit: ''
+- name: photoscrape.write_cnc_path
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: write_cnc_path
+  kind: plc_write
+  modes: []
+  retryable: false
+  params:
+  - name: sx
+    type: list[float]
+    required: true
+    label: 刮取X数组
+    plc_node: g_sx
+  - name: sy
+    type: list[float]
+    required: true
+    label: 刮取Y数组
+    plc_node: g_sy
+  - name: cx
+    type: list[float]
+    required: true
+    label: 收集X数组
+    plc_node: g_cx
+  - name: cy
+    type: list[float]
+    required: true
+    label: 收集Y数组
+    plc_node: g_cy
+  - name: feed
+    type: int
+    required: true
+    label: 刮取进给
+    plc_node: g_scrape_feed
+- name: photoscrape.write_pass_z
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: write_pass_z
+  kind: plc_write
+  modes: []
+  retryable: false
+  params:
+  - name: z
+    type: float
+    required: true
+    label: 本pass Z高度
+    plc_node: g_pass_z
+- name: pump.vacuum_off
+  namespace: pump
+  unilab_device_id: plc_pump
+  unilab_action: vacuum_off
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: pump.vacuum_on
+  namespace: pump
+  unilab_device_id: plc_pump
+  unilab_action: vacuum_on
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: rail.ensure
+  namespace: rail
+  unilab_device_id: plc_rail
+  unilab_action: ensure
+  kind: rail_ensure
+  modes: []
+  retryable: false
+  params:
+  - name: Rail_Target_Position
+    type: int
+    required: true
+    default: null
+    label: 地轨目标位
+    options:
+    - value: 1
+      label: 1 上样
+    - value: 2
+      label: 2 拍照
+    - value: 3
+      label: 3 收集
+    - value: 4
+      label: 4 工具
+    - value: 5
+      label: 5 展开
+    - value: 6
+      label: 6 仓库
+    minimum: 1
+    maximum: 6
+    channel: ''
+    scale: null
+    unit: ''
+- name: rail.move
+  namespace: rail
+  unilab_device_id: plc_rail
+  unilab_action: move
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: Rail_Target_Position
+    type: int
+    required: true
+    default: null
+    label: 地轨目标位
+    options:
+    - value: 1
+      label: 1 上样
+    - value: 2
+      label: 2 拍照
+    - value: 3
+      label: 3 收集
+    - value: 4
+      label: 4 工具
+    - value: 5
+      label: 5 展开
+    - value: 6
+      label: 6 仓库
+    minimum: 1
+    maximum: 6
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.clear_error
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: clear_error
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: confirm
+    type: bool
+    required: true
+    default: null
+    label: 确认清警
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.connect
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: connect
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: confirm
+    type: bool
+    required: false
+    default: false
+    label: 已人工确认接管
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.disable
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: disable
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: confirm
+    type: bool
+    required: true
+    default: null
+    label: 确认下使能
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.dwell
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: dwell
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: duration_ms
+    type: int
+    required: true
+    default: null
+    label: 时长 ms
+    options: []
+    minimum: 1
+    maximum: 60000
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.emergency_stop
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: emergency_stop
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: pressed
+    type: bool
+    required: false
+    default: true
+    label: 按下(true)/释放(false)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.enable
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: enable
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: confirm
+    type: bool
+    required: true
+    default: null
+    label: 确认使能
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.home
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: home
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params: []
+- name: robot.home_ensure
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: home_ensure
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: point_id
+    type: string
+    required: false
+    default: null
+    label: 锚点 (仅支持 home, 缺省即 home)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: joint_tol_deg
+    type: float
+    required: false
+    default: 2.0
+    label: 关节容差 (deg)
+    options: []
+    minimum: 0.0
+    maximum: 30.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: pos_tol_mm
+    type: float
+    required: false
+    default: 5.0
+    label: 位置容差 (mm)
+    options: []
+    minimum: 0.0
+    maximum: 50.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: rot_tol_deg
+    type: float
+    required: false
+    default: 5.0
+    label: 姿态容差 (deg)
+    options: []
+    minimum: 0.0
+    maximum: 30.0
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.jog_start
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: jog_start
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: axis_id
+    type: enum
+    required: true
+    default: null
+    label: 点动轴
+    options:
+    - value: J1+
+      label: J1+
+    - value: J1-
+      label: J1-
+    - value: J2+
+      label: J2+
+    - value: J2-
+      label: J2-
+    - value: J3+
+      label: J3+
+    - value: J3-
+      label: J3-
+    - value: J4+
+      label: J4+
+    - value: J4-
+      label: J4-
+    - value: J5+
+      label: J5+
+    - value: J5-
+      label: J5-
+    - value: J6+
+      label: J6+
+    - value: J6-
+      label: J6-
+    - value: X+
+      label: X+
+    - value: X-
+      label: X-
+    - value: Y+
+      label: Y+
+    - value: Y-
+      label: Y-
+    - value: Z+
+      label: Z+
+    - value: Z-
+      label: Z-
+    - value: Rx+
+      label: Rx+
+    - value: Rx-
+      label: Rx-
+    - value: Ry+
+      label: Ry+
+    - value: Ry-
+      label: Ry-
+    - value: Rz+
+      label: Rz+
+    - value: Rz-
+      label: Rz-
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.jog_stop
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: jog_stop
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params: []
+- name: robot.move_to_point
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: move_to_point
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: point_id_or_robot_name
+    type: string
+    required: true
+    default: null
+    label: 点位
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: motion
+    type: enum
+    required: false
+    default: null
+    label: 运动方式
+    options:
+    - value: move_j
+      label: move_j
+    - value: move_l
+      label: move_l
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: acc
+    type: int
+    required: false
+    default: null
+    label: 加速度档 (%)
+    options: []
+    minimum: 1
+    maximum: 100
+    channel: ''
+    scale: null
+    unit: ''
+  - name: vel
+    type: int
+    required: false
+    default: null
+    label: 速度档 (%)
+    options: []
+    minimum: 1
+    maximum: 100
+    channel: ''
+    scale: null
+    unit: ''
+  - name: cp
+    type: int
+    required: false
+    default: null
+    label: 连续路径 CP
+    options: []
+    minimum: 0
+    maximum: 100
+    channel: ''
+    scale: null
+    unit: ''
+  - name: dx_mm
+    type: float
+    required: false
+    default: null
+    label: X偏移 (mm, 视觉纠偏)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: dy_mm
+    type: float
+    required: false
+    default: null
+    label: Y偏移 (mm, 视觉纠偏)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: drz_deg
+    type: float
+    required: false
+    default: null
+    label: Rz偏移 (deg, 视觉纠偏)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.pause
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: pause
+  kind: robot
+  modes: []
+  retryable: false
+  params: []
+- name: robot.query
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: query
+  kind: robot
+  modes: []
+  retryable: false
+  params: []
+- name: robot.require_anchor
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: require_anchor
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: point_id
+    type: string
+    required: true
+    default: null
+    label: 锚点
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: joint_tol_deg
+    type: float
+    required: false
+    default: 2.0
+    label: 关节容差 (deg)
+    options: []
+    minimum: 0.0
+    maximum: 30.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: pos_tol_mm
+    type: float
+    required: false
+    default: 5.0
+    label: 位置容差 (mm)
+    options: []
+    minimum: 0.0
+    maximum: 50.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: rot_tol_deg
+    type: float
+    required: false
+    default: 5.0
+    label: 姿态容差 (deg)
+    options: []
+    minimum: 0.0
+    maximum: 30.0
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.resume
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: resume
+  kind: robot
+  modes: []
+  retryable: false
+  params: []
+- name: robot.set_do
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: set_do
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: channel
+    type: enum
+    required: true
+    default: null
+    label: DO 通道
+    options:
+    - value: '1'
+      label: '1'
+    - value: '2'
+      label: '2'
+    - value: '3'
+      label: '3'
+    - value: '6'
+      label: '6'
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: enabled
+    type: bool
+    required: true
+    default: null
+    label: 置位 (true=ON)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.set_mounted_tool
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: set_mounted_tool
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: tool_id
+    type: enum
+    required: true
+    default: null
+    label: 挂载工具
+    options:
+    - value: '0'
+      label: '0'
+    - value: '1'
+      label: '1'
+    - value: '2'
+      label: '2'
+    - value: '3'
+      label: '3'
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.set_speed_factor
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: set_speed_factor
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: ratio
+    type: int
+    required: true
+    default: null
+    label: 全局速度比 (%)
+    options: []
+    minimum: 1
+    maximum: 100
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.step
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: step
+  kind: robot
+  modes:
+  - DEBUG
+  retryable: false
+  params:
+  - name: axis
+    type: enum
+    required: true
+    default: null
+    label: 轴
+    options:
+    - value: X
+      label: X
+    - value: Y
+      label: Y
+    - value: Z
+      label: Z
+    - value: Rx
+      label: Rx
+    - value: Ry
+      label: Ry
+    - value: Rz
+      label: Rz
+    - value: J1
+      label: J1
+    - value: J2
+      label: J2
+    - value: J3
+      label: J3
+    - value: J4
+      label: J4
+    - value: J5
+      label: J5
+    - value: J6
+      label: J6
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: distance
+    type: float
+    required: false
+    default: null
+    label: 增量 (mm/deg)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: motion
+    type: enum
+    required: false
+    default: l
+    label: 插补
+    options:
+    - value: l
+      label: l
+    - value: j
+      label: j
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+- name: robot.stop
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: stop
+  kind: robot
+  modes: []
+  retryable: false
+  params: []
+- name: robot.tool_action
+  namespace: robot
+  unilab_device_id: robot
+  unilab_action: tool_action
+  kind: robot
+  modes: []
+  retryable: false
+  params:
+  - name: action
+    type: enum
+    required: true
+    default: null
+    label: 工具动作
+    options:
+    - value: quick-change-lock
+      label: quick-change-lock
+    - value: quick-change-release
+      label: quick-change-release
+    - value: suction-on
+      label: suction-on
+    - value: suction-off
+      label: suction-off
+    - value: gripper-open
+      label: gripper-open
+    - value: gripper-close
+      label: gripper-close
+    - value: get-state
+      label: get-state
+    - value: tool-change-aux-on
+      label: tool-change-aux-on
+    - value: tool-change-aux-off
+      label: tool-change-aux-off
+    - value: rotary-up
+      label: rotary-up
+    - value: rotary-down
+      label: rotary-down
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: timeout_ms
+    type: int
+    required: false
+    default: 3000
+    label: 超时 ms
+    options: []
+    minimum: 100
+    maximum: 60000
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.aspirate
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: aspirate
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: plate_spec
+    type: enum
+    required: true
+    default: 4×6
+    label: 盘位规格
+    options:
+    - value: 4×6
+      label: 4×6
+    - value: 6×8
+      label: 6×8
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: plate_no
+    type: enum
+    required: true
+    default: '1'
+    label: 盘位号
+    options:
+    - value: '1'
+      label: '1'
+    - value: '2'
+      label: '2'
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: well
+    type: string
+    required: true
+    default: A1
+    label: 孔位编号 (如 A1)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: sample_volume_ml
+    type: float
+    required: false
+    default: 5.0
+    label: 相对回抽样品体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 15.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: air_gap_ml
+    type: float
+    required: false
+    default: null
+    label: 针尖气隔断体积 (mL, 移孔位前于空气中吸入; 不传则跳过)
+    options: []
+    minimum: 0.1
+    maximum: 1.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.clean
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: clean
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: wash_volume_ml
+    type: float
+    required: false
+    default: 25.0
+    label: 单次清洗体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: cleaning_count
+    type: int
+    required: false
+    default: 3
+    label: 清洗重复次数
+    options: []
+    minimum: 1
+    maximum: 20
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: disp_speed
+    type: int
+    required: false
+    default: null
+    label: 打液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.flush
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: flush
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: flush_volume_ml
+    type: float
+    required: false
+    default: 17.0
+    label: 上样流路充液体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: outer_wash_volume_ml
+    type: float
+    required: false
+    default: 5.0
+    label: 针外壁清洗体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: spot_head_volume_ml
+    type: float
+    required: false
+    default: 3.0
+    label: 点样头清洗体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: flush_disp_speed
+    type: int
+    required: false
+    default: null
+    label: 充液/外壁打速 V (DT, 缺省=300)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: spot_head_disp_speed
+    type: int
+    required: false
+    default: null
+    label: 点样头打速 V (DT, 缺省=100)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.init
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: init
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: sampling.place_axis
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: place_axis
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: sampling.place_locate
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: place_locate
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: sampling.place_release
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: place_release
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: sampling.prep
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: prep
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: air_buffer_ml
+    type: float
+    required: false
+    default: 0.2
+    label: 针尖气隔断体积 (mL, 泵腔侧等量存清洗液)
+    options: []
+    minimum: 0.1
+    maximum: 1.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.rinse_mix
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: rinse_mix
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: plate_spec
+    type: enum
+    required: true
+    default: 4×6
+    label: 盘位规格
+    options:
+    - value: 4×6
+      label: 4×6
+    - value: 6×8
+      label: 6×8
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: plate_no
+    type: enum
+    required: true
+    default: '1'
+    label: 盘位号
+    options:
+    - value: '1'
+      label: '1'
+    - value: '2'
+      label: '2'
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: well
+    type: string
+    required: true
+    default: A1
+    label: 孔位编号 (如 A1)
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: rinse_volume_ml
+    type: float
+    required: true
+    default: null
+    label: 润洗液体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: mix_volume_ml
+    type: float
+    required: true
+    default: null
+    label: 单次吹打体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 25.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: mix_count
+    type: int
+    required: true
+    default: null
+    label: 吹打次数
+    options: []
+    minimum: 1
+    maximum: 20
+    channel: ''
+    scale: null
+    unit: ''
+  - name: air_gap_ml
+    type: float
+    required: false
+    default: 0.2
+    label: 混匀气隔断体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 1.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 吸液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: disp_speed
+    type: int
+    required: false
+    default: null
+    label: 打液速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.spot
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: spot
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: ref_spot
+    type: point_ref
+    required: true
+    default: null
+    label: 点样位置-组合点位
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: sample_volume_ml
+    type: float
+    required: false
+    default: 5.0
+    label: 样品体积 (mL)
+    options: []
+    minimum: 0.1
+    maximum: 12.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: asp_speed
+    type: int
+    required: false
+    default: null
+    label: 驱动空气吸取速度 V (DT, 缺省=泵档)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: spot_disp_speed
+    type: int
+    required: false
+    default: null
+    label: 点样打液速度 V (DT, 缺省=50)
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.spot_band_layer
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: spot_band_layer
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: ref_spot
+    type: point_ref
+    required: true
+    default: null
+    label: 点样位置-组合点位
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+  - name: x_start
+    type: float
+    required: false
+    default: null
+    label: 点样X起点覆盖 (缺省=示教基准)
+    options: []
+    minimum: -500.0
+    maximum: 500.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: x_end
+    type: float
+    required: false
+    default: null
+    label: 点样X终点覆盖 (缺省=示教基准)
+    options: []
+    minimum: -500.0
+    maximum: 500.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: y_height
+    type: float
+    required: false
+    default: null
+    label: 点样Y高度覆盖 (缺省=示教基准)
+    options: []
+    minimum: -500.0
+    maximum: 500.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: spot_disp_speed
+    type: int
+    required: false
+    default: null
+    label: 条带供液泵速度
+    options: []
+    minimum: 1
+    maximum: 500
+    channel: ''
+    scale: 0.25
+    unit: mL/min
+  - name: spot_speed_mm_s
+    type: float
+    required: false
+    default: 5.0
+    label: 液体点样扫线速度 (mm/s)
+    options: []
+    minimum: 0.1
+    maximum: 200.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: dry_speed_mm_s
+    type: float
+    required: false
+    default: 20.0
+    label: 只吹气扫线速度 (mm/s)
+    options: []
+    minimum: 0.1
+    maximum: 300.0
+    channel: ''
+    scale: null
+    unit: ''
+  - name: dry_cycles
+    type: int
+    required: false
+    default: 1
+    label: 连续吹气往复周期数
+    options: []
+    minimum: 1
+    maximum: 20
+    channel: ''
+    scale: null
+    unit: ''
+  - name: step_delay
+    type: int
+    required: false
+    default: null
+    label: 泵指令步间延时 M (ms, 缺省=泵档)
+    options: []
+    minimum: 0
+    maximum: 10000
+    channel: ''
+    scale: null
+    unit: ''
+  - name: spot_end_position_ml
+    type: float
+    required: false
+    default: null
+    label: 点样活塞终点位置 (mL, 死体积补偿, 缺省=0)
+    options: []
+    minimum: 0.0
+    maximum: 5.0
+    channel: ''
+    scale: null
+    unit: ''
+- name: sampling.spray_axis
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: spray_axis
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params: []
+- name: staging_a.locator_a
+  namespace: staging_a
+  unilab_device_id: plc_staginga
+  unilab_action: locator_a
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target
+    type: bool
+    required: true
+    default: null
+    label: 中转A定位气缸目标
+    options: []
+    minimum: null
+    maximum: null
+    channel: StagingA_LocatorA_Target
+    scale: null
+    unit: ''
+- name: staging_a.locator_b
+  namespace: staging_a
+  unilab_device_id: plc_staginga
+  unilab_action: locator_b
+  kind: plc_l2
+  modes: []
+  retryable: false
+  params:
+  - name: target
+    type: bool
+    required: true
+    default: null
+    label: 中转B定位气缸目标
+    options: []
+    minimum: null
+    maximum: null
+    channel: StagingA_LocatorB_Target
+    scale: null
+    unit: ''
+- name: vision.capture_plate_offset
+  namespace: vision
+  unilab_device_id: vision
+  unilab_action: capture_plate_offset
+  kind: vision
+  modes: []
+  retryable: false
+  params:
+  - name: apply_rz
+    type: bool
+    required: false
+    default: false
+    label: 是否把角度偏移用于放板 Rz
+    options: []
+    minimum: null
+    maximum: null
+    channel: ''
+    scale: null
+    unit: ''
+typed_operation_actions:
+- operation_name: sampling_prepare
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: sampling_prepare
+  params:
+  - name: flush_volume_ml
+    type: FLOAT
+    required: false
+    default: 17.0
+    label: 上样流路充液体积 (mL)
+  - name: outer_wash_volume_ml
+    type: FLOAT
+    required: false
+    default: 5.0
+    label: 针外壁清洗体积 (mL)
+  - name: spot_head_volume_ml
+    type: FLOAT
+    required: false
+    default: 3.0
+    label: 点样头清洗体积 (mL)
+  - name: asp_speed
+    type: INT
+    required: false
+    default: 250
+    label: 吸液速度 V
+  - name: flush_disp_speed
+    type: INT
+    required: false
+    default: 300
+    label: 充液/外壁打速 V
+  - name: spot_head_disp_speed
+    type: INT
+    required: false
+    default: 100
+    label: 点样头打速 V
+  - name: step_delay
+    type: INT
+    required: false
+    default: 1500
+    label: 步间延时 (ms)
+- operation_name: sampling_execute
+  namespace: sampling
+  unilab_device_id: plc_sampling
+  unilab_action: sampling_execute
+  params:
+  - name: plate_spec
+    type: STRING
+    required: false
+    default: 4×6
+    label: 吸样孔板规格
+  - name: plate_no
+    type: STRING
+    required: false
+    default: '1'
+    label: 吸样盘位号
+  - name: well
+    type: STRING
+    required: false
+    default: A1
+    label: 吸样孔位
+  - name: spot_x_start
+    type: FLOAT
+    required: true
+    label: 点样X起点
+  - name: spot_x_end
+    type: FLOAT
+    required: true
+    label: 点样X终点
+  - name: spot_y_height
+    type: FLOAT
+    required: true
+    label: 点样Y高度
+  - name: sample_volume_ml
+    type: FLOAT
+    required: false
+    default: 2
+    label: 孔内样品体积(mL)
+  - name: dry_cycles
+    type: INT
+    required: false
+    default: 1
+    label: 每程吹气往复趟数(1趟=来回一遍)
+  - name: spot_speed_mm_s
+    type: FLOAT
+    required: false
+    default: 40
+    label: 喷涂扫线速度(mm/s)
+  - name: dry_speed_mm_s
+    type: FLOAT
+    required: false
+    default: 20
+    label: 吹气扫线速度(mm/s)
+  - name: spot_disp_speed
+    type: INT
+    required: false
+    default: 6
+    label: 供液泵速(mL/min)
+  - name: over_aspirate_ml
+    type: FLOAT
+    required: false
+    default: 1.5
+    label: 排空余量(mL, >1.125)
+  - name: air_gap_ml
+    type: FLOAT
+    required: false
+    default: 0.2
+    label: 气隔断(mL)
+  - name: rinse_rounds
+    type: INT
+    required: false
+    default: 1
+    label: 润洗回收轮数
+  - name: rinse_volume_ml
+    type: FLOAT
+    required: false
+    default: 3
+    label: 润洗液体积(mL)
+  - name: mix_volume_ml
+    type: FLOAT
+    required: false
+    default: 1.5
+    label: 单次吹打体积(mL)
+  - name: mix_count
+    type: INT
+    required: false
+    default: 3
+    label: 吹打次数
+- operation_name: develop_prepare
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: develop_prepare
+  params:
+  - name: tank
+    type: INT
+    required: false
+    default: 1
+    label: 目标缸号 1-8
+  - name: solvent_ratio_1
+    type: FLOAT
+    required: false
+    default: 1
+    label: 溶剂1权重
+  - name: solvent_ratio_2
+    type: FLOAT
+    required: false
+    default: 0
+    label: 溶剂2权重
+  - name: solvent_ratio_3
+    type: FLOAT
+    required: false
+    default: 0
+    label: 溶剂3权重
+  - name: solvent_ratio_4
+    type: FLOAT
+    required: false
+    default: 0
+    label: 溶剂4权重
+  - name: tank_rinse_volume_ml
+    type: FLOAT
+    required: false
+    default: 10
+    label: 润洗液量 (mL)
+  - name: develop_volume_ml
+    type: FLOAT
+    required: false
+    default: 20
+    label: 正式展开剂液量 (mL)
+  - name: rinse_repeat_count
+    type: INT
+    required: false
+    default: 2
+    label: 润洗次数
+  - name: up_liquid_repeat_count
+    type: INT
+    required: false
+    default: 3
+    label: 正式上液次数
+  - name: tank_asp_speed
+    type: INT
+    required: false
+    default: 300
+    label: 吸液泵速 (mL/min)
+  - name: tank_disp_speed
+    type: INT
+    required: false
+    default: 300
+    label: 打液泵速 (mL/min)
+  - name: tank_suction_empty_s
+    type: FLOAT
+    required: false
+    default: 10.0
+    label: 走空判据 (s)
+  - name: tank_suction_cap_s
+    type: FLOAT
+    required: false
+    default: 120.0
+    label: 抽吸超时 (s)
+- operation_name: pf_s6_develop_wait
+  namespace: develop
+  unilab_device_id: plc_develop
+  unilab_action: pf_s6_develop_wait
+  params:
+  - name: tank
+    type: INT
+    required: false
+    default: 1
+    label: 目标缸号 1-8
+  - name: auto_drain
+    type: BOOL
+    required: false
+    default: true
+    label: 自动排液
+  - name: dry_duration_s
+    type: FLOAT
+    required: false
+    default: 0.0
+    label: 原位干燥时长(s)
+- operation_name: photoscrape_before_photo_capture
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: photoscrape_before_photo_capture
+  params:
+  - name: sample_id
+    type: STRING
+    required: false
+    default: ''
+    label: 样品ID
+  - name: save_dir
+    type: STRING
+    required: false
+    default: ''
+    label: 拍照图保存目录
+- operation_name: photoscrape_process
+  namespace: photoscrape
+  unilab_device_id: plc_photoscrape
+  unilab_action: photoscrape_process
+  params:
+  - name: sample_id
+    type: STRING
+    required: false
+    default: ''
+    label: 样品ID
+  - name: save_dir
+    type: STRING
+    required: false
+    default: ''
+    label: 拍照图保存目录
+  - name: before_path
+    type: STRING
+    required: false
+    default: ''
+    label: before图路径(显影前/测试预置图)
+  - name: band_id
+    type: STRING
+    required: false
+    default: band_01
+    label: 选带ID(manual 模式人工覆盖; auto 用默认)
+  - name: mode
+    type: STRING
+    required: false
+    default: manual
+    label: 路径来源模式
+  - name: fixed_summary_path
+    type: STRING
+    required: false
+    default: ''
+    label: '固定路径实验: 非空则用此 summary 覆盖视觉/手绘, 直接下发跳过人工门'
+  - name: fixed_band_id
+    type: STRING
+    required: false
+    default: fixed_01
+    label: 固定路径 band_id(与 fixed_scrape_path 脚本默认对齐)
+  - name: reconcile_photo
+    type: BOOL
+    required: false
+    default: true
+    label: 刮后对账照片开关(漂移哨兵/标定验收唯一凭据); 生产嫌节拍可关
+- operation_name: collect_execute
+  namespace: collect
+  unilab_device_id: plc_collect
+  unilab_action: collect_execute
+  params:
+  - name: solvent_volume_ml
+    type: FLOAT
+    required: false
+    default: 0.1
+    label: 单次洗脱溶剂体积 mL
+  - name: liquid_repeat_count
+    type: INT
+    required: false
+    default: 1
+    label: 洗脱循环次数

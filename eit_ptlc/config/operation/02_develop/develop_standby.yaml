@@ -1,0 +1,28 @@
+schema: ptlc.script/v1
+kind: operation
+name: develop_standby
+label: 展开-就位 (地轨到展开区)
+ui:
+  role: helper
+  hidden: true
+# 【已并入 develop_unload, 本文件保留作手动就位工具, 不在任何流程链上】
+# 地轨到展开区(位5), 机械臂留在 P1 安全位待命。
+# 沿革: 原是 develop_execute 内 T1 预告命中后的物理就位 helper。但独占资源整条运行持有
+#   (thread.py 只在根脚本 acquire), 挂在 execute 根上等于整段液位等待 (硬上限 3600s) + 人工门
+#   期间虚占机械臂与地轨 —— 且 auto_drain 默认 false 时那段预就位根本不执行。
+#   现改为 develop_unload 开头显式 rail_move_safe(5), 位置仍在 plate_retract 开盖之前,
+#   保住"板不在开盖状态下等移轨"的原意, 同时 execute 只持 station:develop。
+# rail_move_safe 自带 P1 安全门 (不在位即停, 操作员回位再续); 同位重复下发由 PLC 幂等吸收。
+vars: []
+resources:
+- robot
+- station:rail
+body:
+- op: comment
+  text: '取板前就位: 地轨到展开区(位5); 机械臂不预伸 (留 P1 安全位, 取板序列自带进近)'
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 5
+  outputs: {}

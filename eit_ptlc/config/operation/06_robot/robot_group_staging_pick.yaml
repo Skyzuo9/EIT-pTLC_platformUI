@@ -1,0 +1,278 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 group-staging.pick 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+# 【手改·勿重生成 (G-1)】body 顶部入口保证 prologue: home_ensure 确保回零 + tool_ensure 换刀 (needed=2 大夹爪); 生成器重跑会抹掉
+schema: ptlc.script/v1
+kind: operation
+name: robot_group_staging_pick
+label: 中转台取整组
+note: '大夹爪; 中转A收集器组/中转B瓶组'
+ui: {subgroup: 中转台, order: 61}
+vars:
+- {name: rack_id, scope: local, type: STRING, io: in, default: collector, comment: group-staging.pick 主选择值, enum: [collector, bottle]}
+resources: [robot]
+body:
+- {op: comment, text: '入口保证(手改): 确保在 home (安全邻域内自动回零) + 智能换刀到本流程固定工具 (大夹爪)'}
+- {op: call, action: robot.home_ensure, mode: RUN}
+- {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 2}}, outputs: {}}
+- op: if
+  cond:
+    binop: ==
+    left: {var: rack_id}
+    right: {lit: collector}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: rail.ensure
+    args:
+      Rail_Target_Position: {lit: 3}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P4}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collector-group-staging-pick.far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collector-group-staging-pick.mid}
+      motion: {lit: move_l}
+      acc: {lit: 12}
+      vel: {lit: 15}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: gripper-open}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collector-group-staging-pick.near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P39}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: gripper-close}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collector-group-staging-pick.near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collector-group-staging-pick.mid}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collector-group-staging-pick.far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P4}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P1}
+      motion: {lit: move_j}
+      acc: {lit: 50}
+      vel: {lit: 37}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs:
+  - cond:
+      binop: ==
+      left: {var: rack_id}
+      right: {lit: bottle}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 3}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P52}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: bottle-group-staging-pick.far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: bottle-group-staging-pick.mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-open}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: bottle-group-staging-pick.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P40}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-close}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: bottle-group-staging-pick.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: bottle-group-staging-pick.mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: bottle-group-staging-pick.far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P52}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'group-staging.pick: 无效选择值'}

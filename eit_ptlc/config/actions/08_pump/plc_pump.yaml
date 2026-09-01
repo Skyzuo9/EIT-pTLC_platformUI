@@ -1,0 +1,40 @@
+# 真空泵 PLC L2 原子动作 (与 PLC 50_action/Pump_L2 动作码对齐)
+# 真空泵 (大真空泵) 为上样/展缸共享资源, 工作周期跨多个原子动作。
+#
+# 【本文件两个动作是资源钩子, 编排层与动作目录都不能直接调用】
+# 它们由 config/resources.yaml 登记为 device:vacuum_pump 的 activate/deactivate,
+# 只在资源门 (operation/resources.py ResourceGate) 的引用计数 0->1 与 1->0 时被调用。
+# 流程需要真空时改写 with_resources 区间声明该资源, 例:
+#     - op: with_resources
+#       resources: [device:vacuum_pump]
+#       body: [...需要抽吸的动作...]
+# 这样多条并发流程共用一台泵时, 先退出的流程不会关掉后者仍在使用的真空;
+# 直接 call 会被 validate_script 拒绝, POST /api/actions/{name}/run 也会返回 409。
+#
+# PLC 侧 PLC_Pump_泵管理 每扫描聚合 大真空泵站位[] -> 大真空泵自动 驱动线圈 (%QX2.4);
+# vacuum_on/off 仅写上位机泵槽 大真空泵站位[11] 这一个 bit (上位机引用计数的合成结果)。
+# 排液 (Tank_Drain) 自治持 [0..8], 与本通道 OR 聚合, 并发安全。
+
+pump.vacuum_on:
+  kind: plc_l2
+  station: pump
+  action_code: 10
+  label: 真空泵-开 (资源钩子, 勿直调)
+  desc: |-
+    执行步骤：Pump_L2动作码10把大真空泵站位[11]置TRUE并立即DONE；PLC_Pump_泵管理每扫描对站位[0..11]做OR，在PLC_Ready、部署状态允许且启动门已重新装载时驱动“大真空泵自动”，再由气缸FB驱动物理输出%QX2.4。
+    前置与安全：本动作是共享资源 device:vacuum_pump 的 activate 钩子，只由资源门在引用计数0->1时调用，编排层与动作目录禁止直调（直调会绕过计数，把并发流程的真空一起掐掉）。PLC须处于运行/就绪态；该动作不抢占或清除其它站位，维护期间出现的站位请求会被启动门阻止补执行，须全部回FALSE后重新装载。
+    完成与异常：DONE只表示站位[11]已置位，不读取泵接触器、真空度或物理输出反馈；共享泵可能因其它站位保持运行，物理泵状态须通过设备节点另行监视。开启失败时资源门回滚计数并让持有方运行以失败收口。
+    PLC核对：现役 20260702.project，Application/50_action/Pump_L2 动作码10 → A10_vacuum_on；Application/50_action/PLC_Pump_泵管理负责聚合。
+  modes: []
+
+pump.vacuum_off:
+  kind: plc_l2
+  station: pump
+  action_code: 20
+  label: 真空泵-关 (资源钩子, 勿直调)
+  desc: |-
+    执行步骤：Pump_L2动作码20把大真空泵站位[11]置FALSE并立即DONE；PLC_Pump_泵管理重新OR全部站位，仅当[0..11]均为FALSE时才撤销“大真空泵自动”物理输出。
+    前置与安全：本动作是共享资源 device:vacuum_pump 的 deactivate 钩子，只由资源门在引用计数1->0时调用，编排层与动作目录禁止直调。PLC须处于运行/就绪态；不会清除展缸排液等其它站位，因此共享泵可能继续运行。
+    完成与异常：DONE只表示站位[11]已清除，不确认物理泵已停；若其它站位残留或通信结果不明确，必须查看站位总线和泵输出，不能仅凭该动作DONE判断停泵。关闭失败时资源门记ERROR并在正常退出路径抛出，提示该设备可能仍在运行。
+    PLC核对：现役 20260702.project，Application/50_action/Pump_L2 动作码20 → A20_vacuum_off；Application/50_action/PLC_Pump_泵管理负责聚合。
+  modes: []

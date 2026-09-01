@@ -1,0 +1,1015 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-18T00:45:28.1478029" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站.project" modificationDateTime="2026-06-17T21:37:38.1461871">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="Sample_point_sampling_上样点样" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="初始化step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="清洗step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="清洗计数">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="上样准备step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="放硅胶板STEP">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="吸收液体step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="TON_0">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="TON_1">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="点样step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="stepTimer">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 步骤内通用定时器（调试期模拟，实机替换为FB完成信号）</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bubbleIndex">
+              <type>
+                <INT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Step 20 气泡序列循环索引</xhtml>
+              </documentation>
+            </variable>
+            <variable name="cleanCounter">
+              <type>
+                <INT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Step 10 清洗循环计数器</xhtml>
+              </documentation>
+            </variable>
+            <variable name="泵初始化完成">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="R_TRIG">
+              <type>
+                <array>
+                  <dimension lower="1" upper="12" />
+                  <baseType>
+                    <derived name="R_TRIG" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+            <variable name="N">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="A">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="TON">
+              <type>
+                <array>
+                  <dimension lower="1" upper="11" />
+                  <baseType>
+                    <derived name="TON" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+            <variable name="打样伺服移动step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">// ══════════════════════════════════════════════════════════════
+// 上样点样流程序列器 — 简化版 v1.0（定时器驱动，无FB依赖）
+// ══════════════════════════════════════════════════════════════
+// 对应上位机 Stage: spotting（PLC 变量前缀 Sampling）
+// 子步 {0, 10, 20, 30, 40, 50, 90}
+// 职责：执行上样点样全流程（清洗→气泡准备→放板→吸液→点样）
+//
+// 简化要点（相较 [pending]plc_spotting.txt v1.6）：
+//   - 去掉 pumpCmd FB 依赖：所有泵步骤用 stepTimer 模拟完成
+//   - 去掉 System_Ready 全局守卫：调试期无需先执行 System_Init
+//   - 去掉 Sampling_init_instructions 工位级泵初始化
+//   - 去掉参数校验：范围检查交给上位机
+//   - 去掉 latched 变量：直接读全局变量
+//   - 去掉 Phase2 传感器逻辑：Step 20 统一定时器推进
+//   - 保留六件套 + 全部业务参数名（与上位机 SpottingStage 完全兼容）
+//
+// 参照 plc_collection.txt（collect 工位）模板编写
+// ══════════════════════════════════════════════════════════════
+//
+// ★★★ PLC工程师注意事项 ★★★
+// 本文件为调试期简化版，所有 stepTimer 模拟的位置均为实机集成点。
+// 标记说明：
+//   TODO【实机集成点】— 需替换为真实 FB/IO 调用的占位
+//   TODO【逻辑判断】  — 实机必须增加的条件检查/安全守卫
+//   当前 stepTimer PT:=T#5S 仅为模拟延时，实机应替换为实际完成条件
+// ══════════════════════════════════════════════════════════════
+
+IF Sampling_X_coordinate&gt;0 THEN 
+TON[11](IN:=NOT 上样料架检测1 OR NOT 上样料架检测2,PT:=T#3S);
+	IF TON[11].Q THEN
+		上样料架报警:=TRUE;
+	END_IF
+END_IF
+
+// ── 1. 急停联锁（最高优先级）──
+// TODO【逻辑判断】实机急停时应额外执行：
+//   - 停止当前正在执行的泵指令（pumpCmd_execute := FALSE）
+//   - 关闭上样针三通阀（恢复安全位置）
+//   - 若 Step 20 正在执行气泡准备，停止补液泵
+IF NOT 急停 THEN
+    Sampling_Step  := 0;
+    Sampling_Done  := FALSE;
+    Sampling_Error := TRUE;
+    Sampling_Busy  := FALSE;
+	初始化step:=0;
+	清洗step:=0;
+	清洗计数:=0;
+	上样准备step:=0;
+	放硅胶板STEP:=0;
+	吸收液体step:=0;
+	打样伺服移动step:=0;
+	泵初始化完成:=FALSE;
+	N:=0;
+	A:=0;
+    stepTimer(IN := FALSE, PT := T#0S);
+    RETURN;
+END_IF
+
+// ── 2. 复位脉冲（用于错误恢复 / 强制清状态）──
+// TODO【逻辑判断】实机复位时应额外执行：
+//   - 清空 waitingPumpDone 标志
+//   - 清空 Sampling_init_instructions（若使用了工位级泵初始化）
+IF Sampling_Reset THEN
+    Sampling_Step  := 0;
+    Sampling_Done  := FALSE;
+    Sampling_Error := FALSE;
+    Sampling_Busy  := FALSE;
+    stepTimer(IN := FALSE, PT := T#0S);
+    cleanCounter := 0;
+    bubbleIndex  := 0;
+    RETURN;
+END_IF
+
+// ── 3. Enable=FALSE 时清 Done（次周期复位握手）──
+//    上位机收到 Done 后会拉低 Sampling_Enable，本段确保下一周期 Done 自动归零，
+//    避免 Done 残留导致 Step 0 误判。
+IF NOT Sampling_Enable THEN
+    Sampling_Done := FALSE;
+END_IF
+
+// ── 4. 派生 Sampling_Busy（写者唯一：本 POU 是唯一写者，禁止他处赋值）──
+Sampling_Busy := (Sampling_Step &gt;= 10)
+              AND (Sampling_Step &lt;= 80)
+              AND (NOT Sampling_Done);
+
+IF MODE_State=1 THEN
+	CASE Sampling_Step OF
+		0:  // ═══ 空闲：等待 Enable 上升 ═══
+        // TODO【逻辑判断】实机应在 Enable 上升时增加以下校验：
+        //   - System_Ready = TRUE（全局初始化已完成，见 plc_system_init.txt）
+        //   - Sampling_init_instructions 若非空，先执行泵Z初始化指令
+        //   - 参数范围校验：clean_count∈[0,100], bubble_count∈[0,16],
+        //     Phase2_MaxCycles∈[0,50]，Phase2启用时 phase2_instructions 非空
+        //   - 锁存计数值到局部变量（防止PC中途篡改全局变量）
+
+			IF Sampling_Enable AND (NOT Sampling_Done) THEN
+				Sampling_Step := 5;
+				stepTimer(IN := FALSE, PT := T#0S);  // 复位定时器
+			END_IF
+		5:
+				A00_initialization_初始化();
+				IF Sampling_initialization_OK THEN
+					Sampling_initialization_OK:=FALSE;
+					Sampling_Step:=10;
+				END_IF
+		10: // ═══ 清洗（消费 Sampling_clean_instructions + Sampling_clean_count）═══
+        // TODO【实机集成点】替换 stepTimer 为真实泵 FB 调用：
+        //   按 Sampling_clean_count 循环执行 Sampling_clean_instructions 指令
+        //   使用 pumpCmd FB 提交指令，等待 pumpCmd_done 后计数+1
+        //   循环完成后消费指令字符串，推进到 Step 20
+        // TODO【逻辑判断】实机需判断：
+        //   - clean_count=0 时直接跳到 Step 20
+        //   - pumpCmd_error 时进入 Step 90 故障态
+        //   - 使用锁存值 latchedCleanCount 而非全局变量（防PC中途篡改）	
+			A10_clean_清洗();
+			IF Sampling_Cleaning_OK THEN
+				stepTimer(IN := FALSE, PT := T#0S);
+				Sampling_Cleaning_OK:=FALSE;
+				Sampling_Step := 20;
+			END_IF
+
+		20: // ═══ 气泡准备（消费 Sampling_bubble_instructions + bubble_count）═══
+        // TODO【实机集成点】替换 stepTimer 为真实泵 FB 调用，需分两阶段：
+        //
+        //   Phase 1（计数驱动）：逐条执行 Sampling_bubble_instructions[1..bubble_count]
+        //     FOR bubbleIndex := 1 TO latchedBubbleCount DO
+        //         pumpCmd_cmd := Sampling_bubble_instructions[bubbleIndex];
+        //         pumpCmd_execute := TRUE;
+        //         等待 pumpCmd_done / pumpCmd_error
+        //     END_FOR
+        //
+        //   Phase 2（传感器驱动补液）：
+        //     WHILE NOT Sampling_BubbleSensor AND phase2CycleCount &lt; latchedPhase2Max DO
+        //         pumpCmd_cmd := Sampling_phase2_instructions;
+        //         pumpCmd_execute := TRUE;
+        //         等待 pumpCmd_done → phase2CycleCount := phase2CycleCount + 1;
+        //     END_WHILE
+        //     若达到 MaxCycles 仍未触发传感器 → Step 90 故障
+        //
+        //   Phase 1/2 均为空（bubble_count=0 AND Phase2_MaxCycles=0）→ 直接跳到 Step 30
+        //
+        // TODO【逻辑判断】实机需判断：
+        //   - 指令数组中空串守卫：Sampling_bubble_instructions[i]='' → 故障
+        //   - Phase2 MaxCycles 安全校验：达到上限未触发传感器 → 传感器可能故障 → Step 90
+        //   - Sampling_BubbleSensor 物理输入映射（见 VAR_GLOBAL 中的 TODO）
+			
+	
+				
+				
+				A30_Sample_preparation_上样准备();
+				IF Sampling_preparation_OK THEN
+					Sampling_preparation_OK:=FALSE;
+					Sampling_Step:=30;
+				END_IF
+		 30: // ═══ 放硅胶板（机械臂+传感器自治）═══
+			// TODO【实机集成点】替换 stepTimer 为真实机械臂 FB 调用：
+			//   Place_materials_放硅胶板();  // 机械臂FB，传感器确认到位后自动推进
+			// TODO【逻辑判断】实机需判断：
+			//   - 机械臂到位传感器确认（替代定时器延时）
+			//   - 机械臂超时保护（传感器未触发 → Step 90）
+			A20_Place_materials_放硅胶板();
+			IF Sampling_Place_materials_OK THEN
+				Sampling_Place_materials_OK:=FALSE;
+				stepTimer(IN := FALSE, PT := T#0S);
+				Sampling_Step := 40;
+			END_IF	
+
+		40: // ═══ 吸液（消费 Sampling_X/Y_coordinate + Sampling_aspirate_instructions）═══
+			// TODO【实机集成点】替换 stepTimer 为真实 FB 调用：
+			//   1. 移动到坐标 (X, Y)：moveCmd 执行，等待到位信号
+			//   2. 执行吸液泵指令：pumpCmd_cmd := Sampling_aspirate_instructions;
+			//      pumpCmd_execute := TRUE; 等待 pumpCmd_done
+			// TODO【逻辑判断】实机需判断：
+			//   - 移动到位确认（坐标到达传感器）
+			//   - pumpCmd_error 时进入 Step 90
+			//   - 移动+吸液需串行化：moveCmd完成 → pumpCmd执行
+			A40_absorb_liquid_吸收液体();
+			IF Sampling_liquid_absorption THEN
+				Sampling_liquid_absorption:=FALSE;
+				stepTimer(IN := FALSE, PT := T#0S);
+				Sampling_Step := 50;
+			END_IF
+		50: // ═══ 点样（消费 Sampling_dispense_instructions）═══
+			// TODO【实机集成点】替换 stepTimer 为真实泵 FB 调用：
+			//   pumpCmd_cmd := Sampling_dispense_instructions;
+			//   pumpCmd_execute := TRUE; 等待 pumpCmd_done
+			// TODO【逻辑判断】实机需判断：
+			//   - pumpCmd_error 时进入 Step 90
+			A50_Spray_sample_点样();
+			IF Sampling_Spray_sample_OK  THEN
+				Sampling_Spray_sample_OK:=FALSE;
+				Sampling_Step := 60;
+				
+			END_IF
+		60:
+			IF  取点样硅胶板完成 THEN
+				取点样硅胶板完成:=FALSE;
+				stepTimer(IN := FALSE, PT := T#0S);
+				Sampling_Done := TRUE;
+				Sampling_Busy := FALSE;
+				Sampling_Step := 0;
+			END_IF
+	
+		90: // ═══ 故障态：等待外部 Sampling_Reset 脉冲 ═══
+			Sampling_Error := TRUE;   // 故障态本身不动作，仅等待顶部复位逻辑
+		
+
+	END_CASE	
+END_IF</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Sample_point_sampling_上样点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="91a911e2-9343-4410-a828-a47c991cd40c" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>91a911e2-9343-4410-a828-a47c991cd40c</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A20_Place_materials_放硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+	CASE 放硅胶板STEP OF
+	 	0:
+			点样轴7YDATE.fAbsTarget:=HMI_点样轴7Y.position[1];
+			点样轴7YDATE.xMoveAbs:=TRUE;
+			放硅胶板STEP:=10;
+		10:
+			IF 点样轴7YDATE.bAbMoveDone THEN
+				上样点样允许放硅胶板:=TRUE;
+				点样轴7YDATE.xMoveAbs:=FALSE;
+				放硅胶板STEP:=20;
+			END_IF
+		20:
+			IF 上样点样放硅胶板完成 THEN
+				上样点样允许放硅胶板:=FALSE;
+				上样点样放硅胶板完成:=FALSE;
+				上样定位自动:=TRUE;
+				Sampling_Place_materials_OK:=TRUE;
+				放硅胶板STEP:=0;
+			END_IF
+		
+		
+	 END_CASE
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Sample_point_sampling_上样点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="91a911e2-9343-4410-a828-a47c991cd40c">
+                      <pathStructure isFolder="False" name="A20_Place_materials_放硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="aab2c411-87c4-48e7-8c6a-150fa95cf2b2" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>aab2c411-87c4-48e7-8c6a-150fa95cf2b2</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A30_Sample_preparation_上样准备">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">TON[2](IN:=上样准备step=2,PT:=T#0.5S);
+R_TRIG[3](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+
+CASE 上样准备step OF
+	0:
+		上样轴5Z轴DATE.fAbsTarget:=0;
+		上样轴5Z轴DATE.xMoveAbs:=TRUE;
+		IF 上样轴5Z轴DATE.bAbMoveDone THEN
+			N:=1;
+			上样轴5Z轴DATE.xMoveAbs:=FALSE ;
+			上样准备step:=1;
+		END_IF
+		
+	1:
+	
+		CASE N OF
+			1,2:
+				IF %MW1300=0 AND NOT 泵站位符 THEN
+					泵站位符:=TRUE;
+					转发转存:=Sampling_prep_instructions[N];    
+					%MW1300:=LEN(STR:= 转发转存);   //发送字节数
+					上样准备step:=2;
+				END_IF
+		END_CASE
+		
+	2:
+		IF %MW1300=0 AND TON[2].Q THEN 
+		转发转存:='/4Q$R';          //查询泵状态指令
+		%MW1300:=LEN(STR:= 转发转存);
+		END_IF
+		
+		IF R_TRIG[3].Q THEN
+			泵站位符:=FALSE;
+			N:=N+1;
+			IF N&gt;2 THEN
+				
+				Sampling_preparation_OK:=TRUE;
+				N:=0;
+				上样准备step:=0;
+			ELSE
+				上样准备step:=1;
+			END_IF
+			
+		END_IF
+END_CASE
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Sample_point_sampling_上样点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="91a911e2-9343-4410-a828-a47c991cd40c">
+                      <pathStructure isFolder="False" name="A30_Sample_preparation_上样准备" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="5892aa68-d92f-4a1f-940e-d9e1f7658a1a" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>5892aa68-d92f-4a1f-940e-d9e1f7658a1a</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A00_initialization_初始化">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+
+CASE 初始化step OF
+	0 :
+		上样定位手动:=FALSE;
+		上样定位自动:=FALSE;
+		上样点样三通电池阀手动:=FALSE;
+		上样点样三通电池阀自动:=FALSE;
+		上样吹气手动:=FALSE;
+		上样吹气自动:=FALSE;
+		打样瓶上料轴3YDATE.fAbsTarget:=0;
+		点样轴6XDATE.fAbsTarget:=0;
+		点样轴7YDATE.fAbsTarget:=0;
+		上样轴4X轴DATE.fAbsTarget:=0;
+		上样轴5Z轴DATE.fAbsTarget:=0;
+		上样点样允许放硅胶板:=FALSE;
+		点样轴7YDATE.xMoveAbs:=FALSE;
+		点样轴6XDATE.xMoveAbs:=FALSE;
+		上样轴5Z轴DATE.xMoveAbs:=FALSE;
+		上样轴4X轴DATE.xMoveAbs:=FALSE;
+		打样瓶上料轴3YDATE.xMoveAbs:=FALSE;
+		Sampling_Spray_sample_OK:=FALSE;
+		Sampling_liquid_absorption:=FALSE;
+		Sampling_preparation_OK:=FALSE;
+		上样点样允许取硅胶板:=FALSE;
+		上样点样放硅胶板完成:=FALSE;
+		大真空泵站位[11]:=FALSE;
+		清洗计数:=0;
+		清洗step:=0;
+		放硅胶板STEP:=0;
+		上样准备step:=0;
+		吸收液体step:=0;
+		点样step:=0;
+		初始化step:=5;
+	5:
+		上样轴5Z轴DATE.fAbsTarget:=0;
+		上样轴5Z轴DATE.xMoveAbs:=TRUE;
+		IF 上样轴5Z轴DATE.bAbMoveDone THEN
+			点样轴7YDATE.fAbsTarget:=0  ;  
+			点样轴6XDATE.fAbsTarget:=0  ; 
+			上样轴4X轴DATE.fAbsTarget:=0;          
+			上样轴4X轴DATE.xMoveAbs:=TRUE;
+			点样轴7YDATE.xMoveAbs:=TRUE;
+			点样轴6XDATE.xMoveAbs:=TRUE;
+			初始化step:=6;
+		END_IF
+	6:
+		IF 上样轴4X轴DATE.bAbMoveDone AND 上样轴5Z轴DATE.bAbMoveDone AND 点样轴6XDATE.bAbMoveDone AND 点样轴7YDATE.bAbMoveDone THEN
+			初始化step:=10;
+			上样轴4X轴DATE.xMoveAbs:=FALSE;
+			点样轴7YDATE.xMoveAbs:=FALSE;
+			上样轴5Z轴DATE.xMoveAbs:=FALSE;
+			点样轴6XDATE.xMoveAbs:=FALSE;
+		END_IF
+	10:
+		IF %MW1300=0 AND NOT 泵站位符 THEN
+			泵站位符:=TRUE;
+			转发转存:='/4Z0,1,1R$R';     //泵初始化指令 
+			%MW1300:=LEN(STR:= 转发转存);   //发送字节数
+			初始化STEP:=20;
+		END_IF
+	20:
+		IF %MW1300=0 THEN
+			转发转存:='/4Q$R';          //查询泵状态指令
+			%MW1300:=LEN(STR:= 转发转存);
+		END_IF
+		R_TRIG[1](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+		IF R_TRIG[1].Q THEN
+			泵站位符:=FALSE;
+			初始化STEP:=30;
+		END_IF
+	30:
+		
+		
+			Sampling_initialization_OK:=TRUE;
+			初始化step:=0;
+		
+
+END_CASE
+
+
+
+
+
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Sample_point_sampling_上样点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="91a911e2-9343-4410-a828-a47c991cd40c">
+                      <pathStructure isFolder="False" name="A00_initialization_初始化" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="95d5c7b0-0246-4218-b5e5-ba09edb64a90" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>95d5c7b0-0246-4218-b5e5-ba09edb64a90</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A50_Spray_sample_点样">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">TON[4](IN:=点样step=20,PT:=T#0.5S);
+TON[5](IN:=点样气泡传感器,PT:=T#5S);
+TON[7](IN:=点样step=10,PT:=T#0.5S);
+R_TRIG[10](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+
+CASE 点样step OF
+	0:
+		点样轴6XDATE.xMoveAbs:=FALSE;
+		点样轴7YDATE.xMoveAbs:=FALSE;
+		点样step:=1;
+	1:
+		点样轴6XDATE.fAbsTarget:=HMI_点样轴6X.position[2];        //起始位
+		点样轴7YDATE.fAbsTarget:=HMI_点样轴7Y.position[2];         //起始位
+		点样轴6XDATE.xMoveAbs:=TRUE;
+		点样轴7YDATE.xMoveAbs:=TRUE;
+		点样step:=5;
+	5:
+		IF 点样轴6XDATE.bAbMoveDone AND 点样轴7YDATE.bAbMoveDone THEN
+			点样轴6XDATE.xMoveAbs:=FALSE;
+			点样轴7YDATE.xMoveAbs:=FALSE;
+			IF  %MW1300=0 AND NOT 泵站位符 THEN
+				
+				泵站位符:=TRUE;
+				转发转存:=Sampling_dispense_instructions[1];
+				%MW1300:=LEN(STR:= 转发转存);
+				上样点样三通电池阀自动:=TRUE;
+				点样step:=10;
+			END_IF
+		END_IF
+	10:
+		IF  %MW1300=0 AND TON[7].Q THEN                        
+				转发转存:='/4Q$R';          //查询泵状态指令
+				%MW1300:=LEN(STR:= 转发转存);
+				
+				IF R_TRIG[10].Q THEN
+					泵站位符:=FALSE;
+					
+					点样step:=15;
+				END_IF
+		END_IF
+	15:
+		IF  %MW1300=0 AND NOT 泵站位符 THEN
+			上样吹气自动:=TRUE;
+			泵站位符:=TRUE;
+			转发转存:=Sampling_dispense_instructions[2];
+			%MW1300:=LEN(STR:= 转发转存);
+			点样轴6XDATE.fAbsTarget:=HMI_点样轴6X.position[3];             //终点位
+			点样轴6XDATE.xMoveAbs:=TRUE;
+			点样step:=20;
+		END_IF
+
+	20:
+		IF  %MW1300=0 AND TON[4].Q THEN                        
+				转发转存:='/4Q$R';          //查询泵状态指令
+				%MW1300:=LEN(STR:= 转发转存);
+				
+				IF R_TRIG[10].Q THEN
+					泵站位符:=FALSE;
+					上样点样三通电池阀自动:=FALSE;
+					上样吹气自动:=FALSE;
+				END_IF
+		END_IF
+		CASE 打样伺服移动step OF
+			0:
+				IF 点样轴6XDATE.bAbMoveDone THEN
+					点样轴6XDATE.xMoveAbs:=FALSE;
+					IF 泵站位符 THEN
+						打样伺服移动step:=10;
+					ELSE
+						点样step:=30;
+					END_IF
+					
+				END_IF
+			10:
+				点样轴6XDATE.fAbsTarget:=HMI_点样轴6X.position[2];        //起始位
+				点样轴6XDATE.xMoveAbs:=TRUE;
+				打样伺服移动step:=20;
+			20:
+				IF 点样轴6XDATE.bAbMoveDone THEN
+					点样轴6XDATE.xMoveAbs:=FALSE;
+					打样伺服移动step:=30;
+				END_IF
+			30:
+				点样轴6XDATE.fAbsTarget:=HMI_点样轴6X.position[3];             //终点位
+				点样轴6XDATE.xMoveAbs:=TRUE;
+				打样伺服移动step:=0;
+				
+		END_CASE
+		
+	30:
+		点样轴6XDATE.fAbsTarget:=HMI_点样轴6X.position[1];        //清洗位
+		点样轴6XDATE.xMoveAbs:=TRUE;
+		IF 点样轴6XDATE.bAbMoveDone THEN
+			点样轴7YDATE.fAbsTarget:=HMI_点样轴7Y.position[1]; 
+			点样轴7YDATE.xMoveAbs:=TRUE;
+		
+		点样step:=40;
+		END_IF
+		
+	40:
+		IF 点样轴7YDATE.bAbMoveDone  THEN
+			点样轴6XDATE.xMoveAbs:=FALSE;
+			点样轴7YDATE.xMoveAbs:=FALSE;
+			上样定位自动:=FALSE;
+			上样点样允许取硅胶板:=TRUE;
+			Sampling_Spray_sample_OK:=TRUE;
+			点样step:=0;
+		END_IF
+ END_CASE
+
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Sample_point_sampling_上样点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="91a911e2-9343-4410-a828-a47c991cd40c">
+                      <pathStructure isFolder="False" name="A50_Spray_sample_点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="e225caf8-a07c-47bc-9547-fd216667528e" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>e225caf8-a07c-47bc-9547-fd216667528e</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A40_absorb_liquid_吸收液体">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">TON_0(IN:=吸收液体step=30, PT:=T#0.5S , Q=&gt; , ET=&gt; );
+TON_1(IN:=NOT 点样气泡传感器, PT:=T#5S , Q=&gt; , ET=&gt; );
+R_TRIG[10](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+
+IF Sampling_X_coordinate&gt;0 AND  Sampling_Y_coordinate&gt;0  THEN
+	CASE 吸收液体step OF
+		0:
+			上样轴5Z轴DATE.fAbsTarget:=0;
+			上样轴5Z轴DATE.xMoveAbs:=TRUE;
+			IF 上样轴5Z轴DATE.bAbMoveDone THEN
+				上样轴5Z轴DATE.xMoveAbs:=FALSE;
+				上样轴4X轴DATE.fAbsTarget:=HMI_上样轴4X轴.position[Sampling_X_coordinate];
+				打样瓶上料轴3YDATE.fAbsTarget:=HMI_打样瓶上料轴3Y.position[Sampling_Y_coordinate];
+				上样轴4X轴DATE.xMoveAbs:=TRUE;
+				打样瓶上料轴3YDATE.xMoveAbs:=TRUE;
+				吸收液体step:=10;
+			END_IF
+		10:
+			IF 上样轴4X轴DATE.bAbMoveDone AND 打样瓶上料轴3YDATE.bAbMoveDone THEN
+				上样轴4X轴DATE.xMoveAbs:=FALSE;
+				打样瓶上料轴3YDATE.xMoveAbs:=FALSE;
+				上样轴5Z轴DATE.fAbsTarget:=HMI_上样轴5Z轴.position[2];
+				上样轴5Z轴DATE.xMoveAbs:=TRUE;
+				吸收液体step:=20;
+			END_IF
+		20:
+			IF 上样轴5Z轴DATE.bAbMoveDone THEN
+				上样轴5Z轴DATE.xMoveAbs:=FALSE;
+				A:=1;
+				吸收液体step:=25;
+			END_IF
+		25:
+			CASE A OF
+				1,2:
+					IF  %MW1300=0 AND NOT 泵站位符 THEN
+						转发转存:=Sampling_sample_instructions[A];   //吸收液体
+						%MW1300:=LEN(STR:= 转发转存);
+						泵站位符:=TRUE;
+						吸收液体step:=30;
+					END_IF
+			END_CASE
+					
+		
+		30:
+			IF  %MW1300=0 AND TON_0.Q THEN                        
+				转发转存:='/4Q$R';          //查询泵状态指令
+				%MW1300:=LEN(STR:= 转发转存);
+				
+				IF R_TRIG[10].Q THEN
+					泵站位符:=FALSE;
+					A:=A+1;
+					IF A&gt;2 THEN
+						A:=0;
+						大真空泵站位[11]:=FALSE;
+						吸收液体step:=40;
+					ELSE
+						吸收液体step:=25;
+					END_IF
+				END_IF
+			END_IF
+
+		40:
+			上样轴5Z轴DATE.fAbsTarget:=0;
+			上样轴5Z轴DATE.xMoveAbs:=TRUE;
+			IF 上样轴5Z轴DATE.bAbMoveDone THEN
+				上样轴5Z轴DATE.xMoveAbs:=FALSE;
+				Sampling_liquid_absorption:=TRUE;
+				吸收液体step:=0;
+			END_IF
+
+	END_CASE
+END_IF
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Sample_point_sampling_上样点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="91a911e2-9343-4410-a828-a47c991cd40c">
+                      <pathStructure isFolder="False" name="A40_absorb_liquid_吸收液体" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="8d6ee360-bee3-4c0c-a92b-e0ca17ff270f" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>8d6ee360-bee3-4c0c-a92b-e0ca17ff270f</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A10_clean_清洗">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">TON[1](IN:=清洗step=20,PT:=T#0.5S);
+TON[6](IN:=清洗step=40,PT:=T#0.5S);
+TON[8](IN:=清洗step=26,PT:=T#0.5S);
+R_TRIG[2](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+R_TRIG[11](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+R_TRIG[12](CLK:=%MX2005.5 , Q=&gt; );  //泵空闲中
+
+CASE 清洗step OF
+	0 :
+		点样轴6XDATE.xMoveAbs:=FALSE;
+		上样轴4X轴DATE.xMoveAbs:=FALSE;
+		上样轴5Z轴DATE.xMoveAbs:=FALSE;
+		清洗step:=5;
+	5:
+		点样轴6XDATE.fAbsTarget:=HMI_点样轴6X.position[1];               //6X清洗位置赋值
+		上样轴4X轴DATE.fAbsTarget:=HMI_上样轴4X轴.position[9];           //4X清洗位置赋值
+		点样轴6XDATE.xMoveAbs:=TRUE;
+		上样轴4X轴DATE.xMoveAbs:=TRUE;
+		清洗计数:=0;
+		清洗step:=6;
+	6:
+		IF 上样轴4X轴DATE.bAbMoveDone THEN
+			上样轴4X轴DATE.xMoveAbs:=FALSE;
+			上样轴5Z轴DATE.fAbsTarget:=HMI_上样轴5Z轴.position[1];
+			上样轴5Z轴DATE.xMoveAbs:=TRUE;
+			清洗step:=7;
+		END_IF
+
+	7:
+		IF  上样轴5Z轴DATE.bAbMoveDone AND 点样轴6XDATE.bAbMoveDone THEN
+			上样轴5Z轴DATE.xMoveAbs:=FALSE;
+			点样轴6XDATE.xMoveAbs:=FALSE;
+			IF Sampling_clean_count&gt;0 THEN
+				清洗step:=10;
+			ELSE
+				清洗step:=60;
+			END_IF
+			
+		END_IF
+	10:
+		IF %MW1300=0 AND NOT 泵站位符 THEN
+			泵站位符:=TRUE;
+			转发转存:=Sampling_clean_instructions[1];    
+			%MW1300:=LEN(STR:= 转发转存);   //发送字节数
+			大真空泵站位[11]:=TRUE;
+			上样点样三通电池阀自动:=TRUE;
+			清洗step:=20;
+		END_IF
+	20:
+		IF %MW1300=0 AND TON[1].Q THEN
+		转发转存:='/4Q$R';          //查询泵状态指令
+		%MW1300:=LEN(STR:= 转发转存);
+		END_IF
+		
+		IF R_TRIG[2].Q THEN
+			上样点样三通电池阀自动:=FALSE;
+			泵站位符:=FALSE;
+			清洗step:=24;
+		END_IF
+	24:
+		IF %MW1300=0 AND NOT 泵站位符 THEN
+			泵站位符:=TRUE;
+			转发转存:=Sampling_clean_instructions[1];    
+			%MW1300:=LEN(STR:= 转发转存);   //发送字节数
+			清洗step:=26;
+		END_IF
+	26:
+		IF %MW1300=0 AND TON[8].Q THEN
+		转发转存:='/4Q$R';          //查询泵状态指令
+		%MW1300:=LEN(STR:= 转发转存);
+		END_IF
+		
+		IF R_TRIG[11].Q THEN
+			
+			泵站位符:=FALSE;
+			清洗step:=30;
+		END_IF
+	30:
+		IF %MW1300=0 AND NOT 泵站位符 THEN
+			泵站位符:=TRUE;
+			转发转存:=Sampling_clean_instructions[2];    
+			%MW1300:=LEN(STR:= 转发转存);   //发送字节数
+			
+			清洗step:=40;
+		END_IF
+				
+	40:
+		IF %MW1300=0 AND TON[6].Q THEN
+		转发转存:='/4Q$R';          //查询泵状态指令
+		%MW1300:=LEN(STR:= 转发转存);
+		END_IF
+		
+		IF R_TRIG[12].Q THEN
+			泵站位符:=FALSE;
+			清洗step:=50;
+		END_IF
+	50:
+		清洗计数:=清洗计数+1;
+		IF  Sampling_clean_count&gt; 清洗计数 THEN                 
+			转发转存:='';
+			%MW1300:=128;
+			清洗step:=10;
+		ELSIF  Sampling_clean_count&lt;= 清洗计数 THEN
+			转发转存:='';
+			%MW1300:=128;
+			清洗计数:=0;
+			Sampling_Cleaning_OK:=TRUE;
+			清洗step:=0;
+		END_IF	
+		上样点样三通电池阀自动:=FALSE;
+		
+	60:
+		大真空泵站位[11]:=FALSE;
+		Sampling_Cleaning_OK:=TRUE;
+		清洗step:=0;
+END_CASE
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Sample_point_sampling_上样点样" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="91a911e2-9343-4410-a828-a47c991cd40c">
+                      <pathStructure isFolder="False" name="A10_clean_清洗" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="c54e3200-c7d4-46a1-8bdc-b10bb75bbdad" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>c54e3200-c7d4-46a1-8bdc-b10bb75bbdad</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="40_Man">
+          <Object Name="Sample_point_sampling_上样点样" ObjectId="91a911e2-9343-4410-a828-a47c991cd40c">
+            <Object Name="A20_Place_materials_放硅胶板" ObjectId="aab2c411-87c4-48e7-8c6a-150fa95cf2b2" />
+            <Object Name="A30_Sample_preparation_上样准备" ObjectId="5892aa68-d92f-4a1f-940e-d9e1f7658a1a" />
+            <Object Name="A00_initialization_初始化" ObjectId="95d5c7b0-0246-4218-b5e5-ba09edb64a90" />
+            <Object Name="A50_Spray_sample_点样" ObjectId="e225caf8-a07c-47bc-9547-fd216667528e" />
+            <Object Name="A40_absorb_liquid_吸收液体" ObjectId="8d6ee360-bee3-4c0c-a92b-e0ca17ff270f" />
+            <Object Name="A10_clean_清洗" ObjectId="c54e3200-c7d4-46a1-8bdc-b10bb75bbdad" />
+          </Object>
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

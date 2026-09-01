@@ -1,0 +1,255 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 suction.pick 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+# 【手改·勿重生成 (G-1)】body 顶部入口保证 prologue: home_ensure 确保回零 + tool_ensure 换刀 (needed=1 吸盘); 生成器重跑会抹掉
+# 【手改·勿重生成 (G-1)】scrape 分支取板必须保持安全姿态:
+#   rotary-up 入 -> 到板 -> suction-on -> 退出到 P63 -> rotary-up 确认 -> P1。
+#   生成器自校验只比 move 点不校验 tool_action, 重运行会静默抹掉本安全步。
+schema: ptlc.script/v1
+kind: operation
+name: robot_suction_pick
+label: 台面取板
+note: '吸盘; 点样台/刮板台'
+ui: {subgroup: 台面取放, order: 21}
+vars:
+- {name: station_id, scope: local, type: STRING, io: in, default: spotting, comment: suction.pick 主选择值, enum: [spotting, scrape]}
+resources: [robot]
+body:
+- {op: comment, text: '入口保证(手改): 确保在 home (安全邻域内自动回零) + 智能换刀到本流程固定工具 (吸盘)'}
+- {op: call, action: robot.home_ensure, mode: RUN}
+- {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 1}}, outputs: {}}
+- op: if
+  cond:
+    binop: ==
+    left: {var: station_id}
+    right: {lit: spotting}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: rail.ensure
+    args:
+      Rail_Target_Position: {lit: 1}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P4}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: rotary-up}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: spotting.pick.approach_far}
+      motion: {lit: move_l}
+      acc: {lit: 12}
+      vel: {lit: 15}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: spotting.pick.approach_near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P19}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: suction-on}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: spotting.pick.retreat_near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: spotting.pick.retreat_far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P4}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P1}
+      motion: {lit: move_j}
+      acc: {lit: 50}
+      vel: {lit: 37}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs:
+  - cond:
+      binop: ==
+      left: {var: station_id}
+      right: {lit: scrape}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P63}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-up}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: scrape.plate-pick.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: scrape.plate-pick.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: comment
+      text: '刮板位取/放同基点: 取板与放板同点 P65 (吸附基准=板中心); P64 弃用保留在点表, 勿再引用'
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P65}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-on}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: scrape.plate-pick.retreat_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: scrape.plate-pick.retreat_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P63}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: comment
+      text: "Safety fix: after scraping pick, confirm rotary-up only after retreating to P63."
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-up}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'suction.pick: 无效选择值'}

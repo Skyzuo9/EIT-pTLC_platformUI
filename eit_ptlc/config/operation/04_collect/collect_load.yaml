@@ -1,0 +1,35 @@
+schema: ptlc.script/v1
+kind: operation
+name: collect_load
+label: 收集-上料
+ui:
+  role: station_phase
+  station: collect
+  phase: load
+  primary: true
+  order: 42
+vars:
+  - {name: bottle_slot, scope: local, type: INT, io: in, default: 1, comment: 瓶中转B槽位 1-6}
+resources: [robot, "station:collect", "station:rail", "scrape-holder", "collect-holder", "collect-bottle", "staging-b"]
+body:
+  - {op: comment, text: "前置: photoscrape_process 已完成刮取收尾; 本段释放刮板下压并取走接粉收集器"}
+  - {op: comment, text: "自守卫地轨在刮板位(位2)再取接粉收集器: 幂等; 防上游(如 ptlc_full_v2 collect 前 rail.move(3))遗留错位撞夹具"}
+  - {op: run_script, script: rail_move_safe, inputs: {target: {lit: 2}}, outputs: {}}
+  - {op: comment, text: "放料/接粉收集器: 从刮板接粉夹具进入取料姿态"}
+  - {op: run_script, script: robot_scrape_holder_pick_enter, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: comment, text: "接粉收集器释放: 下压气缸松开后由机器人取走"}
+  - {op: call, action: photoscrape.press_cylinder, mode: RUN, args: {pressed: {lit: false}}}
+  - {op: run_script, script: robot_scrape_holder_pick_exit, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: comment, text: "刮板侧复位: 接粉收集器已由机器人取走并退出后, 才允许旋转/停旋转气缸复位"}
+  - {op: call, action: photoscrape.retr_stoprot, mode: RUN}
+  - {op: comment, text: "地轨到收集位(位3): 机器人已带接粉收集器回安全位, 再进入收集夹具放置"}
+  - {op: run_script, script: rail_move_safe, inputs: {target: {lit: 3}}, outputs: {}}
+
+  - {op: comment, text: "放料/收集夹具: 放入接粉收集器, 本站夹紧, 机器人退出"}
+  - {op: run_script, script: robot_collect_holder_put_enter, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: call, action: collect.clamp, mode: RUN}
+  - {op: run_script, script: robot_collect_holder_put_exit, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: call, action: collect.extend, mode: RUN}
+
+  - {op: comment, text: "放料/收集瓶: 从中转B取单瓶并放入收集位; 中转B板锁不在本站上料段控制"}
+  - {op: run_script, script: transfer_bottle_staging_b_to_collect, inputs: {slot_id: {var: bottle_slot}}, outputs: {}}

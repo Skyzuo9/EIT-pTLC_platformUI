@@ -1,0 +1,18 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_collector_collect_to_staging_a
+label: 转运-收集器 收集工位→暂存A (上位机, 参 slot_id)
+# [已退役 R2] 内嵌 collect.release_clamp 违反 R2 (站动作在 transfer)。已解交错并入 collect_cycle
+#   (release_clamp 归 cycle), 本文件零引用、保留作参考勿调用。
+# 重规划自路线 consumable.collector-collect-to-staging-a. 收集(位3) -> 暂存(位6).
+vars:
+  - {name: slot_id, scope: local, type: INT, io: in, default: 1, comment: 暂存A回位槽位 1-6}
+resources: [robot, "collect-holder", "staging-a"]
+body:
+  - {op: comment, text: 地轨到收集区(位3); 从收集夹具取收集器 (进-松-退)}
+  - {op: call, action: rail.move, args: {Rail_Target_Position: {lit: 3}}, mode: RUN}
+  - {op: run_script, script: robot_collect_holder_pick_enter, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: run_script, script: robot_collect_holder_pick_exit, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: comment, text: 地轨到仓库区(位6); 放收集器回暂存A}
+  - {op: call, action: rail.move, args: {Rail_Target_Position: {lit: 6}}, mode: RUN}
+  - {op: run_script, script: robot_collector_return_put, inputs: {slot_id: {var: slot_id}}, outputs: {}}

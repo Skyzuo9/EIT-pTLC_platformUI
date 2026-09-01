@@ -1,0 +1,32 @@
+version: 1
+# 上样板标定: 按 (规格 plate_type × 盘位号 slot) 各维护一套 3 点标定。
+# 吸液动作据 (plate_spec, plate_no) 定位实例, 仿射算孔位 xy 写 Sampling_4X/3Y_Target。
+# 点由操作员对点(手推/jog)读伺服 fActPos 得到; 3 点齐 commit 后 is_calibrated。
+# 6×8 两块出厂未标定 (points 空), 现场标定后启用。
+instances:
+- id: plate_4x6_1
+  label: "4×6 #1"
+  plate_type: "4×6"
+  slot: 1
+  points:
+  - {well: [1, 1], x_mm: 23.0, y_mm: -18.7}
+  - {well: [1, 6], x_mm: 23.0, y_mm: 71.3}
+  - {well: [4, 1], x_mm: 50.0, y_mm: -18.7}
+- id: plate_4x6_2
+  label: "4×6 #2"
+  plate_type: "4×6"
+  slot: 2
+  points:
+  - {well: [1, 1], x_mm: 78.5, y_mm: -18.7}
+  - {well: [1, 6], x_mm: 78.5, y_mm: 71.3}
+  - {well: [4, 1], x_mm: 105.5, y_mm: -18.7}
+- id: plate_6x8_1
+  label: "6×8 #1"
+  plate_type: "6×8"
+  slot: 1
+  points: []
+- id: plate_6x8_2
+  label: "6×8 #2"
+  plate_type: "6×8"
+  slot: 2
+  points: []

@@ -1,0 +1,35 @@
+schema: ptlc.script/v1
+kind: operation
+name: collect_cycle
+label: 收集-周期 (准备 -> 上料 -> 执行 -> 下料)
+ui:
+  role: station_task
+  station: collect
+  primary: true
+  order: 40
+# 站内四段式主入口。顶层 recipe 仍只调用 collect_cycle; 本文件不承载顶层流程重排。
+# 收集器/瓶的机器人交错细节下沉到四段子脚本。
+# 中转板锁的分工 (勿按"本站不碰板锁"理解): 本站会经 load 的 transfer_bottle_staging_b_to_collect
+#   与 unload 的 transfer_bottle_collect_to_staging_b 两次把 locator_b 置 true (取瓶/放瓶前压住整板,
+#   否则小夹爪会把整板带走); 但**全程不碰 locator_a**, 也不负责任何一侧的松开。
+#   故 locator_a 的唯一释放点、以及 locator_b 的配对松开, 都在顶层 recipe 收尾, 不可删。
+# load 段会释放拍照刮板下压气缸 (photoscrape.press_cylinder=false) 并取走接粉收集器;
+# 因此顶层 recipe 必须保证刮板刮取已结束且不会并发运行 photoscrape_process。
+vars:
+  - {name: collector_slot, scope: local, type: INT, io: in, default: 1, comment: 收集器回中转A槽位 1-6}
+  - {name: bottle_slot,    scope: local, type: INT, io: in, default: 1, comment: 瓶中转B槽位 1-6}
+  - {name: solvent_volume_ml, scope: local, type: FLOAT, io: in, default: 0.1, comment: 单次洗脱溶剂体积 mL}
+  - {name: liquid_repeat_count, scope: local, type: INT, io: in, default: 1, comment: 洗脱循环次数}
+resources: [robot, "station:collect", "station:rail", "scrape-holder", "collect-holder", "collect-bottle", "staging-a", "staging-b"]
+body:
+  - {op: comment, text: "prepare: 收集站复位与泵/阀初始化"}
+  - {op: run_script, script: collect_prepare, inputs: {}, outputs: {}}
+
+  - {op: comment, text: "load: 接粉收集器进入收集夹具, 收集瓶进入收集位"}
+  - {op: run_script, script: collect_load, inputs: {bottle_slot: {var: bottle_slot}}, outputs: {}}
+
+  - {op: comment, text: "execute: 进入洗脱姿态 -> 加液/排液洗脱循环 -> 退出洗脱姿态"}
+  - {op: run_script, script: collect_execute, inputs: {solvent_volume_ml: {var: solvent_volume_ml}, liquid_repeat_count: {var: liquid_repeat_count}}, outputs: {}}
+
+  - {op: comment, text: "unload: 先取瓶, 再缩回/松收集夹具并取走接粉收集器"}
+  - {op: run_script, script: collect_unload, inputs: {collector_slot: {var: collector_slot}, bottle_slot: {var: bottle_slot}}, outputs: {}}

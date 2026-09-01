@@ -1,0 +1,40 @@
+{
+  "feed": {
+    "z_empty_mm": 512.72,
+    "pitch_mm": 2.775,
+    "warn_threshold": 5,
+    "samples": [
+      {
+        "plates": 6,
+        "z_mm": 495.82
+      },
+      {
+        "plates": 4,
+        "z_mm": 502.12
+      },
+      {
+        "plates": 2,
+        "z_mm": 506.92
+      }
+    ]
+  },
+  "waste": {
+    "z_empty_mm": 512.129,
+    "pitch_mm": 2.655,
+    "warn_threshold": 25,
+    "samples": [
+      {
+        "plates": 9,
+        "z_mm": 488.204
+      },
+      {
+        "plates": 7,
+        "z_mm": 493.604
+      },
+      {
+        "plates": 5,
+        "z_mm": 498.824
+      }
+    ]
+  }
+}

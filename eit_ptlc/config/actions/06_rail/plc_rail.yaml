@@ -1,0 +1,71 @@
+﻿# 地轨 (地轨轴11Y, 汇川 InoSV660N, PLC 第11轴伺服) PLC L2 原子动作 (第7通道)
+# 机器人坐在地轨上, 进入某工位前须先把地轨移到该工位. 解耦后地轨归 PLC, 上位机经
+# Rail_L2 通道按位置码下发 (与 FeedLift_L2 同范式; 派发器协议 Start 上升沿->RUNNING->DONE).
+# 位置码对齐现役 PLC Now.xml 的 HMI_地轨轴11Y.position[1..6]:
+#   1=上样位 2=刮板拍照位 3=收集组/中转位 4=取工具位 5=展开位 6=收集组货架/仓库位
+# 现役 20260702.project 已包含并由 PLC_MainPRG 周期调用 Rail_L2；动作码10读取 PC 下发的
+# Rail_Pos_Target[1..6]，校验目标毫米值后驱动11Y，bAbMoveDone->DONE。
+
+rail.move:
+  kind: plc_l2
+  station: rail
+  action_code: 10
+  label: 地轨-移动到位
+  desc: |-
+    执行步骤：上位机先执行P1安全锚点门并把槽号1–6写入Rail_Target_Position；PLC读取Rail_Pos_Target[槽号]，要求毫米目标>0且≤3000，写入11Y绝对目标并置xMoveAbs，等待bAbMoveDone后撤销移动命令。
+    前置与安全：PLC须处于运行/就绪态；P1硬门由上位机在下发前执行，PLC Rail_L2本身不读取机器人姿态。Rail_Pos_Target必须已由PC同步，机械臂伸展时禁止移轨，物理动作不自动重发。
+    完成与异常：11Y的bAbMoveDone成立后返回DONE；非法动作码/槽号为ErrorCode 101，目标为0或超3000为102。现役PLC代码未接地轨伺服报警分支，轴不完成时由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Rail_L2 动作码10；PLC_MainPRG已周期调用该POU。
+  safety_anchor: P1    # 硬门: 下发前臂须在 P1(=robot-main.home); 确保式: 不在位时安全邻域内自动回零, 邻域外/持真空拒发 —— 地轨平移拖臂防碰撞, 不可绕过
+  modes: []
+  params:
+    # 取值域与 config/operation/08_rail/rail_move_safe.yaml 的 target 是同一张表;
+    # 拆成 enum 后两边不会再各自手工维护 label 里那串"1上样/2拍照/…"而漂移。
+    - name: Rail_Target_Position
+      type: int
+      required: true
+      min: 1
+      max: 6
+      label: 地轨目标位
+      enum:
+        - {value: 1, label: 1 上样}
+        - {value: 2, label: 2 拍照}
+        - {value: 3, label: 3 收集}
+        - {value: 4, label: 4 工具}
+        - {value: 5, label: 5 展开}
+        - {value: 6, label: 6 仓库}
+
+# 地轨-按槽确认到位 (Win B): 原子 enter 处臂在 P1 时按点 rail 自动移轨。幂等 —— 实际位与目标槽
+# mm 差在容差内即跳过 (同 mm 异槽不无谓移轨); 超差才断言臂已在 P1 后复用 rail.move 管线补移
+# (单写者回读确认 + L2 派发)。auto_rail 关时为空操作 (地轨仍由编排层 rail_move_safe 字面量驱动)。
+# 注: kind=rail_ensure 非 plc_l2, 不直接声明 safety_anchor —— 安全门经内部 rail.move 施加。
+# 注: 本原语的 P1 判定是断言式 (require_anchor) 而非确保式 —— 地轨到位是原子的前置条件, 只在臂仍缩在
+#     P1 时成立; 走到补移还不在 P1 即编排缺 enter 处 rail.ensure, 此时自动回零只会掩盖真因或悄改轨迹。
+#     确保式自动回零仍保留在 rail_move_safe / 裸 rail.move (二者不经本原语)。
+rail.ensure:
+  kind: rail_ensure
+  station: rail
+  label: 地轨去指定站位
+  hint: 移动并确认地轨到所选站位; 机械臂不在安全位会自动拒绝
+  desc: |-
+    执行步骤：读取地轨实际毫米位置与目标槽；在容差内直接幂等返回，超差时先断言机械臂已在P1再复用 rail.move 管线下发目标槽，auto_rail关闭时为空操作。
+    前置与安全：本原语只在原子入口(require_anchor P1 之后)调用，故补移时机械臂必在P1；断言式校验不自动回零，不在位即判定为编排缺入口移轨而拒绝，随后仍经单写者、回读和 L2 派发；同毫米但槽号不同也按位置容差判断。
+    完成与异常：已在位或补移到位返回 DONE；实际位不可读、未回零、需补移但机械臂已离开P1、伺服或 L2 结果不明确返回拒绝/ERROR/TIMEOUT。
+    实现核对：ActionExecutor._exec_rail_ensure/_ensure_rail；容差为5毫米，未回零或实际位读取失败时拒绝补移。
+  modes: []
+  params:
+    # 取值域与 config/operation/08_rail/rail_move_safe.yaml 的 target 是同一张表;
+    # 拆成 enum 后两边不会再各自手工维护 label 里那串"1上样/2拍照/…"而漂移。
+    - name: Rail_Target_Position
+      type: int
+      required: true
+      min: 1
+      max: 6
+      label: 地轨目标位
+      enum:
+        - {value: 1, label: 1 上样}
+        - {value: 2, label: 2 拍照}
+        - {value: 3, label: 3 收集}
+        - {value: 4, label: 4 工具}
+        - {value: 5, label: 5 展开}
+        - {value: 6, label: 6 仓库}

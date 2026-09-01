@@ -1,0 +1,114 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_align_loop
+label: 刮板-对位内环 (通用件)
+ui:
+  role: helper
+  hidden: true
+vars:
+  - {name: start_x_mm, scope: local, type: FLOAT, io: in, default: 0.0, comment: 路径起点X(机床mm)}
+  - {name: start_y_mm, scope: local, type: FLOAT, io: in, default: 0.0, comment: 路径起点Y(机床mm)}
+  - {name: start_valid, scope: local, type: BOOL, io: in, default: false, comment: 路径起点可用(cand_valid)}
+  - {name: ro,    scope: local, type: DICT,   comment: align_readout 回显(x/y/z/原点/Δ/inspect_z/text)}
+  - {name: done,  scope: local, type: BOOL,   default: false}
+  - {name: gate,  scope: local, type: STRING, default: ""}
+  - {name: dx_mm, scope: local, type: FLOAT,  default: 0.0, comment: "微调步进X(mm, 可负; 先升Z再步进)"}
+  - {name: dy_mm, scope: local, type: FLOAT,  default: 0.0, comment: 微调步进Y}
+body:
+  - {op: comment, text: "对位内环 (spec 0716 §6 D1): 纯对位不碰气缸; 一切XY移动只在Z=0(B1修正, 大行程与jog均先align_z(0)); 任何失败先回零再抛"}
+  - op: try
+    body:
+      - op: while
+        cond: {unop: not, operand: {var: done}}
+        max_iter: 500
+        body:
+          - {op: call, action: photoscrape.align_readout, mode: RUN, assign: {var: ro}}
+          - {op: assign, target: {var: gate}, value: {lit: ""}}
+          - op: human
+            kind: choose
+            prompt: {binop: +, left: {lit: "对位检查 — "}, right: {field: {var: ro}, name: text}}
+            assign_choice: {var: gate}
+            options:
+              - {value: go_origin, label: 走原点角}
+              - {value: go_start,  label: 走路径起点}
+              - {value: z_down,    label: 缓降检查高度}
+              - {value: z_up,      label: 升回安全高}
+              - {value: jog,       label: 微调(Δx/Δy)}
+              - {value: finish,    label: 结束对位}
+          - op: if
+            cond: {binop: ==, left: {var: gate}, right: {lit: go_origin}}
+            then:
+              - op: try
+                body:
+                  - {op: comment, text: "大行程: 先升Z=0(安全位)再走XY; PLC 42 对 Z 非零大目标拒动是兜底"}
+                  - {op: call, action: photoscrape.align_z, mode: RUN, args: {z_mm: {lit: 0.0}}}
+                  - {op: call, action: photoscrape.align_move, mode: RUN,
+                     args: {x_mm: {field: {var: ro}, name: origin_x_mm}, y_mm: {field: {var: ro}, name: origin_y_mm}}}
+                catch:
+                  - error: "*"
+                    body:
+                      - {op: comment, text: "走位失败(软限位/PLC拒动): 不退环, 回门重选"}
+            elifs:
+              - cond: {binop: ==, left: {var: gate}, right: {lit: go_start}}
+                body:
+                  - op: if
+                    cond: {var: start_valid}
+                    then:
+                      - op: try
+                        body:
+                          - {op: call, action: photoscrape.align_z, mode: RUN, args: {z_mm: {lit: 0.0}}}
+                          - {op: call, action: photoscrape.align_move, mode: RUN,
+                             args: {x_mm: {var: start_x_mm}, y_mm: {var: start_y_mm}}}
+                        catch:
+                          - error: "*"
+                            body:
+                              - {op: comment, text: "走位失败: 回门"}
+                    else:
+                      - {op: comment, text: "无可用路径起点(cand_valid=false): 空转回门, 门文案已提示"}
+              - cond: {binop: ==, left: {var: gate}, right: {lit: z_down}}
+                body:
+                  - op: try
+                    body:
+                      - {op: call, action: photoscrape.align_z, mode: RUN,
+                         args: {z_mm: {field: {var: ro}, name: inspect_z_mm}}}
+                    catch:
+                      - error: "*"
+                        body:
+                          - {op: comment, text: "缓降被拒(XY不在板区窗): 回门"}
+              - cond: {binop: ==, left: {var: gate}, right: {lit: z_up}}
+                body:
+                  - {op: call, action: photoscrape.align_z, mode: RUN, args: {z_mm: {lit: 0.0}}}
+              - cond: {binop: ==, left: {var: gate}, right: {lit: jog}}
+                body:
+                  - {op: assign, target: {var: dx_mm}, value: {lit: 0.0}}
+                  - {op: assign, target: {var: dy_mm}, value: {lit: 0.0}}
+                  - op: human
+                    kind: input
+                    prompt: {lit: "微调步进(mm, 可负; 将先升Z到安全位再步进, 步进后需再「缓降」复查): 留空=0"}
+                    fields:
+                      - {var: dx_mm, label: ΔX(mm)}
+                      - {var: dy_mm, label: ΔY(mm)}
+                  - op: try
+                    body:
+                      - {op: comment, text: "B1修正: 一切XY移动只在Z=0 — 先升Z再步进(低位观察→升Z盲步进→再缓降复查, 迭代收敛)"}
+                      - {op: call, action: photoscrape.align_z, mode: RUN, args: {z_mm: {lit: 0.0}}}
+                      - {op: call, action: photoscrape.align_move, mode: RUN,
+                         args: {x_mm: {binop: +, left: {field: {var: ro}, name: x_mm}, right: {var: dx_mm}},
+                                y_mm: {binop: +, left: {field: {var: ro}, name: y_mm}, right: {var: dy_mm}}}}
+                    catch:
+                      - error: "*"
+                        body:
+                          - {op: comment, text: "微调被拒(出窗/PLC拒动): 回门"}
+              - cond: {binop: ==, left: {var: gate}, right: {lit: finish}}
+                body:
+                  - {op: assign, target: {var: done}, value: {lit: true}}
+            else:
+              - {op: comment, text: "空/未知选择: 回门"}
+      - {op: comment, text: "正常收尾: 43 自带Z不在0先升Z, 无需先 align_z(0)"}
+      - {op: call, action: photoscrape.align_home, mode: RUN}
+    catch:
+      - error: "*"
+        body:
+          - {op: comment, text: "对位内环失败: 先回零(刀头绝不悬板上方)再抛给调用方"}
+          - {op: call, action: photoscrape.align_home, mode: RUN}
+          - {op: raise, error: ALIGN_FAILED, message: {lit: "对位检查失败, 已回零; 详见上一动作错误"}}

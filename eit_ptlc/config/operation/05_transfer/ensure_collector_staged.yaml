@@ -1,0 +1,50 @@
+schema: ptlc.script/v1
+kind: operation
+name: ensure_collector_staged
+label: 耗材-粉末收集器就位保证 (读账本决策 -> 够用则跳过 / 否则条件换板)
+# 智能版, 与 robot_tool_ensure 同构 (读权威态 -> 对则跳过 -> 否则条件动作):
+#   material.plan_staging 读物料账本给出动作码, 中转A 还有未用孔就 NONE 原地复用 (不动整板),
+#   中转空则 PUT_NEW 从货架取一块有料的板, 中转板已耗尽则 SWAP 先把满板送回它原来的库位再取新板。
+#   该动作同时用中转A 在位传感器 (IX10.2, 极性已实证) 与判定核对, 账实不符即抛错停机 ——
+#   货架那 12 路在位信号与物理世界零耦合 (现场实测恒 0), 库位有无只能信账本, 中转这一路是唯一能防撞的。
+#   出参 hole = 本件该用的板上孔号, 调用方要一路带到"取件"与"归还"两处 (二者必须同孔)。
+#
+# 工具: 整板转运用工具2大夹爪 (组中转点 P37/P39 即按大夹爪整板抓示教); 取单件的工具3小夹爪
+#   由调用方在本脚本之后自行切换 —— 本脚本只负责把板弄到位。
+#
+# ⚠ 定位气缸不在此管: transfer_collector_rack_to_staging_a 开头自带 locator_a(false) 自守卫、
+#   结尾 locator_a(true); transfer_collector_staging_a_to_rack 开头 locator_a(false) 且取毕保持
+#   松开。故 SWAP 的"先卸后装"序列自洽, 这里再插气缸动作反而会打架。
+vars:
+  - {name: reserve_for,   scope: local, type: STRING, io: in,  default: '', comment: 并行批次样品号 (非空则排除他人预留并落本样品孔级预留; 空=旧行为)}
+  - {name: plan,          scope: local, type: DICT,   io: var, comment: material.plan_staging 决策快照}
+  - {name: op,            scope: local, type: STRING, io: var, default: '', comment: 动作码 NONE/PUT_NEW/SWAP}
+  - {name: rack_slot,     scope: local, type: INT,    io: var, default: 0, comment: 要从货架取的库位 1-6}
+  - {name: old_rack_slot, scope: local, type: INT,    io: var, default: 0, comment: 要送回货架的满板库位 1-6 (仅 SWAP)}
+  - {name: hole,          scope: local, type: INT,    io: out, default: 1, comment: 本件该用的板上孔号 1-6 (回给调用方)}
+resources: [robot, "station:rail", "consumable-group", "staging-a"]
+body:
+  - {op: comment, text: 读账本决策 (含中转A 在位防呆); 账上无未用孔或账实不符时本动作直接抛错停机}
+  - op: call
+    action: material.plan_staging
+    mode: RUN
+    args: {kind: {lit: collector}, reserve_for: {var: reserve_for}}
+    assign: {var: plan}
+  - {op: assign, target: {var: op},            value: {field: {var: plan}, name: op}}
+  - {op: assign, target: {var: rack_slot},     value: {field: {var: plan}, name: rack_slot}}
+  - {op: assign, target: {var: old_rack_slot}, value: {field: {var: plan}, name: old_rack_slot}}
+  - {op: assign, target: {var: hole},          value: {field: {var: plan}, name: hole}}
+  - op: if
+    cond: {binop: "!=", left: {var: op}, right: {lit: "NONE"}}
+    then:
+      - {op: comment, text: "要动整板才切工具2大夹爪 (NONE 复用时全程不换刀, 也不进货架区)"}
+      - {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 2}}, outputs: {}}
+      - op: if
+        cond: {binop: "==", left: {var: op}, right: {lit: "SWAP"}}
+        then:
+          - {op: comment, text: "SWAP: 先把耗尽的中转板送回它载入时的那个货架库位 (账本据此比对, 不一致会告警留痕)"}
+          - {op: run_script, script: transfer_collector_staging_a_to_rack, inputs: {slot_id: {var: old_rack_slot}}, outputs: {}}
+      - {op: comment, text: "PUT_NEW / SWAP: 从货架取有料的新板进中转A, 落位后由该脚本自行夹紧"}
+      - {op: run_script, script: transfer_collector_rack_to_staging_a, inputs: {slot_id: {var: rack_slot}}, outputs: {}}
+  - {op: comment, text: '终态自声明: 退出时中转A 板必被夹紧 —— 调用方随后要用小夹爪取单件, 板没夹住会被整板带走。NONE 路径下板本就夹着, 此写为幂等兜底 (直接赋值, 同扫描周期 DONE)'}
+  - {op: call, action: staging_a.locator_a, mode: RUN, args: {target: {lit: true}}}

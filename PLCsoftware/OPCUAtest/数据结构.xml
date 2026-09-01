@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-20T14:17:56.4556244" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站.project" modificationDateTime="2026-06-18T22:35:27.3049867">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes>
+      <dataType name="HMI_Servo">
+        <baseType>
+          <struct>
+            <variable name="position">
+              <type>
+                <array>
+                  <dimension lower="1" upper="10" />
+                  <baseType>
+                    <LREAL />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+            <variable name="write">
+              <type>
+                <array>
+                  <dimension lower="1" upper="10" />
+                  <baseType>
+                    <BOOL />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+            <variable name="execute">
+              <type>
+                <array>
+                  <dimension lower="1" upper="10" />
+                  <baseType>
+                    <BOOL />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="10_数据结构" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="3c009573-0ea7-4fa3-b384-3ccc5f967b6c">
+                    <pathStructure isFolder="False" name="HMI_Servo" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoDUTObject.DUTObjectFactory" factoryGuid="{661FEE33-9787-4975-9672-A21A5E4D3FB2}" objectGuid="908ff708-8e49-4452-ae9a-cc3ae8b394d5" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>908ff708-8e49-4452-ae9a-cc3ae8b394d5</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="servo">
+        <baseType>
+          <struct>
+            <variable name="xHome">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 回原点命令</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xJogPos">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 正方向点动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xJogNeg">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 负方向点动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xStop">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 停止命令</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xMoveAbs">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 绝对运动启动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xMoveRel">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 相对运动启动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="XReset">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">轴复位</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fAbsTarget">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 绝对位置目标</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fRelTarget">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 相对运动距离</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fVelocity">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 运行速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fAcc">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 加速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fDec">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 减速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fJogVel">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 点动速度 </xhtml>
+              </documentation>
+            </variable>
+            <variable name="bEnabled">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴使能状态</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bHomed">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 原点完成</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bBusy">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴忙状态</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bError">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴报警</xhtml>
+              </documentation>
+            </variable>
+            <variable name="iErrorCode">
+              <type>
+                <DINT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 错误代码</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fActPos">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 实际位置</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fActVel">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 实际速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bAbMoveDone">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 绝对运动完成</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bReMoveDone">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 相对运动完成</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="10_数据结构" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="3c009573-0ea7-4fa3-b384-3ccc5f967b6c">
+                    <pathStructure isFolder="False" name="servo" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoDUTObject.DUTObjectFactory" factoryGuid="{661FEE33-9787-4975-9672-A21A5E4D3FB2}" objectGuid="fd84dd0b-bed3-4c55-b56e-8288e15bf076" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>fd84dd0b-bed3-4c55-b56e-8288e15bf076</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="EN_功能块状态">
+        <baseType>
+          <enum>
+            <values>
+              <value name="停止" value="0" />
+              <value name="运行" value="1" />
+              <value name="故障" value="2" />
+              <value name="急停" value="3" />
+              <value name="初始化" value="4" />
+            </values>
+          </enum>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="10_数据结构" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="3c009573-0ea7-4fa3-b384-3ccc5f967b6c">
+                    <pathStructure isFolder="False" name="EN_功能块状态" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoDUTObject.DUTObjectFactory" factoryGuid="{661FEE33-9787-4975-9672-A21A5E4D3FB2}" objectGuid="6a8ee8a8-bc31-4f6f-9753-8053c1350482" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+              <Attribute Name="strict" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>6a8ee8a8-bc31-4f6f-9753-8053c1350482</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+    </dataTypes>
+    <pous />
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="10_数据结构">
+          <Object Name="HMI_Servo" ObjectId="908ff708-8e49-4452-ae9a-cc3ae8b394d5" />
+          <Object Name="servo" ObjectId="fd84dd0b-bed3-4c55-b56e-8288e15bf076" />
+          <Object Name="EN_功能块状态" ObjectId="6a8ee8a8-bc31-4f6f-9753-8053c1350482" />
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

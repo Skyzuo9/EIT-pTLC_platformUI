@@ -1,0 +1,65 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_cycle
+label: 上样-周期 (准备 -> 上料 -> 执行 -> 下料)
+ui:
+  role: station_task
+  station: sampling
+  primary: true
+  order: 10
+vars:
+- name: plate_spec
+  scope: local
+  type: STRING
+  io: in
+  default: 4×6
+  comment: 上样吸液孔板规格
+  enum: ['4×6', '6×8']
+- name: plate_no
+  scope: local
+  type: STRING
+  io: in
+  default: '1'
+  comment: 上样吸液盘位号
+  enum: ['1', '2']
+- name: well
+  scope: local
+  type: STRING
+  io: in
+  default: A1
+  comment: 上样吸液孔位
+resources:
+- station:sampling
+- robot
+- station:feedlift
+body:
+- op: comment
+  text: 'prepare: 工位初始化、清洗、7Y 到放板位; vacuum 在 step 内 try/finally 闭合'
+- op: run_script
+  script: sampling_prepare
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'load: 机器人放板并夹紧定位; 跨站自动运行时由 handoff 事务先完成目标预约'
+- op: run_script
+  script: sampling_load
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'execute: 上样吸液 + 单条带点样吹干'
+- op: run_script
+  script: sampling_execute
+  inputs:
+    plate_spec:
+      var: plate_spec
+    plate_no:
+      var: plate_no
+    well:
+      var: well
+  outputs: {}
+- op: comment
+  text: 'unload: 松开定位夹具并取板; 机器人持板 home 不是跨样品可抢占空闲态'
+- op: run_script
+  script: sampling_unload
+  inputs: {}
+  outputs: {}

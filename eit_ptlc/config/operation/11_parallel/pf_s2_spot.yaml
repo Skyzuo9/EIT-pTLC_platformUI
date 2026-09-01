@@ -1,0 +1,28 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s2_spot
+label: 2-1 点样执行
+ui:
+  role: segment
+# 原子流程 s2: 板在点样座上执行吸液/点样/吹干, 只占上样工位 —— 机器人在本段完全空闲,
+# 调度器可同时派 s3 (缸预备) 或其他样品的转运段。
+# 工艺参数 (plate_spec/plate_no/well 及点样几何/泵速等) 全部是 sampling_execute 的 ui 旋钮:
+# 经 VmController.start(overrides=...) 线程级按名注入, 每个段作业一次独立 VM 运行,
+# 批参数∪每样品覆盖天然按样品隔离 (无 SamplingMultiPanel 单运行多样品的串值问题)。
+flow:
+  atomic: true
+  sample: required
+  from: spot_seat
+  to: spot_seat
+  hitl: none
+  retry: resume
+vars: []
+resources:
+- station:sampling
+body:
+- op: comment
+  text: '点样执行: 吸液 -> 条带点样 -> 吹干; 全程只占上样工位、不占机器人, 与展缸预备并行'
+- op: run_script
+  script: sampling_execute
+  inputs: {}
+  outputs: {}

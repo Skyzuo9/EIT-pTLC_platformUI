@@ -1,0 +1,690 @@
+{
+  "schema": "ptlc.payload-grips/v1",
+  "generatedFrom": "machine.full.glb",
+  "note": "载荷相对 TOOL_MOUNT 的刚体位姿, 由取料示教位姿实测 (inv(mount_world) @ node_world)。运行期挂载时直接钉这个局部位姿, 不要用保世界位姿换父 —— 换父时刻机械臂通常已不在取料点。",
+  "grips": {
+    "INV_RACK_BOTTLE_1": {
+      "position": [
+        0.152427494,
+        0.150434025,
+        -0.901198304
+      ],
+      "quaternion": [
+        0.70866744,
+        -0.003088284,
+        0.000805377,
+        0.705535452
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_BOTTLE_2": {
+      "position": [
+        0.155431634,
+        0.152137625,
+        -0.900921155
+      ],
+      "quaternion": [
+        0.708667446,
+        -0.003088286,
+        0.000805379,
+        0.705535445
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_BOTTLE_3": {
+      "position": [
+        0.159251331,
+        0.147428802,
+        -0.90268561
+      ],
+      "quaternion": [
+        0.706197383,
+        -0.003711714,
+        0.00140815,
+        0.708003882
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_BOTTLE_4": {
+      "position": [
+        0.150433062,
+        0.151329775,
+        -0.901697719
+      ],
+      "quaternion": [
+        0.70866744,
+        -0.003088284,
+        0.000805377,
+        0.705535452
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_BOTTLE_5": {
+      "position": [
+        0.153430613,
+        0.151405733,
+        -0.901181037
+      ],
+      "quaternion": [
+        0.708667447,
+        -0.003088286,
+        0.000805379,
+        0.705535445
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_BOTTLE_6": {
+      "position": [
+        0.156431025,
+        0.151870013,
+        -0.900979301
+      ],
+      "quaternion": [
+        0.708667454,
+        -0.003088287,
+        0.000805379,
+        0.705535438
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_COLLECTOR_1": {
+      "position": [
+        0.154919869,
+        0.003172477,
+        -0.902362996
+      ],
+      "quaternion": [
+        0.708661942,
+        -0.006782388,
+        -0.002905179,
+        0.705509611
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_COLLECTOR_2": {
+      "position": [
+        0.154932492,
+        0.004088767,
+        -0.902358873
+      ],
+      "quaternion": [
+        0.708661949,
+        -0.00678239,
+        -0.002905177,
+        0.705509604
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_COLLECTOR_3": {
+      "position": [
+        0.159446879,
+        0.00511258,
+        -0.902329442
+      ],
+      "quaternion": [
+        0.708661956,
+        -0.006782391,
+        -0.002905176,
+        0.705509597
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_COLLECTOR_4": {
+      "position": [
+        0.151919834,
+        0.003183168,
+        -0.902367543
+      ],
+      "quaternion": [
+        0.708661942,
+        -0.006782388,
+        -0.002905179,
+        0.705509611
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_COLLECTOR_5": {
+      "position": [
+        0.1549379,
+        0.004479151,
+        -0.902368976
+      ],
+      "quaternion": [
+        0.708661949,
+        -0.00678239,
+        -0.002905177,
+        0.705509604
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_RACK_COLLECTOR_6": {
+      "position": [
+        0.157944748,
+        0.004965875,
+        -0.902326502
+      ],
+      "quaternion": [
+        0.708661956,
+        -0.006782391,
+        -0.002905176,
+        0.705509597
+      ],
+      "samples": 1,
+      "spreadMm": 0.0
+    },
+    "INV_STAGING_A": {
+      "position": [
+        -0.476528481,
+        0.051929406,
+        -0.359844317
+      ],
+      "quaternion": [
+        0.701025716,
+        -0.000619574,
+        0.000828733,
+        0.713135243
+      ],
+      "samples": 6,
+      "spreadMm": 0.0
+    },
+    "INV_STAGING_B": {
+      "position": [
+        -0.057322397,
+        -0.213903609,
+        -0.358603065
+      ],
+      "quaternion": [
+        0.495898001,
+        0.498620439,
+        0.500651375,
+        0.504788105
+      ],
+      "samples": 6,
+      "spreadMm": 0.0
+    },
+    "INV_STAGING_A_ITEM_1": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.04275,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    },
+    "INV_STAGING_A_ITEM_2": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.04275,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    },
+    "INV_STAGING_A_ITEM_3": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.04275,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    },
+    "INV_STAGING_A_ITEM_4": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.04275,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    },
+    "INV_STAGING_A_ITEM_5": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.04275,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    },
+    "INV_STAGING_A_ITEM_6": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.04275,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    },
+    "INV_STAGING_B_ITEM_1": {
+      "position": [
+        0.0297813,
+        -0.00029668,
+        -0.1224654
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [],
+      "grabLocal": [
+        2.7e-05,
+        0.873705,
+        2.7e-05
+      ],
+      "grabFeature": "neck",
+      "grabDiameterMm": 23.6,
+      "closeValue": 0.25432
+    },
+    "INV_STAGING_B_ITEM_2": {
+      "position": [
+        0.0297813,
+        -0.00029668,
+        -0.1224654
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [],
+      "grabLocal": [
+        2.7e-05,
+        0.873705,
+        2.7e-05
+      ],
+      "grabFeature": "neck",
+      "grabDiameterMm": 23.6,
+      "closeValue": 0.25432
+    },
+    "INV_STAGING_B_ITEM_3": {
+      "position": [
+        0.0297813,
+        -0.00029668,
+        -0.1224654
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [],
+      "grabLocal": [
+        2.7e-05,
+        0.873705,
+        2.7e-05
+      ],
+      "grabFeature": "neck",
+      "grabDiameterMm": 23.6,
+      "closeValue": 0.25432
+    },
+    "INV_STAGING_B_ITEM_4": {
+      "position": [
+        0.0297813,
+        -0.00029668,
+        -0.1224654
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [],
+      "grabLocal": [
+        2.7e-05,
+        0.873705,
+        2.7e-05
+      ],
+      "grabFeature": "neck",
+      "grabDiameterMm": 23.6,
+      "closeValue": 0.25432
+    },
+    "INV_STAGING_B_ITEM_5": {
+      "position": [
+        0.0297813,
+        -0.00029668,
+        -0.1224654
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [],
+      "grabLocal": [
+        2.7e-05,
+        0.873705,
+        2.7e-05
+      ],
+      "grabFeature": "neck",
+      "grabDiameterMm": 23.6,
+      "closeValue": 0.25432
+    },
+    "INV_STAGING_B_ITEM_6": {
+      "position": [
+        0.0297813,
+        -0.00029668,
+        -0.1224654
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [],
+      "grabLocal": [
+        2.7e-05,
+        0.873705,
+        2.7e-05
+      ],
+      "grabFeature": "neck",
+      "grabDiameterMm": 23.6,
+      "closeValue": 0.25432
+    },
+    "STA_SCRAPE_HOLDER": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.042749,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    },
+    "STA_COLLECT_BOTTLE": {
+      "position": [
+        0.0297813,
+        -0.00029668,
+        -0.1224654
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [],
+      "grabLocal": [
+        0.0,
+        0.089001,
+        0.0
+      ],
+      "grabFeature": "neck",
+      "grabDiameterMm": 23.6,
+      "closeValue": 0.25432
+    },
+    "STA_COLLECT_HOLDER": {
+      "position": [
+        0.07297021,
+        -0.00027633,
+        -0.12255284
+      ],
+      "quaternion": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "method": "pin-cage-grab-feature",
+      "gripper": "rob_grip_vial",
+      "halfGapOpenMm": 14.979,
+      "freeAxes": [
+        [
+          0.00202,
+          0.001375,
+          0.999997
+        ]
+      ],
+      "grabLocal": [
+        3e-06,
+        0.04275,
+        6e-06
+      ],
+      "grabFeature": "barrel",
+      "grabDiameterMm": 27.9,
+      "closeValue": 0.817195,
+      "pocketCenterTool": [
+        72.795,
+        -0.518
+      ],
+      "pocketConcentricValue": 0.817195,
+      "pocketFitResidualMm": 0.248
+    }
+  },
+  "itemGripNote": "kind=item 的条目是**位置吸附**语义, quaternion 恒单位、仅占位。position 逐族: 瓶=四销笼心(销笼夹瓶颈), 粉桶=指臂弧口袋心(弧口袋抱桶身, 2026-08-07 实测定案)。挂载时把物件的 grabLocal 特征点平移到该点、姿态保留当刻朝向, freeAxes 上的分量放手不修(瓶=空: 销笼双水平轴定心; 桶=[销轴]: 轴向咬哪段由示教定)。消费端: MachineStateDriver.attach(磁吸) 与 clip_compiler._grab_corrected(烤 dock)必须逐字同式; 闭合深度见 clip_compiler._close_value_for(瓶颈逐件, 桶身走 holdValue)。自检: 开爪半间隙 14.979mm ≈ 瓶体 13.4mm + 行程 1.263mm; 口袋同心值 0.817195 ≈ holdValue 0.101。grabLocal 存的是**运行期帧**(machine.official-cr5.glb)的节点局部系坐标, 量化件与拟合帧不同值(见 rebase_grab_local)。",
+  "runtimeFrame": "machine.official-cr5.glb"
+}

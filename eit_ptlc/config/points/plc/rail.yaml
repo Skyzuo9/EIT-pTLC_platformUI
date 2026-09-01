@@ -1,0 +1,34 @@
+# 地轨工位 PLC 伺服点位 (workstation=rail, 由文件名注入, 不重复声明)。
+#
+# 地轨轴 11Y 为「离散召回位」模型 (区别于连续示教轴, 故以 plc_servo struct 表达):
+#   6 个固定工位定位 (slot 1..6 对应 Rail_Target_Position 1..6); 上位机经 rail.move(位码) → Rail_L2
+#   派发器召回到位。
+#
+# 双源同步收编 (2026-06-23, 见 docs/PLC交付_地轨双源同步_Rail_Sync): 坐标真源已从 HMI 槽收编到
+#   PC —— value = 站点坐标 PC 真源 (canonical), 自动派发器改读 PLC 的 flat 数组 Rail_Pos_Target[位码]
+#   (取代旧 HMI_地轨轴11Y.position[位码]); HMI position[] 降为手动示教工作副本。PC↔HMI 经下方
+#   sync 契约的 flat 数组 + 邮箱做 push/pull/diff 对账 (PC 不直访 struct: OPC 逐成员读写不可行)。
+#   slot (1..6) 即 Rail_Pos_Target[]/Rail_Pos_HMI[] 的数组下标。
+sync:
+  target_node: Rail_Pos_Target    # 仅 PC 写: 6 站点真源数组 (自动派发器读 + PUSH 源)
+  hmi_mirror_node: Rail_Pos_HMI    # 仅 PLC 写: 每扫描镜像 HMI position[] (diff/pull 读, 不碰 struct)
+  req_node: Rail_Sync_Req          # 0=空闲 1=PUSH 2=PULL (PC 或 HMI 写)
+  ack_node: Rail_Sync_Ack          # 0=空闲 1=完成 2=待PC提交 3=拒绝(限位)
+  src_node: Rail_Sync_Src          # 1=PC 2=HMI (审计/防误触)
+  array_len: 6
+  diff_threshold_mm: 0.1           # 软"需确认"阈值 (真源/canonical): |PC.value - HMI教值| >= 此值 → 标记需确认。
+                                   #   与 PULL 硬限位拒绝 (0..3000 越界) 无关。HMI 可视化端暂硬编码同值并注释"以本处为准"。
+
+plc_servo:
+- {key: rail_p1_sampling, label: "地轨-上样位", node: HMI_地轨轴11Y, role: "1-上样", slot: 
+    1, value: 168.0, limits: {min: 0.0, max: 3000.0}}
+- {key: rail_p2_photo, label: "地轨-拍照位", node: HMI_地轨轴11Y, role: "2-拍照", slot: 2, 
+    value: 168.0, limits: {min: 0.0, max: 3000.0}}
+- {key: rail_p3_collect, label: "地轨-收集位", node: HMI_地轨轴11Y, role: "3-收集", slot: 
+    3, value: 350.0, limits: {min: 0.0, max: 3000.0}}
+- {key: rail_p4_tool, label: "地轨-工具位", node: HMI_地轨轴11Y, role: "4-工具", slot: 4, 
+    value: 500.0, limits: {min: 0.0, max: 3000.0}}
+- {key: rail_p5_expand, label: "地轨-展开位", node: HMI_地轨轴11Y, role: "5-展开", slot: 5,
+  value: 600.0, limits: {min: 0.0, max: 3000.0}}
+- {key: rail_p6_store, label: "地轨-仓库位", node: HMI_地轨轴11Y, role: "6-仓库", slot: 6, 
+    value: 600.0, limits: {min: 0.0, max: 3000.0}}

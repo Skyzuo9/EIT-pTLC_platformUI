@@ -1,0 +1,212 @@
+/**
+ * 功能: 右侧信息坞内各页签共用的版式.
+ *
+ * 走全局 CSS 而不是每个页签各写一份 scoped —— 三个工位页签与两个全局页签的分段/字段行/
+ * 进度条形制完全一样, 抄三遍必然分叉(旧仓里健康度标签抄了三份、措辞就分了三种).
+ * 类名统一 dock- 前缀, 只在坞内出现, 与全站其余样式不冲突.
+ * 形制沿用旧 StationPanel 的 .panel__* , 迁移时观感零变化.
+ */
+
+.dock-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.dock-section:first-child {
+  border-top: none;
+}
+
+.dock-h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.04em;
+}
+
+.dock-h3__sub {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-dim);
+  letter-spacing: 0;
+}
+
+.dock-empty {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--text-dim);
+}
+
+.dock-error {
+  margin: 0;
+  padding: 6px 12px;
+  color: var(--err-bright);
+}
+
+/* 字段行: 左标签右值, 值定宽数字 */
+.dock-fields {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+}
+
+.dock-field {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.dock-field dt {
+  color: var(--text-dim);
+}
+
+/* 工程师层的原始字段用等宽体, 与人话层拉开视觉差 */
+.dock-field--raw dt {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.dock-field dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.dock-field dd.ok { color: var(--ok); }
+.dock-field dd.warn { color: var(--warn); }
+.dock-field dd.bad { color: var(--err); }
+.dock-field dd.muted { color: var(--text-dim); }
+
+/* 折叠区(工程师原始字段 / 工程师动作) */
+.dock-details {
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.dock-details > summary {
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.dock-details > summary:hover {
+  color: var(--text);
+}
+
+/* 进度条(轴行程 / 泵柱塞 / 液位) */
+.dock-bar {
+  height: 4px;
+  overflow: hidden;
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.dock-bar__fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  transition: width 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-bar__fill { transition: none; }
+}
+
+.dock-row {
+  display: grid;
+  gap: 3px;
+}
+
+.dock-row__head,
+.dock-row__foot {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.dock-row__value {
+  color: var(--accent-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.dock-row__foot {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.dock-tag {
+  padding: 0 5px;
+  font-size: 11px;
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-radius: 4px;
+}
+
+/* 通用小按钮 */
+.dock-btn {
+  padding: 4px 9px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+  background: var(--control);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.dock-btn:hover:not(:disabled) {
+  color: var(--text-bright);
+  background: var(--control-hover);
+  border-color: var(--accent-border);
+}
+
+.dock-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.dock-btn--primary {
+  color: var(--accent-ink, #fff);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.dock-btn--danger {
+  color: var(--err-bright);
+  border-color: color-mix(in srgb, var(--err, #d95757) 45%, transparent);
+}
+
+/* 横幅(帐实不一 / 草稿预览 / 门禁拦截) */
+.dock-banner {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.6;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.dock-banner__title {
+  font-weight: 600;
+}
+
+.dock-banner--warn {
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-color: color-mix(in srgb, var(--warn, #f4b740) 40%, transparent);
+}
+
+.dock-banner--bad {
+  color: var(--err-bright);
+  background: color-mix(in srgb, var(--err, #d95757) 12%, transparent);
+  border-color: color-mix(in srgb, var(--err, #d95757) 40%, transparent);
+}
+
+.dock-banner--info {
+  color: var(--text-mid);
+  background: var(--control);
+  border-color: var(--border);
+}

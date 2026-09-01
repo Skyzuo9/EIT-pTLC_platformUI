@@ -1,0 +1,616 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_multi_execute
+label: 上样-执行(多样品多条带)
+# 一次装板、板上点 N 条带: 每个样品占板上自己的区域 (X起点/X终点/Y高度), 且可各带一套上样参数。
+# 与 sampling_execute 同构 (吸样 -> 点样 -> 润洗回收 xN), 差别只在外面多一层 for。
+#
+# 逐样品数据走 samples (LIST 入参, 刻意【不带 ui:】= 非旋钮):
+#   运行前旋钮覆盖在 inputs 之后叠加且覆盖胜 (见 vm/thread.py 的 _make_frame 注入点),
+#   若逐样品字段是旋钮, 面板上任意一个被动过的旋钮 (含"上次输入"自动回填) 会把所有样品
+#   悄悄压成同一个值 —— 那正是本流程要解决的问题。故逐样品值只能经 samples 进来。
+#   同理本流程直接 call 动作而不 run_script sampling_execute: 后者的逐样品字段全是旋钮。
+#
+# 行内字段:
+#   必填 well / x_start / x_end / y_height —— 缺一即 raise, 不允许静默走默认。
+#     几何尤其不能缺: VM 的 coerce_value(FLOAT, None) 落 0.0, 而 0.0 是合法坐标 (量程 ±500),
+#     缺字段静默变 0 会把点样头真的开到 X=0/Y=0 上去。
+#   选填 (以下每个都可逐行覆盖, 留空即继承本流程同名旋钮的缺省值):
+#     plate_spec plate_no sample_volume_ml dry_cycles spot_speed_mm_s dry_speed_mm_s
+#     spot_disp_speed over_aspirate_ml air_gap_ml rinse_rounds rinse_volume_ml
+#     mix_volume_ml mix_count
+#   行内多余字段 (如面板给的 label) 一律忽略。
+#
+# 体积模型 (排空余量E/气隔断G/喷出冗余S 的派生与三条硬闸) 在 sampling_volume_model, 逐样品各算一次。
+ui:
+  role: station_phase
+  station: sampling
+  phase: execute
+  primary: false
+  order: 15
+vars:
+- name: samples
+  scope: local
+  type: LIST
+  io: in
+  default: []
+  comment: '样品清单 [{well, x_start, x_end, y_height, ...可选参数}, ...]; 逐行按顺序点样'
+# ---- 流程级缺省 (旋钮): 行内未给该字段时用这里的值; 名字/量程与 sampling_execute 逐一对齐 ----
+- name: plate_spec
+  scope: local
+  type: STRING
+  io: in
+  default: 4×6
+  comment: 上样吸液孔板规格 (缺省, 行内 plate_spec 可覆盖)
+  enum: ['4×6', '6×8']
+  ui:
+    label: 吸样孔板规格(缺省)
+    group: 吸样孔位
+- name: plate_no
+  scope: local
+  type: STRING
+  io: in
+  default: '1'
+  comment: 上样吸液盘位号 (缺省, 行内 plate_no 可覆盖)
+  enum: ['1', '2']
+  ui:
+    label: 吸样盘位号(缺省)
+    group: 吸样孔位
+- name: sample_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 2
+  comment: 孔内实际装样体积 (mL) 缺省; 吸取按抽干计, 点样推送量=本值+喷出冗余
+  ui:
+    label: 孔内样品体积(mL, 缺省)
+    group: 点样参数
+    min: 0.1
+    max: 10
+- name: dry_cycles
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 每程喷涂后吹气往复趟数缺省 (1趟=来回一遍)
+  ui:
+    label: 每程吹气往复趟数(缺省)
+    group: 点样参数
+    min: 1
+    max: 20
+- name: spot_speed_mm_s
+  scope: local
+  type: FLOAT
+  io: in
+  default: 40
+  comment: 喷涂扫线速度缺省 (mm/s)
+  ui:
+    label: 喷涂扫线速度(mm/s, 缺省)
+    group: 点样参数
+    min: 0.1
+    max: 200
+- name: dry_speed_mm_s
+  scope: local
+  type: FLOAT
+  io: in
+  default: 20
+  comment: 吹气扫线速度缺省 (mm/s)
+  ui:
+    label: 吹气扫线速度(mm/s, 缺省)
+    group: 点样参数
+    min: 0.1
+    max: 300
+- name: spot_disp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 6
+  # 值仍是 DT V (半步/s, 整数 1..500); ui.scale 0.25 仅界面显示成 mL/min (25mL/6000半步×60s=0.25), 1档=0.25 mL/min
+  comment: 条带供液泵速度缺省 (底层 DT V 1..500; 界面 mL/min, 步进0.25)
+  ui:
+    label: 供液泵速(mL/min, 缺省)
+    group: 点样参数
+    min: 1
+    max: 500
+    scale: 0.25
+    unit: mL/min
+- name: over_aspirate_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 1.5
+  comment: 排空余量E (mL) 缺省; 必须大于针流路死体积1.125
+  ui:
+    label: 排空余量(mL, >1.125, 缺省)
+    group: 体积余量(标定)
+    min: 1.2
+    max: 5
+- name: air_gap_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0.2
+  comment: 气隔断G (mL) 缺省
+  ui:
+    label: 气隔断(mL, 缺省)
+    group: 体积余量(标定)
+    min: 0.1
+    max: 1
+- name: rinse_rounds
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 润洗回收轮数缺省 (0=只点一轮不回收)
+  ui:
+    label: 润洗回收轮数(缺省)
+    group: 润洗回收
+    min: 0
+    max: 10
+- name: rinse_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 3
+  comment: 每轮润洗液体积缺省 (mL)
+  ui:
+    label: 润洗液体积(mL, 缺省)
+    group: 润洗回收
+    min: 1.5
+    max: 25
+- name: mix_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 1.5
+  comment: 每轮单次吹打体积缺省 (mL, 应不大于净润洗量)
+  ui:
+    label: 单次吹打体积(mL, 缺省)
+    group: 润洗回收
+    min: 0.1
+    max: 25
+- name: mix_count
+  scope: local
+  type: INT
+  io: in
+  default: 3
+  comment: 每轮吹打次数缺省
+  ui:
+    label: 吹打次数(缺省)
+    group: 润洗回收
+    min: 1
+    max: 20
+# ---- 逐样品暂存 (循环内由 行内字段 ⊕ 流程级缺省 合并而来, 不进 UI) ----
+- name: item
+  scope: local
+  type: DICT
+  io: var
+  default: {}
+  comment: 当前样品行
+- name: it_well
+  scope: local
+  type: STRING
+  io: var
+  default: ''
+  comment: 本行吸样孔位 (必填)
+- name: it_x_start
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行点样X起点 (必填; 无"走示教基准"回落, 见文件头)
+- name: it_x_end
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行点样X终点 (必填)
+- name: it_y_height
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行点样Y高度 (必填)
+- name: it_plate_spec
+  scope: local
+  type: STRING
+  io: var
+  default: ''
+  comment: 本行孔板规格
+- name: it_plate_no
+  scope: local
+  type: STRING
+  io: var
+  default: ''
+  comment: 本行盘位号
+- name: it_sample_volume_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行孔内样品体积
+- name: it_dry_cycles
+  scope: local
+  type: INT
+  io: var
+  default: 0
+  comment: 本行吹气往复趟数
+- name: it_spot_speed_mm_s
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行喷涂扫线速度
+- name: it_dry_speed_mm_s
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行吹气扫线速度
+- name: it_spot_disp_speed
+  scope: local
+  type: INT
+  io: var
+  default: 0
+  comment: 本行条带供液泵速度
+- name: it_over_aspirate_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行排空余量E
+- name: it_air_gap_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行气隔断G
+- name: it_rinse_rounds
+  scope: local
+  type: INT
+  io: var
+  default: 0
+  comment: 本行润洗回收轮数
+- name: it_rinse_volume_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行每轮润洗液体积
+- name: it_mix_volume_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 本行单次吹打体积
+- name: it_mix_count
+  scope: local
+  type: INT
+  io: var
+  default: 0
+  comment: 本行吹打次数
+# ---- 派生体积 (逐样品由 sampling_volume_model 算出) ----
+- name: spray_margin_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 喷出冗余S (派生, 见 sampling_volume_model)
+- name: aspirate_total_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 首轮吸取总量 = 样品V + 排空余量E
+- name: band_end_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 点样活塞终点 N (每轮同值)
+- name: aspirate_round_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 润洗轮吸取总量 = 润洗液R + 排空余量E
+- name: round_idx
+  scope: local
+  type: INT
+  io: var
+  default: 0
+  comment: 润洗轮循环计数
+resources:
+- station:sampling
+body:
+- op: comment
+  text: '空清单守卫: 空跑一遍什么都不点却报 DONE 会被误读成"点完了", 故显式拒绝'
+- op: if
+  cond: {binop: <=, left: {call: len, args: [{var: samples}]}, right: {lit: 0}}
+  then:
+  - op: raise
+    error: SAMPLING_MULTI_EMPTY
+    message: {lit: '样品清单为空: 至少给一行 {well, x_start, x_end, y_height}'}
+- op: comment
+  text: '逐样品: 合并参数 -> 算体积 -> 吸样 -> 点样 -> 润洗回收 xN (与 sampling_execute 同构)'
+- op: for
+  var: item
+  in: {var: samples}
+  body:
+  - op: comment
+    text: '必填字段守卫: 几何缺失会被 coerce 成 0.0 (合法坐标!) 把点样头开到零位, 必须先拦'
+  - op: if
+    cond:
+      binop: or
+      left: {unop: not, operand: {call: contains, args: [{var: item}, {lit: well}]}}
+      right:
+        binop: or
+        left: {unop: not, operand: {call: contains, args: [{var: item}, {lit: x_start}]}}
+        right:
+          binop: or
+          left: {unop: not, operand: {call: contains, args: [{var: item}, {lit: x_end}]}}
+          right: {unop: not, operand: {call: contains, args: [{var: item}, {lit: y_height}]}}
+    then:
+    - op: raise
+      error: SAMPLING_MULTI_ROW_INCOMPLETE
+      message: {lit: '样品行缺必填字段: well / x_start / x_end / y_height 四项都得给 (几何缺省会被当成 0.0 真的开过去, 故不设回落)'}
+  - op: assign
+    target: {var: it_well}
+    value: {field: {var: item}, name: well}
+  - op: assign
+    target: {var: it_x_start}
+    value: {field: {var: item}, name: x_start}
+  - op: assign
+    target: {var: it_x_end}
+    value: {field: {var: item}, name: x_end}
+  - op: assign
+    target: {var: it_y_height}
+    value: {field: {var: item}, name: y_height}
+  - op: comment
+    text: '选填字段合并: 先落流程级缺省, 行内给了才覆盖 (不能用 get(...) or 缺省 —— rinse_rounds=0 合法但为假值, 会被吃掉)'
+  - op: assign
+    target: {var: it_plate_spec}
+    value: {var: plate_spec}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: plate_spec}]}
+    then:
+    - op: assign
+      target: {var: it_plate_spec}
+      value: {call: get, args: [{var: item}, {lit: plate_spec}]}
+  - op: assign
+    target: {var: it_plate_no}
+    value: {var: plate_no}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: plate_no}]}
+    then:
+    - op: assign
+      target: {var: it_plate_no}
+      value: {call: get, args: [{var: item}, {lit: plate_no}]}
+  - op: assign
+    target: {var: it_sample_volume_ml}
+    value: {var: sample_volume_ml}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: sample_volume_ml}]}
+    then:
+    - op: assign
+      target: {var: it_sample_volume_ml}
+      value: {call: get, args: [{var: item}, {lit: sample_volume_ml}]}
+  - op: assign
+    target: {var: it_dry_cycles}
+    value: {var: dry_cycles}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: dry_cycles}]}
+    then:
+    - op: assign
+      target: {var: it_dry_cycles}
+      value: {call: get, args: [{var: item}, {lit: dry_cycles}]}
+  - op: assign
+    target: {var: it_spot_speed_mm_s}
+    value: {var: spot_speed_mm_s}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: spot_speed_mm_s}]}
+    then:
+    - op: assign
+      target: {var: it_spot_speed_mm_s}
+      value: {call: get, args: [{var: item}, {lit: spot_speed_mm_s}]}
+  - op: assign
+    target: {var: it_dry_speed_mm_s}
+    value: {var: dry_speed_mm_s}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: dry_speed_mm_s}]}
+    then:
+    - op: assign
+      target: {var: it_dry_speed_mm_s}
+      value: {call: get, args: [{var: item}, {lit: dry_speed_mm_s}]}
+  - op: assign
+    target: {var: it_spot_disp_speed}
+    value: {var: spot_disp_speed}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: spot_disp_speed}]}
+    then:
+    - op: assign
+      target: {var: it_spot_disp_speed}
+      value: {call: get, args: [{var: item}, {lit: spot_disp_speed}]}
+  - op: assign
+    target: {var: it_over_aspirate_ml}
+    value: {var: over_aspirate_ml}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: over_aspirate_ml}]}
+    then:
+    - op: assign
+      target: {var: it_over_aspirate_ml}
+      value: {call: get, args: [{var: item}, {lit: over_aspirate_ml}]}
+  - op: assign
+    target: {var: it_air_gap_ml}
+    value: {var: air_gap_ml}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: air_gap_ml}]}
+    then:
+    - op: assign
+      target: {var: it_air_gap_ml}
+      value: {call: get, args: [{var: item}, {lit: air_gap_ml}]}
+  - op: assign
+    target: {var: it_rinse_rounds}
+    value: {var: rinse_rounds}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: rinse_rounds}]}
+    then:
+    - op: assign
+      target: {var: it_rinse_rounds}
+      value: {call: get, args: [{var: item}, {lit: rinse_rounds}]}
+  - op: assign
+    target: {var: it_rinse_volume_ml}
+    value: {var: rinse_volume_ml}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: rinse_volume_ml}]}
+    then:
+    - op: assign
+      target: {var: it_rinse_volume_ml}
+      value: {call: get, args: [{var: item}, {lit: rinse_volume_ml}]}
+  - op: assign
+    target: {var: it_mix_volume_ml}
+    value: {var: mix_volume_ml}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: mix_volume_ml}]}
+    then:
+    - op: assign
+      target: {var: it_mix_volume_ml}
+      value: {call: get, args: [{var: item}, {lit: mix_volume_ml}]}
+  - op: assign
+    target: {var: it_mix_count}
+    value: {var: mix_count}
+  - op: if
+    cond: {call: contains, args: [{var: item}, {lit: mix_count}]}
+    then:
+    - op: assign
+      target: {var: it_mix_count}
+      value: {call: get, args: [{var: item}, {lit: mix_count}]}
+  - op: comment
+    text: '本行派生体积 + 三条硬闸 (逐行各算一次: 行内可能改了体积/余量/气隔断)'
+  - op: run_script
+    script: sampling_volume_model
+    inputs:
+      sample_volume_ml: {var: it_sample_volume_ml}
+      over_aspirate_ml: {var: it_over_aspirate_ml}
+      air_gap_ml: {var: it_air_gap_ml}
+      rinse_volume_ml: {var: it_rinse_volume_ml}
+    outputs:
+      spray_margin_ml: {var: spray_margin_ml}
+      aspirate_total_ml: {var: aspirate_total_ml}
+      band_end_ml: {var: band_end_ml}
+      aspirate_round_ml: {var: aspirate_round_ml}
+  - op: comment
+    text: '首轮 = 过阀排空吸取 (A50 内置气隔断: 移孔位前于空气中吸G, 再下探抽干孔); 全程无真空, 分配阀不切废液口'
+  - op: call
+    action: sampling.aspirate
+    mode: RUN
+    args:
+      plate_spec:
+        var: it_plate_spec
+      plate_no:
+        var: it_plate_no
+      well:
+        var: it_well
+      sample_volume_ml:
+        var: aspirate_total_ml
+      air_gap_ml:
+        var: it_air_gap_ml
+      asp_speed:
+        lit: 50
+      step_delay:
+        lit: 1500
+  - op: comment
+    text: '本样品的条带: 几何逐行覆盖 spot_pose 的三个成员 (覆盖不回写点表)'
+  - op: call
+    action: sampling.spot_band_layer
+    mode: RUN
+    args:
+      ref_spot:
+        lit: spot_pose
+      x_start:
+        var: it_x_start
+      x_end:
+        var: it_x_end
+      y_height:
+        var: it_y_height
+      spot_disp_speed:
+        var: it_spot_disp_speed
+      spot_speed_mm_s:
+        var: it_spot_speed_mm_s
+      dry_speed_mm_s:
+        var: it_dry_speed_mm_s
+      dry_cycles:
+        var: it_dry_cycles
+      step_delay:
+        lit: 1500
+      spot_end_position_ml:
+        var: band_end_ml
+  - op: comment
+    text: '润洗回收轮 xN: 回打余量+润洗混匀(A55自带气隔断, 终态活塞=G) -> 排空吸取 -> 点回同一条带'
+  - op: for
+    var: round_idx
+    start: {lit: 0}
+    stop: {var: it_rinse_rounds}
+    body:
+    - op: call
+      action: sampling.rinse_mix
+      mode: RUN
+      args:
+        plate_spec:
+          var: it_plate_spec
+        plate_no:
+          var: it_plate_no
+        well:
+          var: it_well
+        rinse_volume_ml:
+          var: it_rinse_volume_ml
+        mix_volume_ml:
+          var: it_mix_volume_ml
+        mix_count:
+          var: it_mix_count
+        air_gap_ml:
+          var: it_air_gap_ml
+    - op: comment
+      text: 润洗轮吸样 (A55 终态活塞已在 A{G}, 故 A50 的绝对吸气为零位移; 仍传 air_gap_ml 作幂等兜底)
+    - op: call
+      action: sampling.aspirate
+      mode: RUN
+      args:
+        plate_spec:
+          var: it_plate_spec
+        plate_no:
+          var: it_plate_no
+        well:
+          var: it_well
+        sample_volume_ml:
+          var: aspirate_round_ml
+        air_gap_ml:
+          var: it_air_gap_ml
+        asp_speed:
+          lit: 50
+        step_delay:
+          lit: 1500
+    - op: call
+      action: sampling.spot_band_layer
+      mode: RUN
+      args:
+        ref_spot:
+          lit: spot_pose
+        x_start:
+          var: it_x_start
+        x_end:
+          var: it_x_end
+        y_height:
+          var: it_y_height
+        spot_disp_speed:
+          var: it_spot_disp_speed
+        spot_speed_mm_s:
+          var: it_spot_speed_mm_s
+        dry_speed_mm_s:
+          var: it_dry_speed_mm_s
+        dry_cycles:
+          var: it_dry_cycles
+        step_delay:
+          lit: 1500
+        spot_end_position_ml:
+          var: band_end_ml

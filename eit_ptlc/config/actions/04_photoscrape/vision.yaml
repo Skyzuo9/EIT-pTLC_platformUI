@@ -1,0 +1,25 @@
+# 视觉分析 (vision kind, 纯计算): 前后图 → tlc_analyze → summary.json + bands。
+# result(经 VM assign): summary_path (供 cnc_path) / case_dir / band_ids。
+# 测试: before/after 取自 test 预置图, 模拟实际工况; mock 由 app.yaml vision.mock 控 (真分析需 mock=false)。
+photoscrape.analyze:
+  kind: vision
+  method: analyze
+  label: 视觉-识别条带
+  desc: |-
+    执行步骤：读取 before/after 图像，按 config.vision 基线和本次可选覆盖执行板姿态矫正、差分/条带识别与评分，落盘 case、summary.json 和标注产物并返回 band_ids。
+    前置与安全：两张图及样品ID必须有效；这是纯视觉计算，不下发 PLC，识别参数覆盖只作用于本次调用。
+    完成与异常：识别完成返回 summary_path、case_dir和谱带列表，无谱带作为可分支结果处理；图像、算法或落盘失败返回 ERROR。
+    实现核对：bootstrap注册的视觉analyze方法，经 ActionExecutor._exec_vision 校验参数并异步执行。
+  modes: []
+  # 识别参数为**可选覆盖** (required:false 且**无 default** → VM 不传即缺省, 不进 coerced):
+  # 缺省时生产走 config.vision 实时基线 (bootstrap 注入); 传入则本次 analyze 覆盖该项。
+  # 供门内"重新识别(调参)"下发前迭代 与 中控 param-sweep; 语义/取值见 config.vision 段。
+  params:
+    - {name: sample_id,   type: string, required: true, label: 样品ID}
+    - {name: before_path, type: string, required: true, label: before图路径}
+    - {name: after_path,  type: string, required: true, label: after图路径}
+    - {name: image_plate_orientation, type: enum,   required: false, options: [rot0, rot90cw, rot180, rot270cw], label: 板朝向覆盖}
+    - {name: auto_rectify_tilt,       type: bool,   required: false, label: 倾斜自动矫正覆盖}
+    - {name: rectify_min_angle_deg,   type: float,  required: false, min: 0, max: 45, label: 最小矫正角覆盖 (deg)}
+    - {name: min_row_score,           type: float,  required: false, min: 0, label: 行评分阈值覆盖}
+    - {name: image_plate_rotation_deg,  type: float,  required: false, min: -180, max: 180, label: 相机滚转角覆盖 (deg)}

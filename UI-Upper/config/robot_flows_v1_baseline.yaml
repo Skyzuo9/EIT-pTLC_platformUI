@@ -1,0 +1,132 @@
+version: 1
+
+motion_profiles:
+  tool-ready-in: {acc: 100, vel: 50, cp: 50}
+  tool-high-in: {acc: 100, vel: 50, cp: 20}
+  tool-near-in: {acc: 20, vel: 15, cp: 0}
+  tool-target-in: {acc: 10, vel: 5, cp: 0}
+  tool-near-out: {acc: 10, vel: 10, cp: 0}
+  tool-high-out: {acc: 30, vel: 20, cp: 20}
+  tool-ready-out: {acc: 100, vel: 50, cp: 50}
+  home-return: {acc: 50, vel: 37, cp: 2}
+
+flows:
+  tool.pick.1:
+    description: "对齐旧版 GetTool_Path(1)"
+    entry_point: robot-main.home
+    exit_point: robot-main.home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-in}
+      - {id: enter-high, type: move, point: robot-main.tool-change.slot-1.approach-high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, point: robot-main.tool-change.slot-1.approach-near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, point: robot-main.tool-change.slot-1.target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-lock, type: tool_action, action: quick-change-lock}
+      - {id: tool-change-aux-on, type: tool_action, action: tool-change-aux-on}
+      - {id: retreat-near, type: move, point: robot-main.tool-change.slot-1.approach-near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, point: robot-main.tool-change.slot-1.approach-high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-out}
+      - {id: legacy-settle, type: wait, duration_ms: 500}
+      - {id: return-home, type: move, point: robot-main.home, motion: move_j, profile: home-return}
+
+  tool.put.1:
+    description: "对齐旧版 PutTool_Path(1)"
+    entry_point: robot-main.home
+    exit_point: robot-main.home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-in}
+      - {id: slot-1-aux-prepare, type: tool_action, action: tool-change-aux-on}
+      - {id: enter-high, type: move, point: robot-main.tool-change.slot-1.approach-high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, point: robot-main.tool-change.slot-1.approach-near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, point: robot-main.tool-change.slot-1.target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-release, type: tool_action, action: quick-change-release}
+      - {id: tool-change-aux-off, type: tool_action, action: tool-change-aux-off}
+      - {id: retreat-near, type: move, point: robot-main.tool-change.slot-1.approach-near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, point: robot-main.tool-change.slot-1.approach-high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-out}
+      - {id: return-home, type: move, point: robot-main.home, motion: move_j, profile: home-return}
+
+  tool.pick.2:
+    description: "对齐旧版 GetTool_Path(2)"
+    entry_point: robot-main.home
+    exit_point: robot-main.home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-in}
+      - {id: enter-high, type: move, point: robot-main.tool-change.slot-2.approach-high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, point: robot-main.tool-change.slot-2.approach-near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, point: robot-main.tool-change.slot-2.target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-lock, type: tool_action, action: quick-change-lock}
+      - {id: tool-change-aux-on, type: tool_action, action: tool-change-aux-on}
+      - {id: retreat-near, type: move, point: robot-main.tool-change.slot-2.approach-near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, point: robot-main.tool-change.slot-2.approach-high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-out}
+      - {id: legacy-settle, type: wait, duration_ms: 500}
+      - {id: return-home, type: move, point: robot-main.home, motion: move_j, profile: home-return}
+
+  tool.put.2:
+    description: "对齐旧版 PutTool_Path(2)"
+    entry_point: robot-main.home
+    exit_point: robot-main.home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-in}
+      - {id: enter-high, type: move, point: robot-main.tool-change.slot-2.approach-high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, point: robot-main.tool-change.slot-2.approach-near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, point: robot-main.tool-change.slot-2.target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-release, type: tool_action, action: quick-change-release}
+      - {id: tool-change-aux-off, type: tool_action, action: tool-change-aux-off}
+      - {id: retreat-near, type: move, point: robot-main.tool-change.slot-2.approach-near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, point: robot-main.tool-change.slot-2.approach-high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-out}
+      - {id: return-home, type: move, point: robot-main.home, motion: move_j, profile: home-return}
+
+  tool.pick.3:
+    description: "对齐旧版 GetTool_Path(3)"
+    entry_point: robot-main.home
+    exit_point: robot-main.home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-in}
+      - {id: enter-high, type: move, point: robot-main.tool-change.slot-3.approach-high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, point: robot-main.tool-change.slot-3.approach-near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, point: robot-main.tool-change.slot-3.target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-lock, type: tool_action, action: quick-change-lock}
+      - {id: tool-change-aux-on, type: tool_action, action: tool-change-aux-on}
+      - {id: retreat-near, type: move, point: robot-main.tool-change.slot-3.approach-near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, point: robot-main.tool-change.slot-3.approach-high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-out}
+      - {id: legacy-settle, type: wait, duration_ms: 500}
+      - {id: return-home, type: move, point: robot-main.home, motion: move_j, profile: home-return}
+
+  tool.put.3:
+    description: "对齐旧版 PutTool_Path(3)"
+    entry_point: robot-main.home
+    exit_point: robot-main.home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: enter-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-in}
+      - {id: enter-high, type: move, point: robot-main.tool-change.slot-3.approach-high, motion: move_l, profile: tool-high-in}
+      - {id: enter-near, type: move, point: robot-main.tool-change.slot-3.approach-near, motion: move_l, profile: tool-near-in}
+      - {id: enter-target, type: move, point: robot-main.tool-change.slot-3.target, motion: move_l, profile: tool-target-in}
+      - {id: quick-change-release, type: tool_action, action: quick-change-release}
+      - {id: tool-change-aux-off, type: tool_action, action: tool-change-aux-off}
+      - {id: retreat-near, type: move, point: robot-main.tool-change.slot-3.approach-near, motion: move_l, profile: tool-near-out}
+      - {id: retreat-high, type: move, point: robot-main.tool-change.slot-3.approach-high, motion: move_l, profile: tool-high-out}
+      - {id: leave-ready, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-out}
+      - {id: return-home, type: move, point: robot-main.home, motion: move_j, profile: home-return}
+
+  test.gripper.p2:
+    description: "夹爪测试：home开夹爪→P2关夹爪→home开夹爪（默认机器人已持工具）"
+    entry_point: robot-main.home
+    exit_point: robot-main.home
+    anchor_tolerance: {joint_deg: 2.0, position_mm: 5.0, rotation_deg: 5.0}
+    steps:
+      - {id: home-open-gripper, type: tool_action, action: rotary-up}
+#      - {id: home-open-gripper, type: tool_action, action: gripper-open}
+      - {id: move-to-p2, type: move, point: robot-main.tool-change.ready, motion: move_j, profile: tool-ready-in}
+      - {id: p2-close-gripper, type: tool_action, action: rotary-down}
+#      - {id: p2-close-gripper, type: tool_action, action: gripper-close}
+      - {id: return-home, type: move, point: robot-main.home, motion: move_j, profile: home-return}
+      - {id: home-open-gripper-again, type: tool_action, action: gripper-open}

@@ -1,0 +1,20 @@
+# FeedLift 上下料升降 PLC 搜索边界点位 (workstation=feedlift, 由文件名注入)。
+#
+# 5.4 光电兜底合同:
+#   这些点位只定义 PLC 内部有界 jog 的搜索窗口边界, 不替代光电作为成功判据。
+#   上位机在 feedlift.feed_raise / unload_ready / unload_bury Start 前通过 preload_targets
+#   块写并回读确认; PLC 动作内部必须以最终光电稳定状态决定 DONE/ERROR。
+#   value 初始为 0.0, 需下载 PLC flat 节点后按现场 jog/ActPos 重新种子。
+plc_servo_target:
+- {key: feedlift_1z_search_low, node: FeedLift_1Z_SearchLowTarget, actpos: 
+    FeedLift_1Z_ActPos, label: "FeedLift 1Z 光电搜索下界", value: 0.0, limits: {min: 
+      -50.0, max: 550.0}}
+- {key: feedlift_1z_search_high, node: FeedLift_1Z_SearchHighTarget, actpos: 
+    FeedLift_1Z_ActPos, label: "FeedLift 1Z 光电搜索上界", value: 512.0, limits: {min: 
+      -50.0, max: 550.0}}
+- {key: feedlift_2z_search_low, node: FeedLift_2Z_SearchLowTarget, actpos: 
+    FeedLift_2Z_ActPos, label: "FeedLift 2Z 光电搜索下界", value: 0.0, limits: {min: 
+      -50.0, max: 550.0}}
+- {key: feedlift_2z_search_high, node: FeedLift_2Z_SearchHighTarget, actpos: 
+    FeedLift_2Z_ActPos, label: "FeedLift 2Z 光电搜索上界", value: 512.0, limits: {min: 
+      -50.0, max: 550.0}}

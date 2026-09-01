@@ -1,0 +1,33 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s11_unload
+label: 9 废板下料
+ui:
+  role: segment
+# 原子流程 s11: 刮板台 -> 废料仓。取废板 -> feedlift 下料掩埋; 收尾停吸盘 (周期自洽)。
+# 换刀回吸盘与地轨回位2 均由 photoscrape_unload 自管 (其 body 前两步即 tool_ensure(1) +
+# rail_move_safe(2)); 地轨到位1 由 feedlift_unload_cycle 自管。
+flow:
+  atomic: true
+  sample: required
+  from: scrape_table
+  to: waste
+  hitl: confirm
+  retry: resume
+vars: []
+resources:
+- robot
+- station:photo_scrape
+- station:rail
+- station:feedlift
+body:
+- op: comment
+  text: '废板下料: 刮板台取废板 -> feedlift 废料仓掩埋; 换刀回吸盘与地轨回位由子脚本自管'
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: feedlift_unload_cycle
+  inputs: {}
+  outputs: {}

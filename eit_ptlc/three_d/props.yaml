@@ -1,0 +1,17 @@
+# 功能: 工件/工具登记表 —— 动画系统里"可被拿起/放下/携带"的东西.
+# 与 device-manifest.tools 的关系: manifest 记录**几何绑定**(节点/对接点, 管线生成),
+# 本表记录**演示语义**(叫什么/谁能拿/拿住之后意味着什么, 人工维护).
+schema: ptlc.props/v1
+
+tools:
+  - id: TOOL_PLATE96
+    label: 96 孔板夹爪
+    carrier: robot            # 由机械臂快换携带
+    lock_do: DO1              # 上位机气动快换锁的 DO 通道(robot.tool_action)
+    note: 抓取 96 孔板/薄层板的气动夹爪, 平时停靠在工具站左位.
+
+  - id: TOOL_VIAL
+    label: 样品瓶电爪
+    carrier: robot
+    lock_do: DO1
+    note: 抓取样品瓶的电动夹爪, 平时停靠在工具站右位.

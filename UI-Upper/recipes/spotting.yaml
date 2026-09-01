@@ -1,0 +1,44 @@
+﻿name: spotting
+stages:
+- name: spotting
+  enabled: true
+  params:
+    # v1 (气泡分段策略，已弃用):
+    # liquid_volume_ml: 2.0
+    # bubble_count: 3
+    # bubble_volume_ml: 3.0
+    # aspirate_volume_ml: 2.0
+    # v2 (空气驱动策略):
+    sample_volume_ml: 5.0
+    air_buffer_ml: 3.0
+    wash_volume_ml: 25.0
+    source_x: 1
+    source_y: 1
+    cleaning_count: 3
+- name: before_photo
+  enabled: false
+  params: {}
+- name: develop
+  enabled: false
+  params:
+    rinse_mode: cylinder
+    target_tank: 1
+    solvent_volume_ml: 2.0
+    solvent_ratio_1: 0.0
+    solvent_ratio_2: 0.0
+    solvent_ratio_3: 0.0
+    solvent_ratio_4: 0.0
+    solvent_ratio_5: 0.0
+    develop_duration_min: 1.0
+    rinse_repeat_count: 1
+    up_liquid_repeat_count: 1
+- name: scrape
+  enabled: false
+  params: {}
+- name: collect
+  enabled: false
+  params:
+    solvent_volume_ml: 2.0
+    solvent_channel: 2
+    liquid_repeat_count: 1
+

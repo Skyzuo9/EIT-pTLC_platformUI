@@ -1,0 +1,40 @@
+# 流程入参的**展开域**声明 —— 演示栏的下拉框与片段矩阵由它决定。
+#
+# 为什么要显式声明而不是让发现器自己推:
+#   编译器的第三条纪律是"不猜运行期状态"。入参的取值域同样是猜不得的 —— tank_id 看着
+#   像 1..8, 但 slot_id 是 1..6、station_id 是三个字符串、plate_no 取决于现场装了几块板。
+#   猜错的后果不是报错, 而是**静默产出一个错误的片段矩阵**: 生成了 tank9 这种不存在的
+#   片段(编译期未必失败, 因为点表按名字查, 查不到才报), 或者漏掉了一半库位而没人发现。
+#
+# 没在这里声明的入参一律取脚本自己的 default, 编出一条片段。
+#
+# 顶层 key 是入参名(跨脚本通用); 命中即展开。想给某个脚本单独指定, 用 `overrides` 段。
+
+schema: ptlc.flow-params/v1
+
+params:
+  # 展缸号: 8 个缸, 与机器人点表 P11..P18 对应
+  tank:
+    label: 展缸号
+    range: [1, 8]
+  tank_id:
+    label: 展缸号
+    range: [1, 8]
+  # 货架库位: 6 个, 与上位机 slot_id 逐字一致
+  slot_id:
+    label: 货架库位
+    range: [1, 6]
+  # 地轨站位: 1=上样 2=刮板拍照 3=收集组/中转 4=取工具 5=展开 6=收集组货架
+  Rail_Target_Position:
+    label: 地轨站位
+    range: [1, 6]
+  # 薄层板落点: robot_suction_put/pick 一个脚本服务三个站
+  station_id:
+    label: 落点
+    options:
+      - {value: spotting, label: 点样座}
+      - {value: scrape, label: 刮板台}
+      - {value: waste, label: 废板仓}
+
+# 按脚本名覆盖上面的通用域(例: 某个脚本的 tank 只跑 1 号缸做冒烟)
+overrides: {}

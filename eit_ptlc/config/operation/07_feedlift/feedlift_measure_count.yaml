@@ -1,0 +1,73 @@
+schema: ptlc.script/v1
+kind: operation
+name: feedlift_measure_count
+label: 板仓行程盘点-立即实测现在有几张 (自检 → 清零 → 逼近 → 盘点对账)
+ui:
+  role: station_task
+  station: feedlift
+  order: 76
+# 日常盘点 / 标定后验证: 测一次光电触发位, 按标定常数换算仓内板数, 并以实测为准校正账本。
+#
+# 与 feedlift_calib_sample 的差别只在最后一步: 那边记样本重新拟合常数, 这边用已有常数
+# 换算张数。前面「自检 → 清零 → 逼近」三步逐字相同 —— 取位方式必须一致, 否则标定基准
+# 与盘点读数会差一个光电回差。
+#
+# 判定与落账完全复用 feedlift.probe_stack, 不在此另写一份 evaluate/对账逻辑: 走的是与
+# 两个 feedlift cycle 逐字相同的代码路径, 故按钮实测的数与跑流程时校正账本的数不会漂移。
+#
+# reconcile 置 true 是安全的: 本流程不搬板, 账面就是当前值, 不存在 cycle 中途那种
+# "账面还是取板前的数、对账会与随后的 −1 叠加成双倍扣减"的问题。
+vars:
+- name: magazine
+  scope: local
+  type: STRING
+  io: in
+  default: feed
+  comment: 板仓 (feed=上料仓1Z, waste=下料仓2Z)
+  enum: [feed, waste]
+  ui:
+    label: 板仓
+    group: 行程盘点
+- {name: z0, scope: local, type: DICT, comment: 清零动作后的轴位; 供 probe_stack 校验逼近确实搜索过}
+- {name: probe, scope: local, type: DICT, comment: 盘点结果 (count/residual/warn)}
+resources: [station:feedlift]
+body:
+- op: comment
+  text: "[phase: preflight] 发动作前的可见前置自检: 接近开关不到位就直接止步, 不白等 PLC 那 10 秒"
+- op: call
+  action: feedlift.preflight
+  args:
+    magazine: {var: magazine}
+
+- op: comment
+  text: "[phase: clear] 清零: 向下退到光电熄灭。缺了它, 随后的逼近就是幂等直通, 盘出来的是上一次的数"
+- op: if
+  cond: {binop: ==, left: {var: magazine}, right: {lit: feed}}
+  then:
+  - {op: call, action: feedlift.feed_clear}
+  else:
+  - {op: call, action: feedlift.unload_bury}
+- op: call
+  action: feedlift.read_pos
+  args:
+    magazine: {var: magazine}
+  assign: {var: z0}
+
+- op: comment
+  text: "[phase: search] 逼近: 向上搜到光电点亮并停稳 300ms"
+- op: if
+  cond: {binop: ==, left: {var: magazine}, right: {lit: feed}}
+  then:
+  - {op: call, action: feedlift.feed_raise}
+  else:
+  - {op: call, action: feedlift.unload_ready}
+
+- op: comment
+  text: "[phase: probe] 换算张数并以实测为准校正账本; z_clear 交给动作自校验读数是否陈旧"
+- op: call
+  action: feedlift.probe_stack
+  args:
+    magazine: {var: magazine}
+    z_clear: {field: {var: z0}, name: z_mm}
+    reconcile: {lit: true}
+  assign: {var: probe}

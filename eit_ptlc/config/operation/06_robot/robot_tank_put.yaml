@@ -1,0 +1,1194 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 tank.put 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+# 【手改·勿重生成 (G-1)】body 顶部入口保证 prologue: home_ensure 确保回零 + tool_ensure 换刀 (needed=1 吸盘); 生成器重跑会抹掉
+# 【手改·勿重生成 (G-2)】每条分支 entry require_anchor(P1) 之后的 rail.ensure(5): 地轨到位是本原子的前置条件,
+#   必须在臂仍缩在 P1 时完成 —— 缸内点 (P11-P18/tank.N.*) 为 rail=5, 而中途点 P75/P84/P59 为 rail=None,
+#   缺此步则 auto_rail 要到臂已伸出持板时才发现需移轨, 届时 rail.move 的 P1 硬门只能拒 (真空守卫)。生成器重跑会抹掉
+schema: ptlc.script/v1
+kind: operation
+name: robot_tank_put
+label: 展缸放板
+note: '吸盘; 缸 1-8'
+ui: {subgroup: 展缸, order: 32}
+vars:
+- {name: tank_id, scope: local, type: INT, io: in, default: 1, comment: tank.put 主选择值, enum: [1, 2, 3, 4, 5, 6, 7, 8]}
+resources: [robot]
+body:
+- {op: comment, text: '入口保证(手改): 确保在 home (安全邻域内自动回零) + 智能换刀到本流程固定工具 (吸盘)'}
+- {op: call, action: robot.home_ensure, mode: RUN}
+- {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 1}}, outputs: {}}
+# Tank put uses nominal points. Vision correction is only applied before spotting put.
+- op: if
+  cond:
+    binop: ==
+    left: {var: tank_id}
+    right: {lit: 1}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: rail.ensure
+    args:
+      Rail_Target_Position: {lit: 5}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: rotary-down}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P75}
+      motion: {lit: move_j}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P84}
+      motion: {lit: move_j}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P59}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: tank.1.approach_far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: tank.1.approach_mid}
+      motion: {lit: move_l}
+      acc: {lit: 12}
+      vel: {lit: 15}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: tank.1.approach_near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P11}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: suction-off}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: tank.1.approach_near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: tank.1.approach_mid}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: tank.1.approach_far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P59}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P84}
+      motion: {lit: move_j}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P75}
+      motion: {lit: move_j}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P1}
+      motion: {lit: move_j}
+      acc: {lit: 50}
+      vel: {lit: 37}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs:
+  - cond:
+      binop: ==
+      left: {var: tank_id}
+      right: {lit: 2}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 5}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-down}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P75}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P84}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P59}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.2.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.2.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.2.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P12}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.2.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.2.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.2.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P59}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P84}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P75}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: tank_id}
+      right: {lit: 3}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 5}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-down}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P75}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P84}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P59}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.3.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.3.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.3.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P13}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.3.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.3.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.3.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P59}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P84}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P75}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: tank_id}
+      right: {lit: 4}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 5}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-down}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P75}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P84}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P59}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.4.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.4.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.4.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P14}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.4.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.4.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.4.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P59}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P84}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P75}
+        motion: {lit: move_j}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: tank_id}
+      right: {lit: 5}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 5}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-down}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.5.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.5.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.5.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P15}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.5.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.5.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.5.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: tank_id}
+      right: {lit: 6}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 5}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-down}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.6.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.6.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.6.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P16}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.6.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.6.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.6.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: tank_id}
+      right: {lit: 7}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 5}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-down}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.7.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.7.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.7.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P17}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.7.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.7.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.7.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: tank_id}
+      right: {lit: 8}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 5}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: rotary-down}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.8.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 30}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.8.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.8.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P18}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: suction-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.8.approach_near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.8.approach_mid}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: tank.8.approach_far}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P3}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'tank.put: 无效选择值'}

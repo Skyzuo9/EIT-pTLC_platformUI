@@ -1,0 +1,45 @@
+schema: ptlc.script/v1
+kind: operation
+name: ensure_bottle_staged
+label: 耗材-玻璃收集瓶就位保证 (读账本决策 -> 够用则跳过 / 否则条件换板)
+# 与 ensure_collector_staged 对称, 作用于中转B 与瓶组; 逐条理由见那份文件的注释。
+#   material.plan_staging 读物料账本给出动作码, 中转B 还有未用孔就 NONE 原地复用 (不动整板),
+#   中转空则 PUT_NEW 从货架取一块有料的板, 中转板已耗尽则 SWAP 先把满板送回它原来的库位再取新板。
+#   该动作同时用中转B 在位传感器 (IX8.2, 极性已实证) 与判定核对, 账实不符即抛错停机。
+#   出参 hole = 本件该用的板上孔号, 调用方要一路带到"取瓶"与"成品瓶回位"两处 (二者必须同孔)。
+#
+# SWAP 送回的那块板上装的是已灌样的成品瓶 (collect 收尾 fill 时已打上样品号), 随板回到货架
+#   原库位供人取走 —— 这正是成品的归档路径, 不需要额外的回库步骤。
+vars:
+  - {name: reserve_for,   scope: local, type: STRING, io: in,  default: '', comment: 并行批次样品号 (非空则排除他人预留并落本样品孔级预留; 空=旧行为)}
+  - {name: plan,          scope: local, type: DICT,   io: var, comment: material.plan_staging 决策快照}
+  - {name: op,            scope: local, type: STRING, io: var, default: '', comment: 动作码 NONE/PUT_NEW/SWAP}
+  - {name: rack_slot,     scope: local, type: INT,    io: var, default: 0, comment: 要从货架取的库位 1-6}
+  - {name: old_rack_slot, scope: local, type: INT,    io: var, default: 0, comment: 要送回货架的满板库位 1-6 (仅 SWAP)}
+  - {name: hole,          scope: local, type: INT,    io: out, default: 1, comment: 本件该用的板上孔号 1-6 (回给调用方)}
+resources: [robot, "station:rail", "consumable-group", "staging-b"]
+body:
+  - {op: comment, text: 读账本决策 (含中转B 在位防呆); 账上无未用孔或账实不符时本动作直接抛错停机}
+  - op: call
+    action: material.plan_staging
+    mode: RUN
+    args: {kind: {lit: bottle}, reserve_for: {var: reserve_for}}
+    assign: {var: plan}
+  - {op: assign, target: {var: op},            value: {field: {var: plan}, name: op}}
+  - {op: assign, target: {var: rack_slot},     value: {field: {var: plan}, name: rack_slot}}
+  - {op: assign, target: {var: old_rack_slot}, value: {field: {var: plan}, name: old_rack_slot}}
+  - {op: assign, target: {var: hole},          value: {field: {var: plan}, name: hole}}
+  - op: if
+    cond: {binop: "!=", left: {var: op}, right: {lit: "NONE"}}
+    then:
+      - {op: comment, text: "要动整板才切工具2大夹爪 (NONE 复用时全程不换刀, 也不进货架区)"}
+      - {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 2}}, outputs: {}}
+      - op: if
+        cond: {binop: "==", left: {var: op}, right: {lit: "SWAP"}}
+        then:
+          - {op: comment, text: "SWAP: 先把装满成品瓶的中转板送回它载入时的那个货架库位 (成品随板归档)"}
+          - {op: run_script, script: transfer_bottle_staging_b_to_rack, inputs: {slot_id: {var: old_rack_slot}}, outputs: {}}
+      - {op: comment, text: "PUT_NEW / SWAP: 从货架取有料的新板进中转B, 落位后由该脚本自行夹紧"}
+      - {op: run_script, script: transfer_bottle_rack_to_staging_b, inputs: {slot_id: {var: rack_slot}}, outputs: {}}
+  - {op: comment, text: '终态自声明: 退出时中转B 板必被夹紧 —— 调用方随后要用小夹爪取单瓶, 板没夹住会被整板带走。NONE 路径下板本就夹着, 此写为幂等兜底 (直接赋值, 同扫描周期 DONE)'}
+  - {op: call, action: staging_a.locator_b, mode: RUN, args: {target: {lit: true}}}

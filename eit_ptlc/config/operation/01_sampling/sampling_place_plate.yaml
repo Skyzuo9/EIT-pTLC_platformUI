@@ -1,0 +1,55 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_place_plate
+label: 上样-机械臂取料放板
+ui:
+  role: helper
+  hidden: true
+  order: 30
+vars: []
+resources:
+- robot
+- station:sampling
+- station:feedlift
+body:
+- op: comment
+  text: '起手1: 确认机械臂空闲且在安全位 P1 (读态 + require_anchor)'
+- op: run_script
+  script: robot_startup_check
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: '起手2: 智能换刀到吸盘(slot1); 已是吸盘则跳过'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: '1'
+  outputs: {}
+- op: comment
+  text: '起手3: 安全移动地轨到上样位(位1); 机械臂不在安全位则停'
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 1
+  outputs: {}
+- op: comment
+  text: '取板: 从升降上料机吸取空白玻璃板, 持板退回 P1 (feed_raise->吸住->feed_lower->退回; 见 feedlift_load_cycle)'
+- op: run_script
+  script: feedlift_load_cycle
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 机器人放板 (吸盘持板 -> 点样位; 内含翻面/纠偏占位, 见 robot_suction_put)
+- op: run_script
+  script: robot_suction_put
+  inputs:
+    station_id:
+      lit: spotting
+  outputs: {}
+- op: comment
+  text: 放板后定位夹紧
+- op: call
+  action: sampling.place_locate
+  mode: RUN

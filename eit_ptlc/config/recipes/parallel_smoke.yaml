@@ -1,0 +1,26 @@
+schema: ptlc.recipe/v1
+name: parallel_smoke
+label: 并行冒烟配方 (3 段; sim 集成验收/演示用)
+# 最小可并行配方: 不依赖相机/视觉/机器人仿真, 纯 PLC L2 + 人工门。
+# 用途: (a) sim 集成测试确定性验证调度器全链 (提交->派发->资源互斥->缸池->重叠->收口);
+#       (b) 新现场部署后的并行系统冒烟演示。不消耗任何耗材 (consumables 为空)。
+consumables: []
+flows:
+  - id: sa
+    script: pf_smoke_a
+    scope: sample
+    depends_on: []
+
+  - id: sb
+    script: pf_smoke_b
+    scope: sample
+    depends_on: [sa]
+    inputs:
+      tank: {ctx: tank}
+
+  - id: sc
+    script: pf_smoke_c
+    scope: sample
+    depends_on: [sb]
+    inputs:
+      tank: {ctx: tank}

@@ -1,0 +1,3150 @@
+{
+  "version": 2,
+  "source_version": "v0.11",
+  "overrides": {
+    "P1": {
+      "point_id": "robot-main.home",
+      "workstation": "global",
+      "role": "home",
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "acc": 10,
+      "vel": 30,
+      "cp": 0,
+      "notes": "2026-06-18 home minimal loop verified; 2026-06-19 追加 move_l",
+      "safe_anchor": true
+    },
+    "P2": {
+      "point_id": "robot-main.tool-change.ready",
+      "workstation": "area-1",
+      "role": "ready",
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "safe_anchor": true
+    },
+    "P3": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "tank"
+    },
+    "P4": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "spotting"
+    },
+    "P5": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "feed-lift"
+    },
+    "P7": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "group-rack"
+    },
+    "P45": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "staging-a"
+    },
+    "P52": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "safe_anchor": true,
+      "workstation": "staging-b"
+    },
+    "P8": {
+      "point_id": "robot-main.tool-change.slot-1.target",
+      "workstation": "area-1",
+      "role": "target",
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 4
+    },
+    "P9": {
+      "point_id": "robot-main.tool-change.slot-2.target",
+      "workstation": "area-1",
+      "role": "target",
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 4
+    },
+    "P10": {
+      "point_id": "robot-main.tool-change.slot-3.target",
+      "workstation": "area-1",
+      "role": "target",
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 4
+    },
+    "P11": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P12": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P13": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P14": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P15": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P16": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P17": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P18": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 5,
+      "workstation": "tank"
+    },
+    "P20": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 1,
+      "workstation": "spotting"
+    },
+    "P19": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 1,
+      "workstation": "spotting"
+    },
+    "P21": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 1,
+      "workstation": "feed-lift"
+    },
+    "P22": {
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-07-25 吸附基准统一(v4): 预置=基准差经180°翻转镜像后按 Rz(点rz-P64rz) 旋转映射(塔A(-6.80,-21.00)/塔B(+6.85,+20.98)/下料(+20.96,-6.92)), Z 为原示教值; joint 未刷新故收窄 move_l, 待真机复核 commit 刷新",
+      "rail": 1,
+      "workstation": "waste"
+    },
+    "P23": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "feed-lift"
+    },
+    "P66": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "feed-lift"
+    },
+    "P37": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "group-staging"
+    },
+    "P38": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "group-staging"
+    },
+    "P39": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "group-staging"
+    },
+    "P40": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "group-staging"
+    },
+    "P43": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "group-staging"
+    },
+    "P44": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "group-staging"
+    },
+    "P46": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "staging-a"
+    },
+    "P47": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "staging-a"
+    },
+    "P48": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "staging-a"
+    },
+    "P49": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "staging-a"
+    },
+    "P50": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "staging-a"
+    },
+    "P51": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "staging-a"
+    },
+    "P53": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-b"
+    },
+    "P54": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-b"
+    },
+    "P55": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-b"
+    },
+    "P56": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-b"
+    },
+    "P57": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-b"
+    },
+    "P58": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-b"
+    },
+    "P65": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "scrape"
+    },
+    "P64": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "scrape"
+    },
+    "P63": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "scrape"
+    },
+    "P67": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "scrape"
+    },
+    "P68": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "scrape"
+    },
+    "P69": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "scrape"
+    },
+    "P70": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "safe_anchor": true,
+      "workstation": "collect"
+    },
+    "P71": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "collect"
+    },
+    "P72": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "collect"
+    },
+    "P73": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "collect"
+    },
+    "P74": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "collect"
+    },
+    "P62": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证"
+    },
+    "P61": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证"
+    },
+    "P59": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "tank"
+    },
+    "P60": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "tank"
+    },
+    "P75": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "tank"
+    },
+    "P76": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "scrape"
+    },
+    "P77": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 2,
+      "workstation": "scrape"
+    },
+    "P78": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-a"
+    },
+    "P79": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-a"
+    },
+    "P80": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-a"
+    },
+    "P81": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-a"
+    },
+    "P82": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-a"
+    },
+    "P83": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "rail": 3,
+      "workstation": "staging-a"
+    },
+    "P84": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "tank"
+    },
+    "P85": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证"
+    },
+    "P86": {
+      "allowed_motion": [
+        "move_j",
+        "move_l"
+      ],
+      "status": "validated",
+      "notes": "2026-06-19 批量验收：point.json v0.11 全部非占位点位已通过现场验证",
+      "workstation": "spotting"
+    },
+    "P24": {
+      "workstation": "feed-lift"
+    },
+    "P41": {
+      "workstation": "group-staging"
+    },
+    "P42": {
+      "workstation": "group-staging"
+    }
+  },
+  "grids": [
+    {
+      "id": "group-rack",
+      "workstation": "group-rack",
+      "role": "target",
+      "user": 0,
+      "tool": 1,
+      "rows": 4,
+      "cols": 3,
+      "notes": "货架库位仿射网格(3角标定 P25左上/P34左下/P36右下 + 每库位零位移偏置); 由 P25-P36 示教点迁入 2026-07-04",
+      "anchors": [
+        {
+          "row": 1,
+          "col": 1,
+          "name": "P25",
+          "pose": [
+            -706.004822,
+            138.183212,
+            438.692474,
+            -179.635666,
+            -0.070574,
+            69.315048
+          ]
+        },
+        {
+          "row": 4,
+          "col": 1,
+          "name": "P34",
+          "pose": [
+            -712.004761,
+            137.337341,
+            -40.292572,
+            -179.635666,
+            -0.070574,
+            68.71505
+          ]
+        },
+        {
+          "row": 4,
+          "col": 3,
+          "name": "P36",
+          "pose": [
+            -706.004761,
+            -142.09964,
+            -40.975506,
+            -179.635666,
+            -0.070574,
+            68.71505
+          ]
+        }
+      ],
+      "slots": [
+        {
+          "name": "P25",
+          "alias": "Area_6_1",
+          "id": "a548e950-55eb-40c3-a5b9-879076077346",
+          "row": 1,
+          "col": 1,
+          "offset": [
+            0.0,
+            -0.0,
+            -0.0,
+            0.0,
+            0.0,
+            -0.0
+          ]
+        },
+        {
+          "name": "P26",
+          "alias": "Area_6_2",
+          "id": "f8fc6ce3-42b6-4a5c-94b9-f8c703747aa7",
+          "row": 1,
+          "col": 2,
+          "offset": [
+            -2.999939,
+            0.635279,
+            0.341467,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "P27",
+          "alias": "Area_6_3",
+          "id": "065fab94-6d02-4620-87bf-cb0eccbbb3c4",
+          "row": 1,
+          "col": 3,
+          "offset": [
+            -1.499939,
+            1.439667,
+            0.682934,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "P28",
+          "alias": "Area_6_4",
+          "id": "0c371541-0310-4420-882e-5a233f52712e",
+          "row": 2,
+          "col": 1,
+          "offset": [
+            -0.999898,
+            0.251562,
+            0.41977,
+            0.0,
+            0.0,
+            0.199999
+          ]
+        },
+        {
+          "name": "P29",
+          "alias": "Area_6_5",
+          "id": "8bf5cffb-a7b1-4039-979f-d036da1bc193",
+          "row": 2,
+          "col": 2,
+          "offset": [
+            -0.999959,
+            1.307597,
+            0.78504,
+            0.0,
+            0.0,
+            0.199999
+          ]
+        },
+        {
+          "name": "P30",
+          "alias": "Area_6_6",
+          "id": "7fb8ebd7-0471-43ea-b468-caf9174da14d",
+          "row": 2,
+          "col": 3,
+          "offset": [
+            -0.999898,
+            1.554357,
+            1.102765,
+            0.0,
+            0.0,
+            0.199999
+          ]
+        },
+        {
+          "name": "P31",
+          "alias": "Area_6_7",
+          "id": "42743b81-3f28-4f71-a283-e45e3799cfd2",
+          "row": 3,
+          "col": 1,
+          "offset": [
+            8.1e-05,
+            -1.169072,
+            -1.004028,
+            0.0,
+            0.0,
+            -0.199999
+          ]
+        },
+        {
+          "name": "P32",
+          "alias": "Area_6_8",
+          "id": "f2bc7c5b-1c5d-4e98-b8e3-e045cf481db0",
+          "row": 3,
+          "col": 2,
+          "offset": [
+            0.000142,
+            0.26429,
+            -0.915605,
+            0.0,
+            0.0,
+            -0.199999
+          ]
+        },
+        {
+          "name": "P33",
+          "alias": "Area_6_9",
+          "id": "8931297e-16bc-4a8c-9a4a-a659bc49ea5c",
+          "row": 3,
+          "col": 3,
+          "offset": [
+            -0.499919,
+            0.576304,
+            0.425808,
+            -0.238388,
+            0.336414,
+            -0.200053
+          ]
+        },
+        {
+          "name": "P34",
+          "alias": "Area_6_10",
+          "id": "d56ee991-b2c2-4f3c-87ed-51f10308b15e",
+          "row": 4,
+          "col": 1,
+          "offset": [
+            0.0,
+            -0.0,
+            -0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "P35",
+          "alias": "Area_6_11",
+          "id": "cdbf0d05-43c9-4dc6-a8e9-b9a346aa0fcd",
+          "row": 4,
+          "col": 2,
+          "offset": [
+            6.1e-05,
+            -0.193218,
+            -0.158335,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "P36",
+          "alias": "Area_6_12",
+          "id": "3f2b8262-684f-425c-b7c8-807befb31f1d",
+          "row": 4,
+          "col": 3,
+          "offset": [
+            0.0,
+            -0.0,
+            -0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "rail": 6
+    }
+  ],
+  "supplement": [
+    {
+      "source_id": "derived-P8-high",
+      "robot_name": "FLOW_TOOL_1_HIGH",
+      "point_id": "robot-main.tool-change.slot-1.approach-high",
+      "alias": "Area_1_tool1_high",
+      "workstation": "area-1",
+      "role": "approach",
+      "user": 0,
+      "tool": 1,
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "base_point": "P8",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "derived_from": "P8",
+      "derivation": "offset(P8, {0,0,200,0,0,0})",
+      "notes": "Auto-derived from P8 + Z 200mm. Migrated from robot_flow_points.json",
+      "safe_anchor": true
+    },
+    {
+      "source_id": "derived-P8-near",
+      "robot_name": "FLOW_TOOL_1_NEAR",
+      "point_id": "robot-main.tool-change.slot-1.approach-near",
+      "alias": "Area_1_tool1_near",
+      "workstation": "area-1",
+      "role": "approach",
+      "user": 0,
+      "tool": 1,
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "base_point": "P8",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "derived_from": "P8",
+      "derivation": "offset(P8, {0,0,20,0,0,0})",
+      "notes": "Auto-derived from P8 + Z 20mm. Migrated from robot_flow_points.json"
+    },
+    {
+      "source_id": "derived-P9-high",
+      "robot_name": "FLOW_TOOL_2_HIGH",
+      "point_id": "robot-main.tool-change.slot-2.approach-high",
+      "alias": "Area_1_tool2_high",
+      "workstation": "area-1",
+      "role": "approach",
+      "user": 0,
+      "tool": 1,
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "base_point": "P9",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "derived_from": "P9",
+      "derivation": "offset(P9, {0,0,200,0,0,0})",
+      "notes": "Auto-derived from P9 + Z 200mm. Migrated from robot_flow_points.json",
+      "safe_anchor": true
+    },
+    {
+      "source_id": "derived-P9-near",
+      "robot_name": "FLOW_TOOL_2_NEAR",
+      "point_id": "robot-main.tool-change.slot-2.approach-near",
+      "alias": "Area_1_tool2_near",
+      "workstation": "area-1",
+      "role": "approach",
+      "user": 0,
+      "tool": 1,
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "base_point": "P9",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "derived_from": "P9",
+      "derivation": "offset(P9, {0,0,20,0,0,0})",
+      "notes": "Auto-derived from P9 + Z 20mm. Migrated from robot_flow_points.json"
+    },
+    {
+      "source_id": "derived-P10-high",
+      "robot_name": "FLOW_TOOL_3_HIGH",
+      "point_id": "robot-main.tool-change.slot-3.approach-high",
+      "alias": "Area_1_tool3_high",
+      "workstation": "area-1",
+      "role": "approach",
+      "user": 0,
+      "tool": 1,
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "base_point": "P10",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "derived_from": "P10",
+      "derivation": "offset(P10, {0,0,200,0,0,0})",
+      "notes": "Auto-derived from P10 + Z 200mm. Migrated from robot_flow_points.json",
+      "safe_anchor": true
+    },
+    {
+      "source_id": "derived-P10-near",
+      "robot_name": "FLOW_TOOL_3_NEAR",
+      "point_id": "robot-main.tool-change.slot-3.approach-near",
+      "alias": "Area_1_tool3_near",
+      "workstation": "area-1",
+      "role": "approach",
+      "user": 0,
+      "tool": 1,
+      "allowed_motion": [
+        "move_l"
+      ],
+      "status": "validated",
+      "base_point": "P10",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "derived_from": "P10",
+      "derivation": "offset(P10, {0,0,20,0,0,0})",
+      "notes": "Auto-derived from P10 + Z 20mm. Migrated from robot_flow_points.json"
+    },
+    {
+      "point_id": "tank.1.approach_far",
+      "base_point": "P11",
+      "offset": [
+        0,
+        267,
+        330,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.1.approach_mid",
+      "base_point": "P11",
+      "offset": [
+        0,
+        267,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.1.approach_near",
+      "base_point": "P11",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "tank.2.approach_far",
+      "base_point": "P12",
+      "offset": [
+        0,
+        267,
+        151,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.2.approach_mid",
+      "base_point": "P12",
+      "offset": [
+        0,
+        267,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.2.approach_near",
+      "base_point": "P12",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "tank.3.approach_far",
+      "base_point": "P13",
+      "offset": [
+        0,
+        267,
+        60,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.3.approach_mid",
+      "base_point": "P13",
+      "offset": [
+        0,
+        267,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.3.approach_near",
+      "base_point": "P13",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "tank.4.approach_far",
+      "base_point": "P14",
+      "offset": [
+        0,
+        267,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.4.approach_mid",
+      "base_point": "P14",
+      "offset": [
+        0,
+        267,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.4.approach_near",
+      "base_point": "P14",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "tank.5.approach_far",
+      "base_point": "P15",
+      "offset": [
+        0,
+        -287,
+        330,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.5.approach_mid",
+      "base_point": "P15",
+      "offset": [
+        0,
+        -287,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.5.approach_near",
+      "base_point": "P15",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "tank.6.approach_far",
+      "base_point": "P16",
+      "offset": [
+        0,
+        -287,
+        151,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.6.approach_mid",
+      "base_point": "P16",
+      "offset": [
+        0,
+        -287,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.6.approach_near",
+      "base_point": "P16",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "tank.7.approach_far",
+      "base_point": "P17",
+      "offset": [
+        0,
+        -287,
+        60,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.7.approach_mid",
+      "base_point": "P17",
+      "offset": [
+        0,
+        -287,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.7.approach_near",
+      "base_point": "P17",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "tank.8.approach_far",
+      "base_point": "P18",
+      "offset": [
+        0,
+        -287,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "tank.8.approach_mid",
+      "base_point": "P18",
+      "offset": [
+        0,
+        -287,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "tank.8.approach_near",
+      "base_point": "P18",
+      "offset": [
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      "workstation": "tank",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "feed-lift.approach_far",
+      "base_point": "P21",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "feed-lift",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "feed-lift.approach_near",
+      "base_point": "P21",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "feed-lift",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "waste.approach_far",
+      "base_point": "P22",
+      "offset": [
+        -150,
+        0,
+        40,
+        0,
+        0,
+        0
+      ],
+      "workstation": "waste",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "waste.approach_near",
+      "base_point": "P22",
+      "offset": [
+        0,
+        0,
+        30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "waste",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "spotting.put.approach_far",
+      "base_point": "P19",
+      "offset": [
+        -180,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "spotting.put.approach_near",
+      "base_point": "P19",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "spotting.put.retreat_near",
+      "base_point": "P19",
+      "offset": [
+        0,
+        0,
+        -30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "retreat_near"
+    },
+    {
+      "point_id": "spotting.put.retreat_far",
+      "base_point": "P19",
+      "offset": [
+        -180,
+        0,
+        -30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "retreat_far"
+    },
+    {
+      "point_id": "spotting.pick.approach_far",
+      "base_point": "P19",
+      "offset": [
+        -180,
+        0,
+        -30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "spotting.pick.approach_near",
+      "base_point": "P19",
+      "offset": [
+        0,
+        0,
+        -30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "spotting.pick.retreat_near",
+      "base_point": "P19",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "retreat_near"
+    },
+    {
+      "point_id": "spotting.pick.retreat_far",
+      "base_point": "P19",
+      "offset": [
+        -180,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "spotting",
+      "role": "retreat_far"
+    },
+    {
+      "point_id": "scrape.plate-put.approach_far",
+      "base_point": "P65",
+      "offset": [
+        -180,
+        0,
+        30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "scrape.plate-put.approach_near",
+      "base_point": "P65",
+      "offset": [
+        0,
+        0,
+        30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "scrape.plate-put.retreat_near",
+      "base_point": "P65",
+      "offset": [
+        0,
+        0,
+        -20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "retreat_near"
+    },
+    {
+      "point_id": "scrape.plate-put.retreat_far",
+      "base_point": "P65",
+      "offset": [
+        -180,
+        0,
+        -20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "retreat_far"
+    },
+    {
+      "point_id": "scrape.plate-pick.approach_far",
+      "base_point": "P65",
+      "offset": [
+        -180,
+        0,
+        -30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "scrape.plate-pick.approach_near",
+      "base_point": "P65",
+      "offset": [
+        0,
+        0,
+        -30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "scrape.plate-pick.retreat_near",
+      "base_point": "P65",
+      "offset": [
+        0,
+        0,
+        30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "retreat_near"
+    },
+    {
+      "point_id": "scrape.plate-pick.retreat_far",
+      "base_point": "P65",
+      "offset": [
+        -180,
+        0,
+        30,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "retreat_far"
+    },
+    {
+      "point_id": "group-rack.p25.far",
+      "base_point": "P25",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p25.mid",
+      "base_point": "P25",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p25.near",
+      "base_point": "P25",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p26.far",
+      "base_point": "P26",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p26.mid",
+      "base_point": "P26",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p26.near",
+      "base_point": "P26",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p27.far",
+      "base_point": "P27",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p27.mid",
+      "base_point": "P27",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p27.near",
+      "base_point": "P27",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p28.far",
+      "base_point": "P28",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p28.mid",
+      "base_point": "P28",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p28.near",
+      "base_point": "P28",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p29.far",
+      "base_point": "P29",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p29.mid",
+      "base_point": "P29",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p29.near",
+      "base_point": "P29",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p30.far",
+      "base_point": "P30",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p30.mid",
+      "base_point": "P30",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p30.near",
+      "base_point": "P30",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p31.far",
+      "base_point": "P31",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p31.mid",
+      "base_point": "P31",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p31.near",
+      "base_point": "P31",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p32.far",
+      "base_point": "P32",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p32.mid",
+      "base_point": "P32",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p32.near",
+      "base_point": "P32",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p33.far",
+      "base_point": "P33",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p33.mid",
+      "base_point": "P33",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p33.near",
+      "base_point": "P33",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p34.far",
+      "base_point": "P34",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p34.mid",
+      "base_point": "P34",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p34.near",
+      "base_point": "P34",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p35.far",
+      "base_point": "P35",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p35.mid",
+      "base_point": "P35",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p35.near",
+      "base_point": "P35",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "group-rack.p36.far",
+      "base_point": "P36",
+      "offset": [
+        200,
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "group-rack.p36.mid",
+      "base_point": "P36",
+      "offset": [
+        200,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "group-rack.p36.near",
+      "base_point": "P36",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-rack",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "collector-group-staging-put.far",
+      "base_point": "P37",
+      "offset": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "collector-group-staging-put.mid",
+      "base_point": "P37",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "collector-group-staging-put.near",
+      "base_point": "P37",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "collector-group-staging-pick.far",
+      "base_point": "P39",
+      "offset": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "collector-group-staging-pick.mid",
+      "base_point": "P39",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "collector-group-staging-pick.near",
+      "base_point": "P39",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "bottle-group-staging-put.far",
+      "base_point": "P38",
+      "offset": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "bottle-group-staging-put.mid",
+      "base_point": "P38",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "bottle-group-staging-put.near",
+      "base_point": "P38",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "bottle-group-staging-pick.far",
+      "base_point": "P40",
+      "offset": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "bottle-group-staging-pick.mid",
+      "base_point": "P40",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_mid"
+    },
+    {
+      "point_id": "bottle-group-staging-pick.near",
+      "base_point": "P40",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "group-staging",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a.p46.high",
+      "base_point": "P46",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a.p46.near",
+      "base_point": "P46",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a.p47.high",
+      "base_point": "P47",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a.p47.near",
+      "base_point": "P47",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a.p48.high",
+      "base_point": "P48",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a.p48.near",
+      "base_point": "P48",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a.p49.high",
+      "base_point": "P49",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a.p49.near",
+      "base_point": "P49",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a.p50.high",
+      "base_point": "P50",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a.p50.near",
+      "base_point": "P50",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a.p51.high",
+      "base_point": "P51",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a.p51.near",
+      "base_point": "P51",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-b.p53.high",
+      "base_point": "P53",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-b.p53.near",
+      "base_point": "P53",
+      "offset": [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-b.p54.high",
+      "base_point": "P54",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-b.p54.near",
+      "base_point": "P54",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-b.p55.high",
+      "base_point": "P55",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-b.p55.near",
+      "base_point": "P55",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-b.p56.high",
+      "base_point": "P56",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-b.p56.near",
+      "base_point": "P56",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-b.p57.high",
+      "base_point": "P57",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-b.p57.near",
+      "base_point": "P57",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-b.p58.high",
+      "base_point": "P58",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-b.p58.near",
+      "base_point": "P58",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-b",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a-return.p78.high",
+      "base_point": "P78",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a-return.p78.near",
+      "base_point": "P78",
+      "offset": [
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a-return.p79.high",
+      "base_point": "P79",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a-return.p79.near",
+      "base_point": "P79",
+      "offset": [
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a-return.p80.high",
+      "base_point": "P80",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a-return.p80.near",
+      "base_point": "P80",
+      "offset": [
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a-return.p81.high",
+      "base_point": "P81",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a-return.p81.near",
+      "base_point": "P81",
+      "offset": [
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a-return.p82.high",
+      "base_point": "P82",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a-return.p82.near",
+      "base_point": "P82",
+      "offset": [
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "staging-a-return.p83.high",
+      "base_point": "P83",
+      "offset": [
+        0,
+        0,
+        200,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_high"
+    },
+    {
+      "point_id": "staging-a-return.p83.near",
+      "base_point": "P83",
+      "offset": [
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "workstation": "staging-a",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "collect-bottle-put.far",
+      "base_point": "P71",
+      "offset": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "collect-bottle-put.near",
+      "base_point": "P71",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "collect-bottle-pick.far",
+      "base_point": "P72",
+      "offset": [
+        0,
+        0,
+        100,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "collect-bottle-pick.near",
+      "base_point": "P72",
+      "offset": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "collect-holder-put.far",
+      "base_point": "P73",
+      "offset": [
+        0,
+        200,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "collect-holder-put.near",
+      "base_point": "P73",
+      "offset": [
+        0,
+        20,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "collect-holder-pick.far",
+      "base_point": "P74",
+      "offset": [
+        0,
+        200,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "collect-holder-pick.near",
+      "base_point": "P74",
+      "offset": [
+        0,
+        20,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "collect",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "scrape-holder-put.far",
+      "base_point": "P68",
+      "offset": [
+        -180,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "scrape-holder-put.near",
+      "base_point": "P68",
+      "offset": [
+        -20,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "scrape-holder-put.x-plus",
+      "base_point": "P68",
+      "offset": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "settle"
+    },
+    {
+      "point_id": "scrape-holder-put.x-minus",
+      "base_point": "P68",
+      "offset": [
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "settle"
+    },
+    {
+      "point_id": "scrape-holder-put.y-plus",
+      "base_point": "P68",
+      "offset": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "settle"
+    },
+    {
+      "point_id": "scrape-holder-put.y-minus",
+      "base_point": "P68",
+      "offset": [
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "settle"
+    },
+    {
+      "point_id": "scrape-holder-pick.far",
+      "base_point": "P77",
+      "offset": [
+        -180,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_far"
+    },
+    {
+      "point_id": "scrape-holder-pick.near",
+      "base_point": "P77",
+      "offset": [
+        -20,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "approach_near"
+    },
+    {
+      "point_id": "scrape-holder-pick.retreat-0",
+      "base_point": "P77",
+      "offset": [
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "retreat"
+    },
+    {
+      "point_id": "scrape-holder-pick.retreat-1",
+      "base_point": "P77",
+      "offset": [
+        -10,
+        0,
+        -1,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "retreat"
+    },
+    {
+      "point_id": "scrape-holder-pick.retreat-2",
+      "base_point": "P77",
+      "offset": [
+        -30,
+        0,
+        -1,
+        0,
+        0,
+        0
+      ],
+      "workstation": "scrape",
+      "role": "retreat"
+    }
+  ]
+}

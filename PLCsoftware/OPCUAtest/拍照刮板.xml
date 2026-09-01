@@ -1,0 +1,862 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-18T00:52:52.3013418" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站.project" modificationDateTime="2026-06-17T21:37:38.1461871">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="Photo_scraper_拍照刮板" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="初始化step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="拍照step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="刮板收集step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="机器人取物料step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="TON_0">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="stepTimer">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 步骤内通用定时器（调试期模拟，实机替换为FB完成信号）</xhtml>
+              </documentation>
+            </variable>
+            <variable name="confirmLatched">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Confirm 上升沿检测：上一周期 Confirm 值</xhtml>
+              </documentation>
+            </variable>
+            <variable name="confirmRisingEdge">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Confirm 上升沿脉冲（单周期有效）</xhtml>
+              </documentation>
+            </variable>
+            <variable name="phaseA_done_15">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Step 15 送板完成标志（Phase A 门控）</xhtml>
+              </documentation>
+            </variable>
+            <variable name="phaseA_done_20">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Step 20 送板完成标志（Phase A 门控）</xhtml>
+              </documentation>
+            </variable>
+            <variable name="k_pass">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="g_plate_surface_z">
+              <type>
+                <REAL />
+              </type>
+              <initialValue>
+                <simpleValue value="20.5" />
+              </initialValue>
+            </variable>
+            <variable name="g_total_depth">
+              <type>
+                <REAL />
+              </type>
+              <initialValue>
+                <simpleValue value="1.0" />
+              </initialValue>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">// ══════════════════════════════════════════════════════════════
+// 刮板工位序列器 — v1.6（协议 v1.6，乒乓握手 + G-code 驱动 + PhotoMode 路由）
+// ══════════════════════════════════════════════════════════════
+// 对应上位机 Stage: scrape（PLC 变量前缀 scrape）
+// 子步 {0, 10, 15, 20, 30, 40, 90}
+// 职责：执行拍照刮板全流程（初始化→点样后拍照/展开后拍照→刮取→收集）
+//
+// 协议要点（v1.6 PhotoMode 路由机制）：
+//   - scrape_PhotoMode 控制初始化后的路径选择：
+//     0 = 完整刮板模式（默认）：Step 10 → Step 20（展开后拍照+视觉+刮取）
+//     1 = 仅 before-photo 模式：Step 10 → Step 15（点样后拍照，乒乓等待后结束）
+//   - Step 15 为 before-photo 乒乓等待点：PLC 完成送板后停在 Step 15，
+//     等待 PC 侧拍照完成 → 写 scrape_Confirm=TRUE → PLC 归位后 Done
+//   - Step 20 为完整刮板乒乓等待点（与 v1.5 一致）
+//   - PhotoMode 由 PC 写入，Step 10 路由决策完成后消费归零（不在 Step 0 归零）
+//
+// v1.5→v1.6 变更：
+//   + 新增 scrape_PhotoMode (INT) 变量
+//   + 新增 Step 15 (before-photo 乒乓等待)
+//   + Step 10 初始化后按 PhotoMode 路由
+//   + 子步号扩展为 {0, 10, 15, 20, 30, 40, 90}
+//
+// 参照 plc_spotting.txt（spotting 工位）模板编写
+// ══════════════════════════════════════════════════════════════
+//
+// ★★★ PLC工程师交付清单 ★★★
+// ─────────────────────────────────────────────────────────────
+// 交付状态：v1.6 正式交付（2026-05-17）
+// 协议版本：v1.6（对应文档 docs/PLC_Unified_Stage_Protocol.md §8）
+// Mock 联调：已通过上位机 mock plc_server 联调验证
+// ─────────────────────────────────────────────────────────────
+// 1. 新增 GVL 变量（必须添加到全局变量表）：
+//    scrape_PhotoMode : INT  — 拍照模式选择（0=完整刮板, 1=仅before-photo）
+//    其余 scrape_* 变量与 v1.5 一致，见 VAR_GLOBAL 声明
+//
+// 2. 关键实机集成点（搜索 TODO【实机集成点】）：
+//    □ Step 10: 初始化 FB 替换（当前 stepTimer PT:=T#5S 模拟）
+//    □ Step 15 Phase A: 送板入拍照位 FB（点样后送板→拍照→回转运位）
+//    □ Step 15 归位: 送板回转运位（Confirm 后板需回到转运位待展开）
+//    □ Step 20 Phase A: 送板入拍照位 FB（展开后送板→拍照→刮取）
+//    □ Step 30: G-code 解析器 + 刮板运动 FB
+//    □ Step 40: 机器人取粉末收集器 FB
+//
+// 3. 关键安全判断（搜索 TODO【逻辑判断】）：
+//    □ 急停时停止刮板电机 + 关闭相机触发
+//    □ 复位时清空运动指令
+//    □ Step 30 安全占位 G-code 识别（"G0 Z10.0\nM2\n" → 跳过刮板）
+//    □ 各步骤超时保护
+//
+// 4. Phase A 门控机制说明：
+//    Step 15/20 的 Confirm 上升沿检测带 phaseA_done 门控标志，
+//    确保 PLC 完成送板动作后才检测 PC 侧 Confirm 信号，
+//    防止 PC 提前写 Confirm 导致板未到位就推进。
+//
+// 6. 验收检查清单（实机集成后逐项确认）：
+//    □ scrape_PhotoMode=0：FSM 轨迹 0→10→20→30→40→0+Done
+//    □ scrape_PhotoMode=1：FSM 轨迹 0→10→15→0+Done
+//    □ Step 15 乒乓：PC 写 Confirm=TRUE 后 FSM 归位+Done
+//    □ Step 20 乒乓：PC 写 Confirm=TRUE 后 FSM 推进到 Step 30
+//    □ Phase A 门控：Step 15/20 送板完成前 Confirm 不触发推进
+//    □ 安全占位 G-code：Step 30 收到 "G0 Z10.0\nM2\n" 时跳过刮板
+//    □ 急停联锁：PLC_EStop=TRUE 时所有动作停止 + Error 置位
+//    □ Reset 脉冲：scrape_Reset=TRUE→FALSE 后 Step/Error 清零
+//    □ Enable=FALSE 清 Done：上位机拉低 Enable 后 Done 自动归零
+// ─────────────────────────────────────────────────────────────
+//
+// ★★★ 调试期说明 ★★★
+// 本文件为调试期简化版，所有 stepTimer 模拟的位置均为实机集成点。
+// 标记说明：
+//   TODO【实机集成点】— 需替换为真实 FB/IO 调用的占位
+//   TODO【逻辑判断】  — 实机必须增加的条件检查/安全守卫
+//   当前 stepTimer PT:=T#5S 仅为模拟延时，实机应替换为实际完成条件
+// ══════════════════════════════════════════════════════════════
+
+// ── 1. 急停联锁（最高优先级）──
+// TODO【逻辑判断】实机急停时应额外执行：
+//   - 停止当前正在执行的刮板电机（若有运动控制）
+//   - 关闭相机触发信号
+//   - 若 Step 30 正在执行 G-code 路径，急停运动轴
+IF NOT 急停 THEN
+    scrape_Step  := 0;
+    scrape_Done  := FALSE;
+    scrape_Error := TRUE;
+    scrape_Busy  := FALSE;
+    confirmLatched  := FALSE;
+    confirmRisingEdge := FALSE;
+    phaseA_done_15  := FALSE;
+    phaseA_done_20  := FALSE;
+	刮板拍照真空自动:=FALSE;
+	刮板拍照无刷电机自动:=FALSE;
+    stepTimer(IN := FALSE, PT := T#0S);
+    RETURN;
+END_IF
+
+// ── 2. 复位脉冲（用于错误恢复 / 强制清状态）──
+// TODO【逻辑判断】实机复位时应额外执行：
+//   - 清空刮板电机运动指令
+//   - 复位相机触发状态
+IF scrape_Reset THEN
+    scrape_Step  := 0;
+    scrape_Done  := FALSE;
+    scrape_Error := FALSE;
+    scrape_Busy  := FALSE;
+    confirmLatched  := FALSE;
+    confirmRisingEdge := FALSE;
+    phaseA_done_15  := FALSE;
+    phaseA_done_20  := FALSE;
+	初始化step:=0;
+	拍照step:=0;
+	刮板收集step:=0;
+	机器人取物料step:=0;
+	 scrape_IsLast := FALSE;       // ★ 新增
+	
+    stepTimer(IN := FALSE, PT := T#0S);
+    RETURN;
+END_IF
+
+// ── 3. Enable=FALSE 时清 Done（次周期复位握手）──
+//    上位机收到 Done 后会拉低 scrape_Enable，本段确保下一周期 Done 自动归零，
+//    避免 Done 残留导致 Step 0 误判。
+IF NOT scrape_Enable THEN
+    scrape_Done := FALSE;
+END_IF
+
+// ── 4. 派生 scrape_Busy（写者唯一：本 POU 是唯一写者，禁止他处赋值）──
+scrape_Busy := (scrape_Step &gt;= 10)
+            AND (scrape_Step &lt;= 80)
+            AND (NOT scrape_Done);
+
+// ── 5. Confirm 上升沿检测（Phase A 门控）──
+//    Step 15 / Step 20 乒乓等待期间有效，其余步骤忽略。
+//    上升沿 = 当前值为 TRUE 且上一周期为 FALSE。
+//
+//    ★ Phase A 门控（v1.6.1 修复）★
+//    问题：PC 侧 await_stage_step 检测到 Step=15/20 即认为板已到位，会立即写
+//          scrape_Confirm=TRUE。但实际上 Step 15/20 入场时 Phase A（送板）尚未完成，
+//          phaseA_done_15/20 仍为 FALSE。若每周期无条件更新 confirmLatched，
+//          上升沿会被白白消耗——等 Phase A 完成时 confirmRisingEdge 已永远为 FALSE，
+//          导致 PLC 卡死在 Step 15/20。
+//    修复：仅在 Phase A 完成后才更新 confirmLatched（即"开门"边沿检测），
+//          PC 早写的 Confirm=TRUE 会被挂起，等 Phase A 完成后首次进入门控就识别为上升沿。
+//    协议契约：PC 端不改，仍按"看到 Step=15/20 即拍照+Confirm"的简洁时序。
+IF scrape_Step=15  THEN
+    confirmRisingEdge := scrape_Confirm AND (NOT confirmLatched);
+    confirmLatched    := scrape_Confirm;
+ELSE
+    // Phase A 未完成 → 不更新 confirmLatched，保留 PC 早写的 Confirm=TRUE
+    confirmRisingEdge := FALSE;
+END_IF
+
+
+
+
+
+
+// ── 6. 主状态机（刮板序列器，Step 15/20 乒乓握手 + PhotoMode 路由）──
+IF MODE_State=1 THEN	
+	CASE scrape_Step OF
+		0:  // ═══ 空闲：等待 Enable 上升 ═══
+			// ★ PhotoMode 不在此归零：消费型变量应在子步内复位，不可在 Step 0 无条件赋值
+			//   （否则 PC 写入 PhotoMode=1 后会被 Step 0 每周期覆盖回 0）
+			IF scrape_Enable AND (NOT scrape_Done) THEN
+				scrape_Step := 10;
+				stepTimer(IN := FALSE, PT := T#0S);  // 复位定时器
+			END_IF
+		10:
+			IF scrape_PhotoMode=2 THEN
+				scrape_Step := 15;
+			ELSE
+				A00_initialization_初始化();
+				IF Camera_scraper_initialization_OK THEN
+					Camera_scraper_initialization_OK:=FALSE;
+					scrape_Step := 15;
+					拍照工位允许取硅胶板去展开 := FALSE;
+				END_IF
+			END_IF
+				
+						
+			
+		 15: // ═══ before-photo（PhotoMode=1 时经此路径 — 点样后拍照乒乓等待）═══
+			// ★ before-photo 乒乓协议 ★
+			// PLC 侧：
+			//   1. 将硅胶板送至拍照位（送板动作，与 Step 20 Phase A 同理）
+			//   2. 送板完成后停在 Step 15，等待 PC 侧 Confirm
+			// PC 侧（BeforePhotoStage）：
+			//   1. await_stage_step("scrape", 15) — 检测到 Step=15（板已到位信号）
+			//   2. 触发相机拍照（保存为 before.jpg，由 CameraService 负责）
+			//   3. 写 scrape_Confirm=TRUE → PLC 完成归位
+			//
+			// 与 Step 20 的区别：
+			//   - Step 15 不需要视觉分析 / G-code 下发，仅拍照
+			//   - Confirm 后直接归位+Done，不进入刮取流程
+			//   - 拍照触发权同 v1.5.1：由上位机 CameraService 负责，PLC 仅执行送板
+	
+			// ── Phase A：送板执行 ──
+			// TODO【实机集成点】替换 stepTimer 为真实 FB 调用：
+			//   Material_camera_送板入拍照位 := TRUE;    // 送板动作
+			//   等待 Material_camera_送板完成_OK = TRUE
+			//   注意：拍照触发不再由 PLC 执行，改由上位机 CameraService 触发
+			// TODO【逻辑判断】实机需判断：
+			//   - 相机拍照超时保护
+			//   - 相机通信故障 → Step 90
+			A10_Material_camera_拍照硅胶板();
+			stepTimer(IN := FALSE, PT := T#0S);
+			phaseA_done_15 := TRUE;  // 标记送板完成
+			IF Photo_preparation_completed_OK THEN
+				IF scrape_PhotoMode = 1 THEN    ///只拍照
+					scrape_Step := 16;  // before-photo 模式：去 Step 15 拍照
+					拍照工位允许取硅胶板去展开:=TRUE;
+					刮板拍照定位气缸自动:=FALSE;
+				ELSIF scrape_PhotoMode=2 OR scrape_PhotoMode=0 THEN
+					scrape_Step := 20;  // 完整刮板模式：去 Step 20 拍照+视觉+刮取
+					Photo_preparation_completed_OK:=FALSE;
+				END_IF
+				
+				scrape_PhotoMode := 0;  // 消费后复位：路由决策完成后清除 PhotoMode/拍照+刮取
+			END_IF
+		16:
+			IF 取拍照硅胶板完成 THEN
+				Photo_preparation_completed_OK:=FALSE;
+				取拍照硅胶板完成:=FALSE;
+				scrape_Done := TRUE;
+				scrape_Step := 0;
+			END_IF
+	
+				// ── Phase B：乒乓等待 — 仅送板完成后检测 Confirm 上升沿 ──
+				// PC 侧拍照完成 → 写 Confirm=TRUE → PLC 归位并结束
+// 				IF phaseA_done_15 AND confirmRisingEdge THEN
+// 					// PC 侧确认：拍照完成
+// 					// 消费 Confirm 信号 + 复位 PhotoMode
+// 					scrape_Confirm := FALSE;  // PLC 侧消费 Confirm 信号
+// 					confirmLatched := FALSE;  // 复位边沿检测，防止下一周期误触发
+// 					phaseA_done_15 := FALSE;  // 复位 Phase A 标志
+// 					// TODO【实机集成点】归位动作：将板从拍照位送回转运位（待展开）
+// 					//   Material_camera_送板回转运位 := TRUE;
+// 					//   等待 Material_camera_回位完成_OK = TRUE
+// 					// 当前调试期直接归位完成
+// 					scrape_Done := TRUE;
+// 					scrape_Busy := FALSE;
+// 					scrape_Step := 0;
+// 				END_IF
+			
+						
+
+		20: // ═══ 刮取（消费 scrape_gcode_instructions，按 G-code 路径刮板）═══
+			// 对应 ref_plc_scraping.txt Step 20: Scraper_collection_刮板收集()
+			// 区别：旧版为固定路径刮取，新版由 G-code 驱动灵活路径
+			//
+			// ★ 视觉失败继续场景 ★
+			// 当 PC 侧视觉分析失败但用户选择继续时，PC 会下发安全占位 G-code：
+			//   "G0 Z10.0\nM2\n"（Z轴抬至安全位 + 程序结束）
+			// PLC 工程师应在 Step 30 中识别此占位指令：
+			//   - 方案 A：G-code 解析器遇到 M2 时直接跳过刮板动作，推进到 Step 40
+			//   - 方案 B：检查 scrape_gcode_instructions 是否以 "G0 Z" 开头，
+			//             若为占位指令则跳过刮板（不驱动电机），仅延时后推进
+			// 此场景下流程应正常走到 Step 40（机器人取粉末）+ Done=TRUE，
+			// 不执行实际刮板动作，但保证 FSM 完整走完。
+			//
+			// TODO【实机集成点】替换 stepTimer 为真实 FB 调用：
+			//   1. 解析 scrape_gcode_instructions 中的 G-code 指令
+			//   2. 按指令序列驱动刮板电机执行运动路径
+			//      方案 A：CNC 插补器 FB 逐行消费 G-code
+			//      方案 B：上位机预生成运动参数，PLC 直接消费坐标序列
+			//   3. 等待运动完成信号（CNC_Done / 刮板到位传感器）
+			// TODO【逻辑判断】实机需判断：
+			//   - G-code 解析错误 → Step 90 故障
+			//   - 刮板运动超时保护
+			//   - 刮板电机过载/堵转检测 → Step 90
+			IF g_pass_count = 0 THEN
+					scrape_Step := 40;
+			ELSE
+				
+				A20_Scraper_collection_刮板收集();
+				IF Scraper_collection_completed THEN
+					刮板拍照工位站位符:=TRUE;
+					scrape_gcode_instructions := '';  // 消费 G-code 指令
+					Scraper_collection_completed:=FALSE;
+					stepTimer(IN := FALSE, PT := T#0S);
+					scrape_Step := 30;
+				END_IF
+			END_IF
+		
+		 30: // ═══ 机器人取粉末收集器 ═══
+        // 对应 ref_plc_scraping.txt Step 30: Robot_material_retrieval_机器人取粉末收集器()
+        // TODO【实机集成点】替换 stepTimer 为真实 FB 调用：
+        //   Robot_material_retrieval_机器人取粉末收集器();
+        //   等待 Robot_completes_material_retrieval = TRUE
+        // TODO【逻辑判断】实机需判断：
+        //   - 机器人到位传感器确认
+        //   - 机器人抓取超时保护
+        //   - 粉末收集器就位检测
+			A30_Robot_material_retrieval_机器人取粉末收集器();
+			IF Robot_completes_material_retrieval THEN
+				stepTimer(IN := FALSE, PT := T#0S);
+				scrape_IsLast := FALSE;   // ★ 新增：消费型变量子步内归零
+				scrape_Done := TRUE;
+				scrape_Busy := FALSE;
+				Robot_completes_material_retrieval:=FALSE;
+				scrape_Step := 0;
+			END_IF
+
+		90: // ═══ 故障态：等待外部 scrape_Reset 脉冲 ═══
+			scrape_Error := TRUE;   // 故障态本身不动作，仅等待顶部复位逻辑
+					
+    END_CASE
+END_IF
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Photo_scraper_拍照刮板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="4bce8203-bd22-4cb7-b858-f2d1edfe64cc" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>4bce8203-bd22-4cb7-b858-f2d1edfe64cc</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A00_initialization_初始化">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+
+CASE 初始化step OF
+	0:
+		刮板拍照真空自动:=FALSE;
+		刮板拍照真空手动:=FALSE;
+		刮板拍照无刷电机手动:=FALSE;
+		刮板拍照无刷电机自动:=FALSE;
+		刮板拍照定位气缸手动:=FALSE;
+		刮板拍照定位气缸自动:=FALSE;
+		粉末收集器定位手动:=FALSE;
+		粉末收集器定位自动:=FALSE;
+		刮板拍照遮光气缸手动:=FALSE;
+		刮板拍照遮光气缸自动:=FALSE;
+		刮板拍照旋转气缸手动:=FALSE;
+		刮板拍照旋转气缸自动:=FALSE;
+		刮板拍照下压气缸手动:=FALSE;
+		刮板拍照下压气缸自动:=FALSE;
+		拍照工位允许放硅胶板:=FALSE;
+		拍照工位允许放收集器:=FALSE;
+		拍照工位机器人退出工位:=FALSE;
+		拍照工位允许取收集器:=FALSE;
+		拍照工位机器人退出:=FALSE;
+		scrape_WaitConfirm := FALSE;
+		 scrape_IsLast := FALSE;       // ★ 新增
+		拍照工位放硅胶板完成 := FALSE;
+		
+		拍照工位机器人到达夹持位 := FALSE;
+		
+		拍照工位机器人退出工位完成 := FALSE;
+	
+		拍照工位机器人到达收集器夹持位 := FALSE;
+		
+		拍照工位机器人退出完成 := FALSE;
+		拍照工位允许取硅胶板放废料区 := FALSE;
+		拍照工位允许取硅胶板去展开 := FALSE;
+		拍照工位机器人取硅胶板完成 := FALSE;
+		拍照step:=0;
+		机器人取物料step:=0;
+		刮板收集step:=0;
+		
+		Camera_scraper_initialization_OK:=FALSE;
+		Photo_preparation_completed_OK:=FALSE;
+		Scraper_collection_completed:=FALSE;
+		Robot_completes_material_retrieval:=FALSE;
+		初始化step:=5;
+	5:
+		刮板轴10ZDATE.xMoveAbs:=FALSE;
+		刮板轴9XDATE.xMoveAbs:=FALSE;
+		拍照轴8YDATE.xMoveAbs:=FALSE;
+		初始化step:=6;
+	6:
+		刮板轴10ZDATE.fAbsTarget:=0;
+		刮板轴10ZDATE.xMoveAbs:=TRUE;
+		IF 刮板轴10ZDATE.bAbMoveDone THEN
+			刮板轴10ZDATE.xMoveAbs:=FALSE;
+			初始化step:=10;
+		END_IF
+	10:
+		刮板轴9XDATE.fAbsTarget:=335;
+		刮板轴9XDATE.xMoveAbs:=TRUE;
+		IF 刮板轴9XDATE.bAbMoveDone THEN
+			刮板轴9XDATE.xMoveAbs:=FALSE;
+			初始化step:=20;
+		END_IF
+	20:
+		IF 刮板拍照遮光气缸上位 THEN
+			拍照轴8YDATE.fAbsTarget:=0;
+			拍照轴8YDATE.xMoveAbs:=TRUE;
+			IF 拍照轴8YDATE.bAbMoveDone THEN
+				拍照轴8YDATE.xMoveAbs:=FALSE;
+				Camera_scraper_initialization_OK:=TRUE;
+				初始化step:=0;
+			END_IF	
+		END_IF		
+	
+END_CASE
+
+
+
+
+
+
+
+
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Photo_scraper_拍照刮板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="4bce8203-bd22-4cb7-b858-f2d1edfe64cc">
+                      <pathStructure isFolder="False" name="A00_initialization_初始化" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="ef89f8ca-93fc-4288-a2b7-0e75e3a4b988" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>ef89f8ca-93fc-4288-a2b7-0e75e3a4b988</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A10_Material_camera_拍照硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+CASE 拍照step OF
+	0:
+		刮板轴9XDATE.fAbsTarget:=335;
+		刮板轴9XDATE.xMoveAbs:=TRUE;
+		IF 刮板轴9XDATE.bAbMoveDone THEN
+			刮板轴9XDATE.xMoveAbs:=FALSE;
+			IF scrape_PhotoMode=2 THEN
+				scrape_WaitConfirm := TRUE;  // 标记送板完成
+				拍照step:=10;
+			ELSE
+				拍照step:=1;
+			END_IF
+		END_IF
+	
+	1:
+		拍照工位允许放硅胶板:=TRUE;
+		IF 拍照工位放硅胶板完成 THEN
+			拍照工位允许放硅胶板:=FALSE;
+			拍照工位放硅胶板完成:=FALSE;
+			刮板拍照定位气缸自动:=TRUE;
+			IF scrape_PhotoMode=1 THEN
+				拍照step:=30;
+			ELSE 
+				拍照step:=10;
+			END_IF
+			
+		END_IF
+	10:
+		拍照工位允许放收集器:=TRUE;
+		IF 拍照工位机器人到达夹持位 THEN
+			拍照工位允许放收集器:=FALSE;
+			刮板拍照下压气缸自动:=TRUE;
+			拍照step:=20;
+		END_IF
+	20:
+		TON_0(IN:=TRUE, PT:=T#1S , Q=&gt; , ET=&gt; );
+		IF TON_0.Q THEN
+			拍照工位机器人退出工位:=TRUE;
+			IF 拍照工位机器人退出工位完成 THEN
+				拍照工位机器人退出工位完成:=FALSE;
+				拍照工位机器人退出工位:=FALSE;
+				刮板拍照下压气缸自动:=TRUE;
+				IF scrape_PhotoMode=2 THEN
+					scrape_WaitConfirm := FALSE;
+					Photo_preparation_completed_OK:=TRUE;
+					拍照step:=0;
+				ELSE
+					拍照step:=30;
+				END_IF
+				
+			END_IF
+		END_IF
+	30:
+		IF 刮板拍照遮光气缸上位  THEN
+			拍照轴8YDATE.fAbsTarget:=420;
+			拍照轴8YDATE.xMoveAbs:=TRUE;
+			IF 拍照轴8YDATE.bAbMoveDone THEN
+				拍照轴8YDATE.xMoveAbs:=FALSE;
+				刮板拍照遮光气缸自动:=TRUE;
+				拍照step:=40;
+			END_IF
+		END_IF
+		
+	40:
+		IF 刮板拍照遮光气缸下位 THEN
+			scrape_WaitConfirm := TRUE;  // 标记送板完成
+			
+			拍照step:=50;
+		END_IF
+	50:
+		IF confirmRisingEdge THEN
+			刮板拍照遮光气缸自动:=FALSE;
+			scrape_WaitConfirm := FALSE;
+			拍照step:=60;
+		END_IF
+	60:
+		IF 刮板拍照遮光气缸上位 THEN
+			拍照轴8YDATE.fAbsTarget:=0;
+			拍照轴8YDATE.xMoveAbs:=TRUE;
+			IF 拍照轴8YDATE.bAbMoveDone THEN
+				拍照轴8YDATE.xMoveAbs:=FALSE;
+				Photo_preparation_completed_OK:=TRUE;
+				拍照step:=0;
+			END_IF
+		END_IF
+	
+	
+	
+	
+	
+	
+	
+	
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Photo_scraper_拍照刮板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="4bce8203-bd22-4cb7-b858-f2d1edfe64cc">
+                      <pathStructure isFolder="False" name="A10_Material_camera_拍照硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="7088fa99-376d-4bf2-a675-c774887b12b2" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>7088fa99-376d-4bf2-a675-c774887b12b2</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A20_Scraper_collection_刮板收集">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE 刮板收集step OF
+	0:
+		刮板拍照真空自动:=TRUE;
+		//刮板拍照无刷电机自动:=TRUE;
+		
+		// 首次进入：初始化 k 与首 pass 的 Z
+		IF k_pass = 0 THEN
+			
+			k_pass := 1;
+			g_pass_z := g_plate_surface_z + g_total_depth / INT_TO_LREAL(g_pass_count);
+		END_IF
+   
+		// 触发 CNC：bExe 直接拉高，PLC 侧已有的 SMC pipeline 自动执行
+		 CNC启动:= TRUE;
+		刮板收集step:=10;
+		// 单 pass 完成 → 推进或退出
+		
+	10:
+		IF CNC完成 THEN
+			IF k_pass &gt;= g_pass_count THEN
+				CNC启动 := FALSE;
+				k_pass := 0;
+				刮板收集step:=20;
+			ELSE
+				k_pass := k_pass + 1;
+				g_pass_z := g_plate_surface_z
+						  + INT_TO_LREAL(k_pass) * g_total_depth
+						  / INT_TO_LREAL(g_pass_count);
+				 //Z轴高度计算   安全高度+刮取次数*总需要刮取的高速/需要刮取的次数
+				CNC启动 := FALSE;   // 下个扫描周期上面 bExe := TRUE 形成上升沿，pipeline 重跑
+				刮板收集step:=0;
+			END_IF
+		END_IF
+
+	20:
+		  IF scrape_IsLast THEN
+				拍照工位允许取硅胶板放废料区:=TRUE;   // ★ 仅最后一次刮取后才允许送废料
+				scrape_IsLast:=FALSE;
+				scrape_PhotoMode:=0;
+		  END_IF
+		刮板拍照定位气缸自动:=FALSE;
+		刮板拍照真空自动:=FALSE;
+		刮板拍照无刷电机自动:=FALSE;
+		CNC启动:=FALSE;
+		刮板拍照旋转气缸自动:=TRUE;
+		Scraper_collection_completed:=TRUE;
+		刮板收集step:=0;
+// 	30:
+// 		IF 拍照工位机器人取硅胶板完成 THEN
+// 			拍照工位允许取硅胶板:=FALSE;
+// 			Scraper_collection_completed:=TRUE;
+// 			刮板收集step:=0;
+// 		END_IF
+	
+	
+	
+	
+	
+	
+	
+	
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Photo_scraper_拍照刮板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="4bce8203-bd22-4cb7-b858-f2d1edfe64cc">
+                      <pathStructure isFolder="False" name="A20_Scraper_collection_刮板收集" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="2a4be3e2-17f8-42e9-b7f3-ef163655b3ff" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>2a4be3e2-17f8-42e9-b7f3-ef163655b3ff</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A30_Robot_material_retrieval_机器人取粉末收集器">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+CASE 机器人取物料step OF
+	0:
+		拍照工位允许取收集器:=TRUE;
+		IF 拍照工位机器人到达收集器夹持位 THEN
+			拍照工位允许取收集器:=FALSE;
+			刮板拍照下压气缸自动:=FALSE;
+			机器人取物料step:=10;
+		END_IF
+	10:
+		IF 刮板拍照下压气缸上位 THEN
+			拍照工位机器人退出:=TRUE;
+			机器人取物料step:=20;
+		END_IF
+	20:
+		IF 拍照工位机器人退出完成 THEN
+			拍照工位机器人退出:=FALSE;
+			刮板拍照旋转气缸自动:=FALSE;
+			拍照工位机器人退出完成:=FALSE;
+			机器人取物料step:=30;
+			IF scrape_IsLast THEN
+				
+				机器人取物料step:=30;                    // ★ 最后一次：去 step 30 清板
+			ELSE
+				Robot_completes_material_retrieval:=TRUE; // ★ 中间：直接 Done，不清板
+				机器人取物料step:=0;
+			END_IF
+		END_IF
+	30:
+		IF 拍照工位机器人取硅胶板完成 THEN
+			拍照工位允许取硅胶板放废料区:=FALSE;
+			拍照工位机器人取硅胶板完成:=FALSE;
+			Robot_completes_material_retrieval:=TRUE;
+			机器人取物料step:=0;
+		END_IF	
+END_CASE
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Photo_scraper_拍照刮板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="4bce8203-bd22-4cb7-b858-f2d1edfe64cc">
+                      <pathStructure isFolder="False" name="A30_Robot_material_retrieval_机器人取粉末收集器" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="00b3ef02-97c0-4821-983e-9ca53579c953" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>00b3ef02-97c0-4821-983e-9ca53579c953</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="40_Man">
+          <Object Name="Photo_scraper_拍照刮板" ObjectId="4bce8203-bd22-4cb7-b858-f2d1edfe64cc">
+            <Object Name="A00_initialization_初始化" ObjectId="ef89f8ca-93fc-4288-a2b7-0e75e3a4b988" />
+            <Object Name="A10_Material_camera_拍照硅胶板" ObjectId="7088fa99-376d-4bf2-a675-c774887b12b2" />
+            <Object Name="A20_Scraper_collection_刮板收集" ObjectId="2a4be3e2-17f8-42e9-b7f3-ef163655b3ff" />
+            <Object Name="A30_Robot_material_retrieval_机器人取粉末收集器" ObjectId="00b3ef02-97c0-4821-983e-9ca53579c953" />
+          </Object>
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

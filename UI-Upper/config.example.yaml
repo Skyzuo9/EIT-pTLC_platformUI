@@ -1,0 +1,159 @@
+# pTLC 上位机集成入口配置示例
+# 使用方式：python main.py --config config.example.yaml
+
+# 运行模式：pltc | collect | stress
+#   pltc    : 完整 pTLC 流程（spotting→develop→scrape→vision），支持 recipe 自定义
+#   collect : 纯收集模式（加载 collect_only.yaml，走 RecipeTask + Scheduler 统一路径）
+#   stress  : 稳定性压测（循环入队长时间运行）
+mode: pltc
+
+# 机器人动作服务（当前不接入主业务流程，仅供独立验收 CLI 使用）
+robot:
+  transport: modbus             # modbus=Lua MVP 回退；dobot_tcp=候选主路径
+  host: 192.168.0.15
+  modbus_port: 502
+  modbus_unit_id: 1
+  modbus_byte_order: word-swap
+  command_port: 29999
+  feedback_port: 30004
+  error_http_port: 22000        # 官方 GetError HTTP 接口；失败时回退 GetErrorID
+  connect_timeout: 3.0
+  command_timeout: 5.0
+  action_timeout: 300.0
+  ack_timeout: 10.0              # 机器人接单超时（写 EXECUTE=1 后等待 BUSY/DONE/ERROR 的最大秒数）
+  poll_interval: 0.05
+  point_source: ../机器人程序/机器人程序v0.11/roboprogram/point.json
+  point_meta: config/robot_points_meta.json
+  # Deprecated — use point_meta instead:
+  flow_source: config/robot_flows_v2.yaml
+  host_action_source: config/robot_host_actions.json
+  point_source_version: v0.11
+  home_point: robot-main.home
+  # EnableRobot/ClearError 还需要 CLI --confirm；默认双重禁用，避免自动掩盖现场状态。
+  allow_enable_command: false
+  allow_clear_error_command: false
+  tool_di_feedback_enabled: false  # 确认 DI1/DI2 接线和极性后才可开启
+
+plc:
+  # url: opc.tcp://localhost:4840    # Mock 模式默认地址
+  url: opc.tcp://192.168.0.50:4840  # 实机 PLC 地址（替换为实际IP和端口）
+  action_timeout: 15.0           # 单动作 send_action 等待 PLC_Done 超时（秒）；工位级 await_stage_done 超时由 STAGE_TIMEOUT(300s) 独立控制
+  reconnect_wait_timeout: 60.0   # 心跳失联后等待重连恢复的最大秒数
+
+vision:
+  mock: false                    # true=跳过真实图像分析返回固定坐标
+  output_dir: vision_output
+  # 板坐标系姿态归一化（新工位适配）
+  image_plate_orientation: rot180  # rot0 | rot90cw | rot180 | rot270cw；新工位相机视角相反，绕板中心 180° 翻
+  auto_rectify_tilt: true           # 板倾斜自动矫正（minAreaRect + warpAffine）
+  rectify_min_angle_deg: 0.5        # 小于此角度不做 warp（避免无谓插值损失）
+
+camera:
+  mock: false
+  test_image: data/samples/case1/after.jpg     # Mock 模式预置 after 图路径
+  test_before_image: data/samples/case1/before.jpg  # Mock 模式预置 before 图路径（双帧调试用）
+
+  # 大恒相机实机参数（mock=false 时生效，预留配置接口）
+  daheng:
+    ip: "192.168.0.169"            # GigE 相机 IP 地址
+    exposure_time: 1000000.0        # 曝光时间 (µs)，默认 500ms
+    gain: 1.0                      # 模拟增益
+    pixel_format: "RGB8"           # 目标像素格式（彩色相机 Bayer→RGB8）
+    trigger_mode: "Off"            # 触发模式：Off=连续采集，On=软触发
+    timeout_ms: 2000               # 采图超时 (ms)
+    width: 0                       # 图像宽度（0=不修改）
+    height: 0                      # 图像高度（0=不修改）
+    offset_x: 0                    # ROI X 偏移
+    offset_y: 0                    # ROI Y 偏移
+    # 光源控制（大恒相机 GPIO 光耦输出驱动 LED 光源）
+    auto_light_control: true       # true=拍照前自动开灯、拍后关灯（保护光源寿命）；false=需手动控制
+    light_line: "Line1"            # 光源物理 I/O 线（Line1=Pin7/8 光耦输出, Line2/Line3 可选）
+
+# 液位检测模块 MQTT + MJPEG + 香橙派 SSH 远程管理配置
+water_level:
+  enabled: true                 # true=启用 MQTT 连接香橙派
+  broker_ip: "192.168.0.168"
+  broker_port: 1883
+  stream_port: 7070              # 香橙派 MJPEG HTTP 服务端口
+  orangepi_ip: "192.168.0.60"  # 用于构造 MJPEG URL
+  # SSH 远程管理（主程序启动时自动 SSH 拉起香橙派液位脚本，关闭时自动停止）
+  auto_start: false              # true=启动时自动 SSH 拉起远程脚本
+  ssh_user: "orangepi"           # SSH 用户名（需已配置密钥免密登录）
+  # ssh_ip: ""                   # SSH IP（空则取 orangepi_ip）
+  work_dir: "Desktop/work"       # 香橙派上的代码目录（~/work_dir/）
+  script_name: "run.sh"          # 香橙派上的启动脚本（已包含摄像头、broker 等参数）
+  start_timeout: 30              # 等待香橙派 MQTT online 的超时秒数
+
+ui:
+  enabled: true                  # true=启用 NiceGUI Web UI（Batch 4），false=终端模式（Batch 3）
+  host: 0.0.0.0                  # 0.0.0.0 允许局域网手机访问
+  port: 8081
+
+# mode=pltc 时的样品列表（按顺序入队串行执行）
+# Batch 6 Phase C：样品可指定 recipe（recipes/<name>.yaml）；
+#   - 样品 recipe 为空时回落到顶层 default_recipe
+#   - 两者都为空时走旧 SampleTask 四步路径（Batch 2-4 向后兼容）
+default_recipe: standard_pTLC       # 可选；缺失=null=走旧 SampleTask
+recipes_dir: recipes                # 可选；Recipe 库根目录
+
+# mode=stress 时的压测参数（连续运行稳定性验证）
+stress:
+  duration_sec: 7200             # 目标持续时间（秒），默认 2 小时
+  interval_sec: 1.0              # 两次入队之间的节流间隔
+
+# 数据库（二级索引层）：SQLite 异步持久化样品结构化数据
+database:
+  enabled: true                  # false=不启用数据库索引层
+  path: data/tlc_data.sqlite     # 数据库文件路径（相对 UI-Upper 工作目录）
+
+# G-code 生成参数（真机标定 + 工艺参数）
+# Z 轴约定：Z 正方向 = 向下（切入板材方向），Z=0 为最高位
+gcode:
+  origin_corner: top-right      # lower-left | top-right | top-left | bottom-right
+  plate_origin_x: 291.02            # 板左下角对应的机床 X 坐标（mm）
+  plate_origin_y: 122.13            # 板左下角对应的机床 Y 坐标（mm）
+
+  # Z 轴基准（Z 正=向下）
+  plate_surface_z_mm: 7.0        # 硅胶面 Z 坐标（恰好接触表面）
+  safe_z_mm: 5.0                 # 安全移动高度（板面上方约 2mm）
+  approach_z_mm: 6.5             # 下刀前接近高度（板面上方约 0.5mm）
+
+  # CNC 主方案路径策略（与 core/cnc_path_generator.py _PATH_DISPATCH 同步）
+  path_strategy: contour         # zigzag | boustrophedon | contour
+  boustrophedon_columns: 20      # 列数上限提示；实际列数由 cutter_diameter × overlap_ratio 自动推导（需能整除 200）
+  # contour 策略下生效：每列长度保留比例（0,1]。k=1 按轮廓全量刮；k=0.5 以列重心为中心保留中间 50%。
+  scrape_keep_ratio: 1.0
+  # 收集路径 Y 方向全局膨胀比 [1.0, 2.0]。1.0=与刮取 bbox 一致，>1.0=扩大收集范围（通过 bbox 放大实现）。
+  collect_expand_ratio: 1.0
+
+  # 刀具与收集瓶物理参数
+  tool:
+    cutter_diameter_mm: 2.0      # 铣刀刃径
+    bottle_diameter_mm: 5.0      # 收集瓶口内径
+    bottle_x_offset_mm: 85.0     # 刀头到收集瓶口 X 偏移（mm）
+
+  # 多层刮取工艺参数
+  scrape:
+    total_depth_mm: 1.0          # 硅胶层总厚度
+    num_passes: 1                # 分几层刮取
+    overlap_ratio: 0.4           # 相邻锯齿重叠率 [0, 1)
+    feed_rate: 800               # 刮取进给 mm/min
+    plunge_rate: 200             # Z 切入进给 mm/min
+
+  # 尾端粉末收集参数
+  collection:
+    overlap_ratio: 0.5           # 收集锯齿重叠率 [0, 1)
+    feed_rate: 800               # 收集进给 mm/min
+    mode: per_pass               # per_pass（每层后收集）| final（全部刮完后收集）
+
+# 日志持久化（P2-1）：JSONL 异步落盘，与未来 SQLite 迁移兼容
+# 存储路径：
+#   data/samples/<sample_id>/logs/run_<微秒时间戳>.jsonl
+#   data/samples/_system/logs/run_<YYYYMMDD>.jsonl       （无主事件）
+#   data/logs/by_date/<YYYYMMDD>.jsonl                   （软索引）
+logging:
+  persistence:
+    enabled: true                # false=仅内存日志（不落盘）
+    flush_interval_sec: 0.5      # writer flush 周期；进程崩溃最多丢失该窗口内事件
+    batch_size: 10               # 单批最大条数
+    archive_older_than_days: 30  # 启动时一次扫描，将超过 N 天的 by_date/*.jsonl 压缩为 .gz

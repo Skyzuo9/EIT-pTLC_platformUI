@@ -1,0 +1,17 @@
+{
+  "schema": "ptlc.sim_feedlift_calibration/v1",
+  "provenance": "simulation_fixture_only",
+  "description": "Deterministic nominal geometry for the isolated PlatformUI simulator. Never used by the real PLC runtime.",
+  "feed": {
+    "z_empty_mm": 500.0,
+    "pitch_mm": 2.5,
+    "warn_threshold": 5,
+    "samples": []
+  },
+  "waste": {
+    "z_empty_mm": 500.0,
+    "pitch_mm": 2.5,
+    "warn_threshold": 25,
+    "samples": []
+  }
+}

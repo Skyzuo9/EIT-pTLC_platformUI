@@ -1,0 +1,214 @@
+{
+  "version": 1,
+  "plc_actions": {
+    "spotting.prepare-receive": {
+      "type": "l2_action",
+      "station": "sampling",
+      "action": "prepare-plate-receive"
+    },
+    "spotting.clamp-plate": {
+      "type": "l2_action",
+      "station": "sampling",
+      "action": "clamp-plate"
+    },
+    "spotting.prepare-release": {
+      "type": "l2_action",
+      "station": "sampling",
+      "action": "prepare-plate-release"
+    },
+    "spotting.finish-release": {
+      "type": "l2_action",
+      "station": "sampling",
+      "action": "finish-plate-release"
+    },
+    "collect.clamp-holder": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u653e\u6536\u96c6\u5668\u5230\u5de5\u4f4d",
+      "variant": "boolean",
+      "value": true
+    },
+    "collect.confirm-bottle-put": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u653e\u6536\u96c6\u74f6\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "collect.confirm-bottle-returned": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u673a\u5668\u4eba\u653e\u6536\u96c6\u74f6\u5230\u6682\u5b58\u5de5\u4f4d\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "collect.confirm-holder-put": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u673a\u5668\u4eba\u9000\u51fa\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "collect.confirm-holder-returned": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u653e\u6536\u96c6\u5668\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "collect.release-holder": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u673a\u5668\u4eba\u5230\u8fbe\u6536\u96c6\u5668\u4f4d\u7f6e",
+      "variant": "boolean",
+      "value": true
+    },
+    "feed-lift.confirm-picked": {
+      "variable": "\u5347\u964d\u4e0a\u6599\u673a\u5668\u4eba\u53d6\u6599\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "feed-lift.raise": {
+      "variable": "\u5347\u964d\u4e0a\u6599\u673a\u5668\u4eba\u5df2\u5438\u4f4f\u7269\u6599",
+      "variant": "boolean",
+      "value": true
+    },
+    "scrape.clamp-holder": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u673a\u5668\u4eba\u5230\u8fbe\u5939\u6301\u4f4d",
+      "variant": "boolean",
+      "value": true
+    },
+    "scrape.confirm-holder-picked": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u673a\u5668\u4eba\u9000\u51fa\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "scrape.confirm-holder-put": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u673a\u5668\u4eba\u9000\u51fa\u5de5\u4f4d\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "scrape.confirm-plate-loaded": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u653e\u7845\u80f6\u677f\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "scrape.confirm-plate-released": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u673a\u5668\u4eba\u53d6\u7845\u80f6\u677f\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "scrape.release-holder": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u673a\u5668\u4eba\u5230\u8fbe\u6536\u96c6\u5668\u5939\u6301\u4f4d",
+      "variant": "boolean",
+      "value": true
+    },
+    "spotting.confirm-loaded": {
+      "variable": "\u4e0a\u6837\u70b9\u6837\u653e\u7845\u80f6\u677f\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "spotting.confirm-released": {
+      "variable": "\u4e0a\u6837\u70b9\u6837\u53d6\u7845\u80f6\u677f\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "tank.confirm-loaded": {
+      "variable": "\u5c55\u5f00\u5de5\u4f4d\u673a\u5668\u4eba\u653e\u7845\u80f6\u677f\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "tank.confirm-released": {
+      "variable": "\u5c55\u5f00\u5de5\u4f4d\u53d6\u7845\u80f6\u677f\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    },
+    "tank.select": {
+      "variable": "Expand_Target_Tank",
+      "variant": "int16",
+      "value_param": "tank_id"
+    },
+    "waste.confirm-loaded": {
+      "variable": "\u5347\u964d\u4e0b\u6599\u673a\u5668\u4eba\u653e\u5e9f\u6599\u5b8c\u6210",
+      "variant": "boolean",
+      "value": true
+    }
+  },
+  "plc_conditions": {
+    "collect.bottle-pick-ready": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u5141\u8bb8\u673a\u5668\u4eba\u53d6\u6536\u96c6\u74f6\u653e\u6682\u5b58\u5de5\u4f4d",
+      "equals": true
+    },
+    "collect.bottle-receive-ready": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u5141\u8bb8\u653e\u6536\u96c6\u74f6",
+      "equals": true
+    },
+    "collect.holder-clamped": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u5141\u8bb8\u673a\u5668\u4eba\u9000\u51fa\u5de5\u4f4d",
+      "equals": true
+    },
+    "collect.holder-pick-ready": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u5141\u8bb8\u53d6\u6536\u96c6\u5668",
+      "equals": true
+    },
+    "collect.holder-receive-ready": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u5141\u8bb8\u653e\u6536\u96c6\u5668",
+      "equals": true
+    },
+    "collect.holder-released": {
+      "variable": "\u6536\u96c6\u5de5\u4f4d\u673a\u5668\u4eba\u53d6\u6536\u96c6\u5668\u653e\u56de\u6682\u5b58\u5de5\u4f4d",
+      "equals": true
+    },
+    "feed-lift.pick-ready": {
+      "variable": "\u5347\u964d\u4e0a\u6599\u4f3a\u670d\u5141\u8bb8\u53d6\u6599",
+      "equals": true
+    },
+    "feed-lift.raised": {
+      "variable": "\u5347\u964d\u4e0a\u6599\u4f3a\u670d\u4e0b\u964d\u5b8c\u6210",
+      "equals": true
+    },
+    "scrape.holder-clamped": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u673a\u5668\u4eba\u9000\u51fa\u5de5\u4f4d",
+      "equals": true
+    },
+    "scrape.holder-pick-ready": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u5141\u8bb8\u53d6\u6536\u96c6\u5668",
+      "equals": true
+    },
+    "scrape.holder-receive-ready": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u5141\u8bb8\u653e\u6536\u96c6\u5668",
+      "equals": true
+    },
+    "scrape.holder-released": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u673a\u5668\u4eba\u9000\u51fa",
+      "equals": true
+    },
+    "scrape.plate-receive-ready": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u5141\u8bb8\u653e\u7845\u80f6\u677f",
+      "equals": true
+    },
+    "scrape.plate-release-ready": {
+      "variable": "\u62cd\u7167\u5de5\u4f4d\u5141\u8bb8\u53d6\u7845\u80f6\u677f",
+      "equals": true
+    },
+    "spotting.receive-ready": {
+      "variable": "\u4e0a\u6837\u70b9\u6837\u5141\u8bb8\u653e\u7845\u80f6\u677f",
+      "equals": true
+    },
+    "spotting.release-ready": {
+      "variable": "\u4e0a\u6837\u70b9\u6837\u5141\u8bb8\u53d6\u7845\u80f6\u677f",
+      "equals": true
+    },
+    "tank.receive-ready": {
+      "variable": "\u5c55\u5f00\u5de5\u4f4d\u5141\u8bb8\u653e\u7845\u80f6\u677f",
+      "equals": true
+    },
+    "tank.release-ready": {
+      "variable": "\u5c55\u5f00\u5de5\u4f4d\u5141\u8bb8\u53d6\u7845\u80f6\u677f",
+      "equals": true
+    },
+    "waste.receive-ready": {
+      "variable": "\u5347\u964d\u4e0b\u6599\u4f3a\u670d\u5141\u8bb8\u653e\u6599",
+      "equals": true
+    }
+  },
+  "camera_actions": {
+    "plate.calibrate": {
+      "filename": "calibration.jpg"
+    },
+    "plate.capture-before-develop": {
+      "filename": "before.jpg"
+    },
+    "plate.capture-after-develop": {
+      "filename": "after.jpg"
+    }
+  }
+}

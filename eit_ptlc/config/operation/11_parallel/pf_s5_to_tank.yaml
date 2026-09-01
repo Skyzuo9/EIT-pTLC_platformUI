@@ -1,0 +1,51 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s5_to_tank
+label: 4 取板进缸
+ui:
+  role: segment
+# 原子流程 s5: 刮板台 -> 展开缸N。从台上取板 -> 地轨到展开区(位5) -> 放板入缸。
+# 依赖 s3 (缸已润洗上液) 与 s4 (板在台上); 本段是 station:develop 的短持有窗
+# (~数分钟), 其余展开时间在 s6 空手等待 —— 这正是把 develop 从"整程虚占"里解出来的切口。
+# 显式 rail_move_safe(5): develop_load 进缸靠 robot_tank_put 入口注入的 rail.ensure(5),
+# 而 rail.ensure 在 auto_rail 关时是空操作; 显式带到位使本段与 auto_rail 解耦 (同 V2)。
+flow:
+  atomic: true
+  sample: required
+  from: scrape_table
+  to: tank:{tank}
+  hitl: none
+  retry: manual
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8 (与 s3 同缸, 调度器注入)
+resources:
+- robot
+- station:rail
+- station:photo_scrape
+- station:develop
+body:
+- op: comment
+  text: '刮板侧取板: 松定位 -> 机器人取板 -> retr_stoprot (photoscrape_unload 幂等兜底 press(false))'
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 5
+  outputs: {}
+- op: comment
+  text: '放板入缸: plate_retract -> robot_tank_put(tank) -> plate_extend; 段末板在缸内 (稳定停放)'
+- op: run_script
+  script: develop_load
+  inputs:
+    tank:
+      var: tank
+  outputs: {}

@@ -1,0 +1,303 @@
+# eit_ptlc 上位机配置
+# 校验: & "C:/ProgramData/miniforge3/python.exe" -m eit_ptlc.config.loader --check
+# 说明: 引用其它配置文件的路径 (plc.nodes_file / robot.points_file / recipes_dir)
+#       相对本文件所在目录 (eit_ptlc/config/) 解析; 数据输出路径相对运行工作目录.
+
+# 控制模式两态: RUN (运行) | DEBUG (调试)
+# DEBUG 可执行所有动作; RUN 不能执行调试功能 (机器人点动/步进/回零/工具/清警/使能)
+control_mode: DEBUG
+
+# 三维工程真源: 模型资产, authoring YAML 与重建管线均从此目录读取.
+three_d:
+  workspace_root: ../three_d
+  hardware_root: E:/eit_lab/eit_lab_hardware/eit_ptlc_station
+
+# PLC OPC UA (统一 L2 动作通道)
+plc:
+  url: opc.tcp://192.168.0.50:4840   # 实机地址; Mock 用 opc.tcp://localhost:4840
+  # 等待终态 = OPC UA 订阅事件驱动 + 看门狗 (取代旧忙轮询 + 固定 15s 预算):
+  #   只要 PLC 持续推进 (任一 L2 状态字段变化) 就一直等; 慢动作(注射泵循环)不再误报 TIMEOUT.
+  action_timeout: 600.0              # 绝对上限 (秒): 兜底病态挂死
+  action_stall_timeout: 60.0         # 停滞判停 (秒): 无任何状态推进多久判"结果不明确"(需 > 单步最长静默窗口)
+  action_soft_recheck: 1.0           # 软复核 (秒): 镜像静默超此值即直读对账, 兜底订阅漏推终态(把恢复从 stall 压到亚秒); 0=关
+  subscription_queue_size: 10        # 订阅每监控项队列深度: 降低并行/快跳变时溢出丢弃概率 (与软复核互补)
+  subscription_sampling_ms: 0.0      # 订阅采样间隔 (ms): 0=服务器最快, 兜底捕获单扫描塌缩的快跳变
+  reconnect_wait_timeout: 60.0       # 心跳失联后等待重连恢复的最大秒数
+  # asyncua 客户端参数: 必须显式给, 库默认值 (timeout=4 / watchdog_intervall=1.0) 会让 PLC
+  # 一次秒级应答延迟就把整条会话判死 —— asyncua 2.x 的连接监管每 watchdog_intervall 秒探一次
+  # server_state, 探测超时就等于本值; 超时即标 DISCONNECTED (尽管 TCP 还活着), 此后所有请求抛
+  # "client is disconnected", 驱动只能整条重建。现场表现: 反复 "调用侧先于心跳发现连接断开"
+  # + 库内 "No request found for request id" traceback。
+  request_timeout: 10.0              # 单请求应答超时 (秒)
+  watchdog_interval: 5.0             # 链路健康探测周期 = 探测超时 (秒); 调它就是调抖动容忍度
+  max_inflight_requests: 6           # 单会话在途请求上限 (心跳不受限); <=0 关限流
+  nodes_file: plc_nodes.yaml         # 相对本目录
+  auto_rail: true                    # 地轨随点自动到位 (Win B): move_to_point 前据点位 rail 槽自动确认/补移地轨。真机前置: PLC 侧 Rail_L2 派发器 + Rail_ActPos/Rail_Homed 遥测须下装验收, 否则每次臂移动 fail-safe 报错停 (sim 已跑通)
+
+# 机器人 Dobot TCP-IP-V4 直连 (jog/step/move)
+robot:
+  transport: dobot_tcp               # 仅生产直连
+  host: 192.168.0.15
+  command_port: 29999                # dashboard 命令口
+  feedback_port: 30004               # 实时反馈口
+  move_port: 30003                   # 运动指令口
+  error_http_port: 22000             # 官方 GetError HTTP 接口
+  connect_timeout: 3.0
+  command_timeout: 5.0
+  action_timeout: 300.0
+  ack_timeout: 10.0
+  poll_interval: 0.05
+  points_file: points/robot/robot_points.json     # 相对本目录 (来自 point.json, 86 点)
+  points_meta_file: points/robot/robot_points_meta.json
+  tool_state_file: robot_tool_state.json          # 末端工具(夹爪)权威状态: 四态持久化真源, 启动读盘恢复
+  point_source_version: v0.11
+  home_point: robot-main.home
+  # EnableRobot/ClearError: 上位机维护页提供使能/清警按钮 (仍需调用方 confirm; 驱动绝不自动调用)
+  allow_enable_command: true
+  allow_clear_error_command: true
+  tool_di_feedback_enabled: false    # 回退开关: 仅当 tool_confirm 段缺失时生效 (向后兼容旧全局行为)
+  tool_di_timeout: 10.0              # DI 到位确认等待上限(秒); di / di_or_dwell 模式等 DI 时生效
+  # 按动作到位确认 (替代单一全局 tool_di_feedback_enabled): 每个双气工具动作独立选择确认方式
+  #   di          = 作动后等 DI 到位 (张开限位 DI2 可靠可达)
+  #   dwell       = 不等 DI, 改固定停顿 settle(dwell_ms) (某动作 DI 不可靠/未校验时选用)
+  #   di_or_dwell = 先等 DI, 超时回退 dwell
+  # 段缺失则回退上面的 tool_di_feedback_enabled 旧行为; rotary 现场校验 DI 后仅改本段 mode: di 即可 (无需改代码)
+  tool_confirm:
+    gripper_open: {mode: di, dwell_ms: 400}       # 张开限位 DI2 可靠 → 等 DI (下降前确认已张开)
+    gripper_close: {mode: dwell, dwell_ms: 400}   # 夹物件时闭合限位 DI1 到不了位(空夹到底才置位)→ 固定 settle 不等 DI; 回退 5b55a83 的 di_or_dwell(会等满 tool_di_timeout 造成~5s停顿). 旋转仍 di_or_dwell 保吸盘"转到位"确认
+    rotary_up: {mode: di_or_dwell, dwell_ms: 600}       # 现场校验: 上翻到位=DI1 → 先等 DI1 超时回退 dwell
+    rotary_down: {mode: di_or_dwell, dwell_ms: 600}     # 现场校验: 下翻到位=DI2 → 先等 DI2 超时回退 dwell
+  # 全局速度比 SpeedFactor 1-100: connect 后下发, 影响点动与所有运动 (实际速度 = speed_factor% × 各命令 v%)
+  speed_factor: 20                   # 调试期偏低保证安全; 点动肉眼可见即可
+  jog_speed_percent: 20              # 点动速度百分比 1-100
+  step_distance_mm: 1.0              # 步进默认线性增量 mm
+  step_angle_deg: 1.0                # 步进默认关节/姿态增量 deg
+
+# PALLASVision TCP 纠偏: Bridge 常驻接住 PALLAS 回传, 后端经 localhost 调 Bridge。
+pallas_vision:
+  enabled: true
+  mock: false
+  bridge_enabled: true
+  bridge_host: 127.0.0.1
+  bridge_port: 18888
+  bridge_timeout: 15.0
+  host: 192.168.0.168              # PALLASVision TCP Server
+  port: 18889
+  trigger: "1"                     # StringTrigger, 当前工程对应“2次分析”
+  encoding: utf-8
+  terminator: none
+  result_mode: callback            # callback=Bridge 监听 listen_port; reply=触发连接直接回包(旧直连回退)
+  listen_host: 0.0.0.0
+  listen_port: 18887               # PALLASVision TCP Client 当前配置为 127.0.0.1:18887
+  connect_timeout: 3.0
+  result_timeout: 10.0
+  read_bytes: 4096
+  err_fail_code: 111
+  max_abs_xy_mm: 30.0
+  max_abs_rz_deg: 10.0
+  light_control_enabled: true        # 纠偏识别期间通过机器人 DO 点亮补光, finally 关灯
+  light_do_channel: 7                # 复刻旧 DO7 补光/触发口; 避开工具 DO {1,2,3,6}
+  light_settle_ms: 1000              # 开补光后、触发拍照前的稳定等待 (ms): 残振衰减+补光到稳态再拍; 1s 对业务节拍基本无感
+  local_vision_enabled: true         # 加密狗丢失后启用本地视觉 (.163+OpenCV) 替代 PALLAS TCP; 关掉改 false 即回落原路; 标定见 config/local_plate_vision.yaml
+# 视觉分析与条带检测
+vision:
+  mock: false
+  output_dir: vision_output
+  image_plate_orientation: rot0      # rot0 | rot90cw | rot180 | rot270cw (0709: rot0=点样线在底, detect_origin_band 在下半找; 与手绘 rot0 画布 + lower-left 锚定同帧)
+  auto_rectify_tilt: true
+  rectify_min_angle_deg: 0.5
+  min_row_score: 5.0
+  image_plate_rotation_deg: -2.43    # 固定相机滚转角(度), 主路径 deskew 用它; 真机实测约 -2.43; 设 null 回落每帧自动估
+
+# 相机 (大恒 gxipy 或 Mock)
+camera:
+  mock: false
+  test_image: data/samples/case1/after.jpg
+  test_before_image: data/samples/case1/before.jpg
+  daheng:
+    ip: "192.168.0.169"
+    exposure_time: 1000000
+    gain: 1
+    pixel_format: "RGB8"
+    trigger_mode: "On"               # 软触发 (Software trigger); 不支持则自动回退 Off
+    trigger_source: "Software"       # 触发源 (仅 trigger_mode=On 时有效)
+    timeout_ms: 2000
+    width: 0
+    height: 0
+    offset_x: 0
+    offset_y: 0
+    auto_light_control: true
+    light_line: "Line1"
+    uv_on_time_ms: 1000              # UV 总点亮时间 (ms); 驱动硬截止固定不超过 2000 ms
+  # 命名拍照 profile (叠加在 daheng 基线上的覆盖增量); mock 忽略, 实机填曝光/增益
+  profiles:
+    photoscrape: {}   # 占位: 暂用 daheng 基线; 实机调好后填 {exposure_time: ..., gain: ...}
+
+# 液位检测模块 (香橙派 MQTT + MJPEG + SSH 远程管理)
+water_level:
+  enabled: true
+  broker_ip: "192.168.0.63"          # 上位机自带内置 MQTT broker (mqtt_broker.py 随 launcher 起); 原师兄电脑 .168 已弃用
+  broker_port: 1883
+  stream_port: 7070                  # 香橙派 MJPEG HTTP 服务端口
+  orangepi_ip: "192.168.0.60"
+  auto_start: false
+  ssh_user: "orangepi"
+  work_dir: "Desktop/work"
+  script_name: "run.sh"
+  payload_dir: "../driver/water_level_payload"
+  start_timeout: 30
+  # 香橙派抓帧脚本启动参数 (start_remote 注入 run.sh; cameras/tl_bl_cm 为脚本必填, 缺则启动即退出)
+  cameras: "/dev/camera1,/dev/camera2,/dev/camera3,/dev/camera4,/dev/camera5,/dev/camera6,/dev/camera7,/dev/camera8"
+  tl_bl_cm: 15.0
+  # 全局监控档 = MJPG 640×480 (4:3)。这是硬件受限下的妥协档, 不是理想值 —— 代价必须知道:
+  #   相机是 16:9 传感器, 4:3 档由横向中心裁切得到。2026-07-26 实测(同机位同相机, 以画面竖直面板缝
+  #   为共同地标): 640×480 横向视场仅为 16:9 档的 74.6%, 与纯裁切理论值 (4/3)/(16/9)=75.0% 吻合,
+  #   即左右各切一截、合计丢 25.4% 视野 —— 现场反馈的"拍不全"就是这个, 与镜头/安装无关。
+  #   1280×720 与 1920×1080 视场相同(实测 99.8%), 换任一 16:9 档即可拿回完整视野。
+  # 卡在 640×480 的真因不是带宽, 是 Bus02 那个 hub 整体掉线; 根因与已证伪的旧假设见 max_active_channels。
+  # 相机实际支持 6 档 MJPG(旧注释"仅三档"有误): 1920×1080 / 1280×960 / 1280×720 / 800×600 /
+  #   640×480 / 320×240, 均含 5~30 fps。其中仅 1920×1080 与 1280×720 是 16:9。
+  # 监控档"只看不测": 不做旋转/ROI/检测, 纯画面总览; 液位检测在活跃展缸按需拉到 1920×1080
+  #   (与标定同分辨率, roi_frac 直接生效) —— 见 per-channel 动态分辨率。
+  cap_width: 640
+  cap_height: 480
+  cap_fps: 10                        # 监控 10fps 足够; 实测降到 5fps 救不了掉线(非吞吐问题)
+  no_detect: true                    # 检测已搬上位机, 香橙派只抓帧
+  # 上位机拉帧检测 (检测已从香橙派搬到上位机: 香橙派只抓帧, 上位机拉帧 + 面积占比)
+  detect_interval: 2.0               # 拉帧检测周期(s); 溶剂前沿非时间敏感任务
+  # 并发采集相机数上限 (0=不限). 现场 wl.log 实证: 8 路 UVC 同开曾致 CH5/6/7 同段 USB 丢流且永不自愈。
+  # >0 时只激活 pinned(录制/查看中)+低号补齐至此数, 其余停用(网格该路显示无信号)。若 USB 过载复发,
+  # 先设 4~6 止血(录制/查看的通道恒被 pin 保住); 硬件确能稳开 8 路则保持 0。
+  #
+  # 2026-07-26 实测定位「CH5/6/7 永不自愈」根因 —— 是硬件掉线, 不是带宽, 软件改不动:
+  #   真实拓扑 (lsusb -t, 与旧注释"两条 hub 各4路"不符; 应是有人已把 CH4/CH8 摘出 hub 直连):
+  #     Bus01 xhci-hcd.0.auto(OTG)  → camera4 直连
+  #     Bus02 fd800000.usb (ehci)   → RTS5411 hub → camera5/6/7      ← 故障段
+  #     Bus03 fd880000.usb (ehci)   → camera8 直连
+  #     Bus04 xhci-hcd.1.auto       → RTS5411 hub → camera1/2/3      ← 同型号 hub, 稳
+  #     Bus07 = Bus04 同控制器的 5000M SS 面, 即板上唯一 USB3.0 口已被 Bus04 那个 hub 占用
+  #   现象: 真实抓帧脚本(含 MJPEG 解码, CPU~280%)跑 720p 约 54s 后内核报
+  #     `usb 2-1: USB disconnect, device number N` —— 掉的是整个 hub 而非单相机, CH5/6/7 同时
+  #     VIDIOC_REQBUFS errno=19(ENODEV)。hub 随后自动重枚举成功, 但应用持有的句柄已失效且不重开,
+  #     故对上层表现为"永不自愈"。降 fps 到 5 照样掉 → 与吞吐无关。1080p 更差(每路跌到 1.3fps, 两路卡死)。
+  #   对照组: 同型号 hub + 同型号相机 + 同样 3 路, 挂 Bus04(xhci) 可稳跑 1080p 持续压测。
+  #     差异只在上游端口类型(xhci vs ehci) / 上游线缆 / 该 hub 实际供电三者之一。
+  #   已证伪的两条旧假设, 勿再走:
+  #     (a)「撞 400M 等时带宽上限 ENOSPC」—— 8 路同开 1920×1080 在 v4l2 层全部成功, 未见任何 ENOSPC;
+  #     (b) uvcvideo quirks=128 (UVC_QUIRK_FIX_BANDWIDTH) —— 内核 uvc_fixup_video_ctrl() 的带宽修正
+  #         条件含 !(format->flags & UVC_FMT_FLAG_COMPRESSED), 压缩格式直接跳过, 对 MJPG 无效。
+  #   现场待办(修好即可把 cap_width/height 提到 1280×720 拿回完整视场):
+  #     1. 核对两个 hub 电源适配器的额定电流是否一致/是否老化 (掉的是整个 hub, 供电是首要嫌疑);
+  #     2. 换 Bus02 hub 的上游线缆;
+  #     3. 仍不行则把该 hub 与 camera4 对调端口 —— camera4 改 ehci 直连(camera8 已如此且稳定),
+  #        hub 移到 Bus01 的 xhci(OTG)口。注意板上没有第二个 USB3.0 A 口可用。
+  max_active_channels: 0
+  # calib_path 留空 → config 目录/water_level_calib.json (标定真源; 可拷香橙派 water_level_config.json 迁移)
+  # 单通道原始录制 (Phase 0: 手动按钮采下展开过程 + 逐帧时间戳 + 标定快照, 为回放/离线整定而生)
+  # recordings_dir 留空 → <repo_root>/data/water_level_recordings/{sample_id 或 adhoc}/chN_<时间戳>.avi (+ .jsonl/.meta.json 旁挂)
+
+# FastAPI + WebSocket 后端 (取代旧 NiceGUI)
+api:
+  enabled: true
+  host: 0.0.0.0    # 局域网可访问 (launcher 读此值传 uvicorn --host); 改 127.0.0.1 仅本机
+  port: 18080
+  cors_origins:
+  - http://localhost:15173           # Vue3 vite dev
+  - http://localhost:4173            # Vue3 preview
+
+# 配方库 (operation 的一类), 相对本目录
+default_recipe: standard_pTLC
+recipes_dir: recipes
+
+# 并行实验系统 (批量样品调度 + 实验数据库); 详见 operation/scheduler.py
+experiment:
+  wip_limit: 3          # 同时在制样品数默认上限 (批次提交可覆盖); 限"已开跑未走完"的样品数
+  tank_pool: [1, 2, 3, 4, 5, 6, 7, 8]   # 调度器可分配的展开缸全集 (批次提交可取子集)
+  recipe: parallel_v1   # 默认并行配方 (config/recipes/<name>.yaml)
+  # db_path: experiments.db  # 缺省落 eit_ptlc/var/experiments.db (独立库, 不并入 runs.db)
+
+# G-code / CNC 路径生成 (真机标定 + 工艺参数). Z 正方向 = 向下
+gcode:
+  origin_corner: lower-left           # lower-left | top-right | top-left | bottom-right (0709: rot0 帧, 锚点=图像左下角实测)
+  plate_origin_x: 93.234              # 图像左下角(cm 0,0)机床 X, 实测(旧右上角 291.02 −一板宽)
+  plate_origin_y: -74.982             # 图像左下角机床 Y, 实测(点样线所在底边; 离撞机 <5mm, 见 machine_y_min_mm)
+  plate_surface_z_mm: 20.5
+  align_clearance_mm: 2.5             # 对位检查高度余量(mm): 检查Z=plate_surface_z_mm−此值(当前刀≈18); 换刀只改 plate_surface_z_mm
+  machine_y_min_mm: -73              # 机床 Y 软下限(防撞机): 底边点样线 Y≈-75.7 离撞机<5mm, 钳到 -73 留≈2.7mm 边距; 会截平贴底 band 底部+告警; null=关
+  collector_x_positive: true         # 收集器(粉桶)在铣刀机床 +X 侧(本机硬件): rot0/lower-left 下把收集几何镜像回规范帧, cutter 落 band −X 使收集器压 band(否则拖尾反向脱靶)
+  path_strategy: contour             # zigzag | boustrophedon | contour
+  boustrophedon_columns: 20          # 需能整除 400
+  scrape_keep_ratio: 1
+  collect_margin_mm: 6   #6.0             # 收集 Y 绝对余量(mm), 真扣桶口半径; net每侧=4.0−2.5=板边外+1.5mm
+  collect_expand_ratio: 1.5          # 收集 Y 乘性包络(治硅胶崩飞), [1.0,2.0]; y_half=ratio×带半高+绝对余量
+  tool:
+    cutter_diameter_mm: 2
+    cutter_compensation: true          # 刀径半径补偿: 刮扫中心路径内缩 R=刀半径+安全边, 刀刃不越谱带轮廓(纯度优先); 收集路径不受影响
+    compensation_margin_mm: 0          # 额外纯度安全边(mm/单侧), 补视觉分割边界误差, [0,10]
+    bottle_diameter_mm: 5
+    bottle_x_offset_mm: 90            # 真机实测铣刀↔收集器 X 间距≈90mm(补偿拖尾够到 x_max, 治 −X 端堆积)
+    bottle_y_offset_mm: -3             # 真机实测: 收集器偏 −Y ≈1mm, 补偿 +Y 侧残留(真机拨符号) 此值越+,收集器口越朝外走(Y轴负方向)
+  scrape:
+    total_depth_mm: 1
+    # 2026-07-27 由 1 抬到 2: 渐进式两刀, pass_z=[面+0.5, 面+1.0], 总深仍 1mm 不变。
+    # 分刀是治粉末崩飞的工艺手段(每刀切削力 ∝ 切深)。代价: 节拍近似翻倍 —— 一次 scrape(40)
+    # 同跑刮扫段+收集段, 而收集段约占单刀行程 89%, 每刀整条重跑(实测标定图案 1刀5.3min/3刀15.9min)。
+    # ⚠ N>1 真机此前从未跑过, 且整条路径跑在同一个 g_pass_z 上, 第2刀起刀前刀具是否抬起未经验证 ——
+    #   首次务必小尺寸 dry-run, 看到刀在切深上横穿板面立即停机。
+    num_passes: 2
+    overlap_ratio: 0.4
+    feed_rate: 800
+    bulk_factor: 1.6
+    # 松散系数(粉量估算专用, 不影响刮取动作): 刮下的松散硅胶粉体积 ÷ 板上压实涂层体积。
+    # 物料账本按「谱带轮廓面积 × total_depth_mm × 本值」估进桶粉量并落库, 三维据此画粉柱高度。
+    # 1.6 是按 TLC 硅胶层压实密度 ≈0.6~0.75 g/cm³ 与松散堆积密度 ≈0.35~0.5 g/cm³ 之比取的
+    # **估值, 未实测标定**。标定办法很简单, 做一次就能定死: 拿量筒接一次已知轮廓面积 ×
+    # 已知切深的刮取粉, 量出实际体积反算即可。定了之后把这两行注释改掉。
+  collection:
+    return_sweep: true               # true=拖尾+残粉−X回走(全面收集); false=仅拖尾。拖尾长度=tool.bottle_x_offset_mm
+
+codesys:
+  enabled: true
+  allow_deploy: true
+  exe: D:/InoProShop/CODESYS/Common/InoProShop.exe
+  project: ../plc/20260702.project
+  ipc_dir: ../var/codesys-ipc-20260702
+  idle_timeout: 0
+  session_idle_release: 60      # 会话属主空闲该秒数即可被其它自动方抢占(须 > agent 两次 op 正常间隔)
+  session_wait_timeout: 300     # 想抢占方轮询阻塞的最长秒数, 超时抛忙
+  session_max_hold: 900         # 单属主持有硬上限(逃生阀), 防显式持有崩溃残留钉死实例
+  # allow_deploy: web「下载到设备」按钮 (真机已验证下载+自动启动)
+  # idle_timeout: >0=共享 InoProShop 空闲该秒数即自关释放工程锁; 0=常驻永不自关
+  #   (人机共用同一窗口: 接管→在 worker 窗口手改→释放→agent 续用; 关停走版本还原的 stop_worker
+  #    或 MCP codesys_shutdown; 与 .mcp.json 的 --idle 保持一致)
+  # session_*: 可抢占会话属主租约阈值(秒); 与 .mcp.json 的 --session-* / server.mjs 同名常量必须同值
+
+# 视觉调试台 (固定工作区): 只留采集/工作区参数。识别参数 (orientation/tilt/min_angle/
+# min_row_score) 已并入 vision 段单一真源: 调试台默认由 config.vision 播种, 调参经
+# "应用到生产"写回 vision (见 memory: vision-tab-single-track)。
+vision_debug:
+  workspace_dir: eit_ptlc/var/vision_debug
+  default_exposure_time_us: 1000000
+  default_gain: 1.0
+  default_uv_on_time_ms: 1000
+
+# 泵档默认 (V/M 速度/延时): 优先级 = 运行前参数覆盖 > 本段 > translator 常量兜底
+# 速度单位: 半步/s, 守卫上限 500; step_delay 单位 ms (0..60000)。改后对下一次派发即生效
+# (live-read, 无需重启)。删除某键 = 回退代码常量。spec: 2026-07-14-pump-defaults-config-design
+pump:
+  sampling:
+    asp_speed: 250            # 吸液速度
+    disp_speed: 100           # 打液速度
+    spot_disp_speed: 9        # 点样打液速度 (精度优先)
+    step_delay: 1500          # 步骤间延迟 ms
+    flush_disp_speed: 300     # 轻清洗充液/外壁打速 (偏高冲刷贴壁气泡)
+    spot_head_disp_speed: 100 # 轻清洗点样头打速
+    spot_end_position_ml: 1.125 # 点样活塞终点 (mL, float 0..5); 仅兜底单动作调试: sampling_execute 已按 N=气隔断+排空余量-喷出冗余 显式传参覆盖本值
+  collect:
+    asp_speed: 500
+    disp_speed: 500
+    step_delay: 1000
+  develop:
+    asp_speed: 100
+    disp_speed: 100
+    step_delay: 500

@@ -1,0 +1,328 @@
+schema: unilab.ptlc-transport-routes/v1
+generated_from:
+- eit_ptlc/config/operation/01_sampling..08_rail
+- eit_ptlc/config/operation/11_parallel
+- eit_ptlc/config/material_bindings.yaml
+contract_inputs:
+- resource
+- target_device
+- target_mount
+- target_site
+lock_authority: eit_ptlc.operation.resources.ResourceGate
+site_aliases:
+  feedlift: feedlift
+  feedlift:plate: feedlift
+  plc-feedlift: feedlift
+  sampling: spot-seat
+  plc-sampling: spot-seat
+  sampling:plate: spot-seat
+  plc-sampling:plate: spot-seat
+  spot-seat: spot-seat
+  photoscrape: scrape-table
+  plc-photoscrape: scrape-table
+  photoscrape:plate: scrape-table
+  plc-photoscrape:plate: scrape-table
+  scrape-table: scrape-table
+  waste: waste
+  plc-feedlift:waste-stack: waste
+  scrape-holder: scrape-holder
+  plc-photoscrape:collector: scrape-holder
+  collect-holder: collect-holder
+  plc-collect:collector: collect-holder
+  collect-bottle: collect-bottle
+  plc-collect:vial: collect-bottle
+  staging-a-stack:rack: staging-a:rack
+  staging-b-stack:rack: staging-b:rack
+  staging-a-stack: staging-a:1
+  staging-b-stack: staging-b:1
+  develop:tank-1: tank:1
+  plc-develop:tank-1: tank:1
+  tank-1: tank:1
+  tank:1: tank:1
+  develop:tank-2: tank:2
+  plc-develop:tank-2: tank:2
+  tank-2: tank:2
+  tank:2: tank:2
+  develop:tank-3: tank:3
+  plc-develop:tank-3: tank:3
+  tank-3: tank:3
+  tank:3: tank:3
+  develop:tank-4: tank:4
+  plc-develop:tank-4: tank:4
+  tank-4: tank:4
+  tank:4: tank:4
+  develop:tank-5: tank:5
+  plc-develop:tank-5: tank:5
+  tank-5: tank:5
+  tank:5: tank:5
+  develop:tank-6: tank:6
+  plc-develop:tank-6: tank:6
+  tank-6: tank:6
+  tank:6: tank:6
+  develop:tank-7: tank:7
+  plc-develop:tank-7: tank:7
+  tank-7: tank:7
+  tank:7: tank:7
+  develop:tank-8: tank:8
+  plc-develop:tank-8: tank:8
+  tank-8: tank:8
+  tank:8: tank:8
+  collector-rack-1: collector-rack:1
+  bottle-rack-1: bottle-rack:1
+  collector-rack-2: collector-rack:2
+  bottle-rack-2: bottle-rack:2
+  collector-rack-3: collector-rack:3
+  bottle-rack-3: bottle-rack:3
+  collector-rack-4: collector-rack:4
+  bottle-rack-4: bottle-rack:4
+  collector-rack-5: collector-rack:5
+  bottle-rack-5: bottle-rack:5
+  collector-rack-6: collector-rack:6
+  bottle-rack-6: bottle-rack:6
+  collector-rack-7: collector-rack:7
+  bottle-rack-7: bottle-rack:7
+  collector-rack-8: collector-rack:8
+  bottle-rack-8: bottle-rack:8
+  collector-rack-9: collector-rack:9
+  bottle-rack-9: bottle-rack:9
+  collector-rack-10: collector-rack:10
+  bottle-rack-10: bottle-rack:10
+  collector-rack-11: collector-rack:11
+  bottle-rack-11: bottle-rack:11
+  collector-rack-12: collector-rack:12
+  bottle-rack-12: bottle-rack:12
+  staging-a-stack:item-1: staging-a:1
+  staging-b-stack:item-1: staging-b:1
+  plc-staginga:collector-item-1: staging-a:1
+  plc-staginga:bottle-item-1: staging-b:1
+  staging-a-stack:item-2: staging-a:2
+  staging-b-stack:item-2: staging-b:2
+  plc-staginga:collector-item-2: staging-a:2
+  plc-staginga:bottle-item-2: staging-b:2
+  staging-a-stack:item-3: staging-a:3
+  staging-b-stack:item-3: staging-b:3
+  plc-staginga:collector-item-3: staging-a:3
+  plc-staginga:bottle-item-3: staging-b:3
+  staging-a-stack:item-4: staging-a:4
+  staging-b-stack:item-4: staging-b:4
+  plc-staginga:collector-item-4: staging-a:4
+  plc-staginga:bottle-item-4: staging-b:4
+  staging-a-stack:item-5: staging-a:5
+  staging-b-stack:item-5: staging-b:5
+  plc-staginga:collector-item-5: staging-a:5
+  plc-staginga:bottle-item-5: staging-b:5
+  staging-a-stack:item-6: staging-a:6
+  staging-b-stack:item-6: staging-b:6
+  plc-staginga:collector-item-6: staging-a:6
+  plc-staginga:bottle-item-6: staging-b:6
+routes:
+- source: feedlift
+  target: spot-seat
+  target_device: plc_sampling
+  operation: unilab_transport_v4_feedlift_to_spot
+  inputs: {}
+  tool: suction
+  source_rail_target: 1
+  target_rail_target: 2
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - station:feedlift
+  - station:sampling
+- source: spot-seat
+  target: scrape-table
+  target_device: plc_photoscrape
+  operation: unilab_transport_v4_spot_to_scrape
+  inputs: {}
+  tool: suction
+  source_rail_target: 2
+  target_rail_target: 2
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - station:sampling
+  - station:photo_scrape
+- source: scrape-table
+  target: tank:{tank}
+  target_device: plc_develop
+  operation: unilab_transport_v4_scrape_to_tank
+  inputs:
+    tank: '{tank}'
+  tool: suction
+  source_rail_target: 2
+  target_rail_target: 5
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - station:photo_scrape
+  - station:develop
+- source: tank:{tank}
+  target: scrape-table
+  target_device: plc_photoscrape
+  operation: unilab_transport_v4_tank_to_scrape
+  inputs:
+    tank: '{tank}'
+  tool: suction
+  source_rail_target: 5
+  target_rail_target: 2
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - station:develop
+  - station:photo_scrape
+- source: scrape-table
+  target: waste
+  target_device: plc_feedlift
+  operation: unilab_transport_v4_scrape_to_waste
+  inputs: {}
+  tool: suction
+  source_rail_target: 2
+  target_rail_target: 1
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - station:photo_scrape
+  - station:feedlift
+- source: staging-a:{slot}
+  target: scrape-holder
+  target_device: plc_photoscrape
+  operation: unilab_transport_v4_collector_staging_to_scrape
+  inputs:
+    slot_id: '{slot}'
+  tool: small_gripper
+  source_rail_target: 2
+  target_rail_target: 2
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - staging-a
+  - scrape-holder
+  - station:photo_scrape
+- source: scrape-holder
+  target: collect-holder
+  target_device: plc_collect
+  operation: unilab_transport_v4_collector_scrape_to_collect
+  inputs: {}
+  tool: small_gripper
+  source_rail_target: 2
+  target_rail_target: 3
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - scrape-holder
+  - collect-holder
+  - station:photo_scrape
+  - station:collect
+- source: staging-b:{slot}
+  target: collect-bottle
+  target_device: plc_collect
+  operation: unilab_transport_v4_bottle_staging_to_collect
+  inputs:
+    slot_id: '{slot}'
+  tool: small_gripper
+  source_rail_target: 3
+  target_rail_target: 3
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - staging-b
+  - collect-bottle
+- source: collect-bottle
+  target: staging-b:{slot}
+  target_device: plc_staginga
+  operation: unilab_transport_v4_bottle_collect_to_staging
+  inputs:
+    slot_id: '{slot}'
+  tool: small_gripper
+  source_rail_target: 3
+  target_rail_target: 3
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - collect-bottle
+  - staging-b
+- source: collect-holder
+  target: staging-a:{slot}
+  target_device: plc_staginga
+  operation: unilab_transport_v4_collector_collect_to_staging
+  inputs:
+    slot_id: '{slot}'
+  tool: small_gripper
+  source_rail_target: 3
+  target_rail_target: 3
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - collect-holder
+  - staging-a
+  - station:collect
+- source: collector-rack:{slot}
+  target: staging-a:rack
+  target_device: plc_staginga
+  operation: unilab_transport_v4_collector_rack_to_staging
+  inputs:
+    slot_id: '{slot}'
+  tool: large_gripper
+  source_rail_target: 4
+  target_rail_target: 2
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - consumable-group
+  - staging-a
+- source: staging-a:rack
+  target: collector-rack:{slot}
+  target_device: material
+  operation: unilab_transport_v4_collector_staging_to_rack
+  inputs:
+    slot_id: '{slot}'
+  tool: large_gripper
+  source_rail_target: 2
+  target_rail_target: 4
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - consumable-group
+  - staging-a
+- source: bottle-rack:{slot}
+  target: staging-b:rack
+  target_device: plc_staginga
+  operation: unilab_transport_v4_bottle_rack_to_staging
+  inputs:
+    slot_id: '{slot}'
+  tool: large_gripper
+  source_rail_target: 4
+  target_rail_target: 3
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - consumable-group
+  - staging-b
+- source: staging-b:rack
+  target: bottle-rack:{slot}
+  target_device: material
+  operation: unilab_transport_v4_bottle_staging_to_rack
+  inputs:
+    slot_id: '{slot}'
+  tool: large_gripper
+  source_rail_target: 3
+  target_rail_target: 4
+  safety_anchor: P1
+  resources:
+  - robot
+  - station:rail
+  - consumable-group
+  - staging-b

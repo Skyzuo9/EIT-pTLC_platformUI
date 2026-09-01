@@ -1,0 +1,326 @@
+{
+  "nodes": [
+    {
+      "id": "plc_sampling",
+      "name": "pTLC 点样/上样工站",
+      "children": ["debug_source_sample"],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_sampling",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {
+        "platformui_url": "http://127.0.0.1:18080/api/sim",
+        "sites": [
+          {
+            "label": "sample-vial",
+            "name": "sample-vial",
+            "position": {"x": 197.419196, "y": -456.097275, "z": 214.685708},
+            "size": {"width": 30, "height": 30, "depth": 60},
+            "content_type": ["ptlc_source_sample_vial"],
+            "visible": true,
+            "occupied_by": "debug_source_sample"
+          }
+        ]
+      },
+      "data": {
+        "platformui_device_id": "plc.sampling",
+        "platformui_glb_anchor": "ST_SAMPLING",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "plc_develop",
+      "name": "pTLC 八槽展开缸双塔",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_develop",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {"platformui_url": "http://127.0.0.1:18080/api/sim"},
+      "data": {
+        "platformui_device_id": "plc.develop",
+        "platformui_glb_anchor": "ST_DEVELOP",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "plc_collect",
+      "name": "pTLC 洗脱收集工站",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_collect",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {"platformui_url": "http://127.0.0.1:18080/api/sim"},
+      "data": {
+        "platformui_device_id": "plc.collect",
+        "platformui_glb_anchor": "ST_COLLECT",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "plc_photoscrape",
+      "name": "pTLC 拍照/视觉/CNC 刮板工站",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_photoscrape",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {"platformui_url": "http://127.0.0.1:18080/api/sim"},
+      "data": {
+        "platformui_device_id": "plc.photoscrape",
+        "platformui_glb_anchor": "ST_PHOTOSCRAPE",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "plc_feedlift",
+      "name": "pTLC 硅胶板 FeedLift",
+      "children": ["debug_ptlc_plate"],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_feedlift",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {
+        "platformui_url": "http://127.0.0.1:18080/api/sim",
+        "sites": [
+          {
+            "label": "input-stack",
+            "name": "input-stack",
+            "position": {"x": 567.418754, "y": -436.097204, "z": -442.271832},
+            "size": {"width": 220, "height": 220, "depth": 80},
+            "content_type": ["ptlc_plate"],
+            "visible": true,
+            "occupied_by": "debug_ptlc_plate"
+          },
+          {
+            "label": "waste-stack",
+            "name": "waste-stack",
+            "position": {"x": 887.418985, "y": -436.096996, "z": -436.639432},
+            "size": {"width": 220, "height": 220, "depth": 120},
+            "content_type": ["ptlc_plate"],
+            "visible": true,
+            "occupied_by": null
+          }
+        ]
+      },
+      "data": {
+        "platformui_device_id": "plc.feedlift",
+        "platformui_glb_anchor": "ST_FEEDLIFT",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "plc_rail",
+      "name": "pTLC 地轨",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_rail",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {"platformui_url": "http://127.0.0.1:18080/api/sim"},
+      "data": {
+        "platformui_device_id": "station.rail",
+        "platformui_glb_anchor": "ST_RAIL",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "robot",
+      "name": "CR5 机械臂",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.robot",
+      "position": {"x": -231.431141, "y": -1.677236, "z": 178.497255},
+      "config": {
+        "platformui_url": "http://127.0.0.1:18080/api/sim",
+        "standard_execution_backend": "platformui"
+      },
+      "data": {
+        "platformui_device_id": "robot",
+        "planning_authority": "moveit",
+        "joint_state_topic": "/joint_states",
+        "execute_trajectory_action": "/execute_trajectory",
+        "platformui_glb_anchor": "ST_RAIL/AXIS_AXIS_11Y/CARRIAGE/ST_ROBOT/CR5_BASE_FRAME",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "plc_pump",
+      "name": "pTLC 注射泵总线",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_pump",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {"platformui_url": "http://127.0.0.1:18080/api/sim"},
+      "data": {
+        "platformui_device_id": "pump",
+        "platformui_glb_anchor": "ST_PUMP",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "vision",
+      "name": "pTLC 视觉",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.vision",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {"platformui_url": "http://127.0.0.1:18080/api/sim"},
+      "data": {
+        "platformui_device_id": "vision",
+        "platformui_glb_anchor": "ST_VISION",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "plc_staginga",
+      "name": "pTLC 中转 A/B",
+      "children": ["staging_a_stack", "staging_b_stack"],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.plc_staginga",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {"platformui_url": "http://127.0.0.1:18080/api/sim"},
+      "data": {
+        "platformui_device_id": "plc.staging_a",
+        "platformui_glb_anchor": "ST_STAGINGA",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "material",
+      "name": "PlatformUI 物料账本",
+      "children": [],
+      "parent": null,
+      "type": "device",
+      "class": "community.eit_ptlc.material",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "config": {
+        "platformui_url": "http://127.0.0.1:18080/api/sim",
+        "logical_mount": true
+      },
+      "data": {"platformui_device_id": "material", "logical_proxy": true}
+    },
+    {
+      "id": "staging_a_stack",
+      "name": "pTLC 接粉器中转架",
+      "children": ["debug_powder_collector"],
+      "parent": "plc_staginga",
+      "type": "resource",
+      "class": "community.eit_ptlc.ptlc_collector_rack",
+      "position": {"x": 0, "y": 4.099999, "z": 2.83},
+      "config": {
+        "sites": [
+          {
+            "label": "collector-item-1",
+            "name": "collector-item-1",
+            "position": {"x": 564.919531, "y": -78.598663, "z": 188.999757},
+            "size": {"width": 36, "height": 36, "depth": 70},
+            "content_type": ["ptlc_powder_collector"],
+            "visible": true,
+            "occupied_by": "debug_powder_collector"
+          }
+        ]
+      },
+      "data": {
+        "platformui_site": "staging-a",
+        "platformui_glb_anchor": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "staging_b_stack",
+      "name": "pTLC 收集瓶中转架",
+      "children": ["debug_collection_vial"],
+      "parent": "plc_staginga",
+      "type": "resource",
+      "class": "community.eit_ptlc.ptlc_vial_rack",
+      "position": {"x": 8.099973, "y": 0, "z": 0.9},
+      "config": {
+        "sites": [
+          {
+            "label": "bottle-item-1",
+            "name": "bottle-item-1",
+            "position": {"x": 232.417219, "y": -248.599305, "z": 213.195592},
+            "size": {"width": 36, "height": 36, "depth": 70},
+            "content_type": ["ptlc_collection_vial"],
+            "visible": true,
+            "occupied_by": "debug_collection_vial"
+          }
+        ]
+      },
+      "data": {
+        "platformui_site": "staging-b",
+        "platformui_glb_anchor": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "debug_source_sample",
+      "name": "调试输入样品瓶",
+      "children": [],
+      "parent": "plc_sampling",
+      "type": "container",
+      "class": "community.eit_ptlc.ptlc_source_sample_vial",
+      "position": {"x": 197.419196, "y": -456.097275, "z": 214.685708},
+      "config": {},
+      "data": {
+        "sample_id": "DEMO-001",
+        "platformui_glb_anchor": "ST_COLLECT/ACTUATOR_COL_EXTEND/样品瓶-2",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix",
+        "asset_role": "geometry_clone"
+      }
+    },
+    {
+      "id": "debug_ptlc_plate",
+      "name": "调试 pTLC 硅胶板",
+      "children": [],
+      "parent": "plc_feedlift",
+      "type": "resource",
+      "class": "community.eit_ptlc.ptlc_plate",
+      "position": {"x": 567.418754, "y": -436.097204, "z": -442.271832},
+      "config": {},
+      "data": {
+        "sample_id": "DEMO-001",
+        "plate_state": "blank",
+        "platformui_glb_anchor": "ST_FEEDLIFT/AXIS_AXIS_1Z/CARRIAGE.001/INV_MAGAZINE_FEED_TEMPLATE",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "debug_powder_collector",
+      "name": "调试空接粉器",
+      "children": [],
+      "parent": "staging_a_stack",
+      "type": "resource",
+      "class": "community.eit_ptlc.ptlc_powder_collector",
+      "position": {"x": 564.919531, "y": -78.598663, "z": 188.999757},
+      "config": {},
+      "data": {
+        "sample_id": "DEMO-001",
+        "platformui_glb_anchor": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_1",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    },
+    {
+      "id": "debug_collection_vial",
+      "name": "调试空收集瓶",
+      "children": [],
+      "parent": "staging_b_stack",
+      "type": "container",
+      "class": "community.eit_ptlc.ptlc_collection_vial",
+      "position": {"x": 232.417219, "y": -248.599305, "z": 213.195592},
+      "config": {},
+      "data": {
+        "sample_id": "DEMO-001",
+        "platformui_glb_anchor": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_1",
+        "coordinate_authority": "machine.official-cr5.glb#world_matrix"
+      }
+    }
+  ],
+  "links": []
+}

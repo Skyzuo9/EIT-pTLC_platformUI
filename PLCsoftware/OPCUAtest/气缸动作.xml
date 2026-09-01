@@ -1,0 +1,1150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-16T17:56:22.3681085" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站_Old_InoProShop(V1.9.1.6).project" modificationDateTime="2026-06-04T10:59:46">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="PLC_Cyinder_气缸动作" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="cylinder_0">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_1">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_2">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_3">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_4">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_5">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_6">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_7">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_8">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_9">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_10">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_11">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_12">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_13">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_14">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_15">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_16">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_17">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_18">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_19">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_20">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_21">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_22">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_23">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_24">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_25">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_26">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_27">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_28">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_29">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_30">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_31">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_32">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_33">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_34">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_35">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_36">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_37">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_38">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_39">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_40">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_41">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_42">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_43">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_44">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_45">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_46">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_47">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_48">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_49">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+            <variable name="cylinder_50">
+              <type>
+                <derived name="FB_cylinder" />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">//气缸动作
+//展缸1气缸1
+cylinder_0(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸1气缸1手动 , 
+	xAutoExtend:= 展缸1气缸1自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸1气缸1原点, 
+	xPosRetract:= 展缸1气缸1动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸1气缸1 , 
+	bAlarm=&gt; cyinderAlarm.0);
+//展缸1气缸2
+cylinder_1(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸1气缸2手动 , 
+	xAutoExtend:= 展缸1气缸2自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸1气缸2原点, 
+	xPosRetract:= 展缸1气缸2动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸1气缸2, 
+	bAlarm=&gt; cyinderAlarm.1);
+//展缸1气缸3
+cylinder_2(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸1气缸3手动 , 
+	xAutoExtend:= 展缸1气缸3自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸1气缸3原点, 
+	xPosRetract:= 展缸1气缸3动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸1气缸3, 
+	bAlarm=&gt; cyinderAlarm.2);
+//展缸1气缸4
+cylinder_3(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸1气缸4手动 , 
+	xAutoExtend:= 展缸1气缸4自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸1气缸4原点, 
+	xPosRetract:= 展缸1气缸4动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸1气缸4, 
+	bAlarm=&gt; cyinderAlarm.3);
+//展缸2气缸1
+cylinder_4(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸2气缸1手动 , 
+	xAutoExtend:= 展缸2气缸1自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸2气缸1原点, 
+	xPosRetract:= 展缸2气缸1动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸2气缸1, 
+	bAlarm=&gt; cyinderAlarm.4);
+//展缸2气缸2
+cylinder_5(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸2气缸2手动 , 
+	xAutoExtend:= 展缸2气缸2自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸2气缸2原点, 
+	xPosRetract:= 展缸2气缸2动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸2气缸2, 
+	bAlarm=&gt; cyinderAlarm.5);
+//展缸2气缸3
+cylinder_6(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸2气缸3手动 , 
+	xAutoExtend:= 展缸2气缸3自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸2气缸3原点, 
+	xPosRetract:= 展缸2气缸3动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸2气缸3, 
+	bAlarm=&gt; cyinderAlarm.6);
+//展缸2气缸4
+cylinder_7(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=展缸2气缸4手动 , 
+	xAutoExtend:= 展缸2气缸4自动, 
+	xReset:=复位  , 
+	xPosExtend:= 展缸2气缸4原点, 
+	xPosRetract:= 展缸2气缸4动点 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 展缸2气缸4, 
+	bAlarm=&gt; cyinderAlarm.7);
+//大真空泵
+cylinder_8(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 大真空泵手动, 
+	xAutoExtend:= 大真空泵自动, 
+	xReset:=复位  , 
+	xPosExtend:= , 
+	xPosRetract:=  , 
+	tTimeout:= , 
+	yValve1=&gt; 大真空泵, 
+	bAlarm=&gt; );
+//收集平台下压气缸
+cylinder_9(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 收集下压气缸手动, 
+	xAutoExtend:= 收集下压气缸自动, 
+	xReset:=复位  , 
+	xPosExtend:=收集平台下压气缸原点 , 
+	xPosRetract:= 收集下压气缸手动 OR 收集下压气缸自动, 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 收集下压气缸 , 
+	bAlarm=&gt; cyinderAlarm.8);
+//收集平台夹持气缸
+cylinder_10(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 收集夹持气缸手动, 
+	xAutoExtend:= 收集夹持气缸自动, 
+	xReset:=复位  , 
+	xPosExtend:=收集平台夹持气缸原点 , 
+	xPosRetract:= 收集平台夹持气缸动点, 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 收集夹持气缸  , 
+	bAlarm=&gt; cyinderAlarm.9);	
+//收集平台升降气缸
+cylinder_11(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 收集升降气缸手动, 
+	xAutoExtend:= 收集升降气缸自动, 
+	xReset:=复位  , 
+	xPosExtend:=收集平台升降气缸原点 , 
+	xPosRetract:= 收集平台升降气缸动点, 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 收集升降气缸   , 
+	bAlarm=&gt; cyinderAlarm.10);	
+//收集平台伸缩气缸
+cylinder_12(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 收集伸缩气缸手动, 
+	xAutoExtend:= 收集伸缩气缸自动, 
+	xReset:=复位, 
+	xPosExtend:=收集平台推出气缸原点, 
+	xPosRetract:= 收集平台推出气缸动点, 
+	tTimeout:= T#5S, 
+	yValve1=&gt; 收集伸缩气缸, 
+	bAlarm=&gt; cyinderAlarm.11);		
+//刮板拍照遮光气缸
+cylinder_13(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 刮板拍照遮光气缸手动, 
+	xAutoExtend:=刮板拍照遮光气缸自动 , 
+	xReset:=复位  , 
+	xPosExtend:=刮板拍照遮光气缸上位 , 
+	xPosRetract:= 刮板拍照遮光气缸下位, 
+	tTimeout:= T#5S, 
+	yValve1=&gt;  刮板拍照遮光气缸, 
+	bAlarm=&gt; cyinderAlarm.12);		
+//刮板拍照旋转气缸
+cylinder_14(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 刮板拍照旋转气缸手动 AND 刮板轴9XDATE.fActPos&gt;330, 
+	xAutoExtend:=刮板拍照旋转气缸自动 , 
+	xReset:=复位  , 
+	xPosExtend:=刮板拍照旋转气缸原点  , 
+	xPosRetract:= 刮板拍照旋转气缸动点, 
+	tTimeout:= T#5S, 
+	yValve1=&gt;  刮板拍照旋转气缸   , 
+	bAlarm=&gt; cyinderAlarm.13);		
+//刮板拍照下压气缸
+cylinder_15(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 刮板拍照下压气缸手动, 
+	xAutoExtend:=刮板拍照下压气缸自动 , 
+	xReset:=复位  , 
+	xPosExtend:=刮板拍照下压气缸上位, 
+	xPosRetract:=刮板拍照下压气缸手动 OR 刮板拍照下压气缸自动 , 
+	tTimeout:= T#5S, 
+	yValve1=&gt;  刮板拍照下压气缸, 
+	bAlarm=&gt; cyinderAlarm.14);
+//展缸1进液电池阀1
+cylinder_17(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 展缸1进液电池阀1手动, 
+	xAutoExtend:= 展缸1进液电池阀1自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1进液电池阀1, 
+	bAlarm=&gt; );	
+//展缸1进液电池阀2
+cylinder_18(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 展缸1进液电池阀2手动, 
+	xAutoExtend:= 展缸1进液电池阀2自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1进液电池阀2, 
+	bAlarm=&gt; );	
+//展缸1进液电池阀3
+cylinder_19(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 展缸1进液电池阀3手动, 
+	xAutoExtend:= 展缸1进液电池阀3自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1进液电池阀3, 
+	bAlarm=&gt; );	
+//展缸1进液电池阀4
+cylinder_20(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 展缸1进液电池阀4手动, 
+	xAutoExtend:= 展缸1进液电池阀4自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1进液电池阀4, 
+	bAlarm=&gt; );	
+//展缸1排液电池阀1
+cylinder_21(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 展缸1排液电池阀1手动, 
+	xAutoExtend:= 展缸1排液电池阀1自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1排液电池阀1, 
+	bAlarm=&gt; );	
+//展缸1排液电池阀2
+cylinder_22(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 展缸1排液电池阀2手动, 
+	xAutoExtend:= 展缸1排液电池阀2自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1排液电池阀2, 
+	bAlarm=&gt; );	
+//展缸1排液电池阀3
+cylinder_23(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸1排液电池阀3手动, 
+	xAutoExtend:= 展缸1排液电池阀3自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1排液电池阀3, 
+	bAlarm=&gt; );	
+//展缸1排液电池阀4
+cylinder_24(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸1排液电池阀4手动, 
+	xAutoExtend:= 展缸1排液电池阀4自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1排液电池阀4, 
+	bAlarm=&gt; );	
+//展缸1吹气电池阀1
+cylinder_25(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸1吹气电池阀1手动, 
+	xAutoExtend:= 展缸1吹气电池阀1自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1吹气电池阀1, 
+	bAlarm=&gt; );	
+//展缸1吹气电池阀2
+cylinder_26(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸1吹气电池阀2手动, 
+	xAutoExtend:= 展缸1吹气电池阀2自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1吹气电池阀2, 
+	bAlarm=&gt; );	
+//展缸1吹气电池阀3
+cylinder_27(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 展缸1吹气电池阀3手动, 
+	xAutoExtend:= 展缸1吹气电池阀3自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1吹气电池阀3, 
+	bAlarm=&gt; );	
+//展缸1吹气电池阀4
+cylinder_28(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸1吹气电池阀4手动, 
+	xAutoExtend:= 展缸1吹气电池阀4自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸1吹气电池阀4, 
+	bAlarm=&gt; );	
+//展缸2进液电池阀1
+cylinder_29(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2进液电池阀1手动, 
+	xAutoExtend:= 展缸2进液电池阀1自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2进液电池阀1, 
+	bAlarm=&gt; );	
+//展缸2进液电池阀2
+cylinder_30(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2进液电池阀2手动, 
+	xAutoExtend:= 展缸2进液电池阀2自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2进液电池阀2, 
+	bAlarm=&gt; );	
+//展缸2进液电池阀3
+cylinder_31(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2进液电池阀3手动, 
+	xAutoExtend:= 展缸2进液电池阀3自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2进液电池阀3, 
+	bAlarm=&gt; );	
+//展缸2进液电池阀4
+cylinder_32(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2进液电池阀4手动, 
+	xAutoExtend:= 展缸2进液电池阀4自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2进液电池阀4, 
+	bAlarm=&gt; );	
+//展缸2排液电池阀1
+cylinder_33(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2排液电池阀1手动, 
+	xAutoExtend:= 展缸2排液电池阀1自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2排液电池阀1, 
+	bAlarm=&gt; );	
+//展缸2排液电池阀2
+cylinder_34(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2排液电池阀2手动, 
+	xAutoExtend:= 展缸2排液电池阀2自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2排液电池阀2, 
+	bAlarm=&gt; );	
+//展缸2排液电池阀3
+cylinder_35(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2排液电池阀3手动, 
+	xAutoExtend:= 展缸2排液电池阀3自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2排液电池阀3, 
+	bAlarm=&gt; );	
+//展缸2排液电池阀4
+cylinder_36(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2排液电池阀4手动, 
+	xAutoExtend:= 展缸2排液电池阀4自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2排液电池阀4, 
+	bAlarm=&gt; );	
+//展缸2吹气电池阀1
+cylinder_37(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2吹气电池阀1手动, 
+	xAutoExtend:= 展缸2吹气电池阀1自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2吹气电池阀1, 
+	bAlarm=&gt; );	
+//展缸2吹气电池阀2
+cylinder_38(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2吹气电池阀2手动, 
+	xAutoExtend:= 展缸2吹气电池阀2自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2吹气电池阀2, 
+	bAlarm=&gt; );	
+//展缸1吹气电池阀3
+cylinder_39(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2吹气电池阀3手动, 
+	xAutoExtend:= 展缸2吹气电池阀3自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2吹气电池阀3, 
+	bAlarm=&gt; );	
+//展缸2吹气电池阀4
+cylinder_40(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 展缸2吹气电池阀4手动, 
+	xAutoExtend:= 展缸2吹气电池阀4自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 展缸2吹气电池阀4, 
+	bAlarm=&gt; );	
+//收集进液电池阀
+cylinder_41(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto, 
+	xManualExtend:= 收集进液手动, 
+	xAutoExtend:= 收集进液自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 收集平台进液2通电池阀, 
+	bAlarm=&gt; );	
+//收集排液电池阀
+cylinder_42(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 收集排液手动, 
+	xAutoExtend:= 收集排液自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 收集平台排液3通电池阀, 
+	bAlarm=&gt; );	
+//收集正压排液电池阀
+cylinder_43(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 收集正压排液手动, 
+	xAutoExtend:= 收集正压排液自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 收集平台正压排液阀, 
+	bAlarm=&gt; );	
+//溶液收集瓶定位气缸
+cylinder_44(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 溶液收集瓶定位手动, 
+	xAutoExtend:= 溶液收集瓶定位自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 溶液收集瓶工位定位气缸, 
+	bAlarm=&gt; );	
+//上样定位气缸
+cylinder_45(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 上样定位手动, 
+	xAutoExtend:= 上样定位自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 上样定位气缸, 
+	bAlarm=&gt; );	
+//上样点样三通电池阀
+cylinder_46(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 上样点样三通电池阀手动, 
+	xAutoExtend:= 上样点样三通电池阀自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 上样点样三通电池阀, 
+	bAlarm=&gt; );	
+//刮板拍照真空泵
+cylinder_46(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=刮板拍照真空手动 , 
+	xAutoExtend:= 刮板拍照真空自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 刮板拍照真空阀, 
+	bAlarm=&gt; );	
+//刮板拍照无刷电机
+cylinder_47(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:=刮板拍照无刷电机手动 , 
+	xAutoExtend:=刮板拍照无刷电机自动 , 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 刮板拍照无刷电机, 
+	bAlarm=&gt; );	
+//刮板拍照定位气缸
+cylinder_48(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 刮板拍照定位气缸手动, 
+	xAutoExtend:=刮板拍照定位气缸自动 , 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 刮板拍照定位气缸, 
+	bAlarm=&gt; );	
+//粉末收集器定位气缸
+cylinder_49(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type :=0 , 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 粉末收集器定位手动, 
+	xAutoExtend:= 粉末收集器定位自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 粉末收集器工位定位气缸, 
+	bAlarm=&gt; );	
+//上样吹气电池阀
+cylinder_50(
+    xManualRetract := , 
+    xAutoRetract := , 
+    yValve2 =&gt; , 
+    cylinder_type := 0, 
+
+	xManualAuto:=ManualAuto  , 
+	xManualExtend:= 上样吹气手动, 
+	xAutoExtend:= 上样吹气自动, 
+	xReset:=复位  , 
+	xPosExtend:=   , 
+	xPosRetract:= , 
+	tTimeout:= , 
+	yValve1=&gt; 上样吹气二通阀, 
+	bAlarm=&gt; );	
+
+
+
+
+
+
+
+
+	
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="PLC_Cyinder_气缸动作" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fba3b617-04c7-4394-a36d-a958f749d3c2" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>fba3b617-04c7-4394-a36d-a958f749d3c2</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="40_Man">
+          <Object Name="PLC_Cyinder_气缸动作" ObjectId="fba3b617-04c7-4394-a36d-a958f749d3c2" />
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

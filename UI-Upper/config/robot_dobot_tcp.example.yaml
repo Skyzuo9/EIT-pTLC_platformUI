@@ -1,0 +1,22 @@
+# 独立机器人验收 CLI 配置；不启用 UI、PLC 或相机业务流程。
+robot:
+  transport: dobot_tcp
+  host: 192.168.0.15
+  command_port: 29999
+  feedback_port: 30004
+  error_http_port: 22000
+  connect_timeout: 3.0
+  command_timeout: 5.0
+  action_timeout: 300.0
+  poll_interval: 0.05
+  point_source: ../../机器人程序/机器人程序v0.11/roboprogram/point.json
+  point_meta: robot_points_meta.json
+  # Deprecated — use point_meta instead:
+  flow_source: robot_flows_v2.yaml
+  host_action_source: robot_host_actions.json
+  point_source_version: v0.11
+  home_point: robot-main.home
+  # 现场首次验收保持 false；确需执行时由负责人修改配置，并在 CLI 再传 --confirm。
+  allow_enable_command: false
+  allow_clear_error_command: false
+  tool_di_feedback_enabled: false

@@ -1,0 +1,31 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_smoke_c
+label: 并行冒烟段C-缸内等待门 (集成验收用)
+ui:
+  role: helper
+  hidden: true
+# 冒烟配方段C: 零资源 + 人工确认门 —— 模拟展开等待段的形态 (根 resources 为空, 可任意
+# 多样品同时挂起)。集成验收据此确定性地证明"缸1/缸2 区间真实重叠": 两个样品的段C 同时
+# 处于 WAITING_HUMAN 即重叠成立, 再逐一回复放行。
+flow:
+  atomic: true
+  sample: required
+  from: tank:{tank}
+  to: tank:{tank}
+  hitl: confirm
+  retry: restart
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8 (调度器注入)
+resources: []
+body:
+- op: human
+  kind: confirm
+  on_cancel: raise
+  prompt:
+    lit: '[冒烟] 样品在缸内等待; 确认放行'

@@ -1,0 +1,10 @@
+schema: ptlc.script/v1
+kind: operation
+name: robot_home_check
+label: 回原点并查询
+ui: {subgroup: 自检/回零, order: 92}
+vars: []
+resources: [robot]
+body:
+  - {op: call, action: robot.home, mode: DEBUG}
+  - {op: call, action: robot.query, mode: DEBUG}

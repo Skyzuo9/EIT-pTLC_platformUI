@@ -1,0 +1,6686 @@
+{
+  "version": 2,
+  "generatedAt": 1786626054,
+  "generatedFrom": {
+    "structure": "work/structure.json",
+    "rigMap": "pipeline/rig_map.yaml",
+    "rigMapSchema": "ptlc.rigmap/v2",
+    "eitRoot": "PTLC_CONTROL_ROOT",
+    "referencePointHash": "4b62a7049b8df0c5e0e8d34920f8cb64695f6dafe73eb04960c3301f9991c673",
+    "kinematicsCommit": "37730d08b08c74061ae10d4fa5565b4c4c914885",
+    "manualPointsHash": "45745bc00601af001aa4460279f52c15c779f273d554e813bfc494779d0cc4a8"
+  },
+  "units": {
+    "sceneUnit": "m"
+  },
+  "machine": {
+    "label": "PTLC 自动化设备",
+    "bounds": {
+      "center": [
+        0.008,
+        0.141,
+        -0.009
+      ],
+      "size": [
+        2.627,
+        2.267,
+        1.527
+      ]
+    }
+  },
+  "healthStyles": {
+    "ok": {
+      "color": "#39d98a",
+      "intensity": 3.0,
+      "pulse": 0.0
+    },
+    "busy": {
+      "color": "#f4b740",
+      "intensity": 4.5,
+      "pulse": 1.1
+    },
+    "error": {
+      "color": "#ff5c5c",
+      "intensity": 6.0,
+      "pulse": 3.0
+    },
+    "offline": {
+      "color": "#5a6472",
+      "intensity": 0.3,
+      "pulse": 0.0
+    },
+    "unknown": {
+      "color": "#7b8aa5",
+      "intensity": 1.0,
+      "pulse": 0.0
+    }
+  },
+  "tankStateStyles": {
+    "0": {
+      "level": 0.0,
+      "color": "#20242e",
+      "label": "空闲"
+    },
+    "10": {
+      "level": 0.35,
+      "color": "#8ac9e2",
+      "label": "准备中"
+    },
+    "20": {
+      "level": 0.75,
+      "color": "#6fb9d8",
+      "label": "展开中"
+    },
+    "40": {
+      "level": 0.75,
+      "color": "#6fb9d8",
+      "label": "展开中"
+    },
+    "50": {
+      "level": 0.25,
+      "color": "#7fadc2",
+      "label": "排液中"
+    },
+    "55": {
+      "level": 0.06,
+      "color": "#aebfc9",
+      "label": "吹气"
+    },
+    "56": {
+      "level": 0.02,
+      "color": "#c2ccd2",
+      "label": "干燥"
+    },
+    "90": {
+      "level": 0.5,
+      "color": "#d98a8a",
+      "label": "故障"
+    },
+    "98": {
+      "level": 0.0,
+      "color": "#20242e",
+      "label": "已排空"
+    },
+    "default": {
+      "level": 0.6,
+      "color": "#6fb9d8",
+      "label": "运行中"
+    }
+  },
+  "tankLiquid": {
+    "cavity": {
+      "floorZMm": 114.721,
+      "rimZMm": 134.995,
+      "usableDepthMm": 20.274,
+      "freeAreaMm2": 4939.6,
+      "capacityMl": 102.48,
+      "mlPerMm": 4.94
+    },
+    "exaggeration": 2.0,
+    "pipeHoldupMl": 0.0,
+    "tankArg": "target_tank",
+    "actions": {
+      "develop.fill": {
+        "dir": "fill",
+        "volumeFrom": [
+          "solvent_volume_ml",
+          "up_liquid_repeat_count"
+        ],
+        "rampS": 12.0
+      },
+      "develop.rinse_fill": {
+        "dir": "fill",
+        "volumeFrom": [
+          "solvent_volume_ml",
+          "rinse_repeat_count"
+        ],
+        "rampS": 10.0
+      },
+      "develop.rinse_suction": {
+        "dir": "drain",
+        "rampS": 8.0,
+        "delayFromArg": "settle_s",
+        "demoFillFrom": "develop.rinse_fill"
+      },
+      "develop.drain": {
+        "dir": "drain",
+        "rampS": 10.0,
+        "rampFromArg": "drain_duration_s",
+        "demoFillFrom": "develop.fill"
+      }
+    }
+  },
+  "liquids": [
+    {
+      "id": "liq_collect_bottle",
+      "node": "ST_COLLECT/ACTUATOR_COL_EXTEND/样品瓶-2/LIQUID_COLLECT_BOTTLE",
+      "seat": "collect-bottle",
+      "attachmentId": "STA_COLLECT_BOTTLE",
+      "cavity": {
+        "usableDepthMm": 78.0,
+        "freeAreaMm2": 380.1,
+        "capacityMl": 29.65,
+        "mlPerMm": 0.3801
+      },
+      "exaggeration": 1.0,
+      "actions": {
+        "collect.collect": {
+          "dir": "fill",
+          "volumeFrom": [
+            "solvent_volume_ml"
+          ],
+          "repeatFrom": "liquid_repeat_count",
+          "roundS": {
+            "pump": 2.1,
+            "transfer": 20.0,
+            "settle": 5.0
+          },
+          "demoS": {
+            "pump": 1.0,
+            "transfer": 6.0,
+            "settle": 2.0
+          },
+          "demoMaxRounds": 3
+        }
+      }
+    }
+  ],
+  "consumableContents": {
+    "kinds": [
+      {
+        "id": "powder_scrape_holder",
+        "node": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009/ACTUATOR_PS_ROTATE/硅胶收集-1.008/POWDER_SCRAPE_HOLDER",
+        "seat": "scrape-holder",
+        "attachmentId": "STA_SCRAPE_HOLDER",
+        "kind": "powder",
+        "label": "硅胶粉",
+        "accepts": "collector",
+        "cavity": {
+          "usableDepthMm": 73.0,
+          "freeAreaMm2": 265.9,
+          "capacityMm3": 19411.0,
+          "mm3PerMm": 265.9044
+        },
+        "chamber": {
+          "c0": 0.005,
+          "c1": 0.078
+        },
+        "exaggeration": 6.0,
+        "bulkFactor": 1.6,
+        "elutedColor": "#8a7d6b"
+      },
+      {
+        "id": "powder_collect_holder",
+        "node": "ST_COLLECT/ACTUATOR_COL_LIFT/硅胶收集-1/POWDER_COLLECT_HOLDER",
+        "seat": "collect-holder",
+        "attachmentId": "STA_COLLECT_HOLDER",
+        "kind": "powder",
+        "label": "硅胶粉",
+        "accepts": "collector",
+        "cavity": {
+          "usableDepthMm": 73.0,
+          "freeAreaMm2": 265.9,
+          "capacityMm3": 19411.0,
+          "mm3PerMm": 265.9044
+        },
+        "chamber": {
+          "c0": 0.005,
+          "c1": 0.078
+        },
+        "exaggeration": 6.0,
+        "bulkFactor": 1.6,
+        "elutedColor": "#8a7d6b"
+      }
+    ]
+  },
+  "pumpSyringe": {
+    "syringeMl": 25.0,
+    "strokeMm": 60.0,
+    "stepsPerStroke": 6000,
+    "speeds": {
+      "sampling": {
+        "asp_speed": 250.0,
+        "disp_speed": 100.0,
+        "spot_disp_speed": 9.0,
+        "step_delay": 1500.0,
+        "flush_disp_speed": 300.0,
+        "spot_head_disp_speed": 100.0
+      },
+      "collect": {
+        "asp_speed": 500.0,
+        "disp_speed": 500.0,
+        "step_delay": 1000.0
+      },
+      "develop": {
+        "asp_speed": 100.0,
+        "disp_speed": 100.0,
+        "step_delay": 500.0
+      }
+    },
+    "estimated": true,
+    "pumps": [
+      {
+        "index": 0,
+        "id": "DEV1",
+        "label": "展开泵 1(缸 1-4)",
+        "station": "PUMP",
+        "dtAddr": 1,
+        "valve": "T-06",
+        "tankGroup": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "outputPort": 6,
+        "plungerNode": "ST_PUMP/展缸注射泵总装-2/ACTUATOR_PUMP_PLUNGER_DEV1",
+        "liquidNode": "ST_PUMP/展缸注射泵总装-2/LIQUID_PUMP_DEV1",
+        "travelAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "travelM": 0.06,
+        "strokeMm": 60.0,
+        "valveNode": "ST_PUMP/展缸注射泵总装-2/ACTUATOR_PUMP_VALVE_DEV1",
+        "valveAxis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "valvePorts": 6,
+        "valvePortAngles": [
+          335.0,
+          309.0,
+          283.0,
+          257.0,
+          231.0,
+          205.0
+        ],
+        "speedStation": "develop",
+        "leadNode": "ST_PUMP/展缸注射泵总装-2/ACTUATOR_PUMP_LEAD_DEV1",
+        "leadAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "leadTurnsPerStroke": 10.0,
+        "rigged": true
+      },
+      {
+        "index": 1,
+        "id": "DEV2",
+        "label": "展开泵 2(缸 5-8)",
+        "station": "PUMP",
+        "dtAddr": 2,
+        "valve": "T-06",
+        "tankGroup": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "outputPort": 1,
+        "plungerNode": "ST_PUMP/展缸注射泵总装-1/ACTUATOR_PUMP_PLUNGER_DEV2",
+        "liquidNode": "ST_PUMP/展缸注射泵总装-1/LIQUID_PUMP_DEV2",
+        "travelAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "travelM": 0.06,
+        "strokeMm": 60.0,
+        "valveNode": "ST_PUMP/展缸注射泵总装-1/ACTUATOR_PUMP_VALVE_DEV2",
+        "valveAxis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "valvePorts": 6,
+        "valvePortAngles": [
+          335.0,
+          309.0,
+          283.0,
+          257.0,
+          231.0,
+          205.0
+        ],
+        "speedStation": "develop",
+        "leadNode": "ST_PUMP/展缸注射泵总装-1/ACTUATOR_PUMP_LEAD_DEV2",
+        "leadAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "leadTurnsPerStroke": 10.0,
+        "rigged": true
+      },
+      {
+        "index": 2,
+        "id": "SMP",
+        "label": "上样泵",
+        "station": "SAMPLING",
+        "dtAddr": 4,
+        "valve": "T-04",
+        "tankGroup": [],
+        "outputPort": 3,
+        "plungerNode": "ST_SAMPLING/AXIS_AXIS_6X/CARRIAGE.006/ACTUATOR_PUMP_PLUNGER_SMP",
+        "liquidNode": "ST_SAMPLING/AXIS_AXIS_6X/CARRIAGE.006/LIQUID_PUMP_SMP",
+        "travelAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "travelM": 0.06,
+        "strokeMm": 60.0,
+        "valveNode": "ST_SAMPLING/AXIS_AXIS_6X/CARRIAGE.006/ACTUATOR_PUMP_VALVE_SMP",
+        "valveAxis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "valvePorts": 4,
+        "valvePortAngles": [
+          335.0,
+          291.667,
+          248.333,
+          205.0
+        ],
+        "speedStation": "sampling",
+        "leadNode": "ST_SAMPLING/AXIS_AXIS_6X/CARRIAGE.006/ACTUATOR_PUMP_LEAD_SMP",
+        "leadAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "leadTurnsPerStroke": 10.0,
+        "rigged": true
+      },
+      {
+        "index": 3,
+        "id": "COL",
+        "label": "收集泵",
+        "station": "COLLECT",
+        "dtAddr": 3,
+        "valve": "T-04",
+        "tankGroup": [],
+        "outputPort": 1,
+        "plungerNode": "ST_COLLECT/注射泵总装-COL/ACTUATOR_PUMP_PLUNGER_COL",
+        "liquidNode": "ST_COLLECT/注射泵总装-COL/LIQUID_PUMP_COL",
+        "travelAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "travelM": 0.06,
+        "strokeMm": 60.0,
+        "valveNode": "ST_COLLECT/注射泵总装-COL/ACTUATOR_PUMP_VALVE_COL",
+        "valveAxis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "valvePorts": 4,
+        "valvePortAngles": [
+          335.0,
+          291.667,
+          248.333,
+          205.0
+        ],
+        "speedStation": "collect",
+        "leadNode": "ST_COLLECT/注射泵总装-COL/ACTUATOR_PUMP_LEAD_COL",
+        "leadAxis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "leadTurnsPerStroke": 10.0,
+        "rigged": true
+      }
+    ],
+    "actions": {
+      "develop.init": {
+        "pump": {
+          "from": "tankGroup",
+          "arg": "target_tank"
+        },
+        "phases": [
+          {
+            "op": "home",
+            "to": 0.0,
+            "rampS": 2.0
+          }
+        ]
+      },
+      "develop.fill": {
+        "pump": {
+          "from": "tankGroup",
+          "arg": "target_tank"
+        },
+        "repeatFrom": "up_liquid_repeat_count",
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "solvent_volume_ml"
+              ]
+            },
+            "port": 2,
+            "rampS": 4.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": "output",
+            "rampS": 4.0,
+            "speed": "disp_speed"
+          }
+        ]
+      },
+      "develop.rinse_fill": {
+        "pump": {
+          "from": "tankGroup",
+          "arg": "target_tank"
+        },
+        "repeatFrom": "rinse_repeat_count",
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "solvent_volume_ml"
+              ]
+            },
+            "port": 2,
+            "rampS": 3.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": "output",
+            "rampS": 3.0,
+            "speed": "disp_speed"
+          }
+        ]
+      },
+      "develop.clean_line": {
+        "pump": {
+          "from": "tankGroup",
+          "arg": "target_tank"
+        },
+        "repeatFrom": "rinse_repeat_count",
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "solvent_volume_ml"
+              ]
+            },
+            "port": 2,
+            "rampS": 3.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": "output",
+            "rampS": 3.0,
+            "speed": "disp_speed"
+          }
+        ]
+      },
+      "collect.init": {
+        "pump": {
+          "from": "fixed",
+          "id": "COL"
+        },
+        "phases": [
+          {
+            "op": "home",
+            "to": 0.0,
+            "rampS": 2.0
+          }
+        ]
+      },
+      "collect.collect": {
+        "pump": {
+          "from": "fixed",
+          "id": "COL"
+        },
+        "repeatFrom": "liquid_repeat_count",
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "solvent_volume_ml"
+              ]
+            },
+            "port": 2,
+            "rampS": 3.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": 1,
+            "rampS": 3.0,
+            "speed": "disp_speed"
+          }
+        ]
+      },
+      "sampling.init": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "phases": [
+          {
+            "op": "home",
+            "to": 0.0,
+            "rampS": 2.0
+          }
+        ]
+      },
+      "sampling.clean": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "repeatFrom": "cleaning_count",
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "wash_volume_ml"
+              ]
+            },
+            "port": 1,
+            "rampS": 4.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": 3,
+            "rampS": 4.0,
+            "speed": "disp_speed"
+          },
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "wash_volume_ml"
+              ]
+            },
+            "port": 1,
+            "rampS": 4.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": 2,
+            "rampS": 4.0,
+            "speed": "disp_speed"
+          }
+        ]
+      },
+      "sampling.flush": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "flush_volume_ml",
+                "outer_wash_volume_ml",
+                "spot_head_volume_ml"
+              ],
+              "fallback": [
+                17.0,
+                5.0,
+                3.0
+              ]
+            },
+            "port": 1,
+            "rampS": 8.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "toFrom": {
+              "add": [
+                "outer_wash_volume_ml",
+                "spot_head_volume_ml"
+              ],
+              "fallback": [
+                5.0,
+                3.0
+              ]
+            },
+            "port": 3,
+            "rampS": 6.0,
+            "speed": "flush_disp_speed"
+          },
+          {
+            "op": "dispense",
+            "toFrom": {
+              "add": [
+                "spot_head_volume_ml"
+              ],
+              "fallback": [
+                3.0
+              ]
+            },
+            "port": 2,
+            "rampS": 4.0,
+            "speed": "flush_disp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": 3,
+            "rampS": 3.0,
+            "speed": "spot_head_disp_speed"
+          }
+        ]
+      },
+      "sampling.prep": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "air_buffer_ml"
+              ],
+              "fallback": [
+                0.2
+              ]
+            },
+            "port": 3,
+            "rampS": 2.0,
+            "speed": "asp_speed"
+          }
+        ]
+      },
+      "sampling.aspirate": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "phases": [
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "air_gap_ml"
+              ]
+            },
+            "skipIfMissing": true,
+            "port": 3,
+            "rampS": 2.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "aspirate",
+            "byFrom": {
+              "add": [
+                "sample_volume_ml"
+              ]
+            },
+            "port": 3,
+            "rampS": 4.0,
+            "speed": "asp_speed"
+          }
+        ]
+      },
+      "sampling.rinse_mix": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "phases": [
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "rampS": 3.0,
+            "speed": "disp_speed"
+          },
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "rinse_volume_ml"
+              ]
+            },
+            "rampS": 3.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "rampS": 3.0,
+            "speed": "disp_speed"
+          },
+          {
+            "op": "aspirate",
+            "toFrom": {
+              "add": [
+                "air_gap_ml"
+              ],
+              "fallback": [
+                0.2
+              ]
+            },
+            "rampS": 1.5,
+            "speed": "asp_speed"
+          }
+        ],
+        "loop": {
+          "repeatFrom": "mix_count",
+          "phases": [
+            {
+              "op": "aspirate",
+              "byFrom": {
+                "add": [
+                  "mix_volume_ml"
+                ]
+              },
+              "rampS": 2.0,
+              "speed": "asp_speed"
+            },
+            {
+              "op": "dispense",
+              "byFrom": {
+                "add": [
+                  "mix_volume_ml"
+                ]
+              },
+              "rampS": 2.0,
+              "speed": "disp_speed"
+            }
+          ]
+        }
+      },
+      "sampling.spot": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "phases": [
+          {
+            "op": "aspirate",
+            "byFrom": {
+              "add": [
+                "sample_volume_ml"
+              ]
+            },
+            "port": 4,
+            "rampS": 4.0,
+            "speed": "asp_speed"
+          },
+          {
+            "op": "dispense",
+            "to": 0.0,
+            "port": 3,
+            "rampS": 8.0,
+            "speed": "spot_disp_speed"
+          },
+          {
+            "op": "aspirate",
+            "by": 1.0,
+            "port": 3,
+            "rampS": 1.0,
+            "speed": "asp_speed"
+          }
+        ]
+      },
+      "sampling.spot_band_layer": {
+        "pump": {
+          "from": "fixed",
+          "id": "SMP"
+        },
+        "phases": [
+          {
+            "op": "dispense",
+            "toFrom": {
+              "add": [
+                "spot_end_position_ml"
+              ],
+              "fallback": [
+                0.0
+              ]
+            },
+            "port": 3,
+            "rampS": 120.0,
+            "speed": "spot_disp_speed"
+          }
+        ]
+      }
+    }
+  },
+  "stations": [
+    {
+      "id": "FRAME",
+      "nodeId": null,
+      "label": "机架与外罩",
+      "glbNode": "ST_FRAME",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          1.705,
+          0.834,
+          2.82
+        ],
+        "target": [
+          0.007,
+          -0.023,
+          -0.009
+        ]
+      },
+      "actionPrefixes": [],
+      "actions": [],
+      "bounds": {
+        "center": [
+          0.0075,
+          -0.0227,
+          -0.0089
+        ],
+        "size": [
+          2.6271,
+          1.9386,
+          1.527
+        ]
+      }
+    },
+    {
+      "id": "RAIL",
+      "nodeId": "plc.rail",
+      "label": "地轨",
+      "glbNode": "ST_RAIL",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          0.101,
+          2.149,
+          -1.614
+        ],
+        "target": [
+          -0.031,
+          1.135,
+          0.665
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            0.994,
+            2.381,
+            -0.8
+          ],
+          "target": [
+            0.062,
+            1.135,
+            0.666
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "rail."
+      ],
+      "actions": [
+        "rail.ensure",
+        "rail.move"
+      ],
+      "bounds": {
+        "center": [
+          -0.1266,
+          0.6062,
+          0.0444
+        ],
+        "size": [
+          1.168,
+          1.3375,
+          0.4866
+        ]
+      }
+    },
+    {
+      "id": "ROBOT",
+      "nodeId": "robot",
+      "label": "机械臂",
+      "glbNode": "ST_RAIL/AXIS_AXIS_11Y/CARRIAGE/ST_ROBOT",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          0.495,
+          2.203,
+          -1.289
+        ],
+        "target": [
+          0.055,
+          1.522,
+          0.032
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            0.344,
+            2.237,
+            -1.322
+          ],
+          "target": [
+            -0.096,
+            1.556,
+            -0.001
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "robot."
+      ],
+      "actions": [
+        "robot.clear_error",
+        "robot.connect",
+        "robot.disable",
+        "robot.dwell",
+        "robot.emergency_stop",
+        "robot.enable",
+        "robot.home",
+        "robot.home_ensure",
+        "robot.jog_start",
+        "robot.jog_stop",
+        "robot.move_to_point",
+        "robot.pause",
+        "robot.query",
+        "robot.require_anchor",
+        "robot.resume",
+        "robot.set_do",
+        "robot.set_mounted_tool",
+        "robot.set_speed_factor",
+        "robot.step",
+        "robot.stop",
+        "robot.tool_action"
+      ],
+      "bounds": {
+        "center": [
+          -0.2314,
+          0.7267,
+          0.1076
+        ],
+        "size": [
+          0.148,
+          1.0965,
+          0.3601
+        ]
+      }
+    },
+    {
+      "id": "DEVELOP",
+      "nodeId": "plc.develop",
+      "label": "展开工位",
+      "glbNode": "ST_DEVELOP",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          -0.769,
+          1.524,
+          2.108
+        ],
+        "target": [
+          -0.749,
+          1.381,
+          -0.026
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            -2.701,
+            0.972,
+            -0.009
+          ],
+          "target": [
+            -0.923,
+            0.418,
+            -0.009
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "develop."
+      ],
+      "actions": [
+        "develop.capture_reference",
+        "develop.clean_line",
+        "develop.drain",
+        "develop.fill",
+        "develop.init",
+        "develop.plate_extend",
+        "develop.plate_retract",
+        "develop.release_tank",
+        "develop.rinse_fill",
+        "develop.rinse_suction",
+        "develop.wait_level"
+      ],
+      "bounds": {
+        "center": [
+          -0.9226,
+          0.418,
+          -0.0089
+        ],
+        "size": [
+          0.4,
+          0.816,
+          1.416
+        ]
+      }
+    },
+    {
+      "id": "SAMPLING",
+      "nodeId": "plc.sampling",
+      "label": "上样工位",
+      "glbNode": "ST_SAMPLING",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          -0.315,
+          2.382,
+          1.152
+        ],
+        "target": [
+          0.989,
+          1.502,
+          0.08
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            2.248,
+            0.96,
+            0.173
+          ],
+          "target": [
+            0.996,
+            0.51,
+            0.071
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "sampling."
+      ],
+      "actions": [
+        "sampling.aspirate",
+        "sampling.clean",
+        "sampling.flush",
+        "sampling.init",
+        "sampling.place_axis",
+        "sampling.place_locate",
+        "sampling.place_release",
+        "sampling.prep",
+        "sampling.rinse_mix",
+        "sampling.spot",
+        "sampling.spot_band_layer",
+        "sampling.spray_axis"
+      ],
+      "bounds": {
+        "center": [
+          0.9961,
+          0.51,
+          0.0711
+        ],
+        "size": [
+          0.5486,
+          1.0,
+          0.57
+        ]
+      }
+    },
+    {
+      "id": "PHOTOSCRAPE",
+      "nodeId": "plc.photoscrape",
+      "label": "拍照刮板工位",
+      "glbNode": "ST_PHOTOSCRAPE",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          -0.699,
+          2.104,
+          -1.097
+        ],
+        "target": [
+          0.858,
+          1.16,
+          -0.391
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            1.951,
+            0.606,
+            -0.896
+          ],
+          "target": [
+            0.865,
+            0.168,
+            -0.4
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "photoscrape.",
+        "vision."
+      ],
+      "actions": [
+        "photoscrape.align_home",
+        "photoscrape.align_move",
+        "photoscrape.align_readout",
+        "photoscrape.align_z",
+        "photoscrape.analyze",
+        "photoscrape.cam_photohome",
+        "photoscrape.cam_photopos",
+        "photoscrape.cam_x335",
+        "photoscrape.capture",
+        "photoscrape.cnc_path",
+        "photoscrape.init",
+        "photoscrape.locate_cylinder",
+        "photoscrape.press_cylinder",
+        "photoscrape.retr_stoprot",
+        "photoscrape.scrape",
+        "photoscrape.scrape_finish",
+        "photoscrape.scraped_overlay",
+        "photoscrape.wait_rot",
+        "photoscrape.write_cnc_path",
+        "photoscrape.write_pass_z",
+        "vision.capture_plate_offset"
+      ],
+      "bounds": {
+        "center": [
+          0.8654,
+          0.1683,
+          -0.4002
+        ],
+        "size": [
+          0.764,
+          0.9505,
+          0.6486
+        ]
+      }
+    },
+    {
+      "id": "VISION",
+      "nodeId": null,
+      "label": "视觉定位",
+      "glbNode": "ST_VISION",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          0.358,
+          0.169,
+          -1.19
+        ],
+        "target": [
+          0.141,
+          -0.091,
+          -0.459
+        ]
+      },
+      "actionPrefixes": [],
+      "actions": [],
+      "bounds": {
+        "center": [
+          0.1412,
+          -0.0915,
+          -0.4589
+        ],
+        "size": [
+          0.1545,
+          0.183,
+          0.22
+        ]
+      }
+    },
+    {
+      "id": "COLLECT",
+      "nodeId": "plc.collect",
+      "label": "收集工位",
+      "glbNode": "ST_COLLECT",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          0.915,
+          2.831,
+          -1.004
+        ],
+        "target": [
+          0.049,
+          1.122,
+          0.635
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            0.708,
+            0.573,
+            2.411
+          ],
+          "target": [
+            0.163,
+            -0.018,
+            0.527
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "collect."
+      ],
+      "actions": [
+        "collect.bottle_locator",
+        "collect.clamp",
+        "collect.collect",
+        "collect.extend",
+        "collect.init",
+        "collect.lift_press",
+        "collect.release_clamp",
+        "collect.retract",
+        "collect.transport_extend"
+      ],
+      "bounds": {
+        "center": [
+          0.1633,
+          -0.0178,
+          0.5275
+        ],
+        "size": [
+          0.2838,
+          1.5615,
+          0.3429
+        ]
+      }
+    },
+    {
+      "id": "FEEDLIFT",
+      "nodeId": "plc.feedlift",
+      "label": "上下料位",
+      "glbNode": "ST_FEEDLIFT",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          0.72,
+          0.784,
+          2.535
+        ],
+        "target": [
+          0.72,
+          0.648,
+          0.505
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            1.716,
+            0.084,
+            0.993
+          ],
+          "target": [
+            0.727,
+            -0.344,
+            0.413
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "feedlift."
+      ],
+      "actions": [
+        "feedlift.calib_record",
+        "feedlift.debug_check_photoelectric_edge",
+        "feedlift.feed_clear",
+        "feedlift.feed_lower",
+        "feedlift.feed_raise",
+        "feedlift.init",
+        "feedlift.preflight",
+        "feedlift.probe_stack",
+        "feedlift.read_pos",
+        "feedlift.unload_bury",
+        "feedlift.unload_ready"
+      ],
+      "bounds": {
+        "center": [
+          0.7274,
+          -0.3437,
+          0.4131
+        ],
+        "size": [
+          0.7,
+          0.9126,
+          0.516
+        ]
+      }
+    },
+    {
+      "id": "STAGINGA",
+      "nodeId": "plc.staginga",
+      "label": "中转托盘位",
+      "glbNode": "ST_STAGINGA",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          0.761,
+          2.056,
+          0.837
+        ],
+        "target": [
+          0.413,
+          1.143,
+          0.203
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            1.603,
+            0.501,
+            0.631
+          ],
+          "target": [
+            0.427,
+            0.151,
+            0.159
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "staging_a."
+      ],
+      "actions": [
+        "staging_a.locator_a",
+        "staging_a.locator_b"
+      ],
+      "bounds": {
+        "center": [
+          0.4271,
+          0.1507,
+          0.1592
+        ],
+        "size": [
+          0.6013,
+          0.2813,
+          0.3244
+        ]
+      }
+    },
+    {
+      "id": "PUMP",
+      "nodeId": "plc.pump",
+      "label": "泵站",
+      "glbNode": "ST_PUMP",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          -0.255,
+          0.522,
+          1.647
+        ],
+        "target": [
+          -0.636,
+          0.37,
+          -0.013
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            -1.865,
+            -0.185,
+            -0.044
+          ],
+          "target": [
+            -0.673,
+            -0.622,
+            -0.022
+          ]
+        }
+      },
+      "actionPrefixes": [
+        "pump."
+      ],
+      "actions": [
+        "pump.vacuum_off",
+        "pump.vacuum_on"
+      ],
+      "bounds": {
+        "center": [
+          -0.6726,
+          -0.622,
+          -0.0219
+        ],
+        "size": [
+          0.1655,
+          0.353,
+          0.9495
+        ]
+      }
+    },
+    {
+      "id": "RACK",
+      "nodeId": null,
+      "label": "料架",
+      "glbNode": "ST_RACK",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          -2.503,
+          1.928,
+          1.025
+        ],
+        "target": [
+          -1.187,
+          1.364,
+          0.012
+        ],
+        "manual": true,
+        "auto": {
+          "pos": [
+            -2.09,
+            0.754,
+            0.013
+          ],
+          "target": [
+            -1.18,
+            0.372,
+            0.004
+          ]
+        }
+      },
+      "actionPrefixes": [],
+      "actions": [],
+      "bounds": {
+        "center": [
+          -1.1798,
+          0.3725,
+          0.0035
+        ],
+        "size": [
+          0.14,
+          0.725,
+          0.49
+        ]
+      }
+    },
+    {
+      "id": "TOOLING",
+      "nodeId": null,
+      "label": "工具站",
+      "glbNode": "ST_TOOLING",
+      "hasGeometry": true,
+      "statusLight": null,
+      "camera": {
+        "pos": [
+          -0.819,
+          0.446,
+          -1.04
+        ],
+        "target": [
+          -0.388,
+          0.129,
+          -0.502
+        ]
+      },
+      "actionPrefixes": [],
+      "actions": [],
+      "bounds": {
+        "center": [
+          -0.3878,
+          0.1287,
+          -0.5024
+        ],
+        "size": [
+          0.47,
+          0.229,
+          0.382
+        ]
+      }
+    }
+  ],
+  "tanks": [
+    {
+      "index": 0,
+      "id": "tank1",
+      "label": "展缸 1",
+      "glbNode": "ST_DEVELOP/展缸架总装-2/TANK_1",
+      "liquidNode": "ST_DEVELOP/展缸架总装-2/TANK_1/LIQUID_1",
+      "lidMechanismId": "dev_t1_cyl1",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 0
+      }
+    },
+    {
+      "index": 1,
+      "id": "tank2",
+      "label": "展缸 2",
+      "glbNode": "ST_DEVELOP/展缸架总装-2/TANK_2",
+      "liquidNode": "ST_DEVELOP/展缸架总装-2/TANK_2/LIQUID_2",
+      "lidMechanismId": "dev_t1_cyl2",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 1
+      }
+    },
+    {
+      "index": 2,
+      "id": "tank3",
+      "label": "展缸 3",
+      "glbNode": "ST_DEVELOP/展缸架总装-2/TANK_3",
+      "liquidNode": "ST_DEVELOP/展缸架总装-2/TANK_3/LIQUID_3",
+      "lidMechanismId": "dev_t1_cyl3",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 2
+      }
+    },
+    {
+      "index": 3,
+      "id": "tank4",
+      "label": "展缸 4",
+      "glbNode": "ST_DEVELOP/展缸架总装-2/TANK_4",
+      "liquidNode": "ST_DEVELOP/展缸架总装-2/TANK_4/LIQUID_4",
+      "lidMechanismId": "dev_t1_cyl4",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 3
+      }
+    },
+    {
+      "index": 4,
+      "id": "tank5",
+      "label": "展缸 5",
+      "glbNode": "ST_DEVELOP/展缸架总装-1/TANK_5",
+      "liquidNode": "ST_DEVELOP/展缸架总装-1/TANK_5/LIQUID_5",
+      "lidMechanismId": "dev_t2_cyl1",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 4
+      }
+    },
+    {
+      "index": 5,
+      "id": "tank6",
+      "label": "展缸 6",
+      "glbNode": "ST_DEVELOP/展缸架总装-1/TANK_6",
+      "liquidNode": "ST_DEVELOP/展缸架总装-1/TANK_6/LIQUID_6",
+      "lidMechanismId": "dev_t2_cyl2",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 5
+      }
+    },
+    {
+      "index": 6,
+      "id": "tank7",
+      "label": "展缸 7",
+      "glbNode": "ST_DEVELOP/展缸架总装-1/TANK_7",
+      "liquidNode": "ST_DEVELOP/展缸架总装-1/TANK_7/LIQUID_7",
+      "lidMechanismId": "dev_t2_cyl3",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 6
+      }
+    },
+    {
+      "index": 7,
+      "id": "tank8",
+      "label": "展缸 8",
+      "glbNode": "ST_DEVELOP/展缸架总装-1/TANK_8",
+      "liquidNode": "ST_DEVELOP/展缸架总装-1/TANK_8/LIQUID_8",
+      "lidMechanismId": "dev_t2_cyl4",
+      "stateFrom": {
+        "node": "plc.develop",
+        "key": "Tank_State",
+        "index": 7
+      }
+    }
+  ],
+  "axes": [
+    {
+      "id": "axis_11y",
+      "station": "RAIL",
+      "label": "地轨轴11Y",
+      "glbNode": "ST_RAIL/AXIS_AXIS_11Y/CARRIAGE",
+      "rigged": true,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "sign": -1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": 500.0,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -54.9,
+        845.1
+      ],
+      "strokeMm": 900,
+      "telemetry": {
+        "node": "plc.rail",
+        "key": "Rail_ActPos"
+      }
+    },
+    {
+      "id": "axis_1z",
+      "station": "FEEDLIFT",
+      "label": "玻璃上料轴1Z",
+      "glbNode": "ST_FEEDLIFT/AXIS_AXIS_1Z/CARRIAGE.001",
+      "rigged": true,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": 1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": -22,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -50,
+        550
+      ],
+      "strokeMm": 600,
+      "telemetry": {
+        "node": "plc.feedlift",
+        "key": "FeedLift_1Z_ActPos"
+      },
+      "geometryMinMm": -31.998
+    },
+    {
+      "id": "axis_2z",
+      "station": "FEEDLIFT",
+      "label": "玻璃上料轴2Z",
+      "glbNode": "ST_FEEDLIFT/AXIS_AXIS_2Z/CARRIAGE.002",
+      "rigged": true,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": 1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": -22,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -50,
+        550
+      ],
+      "strokeMm": 600,
+      "telemetry": {
+        "node": "plc.feedlift",
+        "key": "FeedLift_2Z_ActPos"
+      },
+      "geometryMinMm": -31.999
+    },
+    {
+      "id": "axis_4x",
+      "station": "SAMPLING",
+      "label": "上样轴4X",
+      "glbNode": "ST_SAMPLING/AXIS_AXIS_4X/CARRIAGE.003",
+      "rigged": true,
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "sign": 1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": 77.68,
+      "scaleMm": 2.0,
+      "rangeMm": [
+        -15.75,
+        143.75
+      ],
+      "strokeMm": 319,
+      "telemetry": {
+        "node": "plc.sampling",
+        "key": "Sampling_4X_ActPos"
+      }
+    },
+    {
+      "id": "axis_3y",
+      "station": "SAMPLING",
+      "label": "打样瓶上料轴3Y",
+      "glbNode": "ST_SAMPLING/AXIS_AXIS_3Y/CARRIAGE.004",
+      "rigged": true,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "sign": 1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": 20.7,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -57.9,
+        242.1
+      ],
+      "strokeMm": 300,
+      "telemetry": {
+        "node": "plc.sampling",
+        "key": "Sampling_3Y_ActPos"
+      }
+    },
+    {
+      "id": "axis_5z",
+      "station": "SAMPLING",
+      "label": "上样轴5Z",
+      "glbNode": "ST_SAMPLING/AXIS_AXIS_4X/CARRIAGE.003/AXIS_AXIS_5Z/CARRIAGE.005",
+      "rigged": true,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": -1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": 48.5,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -22.5,
+        126.5
+      ],
+      "strokeMm": 149,
+      "telemetry": {
+        "node": "plc.sampling",
+        "key": "Sampling_5Z_ActPos"
+      }
+    },
+    {
+      "id": "axis_6x",
+      "station": "SAMPLING",
+      "label": "点样轴6X",
+      "glbNode": "ST_SAMPLING/AXIS_AXIS_6X/CARRIAGE.006",
+      "rigged": true,
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "sign": -1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": -4.001,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -0.001,
+        300
+      ],
+      "strokeMm": 300,
+      "telemetry": {
+        "node": "plc.sampling",
+        "key": "Spot_6X_ActPos"
+      }
+    },
+    {
+      "id": "axis_7y",
+      "station": "SAMPLING",
+      "label": "点样轴7Y",
+      "glbNode": "ST_SAMPLING/AXIS_AXIS_7Y/CARRIAGE.007",
+      "rigged": true,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "sign": -1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": -42.85,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -24.85,
+        75.15
+      ],
+      "strokeMm": 100,
+      "telemetry": {
+        "node": "plc.sampling",
+        "key": "Spot_7Y_ActPos"
+      }
+    },
+    {
+      "id": "axis_8y",
+      "station": "PHOTOSCRAPE",
+      "label": "拍照轴8Y",
+      "glbNode": "ST_PHOTOSCRAPE/AXIS_AXIS_8Y/CARRIAGE.008",
+      "rigged": true,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "sign": 1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": -53.13,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -80,
+        440
+      ],
+      "strokeMm": 550,
+      "telemetry": {
+        "node": "plc.photoscrape",
+        "key": "Photo_8Y_ActPos"
+      }
+    },
+    {
+      "id": "axis_9x",
+      "station": "PHOTOSCRAPE",
+      "label": "刮板轴9X",
+      "glbNode": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009",
+      "rigged": true,
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "sign": -1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": -48.67,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -48.67,
+        351.33
+      ],
+      "strokeMm": 400,
+      "telemetry": {
+        "node": "plc.photoscrape",
+        "key": "PhotoScrape_9X_ActPos"
+      }
+    },
+    {
+      "id": "axis_10z",
+      "station": "PHOTOSCRAPE",
+      "label": "刮板轴10Z",
+      "glbNode": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009/AXIS_AXIS_10Z/CARRIAGE.010",
+      "rigged": true,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": -1,
+      "mmToUnit": 0.001,
+      "zeroOffsetMm": -4.0,
+      "scaleMm": 1.0,
+      "rangeMm": [
+        -14,
+        36
+      ],
+      "strokeMm": 50,
+      "telemetry": {
+        "node": "plc.photoscrape",
+        "key": "PhotoScrape_10Z_ActPos"
+      }
+    }
+  ],
+  "robot": {
+    "id": "robot",
+    "label": "机械臂 (DOBOT CR5)",
+    "glbNode": "ST_RAIL/AXIS_AXIS_11Y/CARRIAGE/ST_ROBOT",
+    "jointsRigged": true,
+    "kinematicsSource": {
+      "repository": "https://github.com/Dobot-Arm/DOBOT_6Axis_ROS2_V4",
+      "commit": "37730d08b08c74061ae10d4fa5565b4c4c914885",
+      "xacro": "cra_description/urdf/cr5_robot.xacro"
+    },
+    "baseTransform": {
+      "convention": "gltf-y-up-metres",
+      "method": "tool-dock-fit-plus-explicit-cad-carriage-alignment",
+      "reference_rail": {
+        "slot": 4,
+        "position_mm": 500.0
+      },
+      "base_contact_height_m": 0.178497249,
+      "rail_support": {
+        "role": "robot-carriage-support",
+        "source_node_match": "PTLC-07-025",
+        "reference_node": "ROBOT_CARRIAGE_SUPPORT",
+        "socket_node": "SOCKET_ROBOT_BASE",
+        "source_mount_frame_m": [
+          -0.570581,
+          0.1784999997,
+          9.77955e-05
+        ],
+        "reference_mount_frame_m": [
+          -0.231431147,
+          0.178497249,
+          0.001677236
+        ],
+        "top_y_m": 0.178497249,
+        "footprint_size_m": [
+          0.170000002,
+          0.180000007
+        ],
+        "required_constraint": "top-centre-datum",
+        "centre_tolerance_mm": 0.1
+      },
+      "axis_map_robot_to_gltf": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          -1.0,
+          0.0
+        ]
+      ],
+      "base_transform_at_reference_rail": {
+        "matrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            -0.231431147
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.178497249
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.001677236
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "dock_frame_rotation": [
+        [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "correspondences": [
+        {
+          "point_id": "robot-main.tool-change.slot-1.target",
+          "source_name": "P8",
+          "cad_connector": "QT2091392-tool-side-slot-1",
+          "scene_point_m": [
+            -0.546055,
+            0.256974,
+            -0.421546
+          ]
+        },
+        {
+          "point_id": "robot-main.tool-change.slot-2.target",
+          "source_name": "P9",
+          "cad_connector": "QT2091392-tool-side-slot-2",
+          "scene_point_m": [
+            -0.403556,
+            0.256974,
+            -0.421546
+          ]
+        },
+        {
+          "point_id": "robot-main.tool-change.slot-3.target",
+          "source_name": "P10",
+          "cad_connector": "QT2091392-tool-side-slot-3",
+          "scene_point_m": [
+            -0.243555,
+            0.256974,
+            -0.421546
+          ]
+        }
+      ],
+      "validation": {
+        "residual_mm": [
+          2.2796,
+          0.3556,
+          2.6076
+        ],
+        "orientation_residual_deg": [
+          0.4398,
+          0.24,
+          0.3616
+        ],
+        "rms_mm": 2.0102,
+        "max_mm": 2.6076,
+        "orientation_rms_deg": 0.3567,
+        "orientation_max_deg": 0.4398
+      }
+    },
+    "referencePointHash": "4b62a7049b8df0c5e0e8d34920f8cb64695f6dafe73eb04960c3301f9991c673",
+    "calibrationVersion": "cr5-ptlc-2026-08-01-rail-carriage-center",
+    "joints": [
+      {
+        "id": "J1",
+        "node": "CR5_J1_ROTOR",
+        "originNode": "CR5_J1_ORIGIN",
+        "linkNode": "CR5_LINK1",
+        "axis": [
+          0.0,
+          1.0,
+          -0.0
+        ],
+        "sign": 1,
+        "zeroOffsetDeg": 0.14688754,
+        "limitDeg": [
+          -359.8175,
+          359.8175
+        ],
+        "originXyzM": [
+          0.0,
+          0.0,
+          0.147
+        ],
+        "originRpyRad": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "id": "J2",
+        "node": "CR5_J2_ROTOR",
+        "originNode": "CR5_J2_ORIGIN",
+        "linkNode": "CR5_LINK2",
+        "axis": [
+          0.0,
+          1.0,
+          -0.0
+        ],
+        "sign": 1,
+        "zeroOffsetDeg": -0.11469849,
+        "limitDeg": [
+          -359.8175,
+          359.8175
+        ],
+        "originXyzM": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "originRpyRad": [
+          1.5708,
+          1.5708,
+          0.0
+        ]
+      },
+      {
+        "id": "J3",
+        "node": "CR5_J3_ROTOR",
+        "originNode": "CR5_J3_ORIGIN",
+        "linkNode": "CR5_LINK3",
+        "axis": [
+          0.0,
+          1.0,
+          -0.0
+        ],
+        "sign": 1,
+        "zeroOffsetDeg": 0.07261087,
+        "limitDeg": [
+          -159.9695,
+          159.9695
+        ],
+        "originXyzM": [
+          -0.427,
+          -0.00034866,
+          0.0
+        ],
+        "originRpyRad": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "id": "J4",
+        "node": "CR5_J4_ROTOR",
+        "originNode": "CR5_J4_ORIGIN",
+        "linkNode": "CR5_LINK4",
+        "axis": [
+          0.0,
+          1.0,
+          -0.0
+        ],
+        "sign": 1,
+        "zeroOffsetDeg": -0.02898851,
+        "limitDeg": [
+          -359.8175,
+          359.8175
+        ],
+        "originXyzM": [
+          -0.357,
+          0.00034866,
+          0.141
+        ],
+        "originRpyRad": [
+          0.0,
+          0.0,
+          -1.5708
+        ]
+      },
+      {
+        "id": "J5",
+        "node": "CR5_J5_ROTOR",
+        "originNode": "CR5_J5_ORIGIN",
+        "linkNode": "CR5_LINK5",
+        "axis": [
+          0.0,
+          1.0,
+          -0.0
+        ],
+        "sign": 1,
+        "zeroOffsetDeg": 0.22621536,
+        "limitDeg": [
+          -359.8175,
+          359.8175
+        ],
+        "originXyzM": [
+          0.0,
+          -0.116,
+          0.0
+        ],
+        "originRpyRad": [
+          1.5708,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "id": "J6",
+        "node": "CR5_J6_ROTOR",
+        "originNode": "CR5_J6_ORIGIN",
+        "linkNode": "CR5_LINK6",
+        "axis": [
+          0.0,
+          1.0,
+          -0.0
+        ],
+        "sign": 1,
+        "zeroOffsetDeg": -0.06467217,
+        "limitDeg": [
+          -359.8175,
+          359.8175
+        ],
+        "originXyzM": [
+          0.0,
+          0.105,
+          0.0
+        ],
+        "originRpyRad": [
+          -1.5708,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "flangeNode": "CR5_LINK6",
+    "toolMount": "TOOL_MOUNT",
+    "toolMountTransform": {
+      "status": "fitted-from-three-cad-docks",
+      "translation_m": [
+        -0.01934521,
+        -0.04603448,
+        0.01237952
+      ],
+      "rpy_deg": [
+        89.83065652,
+        -0.6277963,
+        -111.42300984
+      ]
+    },
+    "customMountAlignment": {
+      "status": "fitted-cad-flange-to-official-j6",
+      "method": "pca-24-orientations-trimmed-vertex-icp",
+      "source_model": "exports/TLC_full_native.glb",
+      "source_model_sha256": "098034d3c818cbae63c27b8cc52d06f32e71aa472348bd02335b7979640a1fef",
+      "official_link6_mesh": "vendor/dobot-cr5-37730d08-full/cra_description/meshes/cr5/J6.STL",
+      "official_link6_mesh_sha256": "b969c8f0f7db193647969173f9c98dd3a36027b8372f95cbaf148fae0322ffb9",
+      "matrix_cad_world_to_link6": [
+        [
+          -0.90533268,
+          0.40135281,
+          0.13888366,
+          -0.04829428
+        ],
+        [
+          0.42466754,
+          0.85971891,
+          0.28379725,
+          0.24203207
+        ],
+        [
+          -0.00549808,
+          0.3159103,
+          -0.94877313,
+          0.47810171
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "validation": {
+        "flange_trimmed_rms_mm": 0.3087,
+        "flange_median_mm": 0.3457,
+        "flange_p90_mm": 1.7486,
+        "link6_adapter_nearest_vertex_mm": 0.0393
+      }
+    },
+    "toolTransforms": {
+      "0": {
+        "status": "uncalibrated-no-valid-joint-samples",
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rpy_deg": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "1": {
+        "status": "fitted",
+        "translation_m": [
+          -0.0181592,
+          -0.04523355,
+          0.15319049
+        ],
+        "rpy_deg": [
+          0.04335046,
+          0.10661375,
+          0.04641238
+        ]
+      }
+    },
+    "telemetry": {
+      "node": "robot",
+      "joint_key": "joint",
+      "tool_key": "tool_state.mounted_tool"
+    },
+    "note": "关节链来自固定提交的 Dobot CR5 xacro；ORIGIN/ROTOR 刚体链与实机点表标定"
+  },
+  "tools": [
+    {
+      "id": "TOOL_PLATE96",
+      "controllerTool": 2,
+      "label": "96孔板夹爪",
+      "glbNode": "ST_TOOLING/夹具总装-1/TOOL_PLATE96",
+      "dockNode": "TOOL_PLATE96_DOCK",
+      "dock": [
+        -0.4025,
+        0.2612,
+        -0.416
+      ],
+      "mountNode": "TOOL_MOUNT",
+      "mountPosition": [
+        0.000420864,
+        -0.000465401,
+        -0.000431585
+      ],
+      "mountQuaternion": [
+        -0.707592304,
+        0.000684711,
+        0.0007438,
+        0.706620202
+      ],
+      "mountCalibration": "robot.tool_pickup/tool-2 lock pose"
+    },
+    {
+      "id": "TOOL_VIAL",
+      "controllerTool": 3,
+      "label": "样品瓶电爪",
+      "glbNode": "ST_TOOLING/夹具总装-1/TOOL_VIAL",
+      "dockNode": "TOOL_VIAL_DOCK",
+      "dock": [
+        -0.2425,
+        0.2612,
+        -0.416
+      ],
+      "mountNode": "TOOL_MOUNT",
+      "mountPosition": [
+        0.000420864,
+        -0.000465401,
+        -0.000431585
+      ],
+      "mountQuaternion": [
+        -0.707592304,
+        0.000684711,
+        0.0007438,
+        0.706620202
+      ],
+      "mountCalibration": "shared QT2091392 coupling (= robot.tool_pickup/tool-2 lock pose)"
+    },
+    {
+      "id": "TOOL_SUCTION",
+      "controllerTool": 1,
+      "label": "玻璃吸盘",
+      "glbNode": "ST_TOOLING/夹具总装-1/TOOL_SUCTION",
+      "dockNode": "TOOL_SUCTION_DOCK",
+      "dock": [
+        -0.545,
+        0.2612,
+        -0.416
+      ],
+      "mountNode": "TOOL_MOUNT",
+      "mountPosition": [
+        0.000420864,
+        -0.000465401,
+        -0.000431585
+      ],
+      "mountQuaternion": [
+        -0.707592304,
+        0.000684711,
+        0.0007438,
+        0.706620202
+      ],
+      "mountCalibration": "shared QT2091392 coupling (= robot.tool_pickup/tool-2 lock pose)"
+    }
+  ],
+  "inventory": {
+    "rack": [
+      {
+        "kind": "collector",
+        "plate": 1,
+        "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_6"
+        ]
+      },
+      {
+        "kind": "collector",
+        "plate": 2,
+        "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_6"
+        ]
+      },
+      {
+        "kind": "collector",
+        "plate": 3,
+        "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_6"
+        ]
+      },
+      {
+        "kind": "collector",
+        "plate": 4,
+        "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_6"
+        ]
+      },
+      {
+        "kind": "collector",
+        "plate": 5,
+        "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_6"
+        ]
+      },
+      {
+        "kind": "collector",
+        "plate": 6,
+        "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_6"
+        ]
+      },
+      {
+        "kind": "bottle",
+        "plate": 1,
+        "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_6"
+        ]
+      },
+      {
+        "kind": "bottle",
+        "plate": 2,
+        "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_6"
+        ]
+      },
+      {
+        "kind": "bottle",
+        "plate": 3,
+        "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_6"
+        ]
+      },
+      {
+        "kind": "bottle",
+        "plate": 4,
+        "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_6"
+        ]
+      },
+      {
+        "kind": "bottle",
+        "plate": 5,
+        "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_6"
+        ]
+      },
+      {
+        "kind": "bottle",
+        "plate": 6,
+        "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6",
+        "items": [
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_1",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_2",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_3",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_4",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_5",
+          "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_6"
+        ]
+      }
+    ],
+    "staging": [
+      {
+        "area": "staging-a",
+        "kind": "collector",
+        "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A",
+        "items": [
+          "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_1",
+          "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_2",
+          "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_3",
+          "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_4",
+          "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_5",
+          "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_6"
+        ]
+      },
+      {
+        "area": "staging-b",
+        "kind": "bottle",
+        "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B",
+        "items": [
+          "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_1",
+          "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_2",
+          "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_3",
+          "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_4",
+          "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_5",
+          "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_6"
+        ]
+      }
+    ],
+    "magazines": [
+      {
+        "id": "feed",
+        "node": "ST_FEEDLIFT/AXIS_AXIS_1Z/CARRIAGE.001/INV_MAGAZINE_FEED_TEMPLATE",
+        "stackAxis": [
+          0,
+          1,
+          0
+        ],
+        "stackSign": 1,
+        "spacingM": 0.003,
+        "axisId": "axis_1z",
+        "ledgeAxisMm": 11.058
+      },
+      {
+        "id": "waste",
+        "node": "ST_FEEDLIFT/AXIS_AXIS_2Z/CARRIAGE.002/INV_MAGAZINE_WASTE_TEMPLATE",
+        "stackAxis": [
+          0,
+          1,
+          0
+        ],
+        "stackSign": 1,
+        "spacingM": 0.003,
+        "axisId": "axis_2z",
+        "ledgeAxisMm": 2.42
+      }
+    ],
+    "visibleStates": [
+      "FRESH"
+    ],
+    "visibleWhenSampleId": true,
+    "samplePlates": [
+      {
+        "slot": 1,
+        "node": "ST_SAMPLING/AXIS_AXIS_3Y/CARRIAGE.004/INV_SAMPLE_PLATE_1",
+        "spec": "deepwell_24_10ml",
+        "seatZM": 0.0745,
+        "topZM": 0.1185,
+        "wells": [
+          {
+            "well": "A1",
+            "row": 1,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.018098,
+              0.1185
+            ]
+          },
+          {
+            "well": "A2",
+            "row": 1,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.018098,
+              0.1185
+            ]
+          },
+          {
+            "well": "A3",
+            "row": 1,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.018098,
+              0.1185
+            ]
+          },
+          {
+            "well": "A4",
+            "row": 1,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.018098,
+              0.1185
+            ]
+          },
+          {
+            "well": "A5",
+            "row": 1,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.018098,
+              0.1185
+            ]
+          },
+          {
+            "well": "A6",
+            "row": 1,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.018098,
+              0.1185
+            ]
+          },
+          {
+            "well": "B1",
+            "row": 2,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.036098,
+              0.1185
+            ]
+          },
+          {
+            "well": "B2",
+            "row": 2,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.036098,
+              0.1185
+            ]
+          },
+          {
+            "well": "B3",
+            "row": 2,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.036098,
+              0.1185
+            ]
+          },
+          {
+            "well": "B4",
+            "row": 2,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.036098,
+              0.1185
+            ]
+          },
+          {
+            "well": "B5",
+            "row": 2,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.036098,
+              0.1185
+            ]
+          },
+          {
+            "well": "B6",
+            "row": 2,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.036098,
+              0.1185
+            ]
+          },
+          {
+            "well": "C1",
+            "row": 3,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.054098,
+              0.1185
+            ]
+          },
+          {
+            "well": "C2",
+            "row": 3,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.054098,
+              0.1185
+            ]
+          },
+          {
+            "well": "C3",
+            "row": 3,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.054098,
+              0.1185
+            ]
+          },
+          {
+            "well": "C4",
+            "row": 3,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.054098,
+              0.1185
+            ]
+          },
+          {
+            "well": "C5",
+            "row": 3,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.054098,
+              0.1185
+            ]
+          },
+          {
+            "well": "C6",
+            "row": 3,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.054098,
+              0.1185
+            ]
+          },
+          {
+            "well": "D1",
+            "row": 4,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.072098,
+              0.1185
+            ]
+          },
+          {
+            "well": "D2",
+            "row": 4,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.072098,
+              0.1185
+            ]
+          },
+          {
+            "well": "D3",
+            "row": 4,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.072098,
+              0.1185
+            ]
+          },
+          {
+            "well": "D4",
+            "row": 4,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.072098,
+              0.1185
+            ]
+          },
+          {
+            "well": "D5",
+            "row": 4,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.072098,
+              0.1185
+            ]
+          },
+          {
+            "well": "D6",
+            "row": 4,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.072098,
+              0.1185
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "node": "ST_SAMPLING/AXIS_AXIS_3Y/CARRIAGE.004/INV_SAMPLE_PLATE_2",
+        "spec": "deepwell_24_10ml",
+        "seatZM": 0.0745,
+        "topZM": 0.1185,
+        "wells": [
+          {
+            "well": "A1",
+            "row": 1,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.1301,
+              0.1185
+            ]
+          },
+          {
+            "well": "A2",
+            "row": 1,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.1301,
+              0.1185
+            ]
+          },
+          {
+            "well": "A3",
+            "row": 1,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.1301,
+              0.1185
+            ]
+          },
+          {
+            "well": "A4",
+            "row": 1,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.1301,
+              0.1185
+            ]
+          },
+          {
+            "well": "A5",
+            "row": 1,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.1301,
+              0.1185
+            ]
+          },
+          {
+            "well": "A6",
+            "row": 1,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.1301,
+              0.1185
+            ]
+          },
+          {
+            "well": "B1",
+            "row": 2,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.1481,
+              0.1185
+            ]
+          },
+          {
+            "well": "B2",
+            "row": 2,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.1481,
+              0.1185
+            ]
+          },
+          {
+            "well": "B3",
+            "row": 2,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.1481,
+              0.1185
+            ]
+          },
+          {
+            "well": "B4",
+            "row": 2,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.1481,
+              0.1185
+            ]
+          },
+          {
+            "well": "B5",
+            "row": 2,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.1481,
+              0.1185
+            ]
+          },
+          {
+            "well": "B6",
+            "row": 2,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.1481,
+              0.1185
+            ]
+          },
+          {
+            "well": "C1",
+            "row": 3,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.1661,
+              0.1185
+            ]
+          },
+          {
+            "well": "C2",
+            "row": 3,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.1661,
+              0.1185
+            ]
+          },
+          {
+            "well": "C3",
+            "row": 3,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.1661,
+              0.1185
+            ]
+          },
+          {
+            "well": "C4",
+            "row": 3,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.1661,
+              0.1185
+            ]
+          },
+          {
+            "well": "C5",
+            "row": 3,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.1661,
+              0.1185
+            ]
+          },
+          {
+            "well": "C6",
+            "row": 3,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.1661,
+              0.1185
+            ]
+          },
+          {
+            "well": "D1",
+            "row": 4,
+            "col": 1,
+            "centerM": [
+              1.036541,
+              -0.1841,
+              0.1185
+            ]
+          },
+          {
+            "well": "D2",
+            "row": 4,
+            "col": 2,
+            "centerM": [
+              1.054541,
+              -0.1841,
+              0.1185
+            ]
+          },
+          {
+            "well": "D3",
+            "row": 4,
+            "col": 3,
+            "centerM": [
+              1.072541,
+              -0.1841,
+              0.1185
+            ]
+          },
+          {
+            "well": "D4",
+            "row": 4,
+            "col": 4,
+            "centerM": [
+              1.090541,
+              -0.1841,
+              0.1185
+            ]
+          },
+          {
+            "well": "D5",
+            "row": 4,
+            "col": 5,
+            "centerM": [
+              1.108541,
+              -0.1841,
+              0.1185
+            ]
+          },
+          {
+            "well": "D6",
+            "row": 4,
+            "col": 6,
+            "centerM": [
+              1.126541,
+              -0.1841,
+              0.1185
+            ]
+          }
+        ]
+      }
+    ],
+    "samplePlateSpec": {
+      "installed": "deepwell_24_10ml",
+      "label": "24 方孔深孔板 10mL(锥底)",
+      "grid": "4×6",
+      "pitchMm": 18.0,
+      "wellTopMm": 17.1,
+      "wellDepthMm": 41.9,
+      "heightMm": 44.0,
+      "footprintMm": [
+        127.5,
+        85.5
+      ],
+      "wellVolumeMl": 12.164
+    }
+  },
+  "nodes": [],
+  "actuators": [
+    {
+      "id": "ps_rotate",
+      "label": "刮板拍照旋转气缸(翻料 HRQ7)",
+      "node": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009/ACTUATOR_PS_ROTATE",
+      "motion": "rotate",
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "sign": 1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        180
+      ],
+      "transitionS": 0.8
+    },
+    {
+      "id": "ps_press",
+      "label": "刮板拍照下压气缸(HLH6X20)",
+      "node": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009/ACTUATOR_PS_ROTATE/ACTUATOR_PS_PRESS",
+      "motion": "translate",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": -1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        20
+      ],
+      "unitScale": 0.001,
+      "transitionS": 0.35
+    },
+    {
+      "id": "ps_locator",
+      "label": "刮板拍照定位气缸(TCM6x5)",
+      "node": "ST_PHOTOSCRAPE/AXIS_AXIS_8Y/CARRIAGE.008/ACTUATOR_PS_LOCATOR",
+      "motion": "translate",
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "sign": -1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        2.5
+      ],
+      "unitScale": 0.001,
+      "transitionS": 0.25
+    },
+    {
+      "id": "ps_shade",
+      "label": "刮板拍照遮光气缸(MA16x250)",
+      "node": "ST_PHOTOSCRAPE/ACTUATOR_PS_SHADE",
+      "motion": "translate",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": -1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        250
+      ],
+      "unitScale": 0.001,
+      "transitionS": 1.2
+    },
+    {
+      "id": "col_extend",
+      "label": "收集伸缩气缸(PB10x80)",
+      "node": "ST_COLLECT/ACTUATOR_COL_EXTEND",
+      "motion": "translate",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "sign": -1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        80
+      ],
+      "unitScale": 0.001,
+      "transitionS": 0.6
+    },
+    {
+      "id": "col_lift",
+      "label": "收集升降气缸(顶升 MA16x70)",
+      "node": "ST_COLLECT/ACTUATOR_COL_LIFT",
+      "motion": "translate",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": 1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        70,
+        0
+      ],
+      "unitScale": 0.001,
+      "transitionS": 0.5
+    },
+    {
+      "id": "col_press",
+      "label": "收集下压气缸(注液打压 ACE20X90)",
+      "node": "ST_COLLECT/ACTUATOR_COL_PRESS",
+      "motion": "translate",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "sign": -1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        90
+      ],
+      "unitScale": 0.001,
+      "transitionS": 0.4
+    },
+    {
+      "id": "smp_locator",
+      "label": "上样定位气缸(TCM6x5)",
+      "node": "ST_SAMPLING/AXIS_AXIS_7Y/CARRIAGE.007/ACTUATOR_SMP_LOCATOR",
+      "motion": "translate",
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "sign": -1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        3.5
+      ],
+      "unitScale": 0.001,
+      "transitionS": 0.25
+    },
+    {
+      "id": "rob_flip_suction",
+      "label": "吸盘上下翻转(HRQ10A)",
+      "node": "ST_TOOLING/夹具总装-1/TOOL_SUCTION/TOOL_SUCTION_GEOMETRY/ACTUATOR_FLIP_SUCTION",
+      "motion": "rotate",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "sign": 1,
+      "inputRange": [
+        0,
+        1
+      ],
+      "outputRange": [
+        0,
+        180
+      ],
+      "transitionS": 5.0,
+      "plateGrip": {
+        "axisLocal": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "contactLocalM": [
+          3.1e-05,
+          -0.07157172,
+          -0.16254141
+        ],
+        "spanAxisLocal": [
+          0.0,
+          -0.0,
+          -1.0
+        ],
+        "cupCount": 2,
+        "cupDiameterM": 0.024,
+        "cupSpanM": 0.085,
+        "strokeM": 0.006,
+        "carryCompressionM": 0.01782,
+        "rubbers": [
+          {
+            "node": "ST_TOOLING/夹具总装-1/TOOL_SUCTION/TOOL_SUCTION_GEOMETRY/ACTUATOR_FLIP_SUCTION/SAB22-KQ2E06-1/schmalz_10_01_06_01653_5wtgpvb7p3ycobucmut1wqukb.stp-1",
+            "scaleAxis": 1,
+            "freeLenM": 0.035,
+            "mountOffsetParent": [
+              0.0,
+              0.02857136,
+              -0.0
+            ]
+          },
+          {
+            "node": "ST_TOOLING/夹具总装-1/TOOL_SUCTION/TOOL_SUCTION_GEOMETRY/ACTUATOR_FLIP_SUCTION/SAB22-KQ2E06-2/schmalz_10_01_06_01653_5wtgpvb7p3ycobucmut1wqukb.stp-1.001",
+            "scaleAxis": 1,
+            "freeLenM": 0.035,
+            "mountOffsetParent": [
+              0.0,
+              0.02857136,
+              -0.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "linkages": [
+    {
+      "id": "rob_grip_plate96",
+      "label": "96孔板夹爪开合(HFD12X10)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 0.15,
+      "holdValue": 0.288,
+      "members": [
+        {
+          "node": "ST_TOOLING/夹具总装-1/TOOL_PLATE96/TOOL_PLATE96_GEOMETRY/ACTUATOR_GRIP_PLATE96_L",
+          "motion": "translate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            0,
+            5.2
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_TOOLING/夹具总装-1/TOOL_PLATE96/TOOL_PLATE96_GEOMETRY/ACTUATOR_GRIP_PLATE96_R",
+          "motion": "translate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            0,
+            5.2
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "rob_grip_vial",
+      "label": "样品瓶电爪开合(HFD12X25)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 0.15,
+      "holdValue": 0.101,
+      "members": [
+        {
+          "node": "ST_TOOLING/夹具总装-1/TOOL_VIAL/TOOL_VIAL_GEOMETRY/ACTUATOR_GRIP_VIAL_L",
+          "motion": "translate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            0,
+            12.5
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_TOOLING/夹具总装-1/TOOL_VIAL/TOOL_VIAL_GEOMETRY/ACTUATOR_GRIP_VIAL_R",
+          "motion": "translate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            0,
+            12.5
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "col_clamp",
+      "label": "收集夹持气缸(HFD16X15)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 0.3,
+      "members": [
+        {
+          "node": "ST_COLLECT/ACTUATOR_COL_LIFT/ACTUATOR_COL_CLAMP_L",
+          "motion": "translate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            7.5,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_COLLECT/ACTUATOR_COL_LIFT/ACTUATOR_COL_CLAMP_R",
+          "motion": "translate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            7.5,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t1_cyl1",
+      "label": "展缸1盖(dev_t1_cyl1)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": 1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK1_CARRIAGE/LINKAGE_TANK1_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK1_CARRIAGE/LINKAGE_TANK1_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK1_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK1_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t1_cyl2",
+      "label": "展缸2盖(dev_t1_cyl2)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": 1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK2_CARRIAGE/LINKAGE_TANK2_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK2_CARRIAGE/LINKAGE_TANK2_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK2_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK2_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t1_cyl3",
+      "label": "展缸3盖(dev_t1_cyl3)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": 1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK3_CARRIAGE/LINKAGE_TANK3_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK3_CARRIAGE/LINKAGE_TANK3_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK3_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK3_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t1_cyl4",
+      "label": "展缸4盖(dev_t1_cyl4)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": 1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK4_CARRIAGE/LINKAGE_TANK4_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK4_CARRIAGE/LINKAGE_TANK4_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK4_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK4_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t2_cyl1",
+      "label": "展缸5盖(dev_t2_cyl1)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": -1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK5_CARRIAGE/LINKAGE_TANK5_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK5_CARRIAGE/LINKAGE_TANK5_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK5_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK5_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t2_cyl2",
+      "label": "展缸6盖(dev_t2_cyl2)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": -1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK6_CARRIAGE/LINKAGE_TANK6_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK6_CARRIAGE/LINKAGE_TANK6_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK6_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK6_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t2_cyl3",
+      "label": "展缸7盖(dev_t2_cyl3)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": -1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK7_CARRIAGE/LINKAGE_TANK7_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK7_CARRIAGE/LINKAGE_TANK7_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK7_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK7_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    },
+    {
+      "id": "dev_t2_cyl4",
+      "label": "展缸8盖(dev_t2_cyl4)",
+      "inputRange": [
+        0,
+        1
+      ],
+      "transitionS": 1.0,
+      "kinematics": {
+        "model": "crank-slider-lift",
+        "d0Mm": 60.883,
+        "v0Mm": 109.171,
+        "radiusMm": 125.0,
+        "singularMarginMm": 3.0,
+        "maxLiftMm": 81.95,
+        "minLiftMm": 5.0,
+        "signBl": -1,
+        "roles": [
+          "rocker",
+          "rocker",
+          "lid",
+          "carriage"
+        ],
+        "liftMm": 80.0,
+        "travelMm": 60.67,
+        "thetaDeg": 47.36
+      },
+      "members": [
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK8_CARRIAGE/LINKAGE_TANK8_ROCKER_F",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK8_CARRIAGE/LINKAGE_TANK8_ROCKER_R",
+          "motion": "rotate",
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "sign": -1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            47.36,
+            0
+          ]
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK8_LID",
+          "motion": "translate",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            80.0,
+            0
+          ],
+          "unitScale": 0.001
+        },
+        {
+          "node": "ST_DEVELOP/LINKAGE_TANK8_CARRIAGE",
+          "motion": "translate",
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "sign": 1,
+          "inputRange": [
+            0,
+            1
+          ],
+          "outputRange": [
+            60.67,
+            0
+          ],
+          "unitScale": 0.001
+        }
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "id": "INV_RACK_COLLECTOR_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:collector:1",
+        "mountLocal": {
+          "position": [
+            0.154919869,
+            0.003172477,
+            -0.902362996
+          ],
+          "quaternion": [
+            0.708661942,
+            -0.006782388,
+            -0.002905179,
+            0.705509611
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:collector:2",
+        "mountLocal": {
+          "position": [
+            0.154932492,
+            0.004088767,
+            -0.902358873
+          ],
+          "quaternion": [
+            0.708661949,
+            -0.00678239,
+            -0.002905177,
+            0.705509604
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:collector:3",
+        "mountLocal": {
+          "position": [
+            0.159446879,
+            0.00511258,
+            -0.902329442
+          ],
+          "quaternion": [
+            0.708661956,
+            -0.006782391,
+            -0.002905176,
+            0.705509597
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:collector:4",
+        "mountLocal": {
+          "position": [
+            0.151919834,
+            0.003183168,
+            -0.902367543
+          ],
+          "quaternion": [
+            0.708661942,
+            -0.006782388,
+            -0.002905179,
+            0.705509611
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:collector:5",
+        "mountLocal": {
+          "position": [
+            0.1549379,
+            0.004479151,
+            -0.902368976
+          ],
+          "quaternion": [
+            0.708661949,
+            -0.00678239,
+            -0.002905177,
+            0.705509604
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:collector:6",
+        "mountLocal": {
+          "position": [
+            0.157944748,
+            0.004965875,
+            -0.902326502
+          ],
+          "quaternion": [
+            0.708661956,
+            -0.006782391,
+            -0.002905176,
+            0.705509597
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:bottle:1",
+        "mountLocal": {
+          "position": [
+            0.152427494,
+            0.150434025,
+            -0.901198304
+          ],
+          "quaternion": [
+            0.70866744,
+            -0.003088284,
+            0.000805377,
+            0.705535452
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:bottle:2",
+        "mountLocal": {
+          "position": [
+            0.155431634,
+            0.152137625,
+            -0.900921155
+          ],
+          "quaternion": [
+            0.708667446,
+            -0.003088286,
+            0.000805379,
+            0.705535445
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:bottle:3",
+        "mountLocal": {
+          "position": [
+            0.159251331,
+            0.147428802,
+            -0.90268561
+          ],
+          "quaternion": [
+            0.706197383,
+            -0.003711714,
+            0.00140815,
+            0.708003882
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:bottle:4",
+        "mountLocal": {
+          "position": [
+            0.150433062,
+            0.151329775,
+            -0.901697719
+          ],
+          "quaternion": [
+            0.70866744,
+            -0.003088284,
+            0.000805377,
+            0.705535452
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:bottle:5",
+        "mountLocal": {
+          "position": [
+            0.153430613,
+            0.151405733,
+            -0.901181037
+          ],
+          "quaternion": [
+            0.708667447,
+            -0.003088286,
+            0.000805379,
+            0.705535445
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "rack:bottle:6",
+        "mountLocal": {
+          "position": [
+            0.156431025,
+            0.151870013,
+            -0.900979301
+          ],
+          "quaternion": [
+            0.708667454,
+            -0.003088287,
+            0.000805379,
+            0.705535438
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_A",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "staging:staging-a",
+        "mountLocal": {
+          "position": [
+            -0.476528481,
+            0.051929406,
+            -0.359844317
+          ],
+          "quaternion": [
+            0.701025716,
+            -0.000619574,
+            0.000828733,
+            0.713135243
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_B",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B",
+      "payload": {
+        "kind": "tray",
+        "grip": "rob_grip_plate96",
+        "seat": "staging:staging-b",
+        "mountLocal": {
+          "position": [
+            -0.057322397,
+            -0.213903609,
+            -0.358603065
+          ],
+          "quaternion": [
+            0.495898001,
+            0.498620439,
+            0.500651375,
+            0.504788105
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_1",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_1",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-a:1",
+        "grabLocal": [
+          3e-06,
+          0.04275,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_2",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_2",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-a:2",
+        "grabLocal": [
+          3e-06,
+          0.04275,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_3",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_3",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-a:3",
+        "grabLocal": [
+          3e-06,
+          0.04275,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_4",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_4",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-a:4",
+        "grabLocal": [
+          3e-06,
+          0.04275,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_5",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_5",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-a:5",
+        "grabLocal": [
+          3e-06,
+          0.04275,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_6",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_6",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-a:6",
+        "grabLocal": [
+          3e-06,
+          0.04275,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_1",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_1",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-b:1",
+        "grabLocal": [
+          2.7e-05,
+          0.873705,
+          2.7e-05
+        ],
+        "grabFeature": "neck",
+        "grabDiameterMm": 23.6,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.25432,
+        "mountLocal": {
+          "position": [
+            0.0297813,
+            -0.00029668,
+            -0.1224654
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": []
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_2",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_2",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-b:2",
+        "grabLocal": [
+          2.7e-05,
+          0.873705,
+          2.7e-05
+        ],
+        "grabFeature": "neck",
+        "grabDiameterMm": 23.6,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.25432,
+        "mountLocal": {
+          "position": [
+            0.0297813,
+            -0.00029668,
+            -0.1224654
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": []
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_3",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_3",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-b:3",
+        "grabLocal": [
+          2.7e-05,
+          0.873705,
+          2.7e-05
+        ],
+        "grabFeature": "neck",
+        "grabDiameterMm": 23.6,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.25432,
+        "mountLocal": {
+          "position": [
+            0.0297813,
+            -0.00029668,
+            -0.1224654
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": []
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_4",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_4",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-b:4",
+        "grabLocal": [
+          2.7e-05,
+          0.873705,
+          2.7e-05
+        ],
+        "grabFeature": "neck",
+        "grabDiameterMm": 23.6,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.25432,
+        "mountLocal": {
+          "position": [
+            0.0297813,
+            -0.00029668,
+            -0.1224654
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": []
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_5",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_5",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-b:5",
+        "grabLocal": [
+          2.7e-05,
+          0.873705,
+          2.7e-05
+        ],
+        "grabFeature": "neck",
+        "grabDiameterMm": 23.6,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.25432,
+        "mountLocal": {
+          "position": [
+            0.0297813,
+            -0.00029668,
+            -0.1224654
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": []
+        }
+      }
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_6",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_6",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "hole:staging-b:6",
+        "grabLocal": [
+          2.7e-05,
+          0.873705,
+          2.7e-05
+        ],
+        "grabFeature": "neck",
+        "grabDiameterMm": 23.6,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.25432,
+        "mountLocal": {
+          "position": [
+            0.0297813,
+            -0.00029668,
+            -0.1224654
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": []
+        }
+      }
+    },
+    {
+      "id": "STA_SCRAPE_HOLDER",
+      "node": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009/ACTUATOR_PS_ROTATE/硅胶收集-1.008",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "scrape-holder",
+        "grabLocal": [
+          3e-06,
+          0.042749,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "STA_COLLECT_BOTTLE",
+      "node": "ST_COLLECT/ACTUATOR_COL_EXTEND/样品瓶-2",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "collect-bottle",
+        "grabLocal": [
+          0.0,
+          0.089001,
+          0.0
+        ],
+        "grabFeature": "neck",
+        "grabDiameterMm": 23.6,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.25432,
+        "mountLocal": {
+          "position": [
+            0.0297813,
+            -0.00029668,
+            -0.1224654
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": []
+        }
+      }
+    },
+    {
+      "id": "STA_COLLECT_HOLDER",
+      "node": "ST_COLLECT/ACTUATOR_COL_LIFT/硅胶收集-1",
+      "payload": {
+        "kind": "item",
+        "grip": "rob_grip_vial",
+        "seat": "collect-holder",
+        "grabLocal": [
+          3e-06,
+          0.04275,
+          6e-06
+        ],
+        "grabFeature": "barrel",
+        "grabDiameterMm": 27.9,
+        "halfGapOpenMm": 14.979,
+        "closeValue": 0.817195,
+        "mountLocal": {
+          "position": [
+            0.07297021,
+            -0.00027633,
+            -0.12255284
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "freeAxes": [
+            [
+              0.00202,
+              0.001375,
+              0.999997
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "states": [
+    {
+      "id": "INV_RACK_COLLECTOR_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_1_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_1_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_1_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_1_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_1_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_1_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_1/INV_RACK_COLLECTOR_1_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_2_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_2/INV_RACK_COLLECTOR_2_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_3_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_3/INV_RACK_COLLECTOR_3_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_4_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_4/INV_RACK_COLLECTOR_4_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_5_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_5/INV_RACK_COLLECTOR_5_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_COLLECTOR_6_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_COLLECTOR_6/INV_RACK_COLLECTOR_6_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_1_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_1/INV_RACK_BOTTLE_1_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_2_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_2/INV_RACK_BOTTLE_2_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_3_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_3/INV_RACK_BOTTLE_3_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_4_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_4/INV_RACK_BOTTLE_4_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_5_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_5/INV_RACK_BOTTLE_5_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6_ITEM_1",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6_ITEM_2",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6_ITEM_3",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6_ITEM_4",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6_ITEM_5",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_RACK_BOTTLE_6_ITEM_6",
+      "node": "ST_RACK/上料架-1/INV_RACK_BOTTLE_6/INV_RACK_BOTTLE_6_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_A",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_1",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_2",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_3",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_4",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_5",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_A_ITEM_6",
+      "node": "ST_STAGINGA/收集瓶支架总装-1/INV_STAGING_A/INV_STAGING_A_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_B",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_1",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_1",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_2",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_3",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_3",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_4",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_4",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_5",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_5",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "INV_STAGING_B_ITEM_6",
+      "node": "ST_STAGINGA/样品瓶支架总装-1/INV_STAGING_B/INV_STAGING_B_ITEM_6",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "STA_SCRAPE_HOLDER",
+      "node": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009/ACTUATOR_PS_ROTATE/硅胶收集-1.008",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "STA_COLLECT_BOTTLE",
+      "node": "ST_COLLECT/ACTUATOR_COL_EXTEND/样品瓶-2",
+      "property": "visible",
+      "initial": false
+    },
+    {
+      "id": "STA_COLLECT_HOLDER",
+      "node": "ST_COLLECT/ACTUATOR_COL_LIFT/硅胶收集-1",
+      "property": "visible",
+      "initial": false
+    }
+  ],
+  "sockets": [],
+  "signalLight": {
+    "glbNode": "ST_FRAME/3D_Model_upload_ZHD24-1-A-02-B-RYG-1",
+    "event": "signal_light",
+    "staleMs": 3000,
+    "styles": {
+      "red": {
+        "color": "#ff3b30",
+        "intensity": 6.0,
+        "pulse": 0.0
+      },
+      "yellow": {
+        "color": "#f4b740",
+        "intensity": 4.5,
+        "pulse": 0.0
+      },
+      "green": {
+        "color": "#35d17a",
+        "intensity": 2.5,
+        "pulse": 0.0
+      },
+      "off": {
+        "color": "#000000",
+        "intensity": 0.0,
+        "pulse": 0.0
+      },
+      "stale": {
+        "color": "#5a6472",
+        "intensity": 0.3,
+        "pulse": 0.0
+      }
+    }
+  },
+  "lights": [
+    {
+      "id": "vision_fill",
+      "label": "视觉纠偏补光(机器人 DO7)",
+      "glbNode": "ST_VISION/下相机-1/视觉相机与光源-1/PTLC-08-004 下相机环形光源安装块-2",
+      "color": "#ffffff",
+      "peakIntensity": 4.0,
+      "defaultLevel": 0.0,
+      "bloom": true,
+      "illuminates": "plate",
+      "illuminatesNodes": [
+        {
+          "glbNode": "ST_FRAME/PTLC-08-010 下相机盖板玻璃-1",
+          "peakIntensity": 1.8
+        }
+      ]
+    },
+    {
+      "id": "uv_scrape",
+      "label": "刮板台紫外面光源",
+      "glbNode": "ST_PHOTOSCRAPE/STATIC_MAT_UV_LAMP",
+      "color": "#8b6cff",
+      "peakIntensity": 2.5,
+      "defaultLevel": 1.0,
+      "bloom": true,
+      "illuminates": null,
+      "illuminatesNodes": []
+    }
+  ],
+  "spindles": [
+    {
+      "id": "ps_spindle",
+      "label": "刮板铣刀主轴",
+      "station": "PHOTOSCRAPE",
+      "glbNode": "ST_PHOTOSCRAPE/AXIS_AXIS_9X/CARRIAGE.009/AXIS_AXIS_10Z/CARRIAGE.010/钻头夹具支架装配-1/TOOL_CUTTER_BIT",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "rpm": 9000.0,
+      "diameterMm": 2.0,
+      "triggerAction": "photoscrape.scrape"
+    }
+  ],
+  "plateContactIgnore": [
+    "ST_PHOTOSCRAPE/AXIS_AXIS_8Y/CARRIAGE.008/PTLC-06-004 刮板玻璃放置平台-1",
+    "ST_SAMPLING/AXIS_AXIS_7Y/CARRIAGE.007/PTLC-05-022 点胶滑块连接板-1"
+  ],
+  "realtime": {
+    "protocol": "ptlc.realtime/v1",
+    "renderDelayMs": 100,
+    "staleMs": 500,
+    "events": [
+      "robot_pose",
+      "axis_pose",
+      "mechanism_state",
+      "material_state",
+      "signal_light",
+      "scrape_state"
+    ],
+    "materialHeartbeatMs": 5000,
+    "materialStaleMs": 12000,
+    "telemetryFallbackHz": 1,
+    "axes": [
+      {
+        "id": "axis_10z",
+        "label": "刮板轴10Z",
+        "station": "photoscrape",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 50.0,
+        "velocityMax": 30.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_11y",
+        "label": "地轨轴11Y",
+        "station": "rail",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 50.0,
+        "velocityMax": 100.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_1z",
+        "label": "玻璃上料轴1Z",
+        "station": "feedlift",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 15.0,
+        "velocityMax": 30.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_2z",
+        "label": "玻璃上料轴2Z",
+        "station": "feedlift",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 15.0,
+        "velocityMax": 30.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_3y",
+        "label": "打样瓶上料轴3Y",
+        "station": "sampling",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 50.0,
+        "velocityMax": 50.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_4x",
+        "label": "上样轴4X",
+        "station": "sampling",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 5.0,
+        "velocityMax": 10.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_5z",
+        "label": "上样轴5Z",
+        "station": "sampling",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 20.0,
+        "velocityMax": 20.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_6x",
+        "label": "点样轴6X",
+        "station": "sampling",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 50.0,
+        "velocityMax": 50.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_7y",
+        "label": "点样轴7Y",
+        "station": "sampling",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 50.0,
+        "velocityMax": 50.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_8y",
+        "label": "拍照轴8Y",
+        "station": "photoscrape",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 50.0,
+        "velocityMax": 50.0,
+        "rigged": true
+      },
+      {
+        "id": "axis_9x",
+        "label": "刮板轴9X",
+        "station": "photoscrape",
+        "positionField": "fActPos",
+        "velocityField": "fActVel",
+        "jogPositiveField": "xJogPos",
+        "jogNegativeField": "xJogNeg",
+        "jogVelocityFixed": 50.0,
+        "velocityMax": 50.0,
+        "rigged": true
+      }
+    ],
+    "mechanisms": [
+      {
+        "id": "col_bottle_locator",
+        "label": "溶液收集瓶定位气缸",
+        "station": "staginga",
+        "kind": "cylinder",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "col_clamp",
+        "label": "收集夹持气缸",
+        "station": "collect",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "col_drain",
+        "label": "收集排液3通阀",
+        "station": "collect",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "col_extend",
+        "label": "收集伸缩气缸",
+        "station": "collect",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "col_fill",
+        "label": "收集进液2通阀",
+        "station": "collect",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "col_lift",
+        "label": "收集升降气缸",
+        "station": "collect",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "col_pdrain",
+        "label": "收集正压排液阀",
+        "station": "collect",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "col_press",
+        "label": "收集下压气缸",
+        "station": "collect",
+        "kind": "cylinder",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t1_blow1",
+        "label": "展缸1吹气电池阀1",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_blow2",
+        "label": "展缸1吹气电池阀2",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_blow3",
+        "label": "展缸1吹气电池阀3",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_blow4",
+        "label": "展缸1吹气电池阀4",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_cyl1",
+        "label": "展缸1气缸1",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t1_cyl2",
+        "label": "展缸1气缸2",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t1_cyl3",
+        "label": "展缸1气缸3",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t1_cyl4",
+        "label": "展缸1气缸4",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t1_drain1",
+        "label": "展缸1排液电池阀1",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_drain2",
+        "label": "展缸1排液电池阀2",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_drain3",
+        "label": "展缸1排液电池阀3",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_drain4",
+        "label": "展缸1排液电池阀4",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_fill1",
+        "label": "展缸1进液电池阀1",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_fill2",
+        "label": "展缸1进液电池阀2",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_fill3",
+        "label": "展缸1进液电池阀3",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t1_fill4",
+        "label": "展缸1进液电池阀4",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_blow1",
+        "label": "展缸2吹气电池阀1",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_blow2",
+        "label": "展缸2吹气电池阀2",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_blow3",
+        "label": "展缸2吹气电池阀3",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_blow4",
+        "label": "展缸2吹气电池阀4",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_cyl1",
+        "label": "展缸2气缸1",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t2_cyl2",
+        "label": "展缸2气缸2",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t2_cyl3",
+        "label": "展缸2气缸3",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t2_cyl4",
+        "label": "展缸2气缸4",
+        "station": "develop",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "dev_t2_drain1",
+        "label": "展缸2排液电池阀1",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_drain2",
+        "label": "展缸2排液电池阀2",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_drain3",
+        "label": "展缸2排液电池阀3",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_drain4",
+        "label": "展缸2排液电池阀4",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_fill1",
+        "label": "展缸2进液电池阀1",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_fill2",
+        "label": "展缸2进液电池阀2",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_fill3",
+        "label": "展缸2进液电池阀3",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "dev_t2_fill4",
+        "label": "展缸2进液电池阀4",
+        "station": "develop",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "ps_locator",
+        "label": "刮板拍照定位气缸",
+        "station": "photoscrape",
+        "kind": "cylinder",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": true
+      },
+      {
+        "id": "ps_motor",
+        "label": "刮板拍照无刷电机",
+        "station": "photoscrape",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "ps_press",
+        "label": "刮板拍照下压气缸",
+        "station": "photoscrape",
+        "kind": "cylinder",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "ps_rotate",
+        "label": "刮板拍照旋转气缸",
+        "station": "photoscrape",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "ps_shade",
+        "label": "刮板拍照遮光气缸",
+        "station": "photoscrape",
+        "kind": "cylinder",
+        "hasFeedbackOn": true,
+        "hasFeedbackOff": true,
+        "feedbackAvailable": true,
+        "fallbackSource": null,
+        "rigged": true
+      },
+      {
+        "id": "ps_vacuum",
+        "label": "刮板拍照真空阀",
+        "station": "photoscrape",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "pump_vacuum",
+        "label": "大真空泵",
+        "station": "pump",
+        "kind": "pump",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "smp_3way",
+        "label": "上样点样三通电池阀",
+        "station": "sampling",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "smp_blow",
+        "label": "上样吹气二通阀",
+        "station": "sampling",
+        "kind": "valve",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "smp_locator",
+        "label": "上样定位气缸",
+        "station": "sampling",
+        "kind": "cylinder",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": true
+      },
+      {
+        "id": "sta_powder_locator",
+        "label": "粉末收集器定位气缸",
+        "station": "staginga",
+        "kind": "cylinder",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "rigged": false
+      },
+      {
+        "id": "rob_flip_suction",
+        "label": "吸盘翻转",
+        "station": "robot",
+        "kind": "rotary",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": true,
+        "fallbackSource": "commanded",
+        "rigged": true
+      },
+      {
+        "id": "rob_grip_plate96",
+        "label": "96孔板夹爪",
+        "station": "robot",
+        "kind": "gripper",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": true,
+        "fallbackSource": "commanded",
+        "controllerTool": 2,
+        "rigged": true
+      },
+      {
+        "id": "rob_grip_vial",
+        "label": "样品瓶电爪",
+        "station": "robot",
+        "kind": "gripper",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": true,
+        "fallbackSource": "commanded",
+        "controllerTool": 3,
+        "rigged": true
+      },
+      {
+        "id": "rob_suction",
+        "label": "吸盘真空",
+        "station": "robot",
+        "kind": "vacuum",
+        "hasFeedbackOn": false,
+        "hasFeedbackOff": false,
+        "feedbackAvailable": false,
+        "fallbackSource": "commanded",
+        "controllerTool": 1,
+        "rigged": false
+      }
+    ]
+  }
+}

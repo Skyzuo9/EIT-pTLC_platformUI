@@ -1,0 +1,129 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_volume_model
+label: 上样-体积模型(派生+守卫)
+# 过阀排空点样体积模型 (单一真源, 记 V=孔内样品, E=排空余量, G=气隔断, D=针流路死体积=1.125):
+#   首轮: aspirate 内置两步 —— 移孔位【前】于空气中绝对吸G(指令[2]), 再下探 P(V+E) 抽干孔
+#         (后段吸入空气) -> 管内 [空气E][样品V][气G][清洗液], 样品整段拖过三通(针流路只剩空气)
+#         -> spot 打到活塞终点 N (推出量 V+S)。先吸气再移动: 带液移动会滴液进样品孔。
+#   喷出冗余 S 无独立物理自由度, 由 E/G/D 派生: 推出序列 = 空喷段(E-D) + 样品V + 半个气隔断(G/2),
+#         合法窗口 (E-D, E-D+G) 宽度恰为 G, 取正中 S=(E-D)+G/2; 低于下界样品尾巴推不完,
+#         高于上界会推穿气隔断把清洗液喷上板; 剩下的 G/2 正是挡住清洗液的缓冲。
+#   代入化简 N = G+E-S = D+G/2, 与 E/V 均无关, 每轮同值 (缺省 G=0.2 -> N=1.225mL=294步)。
+#   润洗轮: rinse_mix[1] 从 N 打到 A0, 推出量 N=D+G/2 恰等于「针流路气柱 D + 三通侧残余气 G/2」,
+#         故针尖排出的全是空气(孔内不进清洗液), 同时针流路被共管清洗液重新填满 -> [2] 的润洗液 R
+#         全量入孔 -> 抬针吸G -> 混匀xcount(终态活塞=A{G}) -> aspirate P(R+E) -> spot 到同一 N。
+#         A55 终态已在 A{G}, 故 A50 的绝对吸气为零位移; 润洗轮排空余量同为 E, 与首轮同构。
+#   泵腔终态 N 为纯清洗液, 但停在泵侧共管内(共管 15.7mL 远大于 N)不会到达针尖,
+#         由下个循环的充液润洗整体清走。
+#   样品尾段(~点样头支路体积)留在支路, 下轮点样开局自动点出。
+#   单轮吸取总量上限 15mL: 针尖到泵腔 = D 1.125 + 泵至三通上样路 loop 环 15.7 (实测) = 16.825mL, 超过样品段就被
+#         抽进注射器筒(交叉污染, 且 PLC 的 6000步=25mL 闸拦不住); 15.0 留 1.825mL 管路容差余量,
+#         与 sampling.aspirate 的 sample_volume_ml 硬闸同值, 由下方守卫提前拦截。
+#
+# 本脚本是上述模型的唯一实现处 —— 单样品的 sampling_execute 与多样品的 sampling_multi_execute
+# 都 run_script 本脚本取派生量, 改模型只改这里。
+# 入参刻意【不带 ui:】(非旋钮): 调用方各自暴露自己的旋钮再逐层传入, 若此处也是旋钮,
+# 运行前覆盖会绕过调用方的逐样品入参直接压进本帧 (见 vm/thread.py 的 _make_frame 注入点),
+# 多样品场景下会把所有样品悄悄压成同一组体积。
+ui:
+  role: helper
+  station: sampling
+  hidden: true
+vars:
+- name: sample_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 2
+  comment: 孔内实际装样体积 V (mL)
+- name: over_aspirate_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 1.5
+  comment: 排空余量 E (mL); 必须大于针流路死体积 1.125
+- name: air_gap_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0.2
+  comment: 气隔断 G (mL)
+- name: rinse_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 3
+  comment: 每轮润洗液体积 R (mL)
+- name: spray_margin_ml
+  scope: local
+  type: FLOAT
+  io: out
+  default: 0.0
+  comment: 喷出冗余S = (排空余量E - 针流路死体积1.125) + 气隔断G/2; 取合法窗口正中, 无独立自由度故不设旋钮
+- name: aspirate_total_ml
+  scope: local
+  type: FLOAT
+  io: out
+  default: 0.0
+  comment: 首轮吸取总量 = 样品V + 排空余量E
+- name: band_end_ml
+  scope: local
+  type: FLOAT
+  io: out
+  default: 0.0
+  comment: 点样活塞终点 N = G+E-S (每轮同值)
+- name: aspirate_round_ml
+  scope: local
+  type: FLOAT
+  io: out
+  default: 0.0
+  comment: 润洗轮吸取总量 = 润洗液R + 排空余量E (孔内净液量就是R, 推导见文件头)
+body:
+- op: comment
+  text: '派生体积计算 + 守卫 (体积模型见文件头注释)'
+- op: assign
+  target: {var: aspirate_total_ml}
+  value: {binop: +, left: {var: sample_volume_ml}, right: {var: over_aspirate_ml}}
+- op: comment
+  text: 'S 取合法窗口 (E-1.125, E-1.125+G) 正中: 空喷段 + 半个气隔断; 详见文件头体积模型'
+- op: assign
+  target: {var: spray_margin_ml}
+  value:
+    binop: +
+    left: {binop: '-', left: {var: over_aspirate_ml}, right: {lit: 1.125}}
+    right: {binop: /, left: {var: air_gap_ml}, right: {lit: 2.0}}
+- op: assign
+  target: {var: band_end_ml}
+  value:
+    binop: '-'
+    left: {binop: +, left: {var: air_gap_ml}, right: {var: over_aspirate_ml}}
+    right: {var: spray_margin_ml}
+- op: assign
+  target: {var: aspirate_round_ml}
+  value: {binop: +, left: {var: rinse_volume_ml}, right: {var: over_aspirate_ml}}
+- op: comment
+  text: '守卫: 排空余量必须真正超过针流路死体积(否则样品没被拖过三通, 切阀即整段作废); ui.min 只是运行前兜底, 动作层不校验该值'
+- op: if
+  cond: {binop: <=, left: {var: over_aspirate_ml}, right: {lit: 1.125}}
+  then:
+  - op: raise
+    error: SAMPLING_VOLUME_CHAIN
+    message: {lit: '排空余量必须大于针流路死体积 1.125 mL, 否则样品切阀后仍留在针流路里整段作废'}
+  elifs:
+  - cond:
+      binop: or
+      left: {binop: <, left: {var: band_end_ml}, right: {lit: 0.0}}
+      right: {binop: '>', left: {var: band_end_ml}, right: {lit: 5.0}}
+    body:
+    - op: raise
+      error: SAMPLING_VOLUME_CHAIN
+      message: {lit: '点样活塞终点 N=针流路死体积+气隔断/2 越界 [0,5] mL, 请检查气隔断旋钮'}
+  - cond:
+      binop: or
+      left: {binop: '>', left: {var: aspirate_total_ml}, right: {lit: 15.0}}
+      right: {binop: '>', left: {var: aspirate_round_ml}, right: {lit: 15.0}}
+    body:
+    - op: raise
+      error: SAMPLING_VOLUME_CHAIN
+      message: {lit: '单轮吸取总量超过 15 mL (样品或润洗液 + 排空余量), 再多样品段会被抽进泵腔造成交叉污染; 该上限与 sampling.aspirate 动作层硬闸同值, 在此提前拦截以免跑到一半才被拒'}

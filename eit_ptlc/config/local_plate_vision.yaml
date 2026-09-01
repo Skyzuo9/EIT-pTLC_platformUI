@@ -1,0 +1,49 @@
+# 本地视觉板位纠偏配置 (PALLASVision 临时替代路径)
+# ------------------------------------------------------------------------------
+# 用途: 加密狗丢失、原 PALLASVision 不可用后, 用大恒 .163 相机 + OpenCV 自建放板纠偏。
+# 开关: enabled=true 时 Bridge /capture 走本地视觉; false 或本文件删除则回落原 PALLAS TCP。
+#       (原 PALLAS TCP 路径与 app.yaml 的 pallas_vision.host/port 等原样保留, 未删除。)
+# 标定: 下列 reference / calib 来自 Stage2 真机采集 (P86 + X/Y/Rz 已知小移动) 的第一版拟合,
+#       尚未经真机闭环验证。务必在 Stage4 闭环里确认 sign_xy / sign_rz 的收敛性再投产。
+# 启用总开关不在此文件, 而在 app.yaml 的 pallas_vision.local_vision_enabled (true 才走本地视觉)。
+
+camera:
+  ip: "192.168.0.163"        # 纠偏相机 (大恒 MER2-630-18GC); 与拍照相机 .169 是两台
+  exposure_us: 10000         # 10ms; 环形补光开启下板曝光适中 (标定即用此曝光)
+  gain: 2.0
+
+detect:
+  # 收紧 ROI (x0,y0,x1,y1): 框住 P86 名义板位, 排除左下机械臂与外围环形光眩光
+  roi: [1120, 430, 2160, 1400]
+  threshold: 38              # 板在灰度里偏暗 (~45-70), 背景~25; 阈值取其间
+  close_ksize: 81            # 闭运算跨过橙条/夹具窗口, 把板连成整块
+  open_ksize: 21             # 开运算去毛刺
+  min_area: 300000           # 板轮廓面积下限 (排除小亮块)
+  expect_center: [1571, 967] # 板名义像素中心; 多轮廓时选最接近者 (进一步排除机械臂)
+
+reference:                   # 零点参考位姿 (dx=dy=drz=0 对应的板应在的像素位姿)
+  # 第一版取 Stage2 的 ref 帧检测值; Stage4 应以"理想夹持的板"正式重新示教零点
+  u0: 1573.8
+  v0: 962.0
+  theta0: -89.84             # minAreaRect 参考角 (deg)
+
+calib:                       # 像素偏移 -> 机器人系 mm/deg 的线性映射 (真机第一版)
+  # du = u-u0, dv = v-v0, dtheta = theta-theta0
+  # dx_mm  = sign_xy * (ax*du + bx*dv)
+  # dy_mm  = sign_xy * (ay*du + by*dv)
+  # drz_deg = sign_rz * (arz*dtheta)
+  # 实测: robot +5mm X -> 像素Δ(-0.2,-10.1); +5mm Y -> (+10.8,-0.2); 即约 90° 旋转映射,
+  #       比例 ~2.1 px/mm。下列系数 = 像素->板在机器人系的位移量 (由上述实测反解)。
+  # ↓ bx/ay/arz 已经过 Stage4 真机活体精修: 直角测试实测施加 3mm/2°、视觉响应约 90%,
+  #   故整体上调 ~10% 使单次纠偏量到位 (括号内为标定第一版原值)。
+  ax: 0.0
+  bx: -0.548                 # 活体精修: +3mm X 响应 2.71mm -> ×3.0/2.71 (原 -0.495)
+  ay: 0.500                  # 活体精修: +3mm Y 响应 2.78mm -> ×3.0/2.78 (原 0.463)
+  by: 0.0
+  arz: 1.046                 # 活体精修: +2° 响应 1.82° -> ×2.0/1.82 (原 0.952)
+  # ↓↓↓ 收敛符号: 让"测到偏移->下发纠偏"构成负反馈的正负号。第一版按"纠偏应抵消板位移"
+  #     暂定 -1, 必须在 Stage4 真机闭环验证: 两次拍照残差应变小(收敛); 若变大(发散)则翻转。
+  sign_xy: -1.0
+  sign_rz: -1.0
+
+err_fail_code: 111           # 识别失败哨兵码 (与 pallas_vision.err_fail_code 对齐)

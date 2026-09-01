@@ -1,0 +1,63 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s10_collect
+label: 8 粉末收集
+ui:
+  role: segment
+# 原子流程 s10: 位置中立于样品板 (板仍夹在刮板台), 转移接粉收集器与收集瓶完成粉末洗脱。
+# collect_cycle 首步先回刮板位取接粉收集器 (释放刮板接粉夹具 -> 调度器夹具账本在本段
+# DONE 后清占用), 末段成品瓶回中转B原孔。收尾成对松开中转定位 (与 V2 相同)。
+flow:
+  atomic: true
+  sample: required
+  from: scrape_table
+  to: scrape_table
+  hitl: none
+  retry: manual
+vars:
+- name: collector_hole
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 本样品收集器中转A孔号 (s7 输出; 取件与归还须同孔)
+- name: bottle_hole
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 本样品收集瓶中转B孔号 (s7 输出; 取瓶与成品瓶回位须同孔)
+resources:
+- robot
+- station:collect
+- station:rail
+- scrape-holder
+- collect-holder
+- collect-bottle
+- staging-a
+- staging-b
+# collect_cycle 首步回刮板位取接粉收集器时会调拍照工位 L2 (松压紧等), 闭合律要求声明
+- station:photo_scrape
+body:
+- op: run_script
+  script: collect_cycle
+  inputs:
+    collector_slot:
+      var: collector_hole
+    bottle_slot:
+      var: bottle_hole
+  outputs: {}
+- op: comment
+  text: '收尾成对松开中转定位 (幂等; 顺序与 V2 一致: 先 b 后 a)'
+- op: call
+  action: staging_a.locator_b
+  args:
+    target:
+      lit: false
+  mode: RUN
+- op: call
+  action: staging_a.locator_a
+  args:
+    target:
+      lit: false
+  mode: RUN

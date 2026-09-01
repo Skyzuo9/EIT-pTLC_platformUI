@@ -1,0 +1,77 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_full
+label: 拍照刮板-完整流程 [legacy/manual, 非生产主线样板] (相机+CNC全编排)
+ui:
+  role: legacy
+  hidden: true
+# 历史单体入口: R2 后生产主线拆为 photoscrape_load / photoscrape_process / photoscrape_unload。
+# 暂留用于旧脚本对照或手工调试, 不作为阶段3四段式生产样板。
+vars:
+  - {name: sample_id,    scope: local, type: STRING, io: in, default: "",       comment: 样品ID}
+  - {name: save_dir,     scope: local, type: STRING, io: in, default: "",       comment: 拍照图保存目录}
+  - {name: before_path,  scope: local, type: STRING, io: in, default: "",       comment: before图路径(显影前/测试预置图)}
+  - {name: band_id,      scope: local, type: STRING, io: in, default: band_01,  comment: 选带ID(配置参数)}
+  - {name: shot,         scope: local, type: DICT,                              comment: 拍照动作结果(image_path)}
+  - {name: vis,          scope: local, type: DICT,                              comment: 视觉分析结果(summary_path/band_ids)}
+  - {name: cnc,          scope: local, type: DICT,                              comment: cnc_path 动作结果(数组+pass_z_list)}
+  - {name: pz,           scope: local, type: FLOAT,                             comment: 当前 pass 的 Z 切深}
+resources: [station:photo_scrape]
+body:
+  - {op: call, action: photoscrape.init, mode: RUN}
+  - {op: call, action: photoscrape.cam_x335, mode: RUN}
+  - {op: call, action: photoscrape.cam_photopos, mode: RUN, args: {ref_8y: {lit: photo_8y}}}
+  - {op: comment, text: "上位机触发相机拍照 (profile 预填+逐项覆写); 存 save_dir/after.jpg, 结果含 image_path"}
+  - {op: call, action: photoscrape.capture, mode: RUN,
+     args: {sample_id: {var: sample_id}, save_dir: {var: save_dir},
+            filename: {lit: after.jpg}, profile: {lit: photoscrape}},
+     assign: {var: shot}}
+  - {op: call, action: photoscrape.cam_photohome, mode: RUN}
+  - {op: comment, text: "视觉分析 before+after → summary.json + 条带 (测试用预置 before 图)"}
+  - {op: call, action: photoscrape.analyze, mode: RUN,
+     args: {sample_id: {var: sample_id}, before_path: {var: before_path},
+            after_path: {field: {var: shot}, name: image_path}},
+     assign: {var: vis}}
+  - {op: comment, text: "人工选带: 展示识别到的 band_ids, 输入要刮取的 band_id (覆盖默认; mock 下为 band_01/02/03)"}
+  - op: human
+    kind: input
+    prompt: {binop: +,
+             left: {binop: +, left: {lit: "识别到的条带: "},
+                    right: {call: str, args: [{field: {var: vis}, name: band_ids}]}},
+             right: {lit: " — 对照标注图输入要刮取的 band_id"}}
+    image: {field: {var: vis}, name: annotated_url}
+    fields: [{var: band_id, label: 条带ID}]
+  - {op: comment, text: "据视觉 summary + 选带算 CNC 路径 (4数组+进给+per-pass Z); 标定参数运行期实时读 config"}
+  - {op: call, action: photoscrape.cnc_path, mode: RUN,
+     args: {summary_path: {field: {var: vis}, name: summary_path}, band_id: {var: band_id}},
+     assign: {var: cnc}}
+  - {op: comment, text: "人工确认参数: 展示 pass数/Z切深列表/进给/点数; 取消(on_cancel=raise)则在任何 plc_write 前中止"}
+  - op: human
+    kind: confirm
+    on_cancel: raise
+    prompt: {binop: +, left: {binop: +, left: {binop: +, left: {binop: +,
+             left: {binop: +, left: {binop: +, left: {binop: +,
+             left: {lit: "确认下发? pass数="},
+             right: {call: str, args: [{call: len, args: [{field: {var: cnc}, name: pass_z_list}]}]}},
+             right: {lit: "  Z切深列表="}},
+             right: {call: str, args: [{field: {var: cnc}, name: pass_z_list}]}},
+             right: {lit: "  进给="}},
+             right: {call: str, args: [{field: {var: cnc}, name: g_scrape_feed}]}},
+             right: {lit: "  刮取点数="}},
+             right: {call: str, args: [{call: len, args: [{field: {var: cnc}, name: g_sx}]}]}}
+  - {op: comment, text: "块写 4 数组+进给 (回读确认), 一次, scrape 循环前"}
+  - {op: call, action: photoscrape.write_cnc_path, mode: RUN,
+     args: {sx: {field: {var: cnc}, name: g_sx}, sy: {field: {var: cnc}, name: g_sy},
+            cx: {field: {var: cnc}, name: g_cx}, cy: {field: {var: cnc}, name: g_cy},
+            feed: {field: {var: cnc}, name: g_scrape_feed}}}
+  - {op: comment, text: "上位机循环 pass: 逐层写 Z 切深(回读确认)→触发单 pass; PLC 不内部循环"}
+  - {op: comment, text: "scrape(40) 按下发路径同跑刮取(g_sx/g_sy)+收集(g_cx/g_cy), 无独立收集步"}
+  - op: for
+    var: pz
+    in: {field: {var: cnc}, name: pass_z_list}
+    body:
+      - {op: call, action: photoscrape.write_pass_z, mode: RUN, args: {z: {var: pz}}}
+      - {op: call, action: photoscrape.scrape, mode: RUN}
+  - {op: call, action: photoscrape.scrape_finish, mode: RUN}
+  - {op: comment, text: "确认翻料缸真到动点 (A41 开环不等反馈); 与 photoscrape_process 同, 哨兵语义超时只 WARN"}
+  - {op: call, action: photoscrape.wait_rot, mode: RUN, args: {target: {lit: extend}}}

@@ -1,0 +1,262 @@
+# UniLab scheme-1 expandable review projection template for parallel_v1.
+from __future__ import annotations
+
+from typing import TypedDict
+
+from unilabos.registry.placeholder_type import ResourceSlot
+from unilabos.ros.nodes.presets.host_node import HostNode
+from unilabos.workflow.authoring import (
+    MaterialFlowRole,
+    device,
+    group,
+    material_source,
+    parallel,
+    resource_ref,
+    workflow,
+)
+
+from eit_ptlc.unilab_domain.devices.material import MaterialProxy
+from eit_ptlc.unilab_domain.resources.materials import (
+    collection_vial,
+    powder_collector,
+    ptlc_plate,
+    source_sample_vial,
+)
+from eit_ptlc.workflows.pf_af0_batch_startup_action_review_v1 import (
+    pf_af0_batch_startup_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s10_collect_action_review_v1 import (
+    pf_s10_collect_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s11_unload_action_review_v1 import (
+    pf_s11_unload_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s1_load_action_review_v1 import (
+    pf_s1_load_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s2_spot_action_review_v1 import (
+    pf_s2_spot_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s3_tank_prep_action_review_v1 import (
+    pf_s3_tank_prep_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s4_photo_before_action_review_v1 import (
+    pf_s4_photo_before_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s5_to_tank_action_review_v1 import (
+    pf_s5_to_tank_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s6_develop_wait_action_review_v1 import (
+    pf_s6_develop_wait_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s7_consumables_action_review_v1 import (
+    pf_s7_consumables_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s8_to_scrape_action_review_v1 import (
+    pf_s8_to_scrape_action_review_v1,
+)
+from eit_ptlc.workflows.pf_s9_scrape_action_review_v1 import (
+    pf_s9_scrape_action_review_v1,
+)
+
+
+class PTLCParallelOperationReviewV1Result(TypedDict):
+    sample: ResourceSlot
+    waste_plate: ResourceSlot
+    powder_collector: ResourceSlot
+
+
+material: MaterialProxy = device("material")
+host_node: HostNode = device("host_node")
+
+
+@workflow(
+    workflow_uuid="b2a6a5ef-07e9-5d3e-9695-f0ac1f26700f",
+    displayname="pTLC 最长全流程 · PlatformUI Operation→Action 审阅版",
+    description=(
+        "另开的安全审阅流程：以 parallel_v1 的 12 个 PlatformUI 段为子工作流，"
+        "每段可展开查看 action/条件/HITL 投影；循环只显示边界、不展开 body，投影节点全部禁用，"
+        "段执行仍一次提交原根 operation。物料身份由 UniLab 在每段成功后提交。"
+    ),
+)
+def ptlc_parallel_operation_review_v1(
+    *,
+    sample_id: str = "DEMO-001",
+    af0_inputs_json: str = "{}",
+    s1_inputs_json: str = "{}",
+    s2_inputs_json: str = "{}",
+    s3_inputs_json: str = '{"tank":1}',
+    s4_inputs_json: str = '{"sample_id":"DEMO-001","save_dir":"var/photoscrape/demo"}',
+    s5_inputs_json: str = '{"tank":1}',
+    s6_inputs_json: str = '{"tank":1,"auto_drain":true}',
+    s7_inputs_json: str = '{"reserve_for":"DEMO-001"}',
+    s8_inputs_json: str = '{"tank":1}',
+    s9_inputs_json: str = '{"sample_id":"DEMO-001","save_dir":"var/photoscrape/demo","before_path":"var/photoscrape/demo/before.jpg","mode":"auto"}',
+    s10_inputs_json: str = '{"collector_hole":1,"bottle_hole":1}',
+    s11_inputs_json: str = "{}",
+    tank_site: str = "tank-1",
+    collector_site: str = "collector-item-1",
+    bottle_site: str = "bottle-item-1",
+) -> PTLCParallelOperationReviewV1Result:
+    """Run the full PlatformUI segment recipe with typed UniLab material commits."""
+
+    # unilab:node_uuid=47504850-fc5c-5648-b857-648fdac1792a
+    sample_vial = material_source(
+        resource_template=source_sample_vial,
+        mode="existing",
+        mount=resource_ref("plc_sampling"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.PRIMARY_SAMPLE,
+    )
+    # unilab:node_uuid=5067fc2c-5fc4-50a3-986b-2bf277c69b82
+    plate = material_source(
+        resource_template=ptlc_plate,
+        mode="existing",
+        mount=resource_ref("plc_feedlift"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.ALIQUOT_SAMPLE,
+    )
+    # unilab:node_uuid=d8c17afb-cc6b-5f70-a806-97bbf63fa5d0
+    collector = material_source(
+        resource_template=powder_collector,
+        mode="existing",
+        mount=resource_ref("staging_a_stack"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.CONSUMABLE,
+    )
+    # unilab:node_uuid=8a4a58f6-aac1-51c7-b188-0a6a51fc015a
+    vial = material_source(
+        resource_template=collection_vial,
+        mode="existing",
+        mount=resource_ref("staging_b_stack"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.CONSUMABLE,
+    )
+
+    # unilab:node_uuid=6ad972fb-7ed8-5385-99e4-9a5c4544e49b
+    af0 = pf_af0_batch_startup_action_review_v1(inputs_json=af0_inputs_json)  # noqa: F841
+    # unilab:node_uuid=651964e3-3943-5063-9f97-e74dedb6872b
+    s1 = pf_s1_load_action_review_v1(inputs_json=s1_inputs_json)  # noqa: F841
+    # Physical motion already completed inside the PlatformUI root above.
+    # unilab:node_uuid=a067d065-86ca-5f04-b7aa-379eff9ec745
+    plate_at_spot = host_node.transfer_resource(
+        resource=plate,
+        target_device="plc_sampling",
+        mount_resource=resource_ref("plc_sampling"),
+        site="plate",
+    )
+
+    # parallel_v1: s2→s4 and s3 start together after s1.
+    with parallel():
+        # unilab:node_uuid=e2df971e-4aa5-523e-8c2e-1acffbbf985e
+        with group(name="s2 点样 → s4 展开前拍照"):
+            # unilab:node_uuid=4def5926-d421-52c0-8742-e971fb24c206
+            s2 = pf_s2_spot_action_review_v1(inputs_json=s2_inputs_json)  # noqa: F841
+            # unilab:node_uuid=e0d297ff-e8b4-5df2-8bc5-1505e777e44b
+            spotted = material.record_spotting_v4(
+                sample_vial=sample_vial,
+                plate=plate_at_spot.resource,
+            )
+            # unilab:node_uuid=58a8fd13-608e-55cb-8722-da8e9f929bc3
+            s4 = pf_s4_photo_before_action_review_v1(inputs_json=s4_inputs_json)  # noqa: F841
+            # unilab:node_uuid=0e82a065-f72e-5702-bcf8-beaeca201bde
+            plate_at_scrape_before = host_node.transfer_resource(
+                resource=spotted.plate,
+                target_device="plc_photoscrape",
+                mount_resource=resource_ref("plc_photoscrape"),
+                site="plate",
+            )
+
+        # unilab:node_uuid=eb2ef62f-c19b-5eef-90d2-0b64f83a8f54
+        with group(name="s3 展缸预备"):
+            # unilab:node_uuid=cbb059b9-fea9-5d2a-9408-e45acff607f1
+            s3 = pf_s3_tank_prep_action_review_v1(inputs_json=s3_inputs_json)  # noqa: F841
+
+    # s5 is the join of s4 and s3.
+    # unilab:node_uuid=347cd0ff-8d14-53e1-9f8e-157febf7884a
+    s5 = pf_s5_to_tank_action_review_v1(inputs_json=s5_inputs_json)  # noqa: F841
+    # unilab:node_uuid=8a7a0dd9-540d-52a6-948d-dd7b4aaca1bd
+    plate_in_tank = host_node.transfer_resource(
+        resource=plate_at_scrape_before.resource,
+        target_device="plc_develop",
+        mount_resource=resource_ref("plc_develop"),
+        site=tank_site,
+    )
+
+    # parallel_v1: s6→s8 and s7 start together only after s5.
+    with parallel():
+        # unilab:node_uuid=4668e4cd-ef42-582b-9d6f-e8f6411dda2d
+        with group(name="s6 展开等待 → s8 出缸上刮板台"):
+            # unilab:node_uuid=d4e52682-ebc8-58c2-9944-9a510e0664ab
+            s6 = pf_s6_develop_wait_action_review_v1(inputs_json=s6_inputs_json)  # noqa: F841
+            # unilab:node_uuid=a376fbd5-7889-591a-810e-6db5fa2364cf
+            s8 = pf_s8_to_scrape_action_review_v1(inputs_json=s8_inputs_json)  # noqa: F841
+            # unilab:node_uuid=c1506bab-f13a-5d3c-9e44-1fa01d42a495
+            plate_at_scrape = host_node.transfer_resource(
+                resource=plate_in_tank.resource,
+                target_device="plc_photoscrape",
+                mount_resource=resource_ref("plc_photoscrape"),
+                site="plate",
+            )
+
+        # unilab:node_uuid=f0b1479a-69bf-5168-9b0a-f8d8e496ca7e
+        with group(name="s7 备耗材（严格在 s5 后）"):
+            # unilab:node_uuid=fad137bd-28ce-5ae0-bf89-29fc3117ae19
+            s7 = pf_s7_consumables_action_review_v1(inputs_json=s7_inputs_json)  # noqa: F841
+            # unilab:node_uuid=4c0a7e3a-81e6-5395-8b19-d1c5739a7a79
+            collector_at_scrape = host_node.transfer_resource(
+                resource=collector,
+                target_device="plc_photoscrape",
+                mount_resource=resource_ref("plc_photoscrape"),
+                site="collector",
+            )
+
+    # s9 joins s8 and s7.
+    # unilab:node_uuid=7ab387c2-5a8a-5186-84b4-4bc940a39a31
+    s9 = pf_s9_scrape_action_review_v1(inputs_json=s9_inputs_json)  # noqa: F841
+    # unilab:node_uuid=78596100-27ba-5983-9018-0c7d0bfc4960
+    s10 = pf_s10_collect_action_review_v1(inputs_json=s10_inputs_json)  # noqa: F841
+    # unilab:node_uuid=e09429d0-946d-54e8-a930-6b12db16abd0
+    collected = material.record_collection_v4(
+        powder_collector=collector_at_scrape.resource,
+        vial=vial,
+    )
+    # s10's unchanged root returns both consumables to their original staging holes.
+    # unilab:node_uuid=be425cb5-61ff-5325-b4ac-d1ee91f88d82
+    collector_returned = host_node.transfer_resource(
+        resource=collected.powder_collector,
+        target_device="plc_staginga",
+        mount_resource=resource_ref("staging_a_stack"),
+        site=collector_site,
+    )
+    # unilab:node_uuid=f1b3c9f4-c550-5477-8ed2-9a4c56abe1b6
+    vial_returned = host_node.transfer_resource(
+        resource=collected.vial,
+        target_device="plc_staginga",
+        mount_resource=resource_ref("staging_b_stack"),
+        site=bottle_site,
+    )
+
+    # unilab:node_uuid=b5a97cb7-c5ee-5028-bd18-330fc9cd4157
+    s11 = pf_s11_unload_action_review_v1(inputs_json=s11_inputs_json)  # noqa: F841
+    # unilab:node_uuid=b15e65b3-9db8-5d2b-8ba8-544abf619c94
+    waste = host_node.transfer_resource(
+        resource=plate_at_scrape.resource,
+        target_device="plc_feedlift",
+        mount_resource=resource_ref("plc_feedlift"),
+        site="waste-stack",
+    )
+
+    return {
+        "sample": vial_returned.resource,
+        "waste_plate": waste.resource,
+        "powder_collector": collector_returned.resource,
+    }

@@ -1,0 +1,20 @@
+# CNC 刮取路径计算 (vision kind, 纯计算无副作用): 视觉 summary.json + 选带 → 真机 6 变量。
+# result(经 VM assign 捕获): g_sx/g_sy/g_cx/g_cy + g_scrape_feed (块写) + pass_count + pass_z_list (pass 循环)。
+# 标定参数 (gcode 段) 运行期实时读 config; band_id 为配置/输入参数; strategy/keep_ratio 可覆写。
+photoscrape.cnc_path:
+  kind: vision
+  method: generate_cnc_path
+  label: 视觉-计算刮取路径
+  desc: |-
+    执行步骤：读取视觉 summary 和选定 band，按实时 gcode 标定、strategy 与 keep_ratio 生成最多400点的刮取/收集四数组、进给、pass_count 和逐层 pass_z_list；placeholder=true 时生成0 pass安全占位。
+    前置与安全：正常路径必须提供有效 summary_path 和 band_id；这是纯计算 vision 动作，不写 PLC，输出仍需经 plc_write 回读确认后才能刮取。
+    完成与异常：合法路径返回数组和逐层Z列表；视觉结果缺失、谱带无效、标定或路径生成失败返回 ERROR。
+    实现核对：eit_ptlc/controller/cnc_path.py::generate_cnc_path，经 ActionExecutor._exec_vision 异步派发。
+  modes: []
+  params:
+    # 常规刮板: summary_path + band_id 必给。placeholder=true（无谱带/跳过刮板）时二者传空串即可。
+    - {name: summary_path, type: string, required: true, label: 视觉summary.json路径}
+    - {name: band_id,      type: string, required: true, label: 选带ID}
+    - {name: strategy,     type: enum, options: [contour, boustrophedon, zigzag], label: 路径策略(略=用配置)}
+    - {name: keep_ratio,   type: float, min: 0.01, max: 1.0, label: 刮取每列保留比(略=用配置)}
+    - {name: placeholder,  type: bool, required: false, default: false, label: 安全占位(跳过刮板;0 pass)}

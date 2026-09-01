@@ -1,0 +1,389 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-16T17:55:57.2987447" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站_Old_InoProShop(V1.9.1.6).project" modificationDateTime="2026-06-04T10:59:46">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="Develop_TankDrain" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="i">
+              <type>
+                <INT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 循环索引</xhtml>
+              </documentation>
+            </variable>
+            <variable name="anyDraining">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 全局真空泵控制标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="展开step">
+              <type>
+                <INT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 全局真空泵控制标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="TON_3">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 全局真空泵控制标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="TON_4">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 全局真空泵控制标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="BlowTimer">
+              <type>
+                <array>
+                  <dimension lower="1" upper="8" />
+                  <baseType>
+                    <derived name="TON" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+            <variable name="BlowDuration">
+              <type>
+                <TIME />
+              </type>
+              <initialValue>
+                <simpleValue value="TIME#30s0ms" />
+              </initialValue>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+A50_Expand_liquid_discharge_排液();
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Develop_TankDrain" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="1e367f94-c561-44c0-b789-951df8949232" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>1e367f94-c561-44c0-b789-951df8949232</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A50_Expand_liquid_discharge_排液">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+// ══════════════════════════════════════════════════════════════
+// 排液控制程序（per-tank 并行 FSM，每扫描周期调用）
+// ══════════════════════════════════════════════════════════════
+// 程序名：PRG_TankDrain
+// 文件名：plc_develop_drain.txt
+// 职责：监控 Tank_Drain_Enable[1..8]，触发对应缸的 3 阶段排液流程
+// 触发条件：Tank_Drain_Enable[i]=TRUE 且 Tank_State[i]=40
+// 完成标志：Tank_Drain_Done[i]=TRUE, Tank_State[i]=99
+// 复位方式：PC 写 Tank_Drain_Enable[i]=FALSE → 清 Done；
+//           PC 写 Tank_State[i]=0 → 释放缸
+// ══════════════════════════════════════════════════════════════
+// 3 阶段排液时序（工程师已验证）：
+//   Phase A — Draining(50)：开排液阀 + 真空泵，等待 DrainDuration
+//   Phase B — BlowAir(55) ：追加开吹气阀，等待 BlowDuration
+//   Phase C — CylinderRetract(60)：关所有阀 + 气缸退回，等待到位传感器
+// ══════════════════════════════════════════════════════════════
+// 硬件拓扑：
+//   - 每缸有独立排液电磁阀、吹气电磁阀、气缸（伸出/退回）
+//   - 真空泵（大真空泵）全局共享，anyDraining 引用计数式控制
+//   - 排液气泡传感器按组共享（仅用于监控，不参与控制逻辑）
+//   - 支持 8 缸完全并行排液（各缸 FSM 独立推进）
+// ══════════════════════════════════════════════════════════════
+// Tank_State 状态转换（排液相关）：
+//   40 (Developing)      → 50 (Draining)        : Drain_Enable[i] 触发
+//   50 (Draining)        → 55 (BlowAir)         : DrainTimer[i].Q
+//   55 (BlowAir)         → 60 (CylinderRetract) : BlowTimer[i].Q
+//   60 (CylinderRetract) → 99 (Done)            : 气缸到位传感器
+//   99 (Done)            → 0  (Idle)            : PC 写 Tank_State=0
+//   50/55/60             → 90 (Error)           : 急停
+//   注：55/60 为 PLC 内部子状态，PC 只关心 Drain_Done（state 99）
+// ══════════════════════════════════════════════════════════════
+// 物理 IO 映射表（工程师变量名 → 缸索引）：
+//   i=1: 展缸1排液电池阀1自动 / 展缸1吹气电池阀1自动 / 展缸1气缸1自动 / 展缸1气缸1动点
+//   i=2: 展缸1排液电池阀2自动 / 展缸1吹气电池阀2自动 / 展缸1气缸2自动 / 展缸1气缸2动点
+//   i=3: 展缸1排液电池阀3自动 / 展缸1吹气电池阀3自动 / 展缸1气缸3自动 / 展缸1气缸3动点
+//   i=4: 展缸1排液电池阀4自动 / 展缸1吹气电池阀4自动 / 展缸1气缸4自动 / 展缸1气缸4动点
+//   i=5: 展缸2排液电池阀1自动 / 展缸2吹气电池阀1自动 / 展缸2气缸1自动 / 展缸2气缸1动点
+//   i=6: 展缸2排液电池阀2自动 / 展缸2吹气电池阀2自动 / 展缸2气缸2自动 / 展缸2气缸2动点
+//   i=7: 展缸2排液电池阀3自动 / 展缸2吹气电池阀3自动 / 展缸2气缸3自动 / 展缸2气缸3动点
+//   i=8: 展缸2排液电池阀4自动 / 展缸2吹气电池阀4自动 / 展缸2气缸4自动 / 展缸2气缸4动点
+//   全局: 大真空泵自动
+//   监控: 展缸1排液气泡传感器 / 展缸2排液气泡传感器
+// ══════════════════════════════════════════════════════════════
+
+
+
+// ══ 急停联锁：排液程序响应急停 ══
+IF NOT 急停 THEN
+    FOR i := 1 TO 8 DO
+        // 急停时将所有排液中的缸（50/55/60）标记为 Error
+        IF Tank_State[i] = 50 OR Tank_State[i] = 55 OR Tank_State[i] = 60 THEN
+            Tank_State[i] := 90;
+        END_IF
+        // 停止所有定时器
+        DrainTimer[i](IN := FALSE, PT := T#0S);
+        BlowTimer[i](IN := FALSE, PT := T#0S);
+        // 关闭所有排液阀和吹气阀
+        CASE i OF
+            1: 展缸1排液电池阀1自动 := FALSE; 展缸1吹气电池阀1自动 := FALSE;
+            2: 展缸1排液电池阀2自动 := FALSE; 展缸1吹气电池阀2自动 := FALSE;
+            3: 展缸1排液电池阀3自动 := FALSE; 展缸1吹气电池阀3自动 := FALSE;
+            4: 展缸1排液电池阀4自动 := FALSE; 展缸1吹气电池阀4自动 := FALSE;
+            5: 展缸2排液电池阀1自动 := FALSE; 展缸2吹气电池阀1自动 := FALSE;
+            6: 展缸2排液电池阀2自动 := FALSE; 展缸2吹气电池阀2自动 := FALSE;
+            7: 展缸2排液电池阀3自动 := FALSE; 展缸2吹气电池阀3自动 := FALSE;
+            8: 展缸2排液电池阀4自动 := FALSE; 展缸2吹气电池阀4自动 := FALSE;
+        END_CASE
+    END_FOR
+    // 关闭真空泵
+    大真空泵站位[0] := FALSE;
+    RETURN;
+END_IF
+
+// ══ 主循环：逐缸并行处理排液 FSM ══
+FOR i := 1 TO 8 DO
+ DrainTimer[i](IN := (Tank_State[i] = 50  AND  (i&gt;4 AND 展缸2溶剂废液检测传感器)) OR (Tank_State[i] = 50 AND (i&lt;5 AND 展缸1溶剂废液检测传感器)) , PT := DrainDuration);
+
+ BlowTimer[i](IN := Tank_State[i] = 55, PT := BlowDuration);
+ 
+    // ── 场景 1：PC 撤销 Drain_Enable → 复位 Done 标志（握手完成）──
+    IF NOT Tank_Drain_Enable[i] THEN
+        Tank_Drain_Done[i] := FALSE;
+        DrainTimer[i](IN := FALSE, PT := T#0S);
+        BlowTimer[i](IN := FALSE, PT := T#0S);
+        // 注意：不主动修改 Tank_State，由 PC 写 0 释放
+    // ── 场景 2：Drain_Enable=TRUE，缸处于 Developing(40)，启动排液 Phase A ──
+    ELSIF Tank_Drain_Enable[i] AND Tank_State[i] = 40 THEN
+        // 开启排液阀
+		大真空泵站位[i] := TRUE;
+        CASE i OF
+            1: 展缸1排液电池阀1自动 := TRUE;
+            2: 展缸1排液电池阀2自动 := TRUE;
+            3: 展缸1排液电池阀3自动 := TRUE;
+            4: 展缸1排液电池阀4自动 := TRUE;
+            5: 展缸2排液电池阀1自动 := TRUE;
+            6: 展缸2排液电池阀2自动 := TRUE;
+            7: 展缸2排液电池阀3自动 := TRUE;
+            8: 展缸2排液电池阀4自动 := TRUE;
+        END_CASE
+        // 推进状态至 Draining
+        Tank_State[i] := 50;
+    // ── 场景 3：Phase A — Draining(50)，排液阀开 + 真空泵运行，等待排液定时完成 ──
+    ELSIF Tank_State[i] = 50 AND (i&lt;5 AND 展缸1溶剂废液检测传感器) THEN
+       
+        IF DrainTimer[i].Q THEN
+            // 排液定时完成，锁定并复位 DrainTimer
+            DrainTimer[i](IN := FALSE, PT := T#0S);
+            // 开启吹气阀（排液阀保持开启），进入 Phase B
+            CASE i OF
+                1: 展缸1吹气电池阀1自动 := TRUE;
+                2: 展缸1吹气电池阀2自动 := TRUE;
+                3: 展缸1吹气电池阀3自动 := TRUE;
+                4: 展缸1吹气电池阀4自动 := TRUE;
+                
+            END_CASE
+            Tank_State[i] := 55;
+        END_IF
+	ELSIF Tank_State[i] = 50  AND  (i&gt;4AND 展缸2溶剂废液检测传感器) THEN
+       
+        IF DrainTimer[i].Q THEN
+            // 排液定时完成，锁定并复位 DrainTimer
+            DrainTimer[i](IN := FALSE, PT := T#0S);
+            // 开启吹气阀（排液阀保持开启），进入 Phase B
+            CASE i OF
+                5: 展缸2吹气电池阀1自动 := TRUE;
+                6: 展缸2吹气电池阀2自动 := TRUE;
+                7: 展缸2吹气电池阀3自动 := TRUE;
+                8: 展缸2吹气电池阀4自动 := TRUE;
+            END_CASE
+            Tank_State[i] := 55;
+        END_IF
+    // ── 场景 4：Phase B — BlowAir(55)，吹气阀开，等待吹气定时完成 ──
+    ELSIF Tank_State[i] = 55 THEN
+        大真空泵站位[i] := FALSE;
+        IF BlowTimer[i].Q THEN
+            // 吹气完成，锁定并复位 BlowTimer
+            BlowTimer[i](IN := FALSE, PT := T#0S);
+            // 关闭排液阀和吹气阀，启动气缸退回，进入 Phase C
+            CASE i OF
+                1: 展缸1排液电池阀1自动 := FALSE; 展缸1吹气电池阀1自动 := FALSE; 展缸1气缸1自动 := FALSE;
+                2: 展缸1排液电池阀2自动 := FALSE; 展缸1吹气电池阀2自动 := FALSE; 展缸1气缸2自动 := FALSE;
+                3: 展缸1排液电池阀3自动 := FALSE; 展缸1吹气电池阀3自动 := FALSE; 展缸1气缸3自动 := FALSE;
+                4: 展缸1排液电池阀4自动 := FALSE; 展缸1吹气电池阀4自动 := FALSE; 展缸1气缸4自动 := FALSE;
+                5: 展缸2排液电池阀1自动 := FALSE; 展缸2吹气电池阀1自动 := FALSE; 展缸2气缸1自动 := FALSE;
+                6: 展缸2排液电池阀2自动 := FALSE; 展缸2吹气电池阀2自动 := FALSE; 展缸2气缸2自动 := FALSE;
+                7: 展缸2排液电池阀3自动 := FALSE; 展缸2吹气电池阀3自动 := FALSE; 展缸2气缸3自动 := FALSE;
+                8: 展缸2排液电池阀4自动 := FALSE; 展缸2吹气电池阀4自动 := FALSE; 展缸2气缸4自动 := FALSE;
+            END_CASE
+            Tank_State[i] := 60;
+       END_IF
+    // ── 场景 5：Phase C — CylinderRetract(60)，等待气缸退回到位 ──
+    ELSIF Tank_State[i] = 60 THEN
+        CASE i OF
+            1: IF 展缸1气缸1原点 THEN   Tank_State[1] := 65; END_IF
+            2: IF 展缸1气缸2原点 THEN   Tank_State[2] := 65; END_IF
+            3: IF 展缸1气缸3原点 THEN   Tank_State[3] := 65; END_IF
+            4: IF 展缸1气缸4原点 THEN   Tank_State[4] := 65; END_IF
+            5: IF 展缸2气缸1原点 THEN   Tank_State[5] := 65; END_IF
+            6: IF 展缸2气缸2原点 THEN   Tank_State[6] := 65; END_IF
+            7: IF 展缸2气缸3原点 THEN   Tank_State[7] := 65; END_IF
+            8: IF 展缸2气缸4原点 THEN   Tank_State[8] := 65; END_IF
+        END_CASE
+   
+	 //场景 6：Phase D — RobotPickup(65)，等待机器人取板（电平握手，串行）──
+    ELSIF Tank_State[i] = 65 THEN
+		bParameterList1[i]:=TRUE;   //机器人参数取展缸位置
+		
+        IF RO_ParameterList1=i THEN
+            // 机器人空闲 → 发出取板请求（电平保持）
+			Tank_State[RO_ParameterList1] := 99;
+			bParameterList1[i]:=FALSE;
+			CASE i OF
+            1:  Tank_Drain_Done[1] := TRUE; 
+            2:   Tank_Drain_Done[2] := TRUE; 
+            3:   Tank_Drain_Done[3] := TRUE;  
+            4:   Tank_Drain_Done[4] := TRUE;  
+            5:   Tank_Drain_Done[5] := TRUE;  
+            6:   Tank_Drain_Done[6] := TRUE;  
+            7:   Tank_Drain_Done[7] := TRUE;  
+            8:   Tank_Drain_Done[8] := TRUE;  
+        END_CASE
+//             RobotRequested := TRUE;
+//             Robot_Pickup_Req := TRUE;
+//             Robot_Source_Tank := i;
+        END_IF
+//         IF RobotRequested AND Robot_Source_Tank = i AND Robot_Pickup_Done THEN
+//             // 机器人取板完成 → 清除握手信号，标记排液完成
+//             Robot_Pickup_Req := FALSE;
+//             RobotRequested := FALSE;
+//             Tank_Drain_Done[i] := TRUE;
+//             
+//         END_IF
+	END_IF
+	
+
+END_FOR
+
+// ══ 真空泵全局控制：当无任何缸在排液/吹气时关闭真空泵 ══
+
+IF bParameterList1[1] AND bParameterList1[2]  AND  bParameterList1[3] AND bParameterList1[4] AND bParameterList1[5] AND bParameterList1[6] AND bParameterList1[7] AND bParameterList1[8]THEN
+	展开工位允许取硅胶板:=TRUE;
+END_IF
+IF NOT 展开工位允许取硅胶板 THEN
+	IF bParameterList1[1] THEN
+		ParameterList1:=1;
+	ELSIF bParameterList1[2] THEN
+		ParameterList1:=2;
+	ELSIF bParameterList1[3] THEN
+		ParameterList1:=3;
+	ELSIF bParameterList1[4] THEN
+		ParameterList1:=4;
+	ELSIF bParameterList1[5] THEN
+		ParameterList1:=5;
+	ELSIF bParameterList1[6] THEN
+		ParameterList1:=6;
+	ELSIF bParameterList1[7] THEN
+		ParameterList1:=7;
+	ELSIF bParameterList1[8] THEN
+		ParameterList1:=8;
+	END_IF
+END_IF
+
+
+
+
+
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Develop_TankDrain" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="1e367f94-c561-44c0-b789-951df8949232">
+                      <pathStructure isFolder="False" name="A50_Expand_liquid_discharge_排液" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="71e6b432-2c9e-4cb4-aeda-b4e50f6fd31a" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>71e6b432-2c9e-4cb4-aeda-b4e50f6fd31a</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="40_Man">
+          <Object Name="Develop_TankDrain" ObjectId="1e367f94-c561-44c0-b789-951df8949232">
+            <Object Name="A50_Expand_liquid_discharge_排液" ObjectId="71e6b432-2c9e-4cb4-aeda-b4e50f6fd31a" />
+          </Object>
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

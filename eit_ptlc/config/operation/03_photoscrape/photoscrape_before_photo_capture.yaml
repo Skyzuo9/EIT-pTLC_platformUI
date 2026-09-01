@@ -1,0 +1,71 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_before_photo_capture
+label: 拍照刮板-before拍照
+ui:
+  role: station_phase
+  station: photo_scrape
+  phase: execute
+  primary: false
+  order: 33.1
+# before-photo 拍照 step: 只负责相机位、拍 before.jpg、归位, 不做视觉分析/CNC/刮取。
+vars:
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 拍照图保存目录
+- name: before_path
+  scope: local
+  type: STRING
+  io: out
+  default: ''
+  comment: before图输出路径
+- name: shot
+  scope: local
+  type: DICT
+  comment: 拍照动作结果(image_path)
+resources:
+- station:photo_scrape
+body:
+- op: comment
+  text: "before/photo: 移相机位+遮光下, 就绪待拍"
+- op: call
+  action: photoscrape.cam_photopos
+  mode: RUN
+  args:
+    ref_8y:
+      lit: photo_8y
+- op: comment
+  text: "before/photo: 上位机触发相机拍 before.jpg"
+- op: call
+  action: photoscrape.capture
+  mode: RUN
+  args:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+    filename:
+      lit: before.jpg
+    profile:
+      lit: photoscrape
+  assign:
+    var: shot
+- op: assign
+  target:
+    var: before_path
+  value:
+    field:
+      var: shot
+    name: image_path
+- op: call
+  action: photoscrape.cam_photohome
+  mode: RUN

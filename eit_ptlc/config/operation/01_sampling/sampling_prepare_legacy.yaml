@@ -1,0 +1,104 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_prepare_legacy
+label: 上样-准备(旧)
+# 旧版重清洗上样准备(sampling.clean): 三通阀分段冲 点样头/上样针内壁/上样针外壁, 每程满行程循环。
+# 点样前充液已由轻清洗充液版 sampling_prepare 接管; 本版退役保留(可见可点), 供换样/初始化的
+# 深度去污(重清洗需多倍体积置换)。刻意用 role:helper 而非 station_phase —— 不占上样四段
+# (prepare/load/execute/unload)契约名额(见 test_sampling_four_stage_offline)。
+ui:
+  role: helper
+  station: sampling
+  order: 16
+vars:
+- name: wash_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0.1
+  comment: 单次清洗体积 (mL)
+  ui:
+    label: 清洗体积 (mL)
+    group: 上样清洗
+    min: 0.1
+    max: 25
+- name: cleaning_count
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 清洗重复次数
+  ui:
+    label: 清洗次数
+    group: 上样清洗
+    min: 1
+    max: 20
+- name: asp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 200
+  comment: 吸液速度 V (DT)
+  ui:
+    label: 吸液速度 V
+    group: 上样清洗
+    min: 1
+    max: 500
+- name: disp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 200
+  comment: 打液速度 V (DT)
+  ui:
+    label: 打液速度 V
+    group: 上样清洗
+    min: 1
+    max: 500
+- name: step_delay
+  scope: local
+  type: INT
+  io: in
+  default: 2000
+  comment: 步间延时 M (ms)
+  ui:
+    label: 步间延时 (ms)
+    group: 上样清洗
+    min: 0
+    max: 10000
+resources:
+- station:sampling
+body:
+- op: call
+  action: sampling.init
+  mode: RUN
+- op: comment
+  text: 真空区间 (清洗抽废液; 资源门按引用计数开关泵, 异常与并发流程都不会漏关或误关)
+- op: with_resources
+  resources:
+  - device:vacuum_pump
+  body:
+  - op: call
+    action: sampling.clean
+    mode: RUN
+    args:
+      wash_volume_ml:
+        var: wash_volume_ml
+      cleaning_count:
+        var: cleaning_count
+      asp_speed:
+        var: asp_speed
+      disp_speed:
+        var: disp_speed
+      step_delay:
+        var: step_delay
+- op: comment
+  text: 放板移轴 (7Y 到放板位; 为机器人放板做准备, 不需真空)
+- op: call
+  action: sampling.place_axis
+  mode: RUN
+note: '1. 冲点样头流路 + 给点样头支路充液
+
+  2. 冲上样针内壁流路 + 给上样流路
+
+  3. 冲上样针外壁(脏液直进废液,不回流路)'

@@ -1,0 +1,54 @@
+schema: ptlc.script/v1
+kind: operation
+name: robot_tool_ensure
+label: 智能换刀保证
+note: '读权威工具态 -> 对则跳过 / 否则条件换到 needed'
+ui: {subgroup: 刀库, order: 83}
+# 智能版: robot.query 读权威工具态 (mounted_tool 启动已从状态文件恢复, 回显在 tool_state),
+#   自动判定当前刀; current == needed 则跳过, 否则先安全移轨到工具站(位4) 再卸当前 (非空腕才卸) 再装 needed。
+#   换刀点位按地轨在工具站(位4=工具位)示教, 故卸/装前必经 rail_move_safe(4) 把地轨开到工具站 (内含安全位校验)。
+#   取代旧人工录入 (权威模型下无需人工声明)。needed: 1=吸盘 / 2=大夹爪 / 3=小夹爪。
+#   换刀后权威态由 robot_tool_pick/put 内部 robot.set_mounted_tool 自动更新, 本流程不再 set。
+#   前提: 机器人在线 (robot.query 需实时帧); 调用方 (放板) 已先跑 robot_startup_check 保证在线在位。
+vars:
+  - name: needed
+    scope: local
+    type: INT
+    io: in
+    default: 1
+    comment: 目标末端工具
+    enum:
+      - {value: 1, label: 1 吸盘}
+      - {value: 2, label: 2 大夹爪}
+      - {value: 3, label: 3 小夹爪}
+  - {name: fb,      scope: local, type: DICT, io: var, comment: robot.query 反馈快照 (含 tool_state)}
+  - {name: current, scope: local, type: INT,  io: var, default: 0, comment: 从权威工具态读出的当前挂载}
+resources: [robot, station:rail]
+body:
+  - {op: comment, text: 读权威工具态 (mounted_tool 启动已从状态文件恢复, 回显在 tool_state.mounted_tool)}
+  - op: call
+    action: robot.query
+    mode: RUN
+    assign: {var: fb}
+  - op: assign
+    target: {var: current}
+    value: {field: {field: {var: fb}, name: tool_state}, name: mounted_tool}
+  - op: if
+    cond: {binop: "!=", left: {var: current}, right: {var: needed}}
+    then:
+      - {op: comment, text: "当前 != 目标: 先安全移轨到工具站(位4=工具位), 再卸当前 (非空腕才卸) 再装目标"}
+      - {op: comment, text: "卸吸盘前真空守卫: 当前是吸盘(1)且仍有真空 -> 默认吸着板子, 任何移动前报错中止"}
+      - op: if
+        cond: {binop: and,
+               left:  {binop: "==", left: {var: current}, right: {lit: 1}},
+               right: {field: {field: {var: fb}, name: tool_state}, name: suction_on}}
+        then:
+          - op: raise
+            error: ROBOT_TOOL_SUCTION_HELD
+            message: {lit: "吸盘仍有真空(疑似吸着板子), 禁止换刀; 请先确认放板完成"}
+      - {op: run_script, script: rail_move_safe, inputs: {target: {lit: 4}}, outputs: {}}
+      - op: if
+        cond: {binop: "!=", left: {var: current}, right: {lit: 0}}
+        then:
+          - {op: run_script, script: robot_tool_put, inputs: {tool_id: {var: current}}, outputs: {}}
+      - {op: run_script, script: robot_tool_pick, inputs: {tool_id: {var: needed}}, outputs: {}}

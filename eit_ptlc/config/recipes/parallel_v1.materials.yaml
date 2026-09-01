@@ -1,0 +1,125 @@
+schema: ptlc.unilab-material-contract/v1
+recipe: parallel_v1
+
+# 可搬运、需要在 UniLab DAG 中保持同一身份的物料。工位固定储液不在这里复制库存，
+# 仍由 PlatformUI material_store 的 liquid_bottles 账本统一扣减。
+portable_materials:
+  sample_vial: ptlc_source_sample_vial
+  plate: ptlc_plate
+  collector: ptlc_powder_collector
+  vial: ptlc_collection_vial
+
+segments:
+  - id: af0
+    operation: pf_af0_batch_startup
+    portable_inputs: []
+    portable_outputs: []
+    station_materials: []
+
+  - id: s1
+    operation: pf_s1_load
+    portable_inputs: [plate]
+    portable_outputs: [plate]
+    station_materials:
+      - {name: sampling_wash_solvent, role: consumed, authority: PlatformUI}
+    commits:
+      plate: {target_device: plc_sampling, mount: plc_sampling, site: plate}
+
+  - id: s2
+    operation: pf_s2_spot
+    portable_inputs: [sample_vial, plate]
+    portable_outputs: [sample_vial, plate]
+    station_materials:
+      - {name: sampling_rinse_solvent, role: consumed, authority: PlatformUI}
+    lineage: spotting
+
+  - id: s3
+    operation: pf_s3_tank_prep
+    portable_inputs: []
+    portable_outputs: []
+    station_materials:
+      - {name: developing_solvent_1, role: consumed, authority: PlatformUI}
+      - {name: developing_solvent_2, role: consumed, authority: PlatformUI}
+      - {name: developing_solvent_3, role: consumed, authority: PlatformUI}
+      - {name: developing_solvent_4, role: consumed, authority: PlatformUI}
+      - {name: prepared_developing_bath, role: produced_in_tank, authority: PlatformUI}
+
+  - id: s4
+    operation: pf_s4_photo_before
+    portable_inputs: [plate]
+    portable_outputs: [plate]
+    station_materials: []
+    operation_outputs:
+      before_path: STRING
+    commits:
+      plate: {target_device: plc_photoscrape, mount: plc_photoscrape, site: plate}
+
+  - id: s5
+    operation: pf_s5_to_tank
+    portable_inputs: [plate]
+    portable_outputs: [plate]
+    station_materials:
+      - {name: prepared_developing_bath, role: required, authority: PlatformUI}
+    commits:
+      plate: {target_device: plc_develop, mount: plc_develop, site_parameter: tank_site}
+
+  - id: s6
+    operation: pf_s6_develop_wait
+    portable_inputs: [plate]
+    portable_outputs: [plate]
+    station_materials:
+      - {name: prepared_developing_bath, role: consumed_and_drained, authority: PlatformUI}
+
+  - id: s7
+    operation: pf_s7_consumables
+    portable_inputs: [collector, vial]
+    portable_outputs: [collector, vial]
+    station_materials: []
+    operation_outputs:
+      collector_hole: INT
+      bottle_hole: INT
+    commits:
+      collector: {target_device: plc_photoscrape, mount: plc_photoscrape, site: collector}
+
+  - id: s8
+    operation: pf_s8_to_scrape
+    portable_inputs: [plate]
+    portable_outputs: [plate]
+    station_materials: []
+    commits:
+      plate: {target_device: plc_photoscrape, mount: plc_photoscrape, site: plate}
+
+  - id: s9
+    operation: pf_s9_scrape
+    portable_inputs: [plate, collector]
+    portable_outputs: [plate, collector]
+    station_materials: []
+    bind_inputs:
+      before_path: STRING
+    lineage: scraping
+
+  - id: s10
+    operation: pf_s10_collect
+    portable_inputs: [collector, vial]
+    portable_outputs: [collector, vial]
+    station_materials:
+      - {name: collection_elution_solvent, role: consumed, authority: PlatformUI}
+    bind_inputs:
+      collector_hole: INT
+      bottle_hole: INT
+    lineage: collection
+    commits:
+      collector: {target_device: plc_staginga, mount: staging_a_stack, site_parameter: collector_site}
+      vial: {target_device: plc_staginga, mount: staging_b_stack, site_parameter: bottle_site}
+
+  - id: s11
+    operation: pf_s11_unload
+    portable_inputs: [plate]
+    portable_outputs: [plate]
+    station_materials:
+      # 现役 FeedLift A22 的前置门要求下料仓接近开关为 TRUE；因此首张废板
+      # 不能落进物理“零张”仓，仓内必须已有承托/种子板。这是 PlatformUI
+      # 物料账本负责的工位前置物料，不复制成 UniLab 可搬运物料。
+      - {name: waste_magazine_seed_plate, role: required, authority: PlatformUI}
+    commits:
+      plate: {target_device: plc_feedlift, mount: plc_feedlift, site: waste-stack}

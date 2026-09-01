@@ -1,0 +1,17 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_bottle_rack_to_staging_b
+label: 转运-瓶组 货架→中转B (上位机, 参 slot_id)
+# 重规划自路线 consumable.bottle-group-rack-to-staging-b. 纯机器人; 货架位6取, 中转B位3放 (两段地轨).
+vars:
+  - {name: slot_id, scope: local, type: INT, io: in, default: 1, comment: 货架槽位 1-6}
+resources: [robot, "station:rail", "consumable-group", "staging-b"]
+body:
+  - {op: comment, text: 从货架(位6)取瓶组 —— 地轨由 robot_group_rack_pick enter 处 rail.ensure(6) 自动到位}
+  - {op: run_script, script: robot_group_rack_pick, inputs: {rack_id: {lit: bottle}, slot_id: {var: slot_id}}, outputs: {}}
+  - {op: comment, text: '放板前先松开中转B定位气缸 (自守卫: 不依赖调用方留下的气缸态, 否则整板会怼上夹紧的气缸)'}
+  - {op: call, action: staging_a.locator_b, mode: RUN, args: {target: {lit: false}}}
+  - {op: comment, text: 放瓶组入中转B(位3) —— 地轨由 robot_group_staging_put enter 处 rail.ensure(3) 自动到位}
+  - {op: run_script, script: robot_group_staging_put, inputs: {rack_id: {lit: bottle}}, outputs: {}}
+  - {op: comment, text: 板已落位, 夹紧定位气缸 (终态板被固定, 后续小夹爪取单瓶才不会把整板带走)}
+  - {op: call, action: staging_a.locator_b, mode: RUN, args: {target: {lit: true}}}

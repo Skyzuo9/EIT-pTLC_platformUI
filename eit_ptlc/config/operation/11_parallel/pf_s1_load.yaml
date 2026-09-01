@@ -1,0 +1,36 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s1_load
+label: 1 上样上料
+ui:
+  role: segment
+# 原子流程 s1: feedlift 料仓 -> 点样座 (sampling_cycle 的 prepare+load 两段, 不含点样执行)。
+# 与 s2 (点样执行) 切开的意义: 点样期间 (纯 PLC 泵动作, 可达十几分钟) 机器人完全空闲,
+# 独立成段后调度器可把机器人派给其他样品 —— 这是四段式接缝作为原子流程切口的直接收益。
+# 边界: 段末板已在点样座上被 place_locate 夹紧 (稳定停放), 机器人空手。
+flow:
+  atomic: true
+  sample: required
+  from: feedlift
+  to: spot_seat
+  hitl: confirm
+  retry: manual
+vars: []
+resources:
+- robot
+- station:feedlift
+- station:sampling
+- station:rail
+body:
+- op: comment
+  text: 'prepare: 工位初始化、清洗、7Y 到放板位 (vacuum 在 step 内 try/finally 闭合)'
+- op: run_script
+  script: sampling_prepare
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 'load: 升降上料取板 -> 机器人放板 -> 夹紧定位; 段末板停点样座, 机器人空手'
+- op: run_script
+  script: sampling_load
+  inputs: {}
+  outputs: {}

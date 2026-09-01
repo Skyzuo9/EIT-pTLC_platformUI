@@ -1,0 +1,34 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s3_tank_prep
+label: 2-2 展缸预备
+ui:
+  role: segment
+# 原子流程 s3: develop_prepare 已含全部液体准备 (init/润洗xN/正式上液xN), 只占展开工位、
+# 不占机器人 —— 与 s2 点样天然可并行 (配方 depends 均为 s1)。缸号由调度器在派发时从
+# 缸池分配注入。位置中立段 (from/to: same): 样品此时在点样座, 本段不碰样品。
+flow:
+  atomic: true
+  sample: required
+  from: same
+  to: same
+  hitl: none
+  retry: restart
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8 (调度器从缸池分配注入)
+resources:
+- station:develop
+body:
+- op: comment
+  text: '展缸预备: 润洗xN -> 正式上液 (develop_prepare 全包); 只占展开工位、不碰样品, 与点样并行'
+- op: run_script
+  script: develop_prepare
+  inputs:
+    tank:
+      var: tank
+  outputs: {}

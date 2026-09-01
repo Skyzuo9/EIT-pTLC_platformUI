@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>WebGPU 节点管线 spike</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0b0f16; overflow: hidden; }
+    #app { position: fixed; inset: 0; }
+    #hud {
+      position: fixed; left: 12px; top: 12px; z-index: 10;
+      font: 12px/1.6 ui-monospace, Consolas, monospace; color: #cfd8e6;
+      background: rgba(12, 18, 28, .82); border: 1px solid #2a3852;
+      border-radius: 6px; padding: 10px 12px; min-width: 300px; white-space: pre;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    WebGPU 探底 spike —— 只在开发期用, 不进生产构建.
+    vite 默认 build 入口只有 index.html, 本文件不会被打包(验收时用 dist 清单确认).
+    用法: /spike-webgpu.html?backend=webgpu|webgl&fx=on|off
+  -->
+  <div id="app"></div>
+  <div id="hud">初始化…</div>
+  <script type="module" src="/src/three-d-webgpu-spike/main.js"></script>
+</body>
+</html>

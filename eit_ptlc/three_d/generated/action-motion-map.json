@@ -1,0 +1,664 @@
+{
+  "schema": "ptlc.action-motion-map/v1",
+  "note": "由 clip_compiler.motion_map_document() 生成; 唯一真源在 Python 侧, 前端只读不抄。液面动作表**刻意不在本表**: 它的真源是 device-manifest.tankLiquid.actions(gen_twin_manifest.TANK_LIQUID_ACTIONS), 前端直接读 manifest —— 同一件事导两条路就是新造一条漂移路径。",
+  "stationAxisActions": {
+    "feedlift.feed_raise": {
+      "axis": "axis_1z",
+      "toMm": 512.0,
+      "label": "上料1Z·升轴到取料光电",
+      "speedMmS": 120.0
+    },
+    "feedlift.feed_lower": {
+      "axis": "axis_1z",
+      "toMm": 507.0,
+      "label": "上料1Z·降轴5mm让位",
+      "speedMmS": 60.0
+    },
+    "feedlift.feed_clear": {
+      "axis": "axis_1z",
+      "toMm": 0.0,
+      "label": "上料1Z·降轴至光电消失",
+      "speedMmS": 120.0
+    },
+    "feedlift.unload_ready": {
+      "axis": "axis_2z",
+      "toMm": 512.0,
+      "label": "下料2Z·升到放废料位",
+      "speedMmS": 120.0
+    },
+    "feedlift.unload_bury": {
+      "axis": "axis_2z",
+      "toMm": 0.0,
+      "label": "下料2Z·埋料至光电消失",
+      "speedMmS": 120.0
+    },
+    "photoscrape.cam_x335": {
+      "axis": "axis_9x",
+      "toMm": 335.0,
+      "label": "刮板9X·刀让位到335",
+      "speedMmS": 100.0
+    }
+  },
+  "searchAxisActions": {
+    "feedlift.probe_stack": {
+      "label": "探测板堆张数",
+      "durationS": 0.4
+    },
+    "photoscrape.scrape": {
+      "label": "刮板台·CNC 刮取(路径由 PLC SoftMotion 插补, 未表现刀路)",
+      "durationS": 8.0
+    }
+  },
+  "sequenceActions": {
+    "photoscrape.init": [
+      {
+        "kind": "axis",
+        "axis": "axis_10z",
+        "toMm": 0.0,
+        "label": "刮板10Z·抬刀回零",
+        "speedMmS": 60.0
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_9x",
+        "toMm": 335.0,
+        "label": "刮板9X·刀让位到335",
+        "speedMmS": 100.0
+      },
+      {
+        "kind": "actuator",
+        "id": "ps_shade",
+        "value": 0.0,
+        "label": "遮光气缸·回上位"
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_8y",
+        "toMm": 0.0,
+        "label": "拍照8Y·回放板位",
+        "speedMmS": 120.0
+      }
+    ],
+    "photoscrape.cam_photopos": [
+      {
+        "kind": "point",
+        "arg": "ref_8y",
+        "axis": "axis_8y",
+        "label": "拍照8Y·板送进暗箱",
+        "speedMmS": 120.0
+      },
+      {
+        "kind": "actuator",
+        "id": "ps_shade",
+        "value": 1.0,
+        "label": "遮光气缸·落下"
+      }
+    ],
+    "photoscrape.cam_photohome": [
+      {
+        "kind": "actuator",
+        "id": "ps_shade",
+        "value": 0.0,
+        "label": "遮光气缸·回上位"
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_8y",
+        "toMm": 0.0,
+        "label": "拍照8Y·板退出暗箱",
+        "speedMmS": 120.0
+      }
+    ],
+    "photoscrape.align_home": [
+      {
+        "kind": "axis",
+        "axis": "axis_10z",
+        "toMm": 0.0,
+        "label": "对位10Z·抬刀回零",
+        "speedMmS": 60.0
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_9x",
+        "toMm": 335.0,
+        "label": "对位9X·回335停放位",
+        "speedMmS": 100.0
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_8y",
+        "toMm": 0.0,
+        "label": "对位8Y·回零",
+        "speedMmS": 120.0
+      }
+    ],
+    "photoscrape.scrape_finish": [
+      {
+        "kind": "actuator",
+        "id": "ps_rotate",
+        "value": 1.0,
+        "label": "旋转气缸·翻料倒粉"
+      }
+    ],
+    "photoscrape.retr_stoprot": [
+      {
+        "kind": "actuator",
+        "id": "ps_rotate",
+        "value": 0.0,
+        "label": "旋转气缸·复位到刮取位"
+      }
+    ],
+    "sampling.init": [
+      {
+        "kind": "axis",
+        "axis": "axis_5z",
+        "toMm": 0.0,
+        "label": "上样5Z·抬针回零",
+        "speedMmS": 20.0
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_4x",
+        "toMm": 0.0,
+        "label": "上样4X·回零",
+        "speedMmS": 10.0
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_6x",
+        "toMm": 0.0,
+        "label": "点样6X·回零",
+        "speedMmS": 50.0
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_7y",
+        "toMm": 0.0,
+        "label": "点样7Y·回零",
+        "speedMmS": 50.0
+      }
+    ],
+    "sampling.aspirate": [
+      {
+        "kind": "axis",
+        "axis": "axis_5z",
+        "toMm": 0.0,
+        "label": "上样5Z·抬针(建气隔断)",
+        "speedMmS": 20.0
+      },
+      {
+        "kind": "well",
+        "label": "上样4X/3Y·移到样品孔",
+        "speedMmS": 10.0
+      },
+      {
+        "kind": "point",
+        "point": "sample_5z_dip",
+        "axis": "axis_5z",
+        "label": "上样5Z·下探进孔",
+        "speedMmS": 20.0
+      },
+      {
+        "kind": "axis",
+        "axis": "axis_5z",
+        "toMm": 0.0,
+        "label": "上样5Z·抬针出孔",
+        "speedMmS": 20.0
+      }
+    ],
+    "sampling.clean": [
+      {
+        "kind": "axis",
+        "axis": "axis_5z",
+        "toMm": 0.0,
+        "label": "上样5Z·抬针",
+        "speedMmS": 20.0
+      },
+      {
+        "kind": "point",
+        "point": "sampling_4x_wash",
+        "axis": "axis_4x",
+        "label": "上样4X·移到清洗位",
+        "speedMmS": 10.0
+      }
+    ],
+    "sampling.flush": [
+      {
+        "kind": "axis",
+        "axis": "axis_5z",
+        "toMm": 0.0,
+        "label": "上样5Z·抬针",
+        "speedMmS": 20.0
+      },
+      {
+        "kind": "point",
+        "point": "sampling_4x_wash",
+        "axis": "axis_4x",
+        "label": "上样4X·移到清洗位",
+        "speedMmS": 10.0
+      }
+    ],
+    "sampling.place_axis": [
+      {
+        "kind": "point",
+        "point": "spot_7y_place",
+        "axis": "axis_7y",
+        "label": "点样7Y·移到放板位",
+        "speedMmS": 50.0
+      }
+    ],
+    "sampling.spray_axis": [
+      {
+        "kind": "point",
+        "point": "spot_pose.y_height",
+        "axis": "axis_7y",
+        "label": "点样7Y·移到喷涂位",
+        "speedMmS": 50.0
+      }
+    ],
+    "sampling.prep": [
+      {
+        "kind": "axis",
+        "axis": "axis_5z",
+        "toMm": 0.0,
+        "label": "上样5Z·抬针离液",
+        "speedMmS": 20.0
+      }
+    ],
+    "sampling.spot": [
+      {
+        "kind": "point",
+        "arg": "ref_spot",
+        "member": "y_height",
+        "axis": "axis_7y",
+        "label": "点样7Y·落到点样高度",
+        "speedMmS": 50.0
+      },
+      {
+        "kind": "point",
+        "arg": "ref_spot",
+        "member": "x_start",
+        "axis": "axis_6x",
+        "label": "点样6X·移到起点",
+        "speedMmS": 50.0
+      }
+    ],
+    "sampling.spot_band_layer": [
+      {
+        "kind": "point",
+        "arg": "ref_spot",
+        "member": "y_height",
+        "axis": "axis_7y",
+        "label": "点样7Y·落到点样高度",
+        "speedMmS": 50.0
+      },
+      {
+        "kind": "point",
+        "arg": "ref_spot",
+        "member": "x_start",
+        "axis": "axis_6x",
+        "label": "点样6X·移到条带起点",
+        "speedMmS": 50.0
+      },
+      {
+        "kind": "point",
+        "arg": "ref_spot",
+        "member": "x_end",
+        "axis": "axis_6x",
+        "label": "点样6X·扫到条带终点(供液)",
+        "speedMmS": 5.0
+      }
+    ],
+    "collect.init": [
+      {
+        "kind": "actuator",
+        "id": "col_press",
+        "value": 0.0,
+        "label": "下压气缸·回原点"
+      },
+      {
+        "kind": "linkage",
+        "id": "col_clamp",
+        "value": 0.0,
+        "label": "夹持气缸·松开"
+      },
+      {
+        "kind": "actuator",
+        "id": "col_lift",
+        "value": 0.0,
+        "label": "升降气缸·回原点"
+      },
+      {
+        "kind": "actuator",
+        "id": "col_extend",
+        "value": 0.0,
+        "label": "伸缩气缸·回原点"
+      },
+      {
+        "kind": "actuator",
+        "id": "col_bottle_locator",
+        "value": 0.0,
+        "label": "瓶定位气缸·回原点"
+      }
+    ],
+    "collect.lift_press": [
+      {
+        "kind": "actuator",
+        "id": "col_extend",
+        "value": 0.0,
+        "label": "伸缩气缸·缩回"
+      },
+      {
+        "kind": "actuator",
+        "id": "col_lift",
+        "value": 1.0,
+        "label": "升降气缸·顶升到动点"
+      },
+      {
+        "kind": "actuator",
+        "id": "col_press",
+        "value": 1.0,
+        "label": "下压气缸·下压"
+      }
+    ],
+    "collect.transport_extend": [
+      {
+        "kind": "actuator",
+        "id": "col_press",
+        "value": 0.0,
+        "label": "下压气缸·抬起"
+      },
+      {
+        "kind": "actuator",
+        "id": "col_lift",
+        "value": 0.0,
+        "label": "升降气缸·落回原点"
+      },
+      {
+        "kind": "actuator",
+        "id": "col_extend",
+        "value": 1.0,
+        "label": "伸缩气缸·伸出"
+      }
+    ]
+  },
+  "paramAxisActions": {
+    "photoscrape.align_z": {
+      "axis": "axis_10z",
+      "arg": "z_mm",
+      "label": "对位10Z·升降",
+      "speedMmS": 5.0
+    }
+  },
+  "fluidActions": {
+    "develop.init": "所选缸的进液阀/排液阀/吹气阀清零, 并按组初始化1号或2号注射泵",
+    "develop.clean_line": "按缸组的1号/2号注射泵, 只走管路清洗指令",
+    "develop.rinse_fill": "所选缸的进液阀与排液阀置位, 按次数循环发送润洗泵指令",
+    "develop.fill": "所选缸的进液阀 + 按组的注射泵, 按次数循环上液",
+    "develop.drain": "所选缸的排液阀、吹气阀与大真空泵(排液闭环 FSM)",
+    "develop.rinse_suction": "所选缸的进液阀/排液阀/吹气阀(承接 A21 打开的排液路径)",
+    "collect.init": "3号注射泵初始化, 以及进液/排液/正压排液输出清零",
+    "collect.collect": "收集进液阀、排液阀、正压排液与3号注射泵, 按次数洗脱循环",
+    "sampling.init": "上样三通与吹气输出清零, 并向4号注射泵发初始化指令",
+    "sampling.prep": "4号注射泵自口3绝对回抽, 在针尖建立气隔断",
+    "pump.vacuum_on": "大真空泵站位[11]置位(实际输出由泵管理 FB 对全部站位取 OR)",
+    "pump.vacuum_off": "大真空泵站位[11]清零(全部站位为假时才真正撤销输出)"
+  },
+  "unresolvedActions": {
+    "photoscrape.align_move": "对位 XY 的 x_mm/y_mm 在 PLC 内部还要过 K/O 帧变换, 不是 9X/8Y 的裸毫米; 且现役工程的板区窗为空集, 任何下降请求恒被拒(ErrorCode 422) —— 用「实机对照」",
+    "photoscrape.scrape": "刮取路径由 PLC SoftMotion 按 g_* 数组插补, 数组本身由 write_cnc_path / write_pass_z 两条写点动作下发 —— 单动作/近似档无法复现该插补, 用「实机对照」; 流程精编译档按演示标称条带表现(emit_scrape, 标称≠实况, 见片段 flowNotes)",
+    "sampling.clean": "轴先进清洗位: 4X 走点表的 sampling_4x_wash, 但 6X 清洗位与 5Z 下降深度都烧在 PLC 里, PC 侧无记录 —— 只能演一半, 索性不演, 用「实机对照」",
+    "sampling.flush": "与 clean 共用动作码 20, 缺口同上(6X 清洗位与 5Z 深度在 PLC 内部) —— 用「实机对照」",
+    "sampling.aspirate": "4X/3Y 的孔位由上位机运行期按样品盘算出后下发, 5Z 下降深度在 PLC 的 HMI_上样轴5Z轴.position[2] —— 单动作演示两者都没有, 用「实机对照」",
+    "sampling.rinse_mix": "4X/3Y 回的是运行期那个原样品孔, 5Z 深度同样在 PLC 的 HMI 槽 —— 用「实机对照」",
+    "robot.step": "步进是相对当前位姿的增量, 单动作演示没有起点 —— 用「实机对照」",
+    "robot.jog_start": "点动是持续运动, 停在哪取决于何时 jog_stop —— 用「实机对照」"
+  },
+  "cylinderActions": {
+    "staging_a.locator_a": {
+      "id": "sta_powder_locator",
+      "arg": "target"
+    },
+    "staging_a.locator_b": {
+      "id": "col_bottle_locator",
+      "arg": "target"
+    },
+    "photoscrape.press_cylinder": {
+      "id": "ps_press",
+      "arg": "pressed"
+    },
+    "photoscrape.locate_cylinder": {
+      "id": "ps_locator",
+      "arg": "clamped"
+    },
+    "collect.bottle_locator": {
+      "id": "col_bottle_locator",
+      "arg": "target"
+    }
+  },
+  "cylinderActionsFixed": {
+    "sampling.place_locate": {
+      "id": "smp_locator",
+      "value": 1.0
+    },
+    "sampling.place_release": {
+      "id": "smp_locator",
+      "value": 0.0
+    },
+    "collect.clamp": {
+      "id": "col_clamp",
+      "value": 1.0
+    },
+    "collect.release_clamp": {
+      "id": "col_clamp",
+      "value": 0.0
+    },
+    "collect.extend": {
+      "id": "col_extend",
+      "value": 1.0
+    },
+    "collect.retract": {
+      "id": "col_extend",
+      "value": 0.0
+    }
+  },
+  "tankLidActions": {
+    "develop.plate_retract": 0.0,
+    "develop.plate_extend": 1.0,
+    "develop.init": 0.0,
+    "develop.rinse_fill": 1.0
+  },
+  "tankLidLinkage": {
+    "1": "dev_t1_cyl1",
+    "2": "dev_t1_cyl2",
+    "3": "dev_t1_cyl3",
+    "4": "dev_t1_cyl4",
+    "5": "dev_t2_cyl1",
+    "6": "dev_t2_cyl2",
+    "7": "dev_t2_cyl3",
+    "8": "dev_t2_cyl4"
+  },
+  "ignoredActions": [
+    "develop.capture_reference",
+    "develop.release_tank",
+    "feedlift.debug_check_photoelectric_edge",
+    "feedlift.init",
+    "feedlift.preflight",
+    "material.check_availability",
+    "material.plan_staging",
+    "photoscrape.wait_rot",
+    "robot.clear_error",
+    "robot.connect",
+    "robot.disable",
+    "robot.enable",
+    "robot.home_ensure",
+    "robot.query",
+    "robot.set_do",
+    "robot.set_mounted_tool"
+  ],
+  "platePointSlot": {
+    "P21": "feedlift",
+    "P19": "spot_seat",
+    "P65": "scrape_table",
+    "P22": "waste",
+    "P11": "tank:1",
+    "P12": "tank:2",
+    "P13": "tank:3",
+    "P14": "tank:4",
+    "P15": "tank:5",
+    "P16": "tank:6",
+    "P17": "tank:7",
+    "P18": "tank:8"
+  },
+  "phaseEntryState": {
+    "develop_load": {
+      "liquidAfter": "develop_prepare",
+      "plateAt": "",
+      "why": "develop_cycle: prepare 已注液, 板是放进满缸的",
+      "states": [],
+      "mechanisms": {}
+    },
+    "develop_execute": {
+      "liquidAfter": "develop_prepare",
+      "plateAt": "tank:{tank}",
+      "why": "develop_cycle: prepare 注液 + load 已把板放进缸并夹持",
+      "states": [],
+      "mechanisms": {}
+    },
+    "pf_s5_to_tank": {
+      "liquidAfter": "develop_prepare",
+      "plateAt": "",
+      "why": "pf_s3_tank_prep 内联 develop_prepare 已注液",
+      "states": [],
+      "mechanisms": {}
+    },
+    "pf_s6_develop_wait": {
+      "liquidAfter": "develop_prepare",
+      "plateAt": "tank:{tank}",
+      "why": "pf_s3 注液 + pf_s5(内联 develop_load) 已把板放进缸",
+      "states": [],
+      "mechanisms": {}
+    },
+    "photoscrape_process": {
+      "liquidAfter": "",
+      "plateAt": "scrape_table",
+      "why": "photoscrape_process.yaml body 首行 comment: 板由 photoscrape_place 放入定位, 接粉收集器由 transfer_collector_staging_a_to_scrape 放入",
+      "states": [
+        "STA_SCRAPE_HOLDER"
+      ],
+      "mechanisms": {}
+    },
+    "sampling_execute": {
+      "liquidAfter": "",
+      "plateAt": "spot_seat",
+      "why": "sampling_cycle: load 已放板(robot_suction_put station_id=spotting)并夹紧定位(sampling_load 尾步 sampling.place_locate 动作码32)",
+      "states": [],
+      "mechanisms": {
+        "smp_locator": 1.0
+      }
+    },
+    "sampling_multi_execute": {
+      "liquidAfter": "",
+      "plateAt": "spot_seat",
+      "why": "同 sampling_execute: 多样品执行段同样接在 load 之后, 板已在点样座",
+      "states": [],
+      "mechanisms": {
+        "smp_locator": 1.0
+      }
+    },
+    "pf_s2_spot": {
+      "liquidAfter": "",
+      "plateAt": "spot_seat",
+      "why": "pf_s1_load 内联 sampling_load 已放板并夹紧(serial_v1/parallel_v1 配方序)",
+      "states": [],
+      "mechanisms": {
+        "smp_locator": 1.0
+      }
+    },
+    "collect_load": {
+      "liquidAfter": "",
+      "plateAt": "",
+      "why": "photoscrape_process 收尾 A41 已翻料倒粉; A42 复位在取桶之后",
+      "states": [],
+      "mechanisms": {
+        "ps_rotate": 1.0
+      }
+    },
+    "collect_cycle": {
+      "liquidAfter": "",
+      "plateAt": "",
+      "why": "周期起手接续 photoscrape_process 的翻料收尾, 同 collect_load",
+      "states": [],
+      "mechanisms": {
+        "ps_rotate": 1.0
+      }
+    },
+    "collect_execute": {
+      "liquidAfter": "",
+      "plateAt": "",
+      "why": "collect_load 已放入粉桶(收集夹具夹持)与收集瓶, 尾步 collect.extend 伸出",
+      "states": [
+        "STA_COLLECT_BOTTLE",
+        "STA_COLLECT_HOLDER"
+      ],
+      "mechanisms": {
+        "col_extend": 1.0
+      }
+    },
+    "collect_unload": {
+      "liquidAfter": "collect_execute",
+      "plateAt": "",
+      "why": "collect_execute 尾步 transport_extend 伸出送瓶; 瓶内带着按默认配方洗脱的液",
+      "states": [],
+      "mechanisms": {
+        "col_extend": 1.0
+      }
+    },
+    "transfer_bottle_staging_b_to_collect": {
+      "liquidAfter": "",
+      "plateAt": "",
+      "why": "collect_load.yaml: collect.extend 紧排在 run_script 本脚本之前",
+      "states": [],
+      "mechanisms": {
+        "col_extend": 1.0
+      }
+    },
+    "transfer_bottle_collect_to_staging_b": {
+      "liquidAfter": "",
+      "plateAt": "",
+      "why": "collect_unload.yaml: 本脚本先跑, collect.retract 排在其后",
+      "states": [],
+      "mechanisms": {
+        "col_extend": 1.0
+      }
+    }
+  },
+  "spotBandCalib": {
+    "xOriginMm": 61.2,
+    "xDir": 1,
+    "yOriginMm": 18.4,
+    "yDir": -1,
+    "bandHalfCm": 0.225,
+    "plateSizeCm": [
+      20.0,
+      20.0
+    ],
+    "machine": {
+      "xAxis": "axis_6x",
+      "yAxis": "axis_7y"
+    },
+    "frame": "plate-cm"
+  },
+  "wetFrontTargetCm": 14.7,
+  "gripperByTool": {
+    "2": "rob_grip_plate96",
+    "3": "rob_grip_vial"
+  },
+  "toolAsset": {
+    "1": "TOOL_SUCTION",
+    "2": "TOOL_PLATE96",
+    "3": "TOOL_VIAL"
+  },
+  "flipActuatorId": "rob_flip_suction",
+  "visionLightId": "vision_fill"
+}

@@ -1,0 +1,22 @@
+schema: ptlc.script/v1
+kind: operation
+name: tank_prep
+label: 展缸准备 (兼容入口, 委托 develop_prepare)
+ui:
+  role: helper
+  hidden: true
+# 兼容入口: 统一委托规范 develop_prepare, 避免盖状态、配方和液量形成第二事实源。
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号
+body:
+- op: run_script
+  script: develop_prepare
+  inputs:
+    tank:
+      var: tank
+  outputs: {}

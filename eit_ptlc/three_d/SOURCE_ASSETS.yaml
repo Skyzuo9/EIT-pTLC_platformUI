@@ -1,0 +1,8 @@
+schema: eit.ptlc.three_d.source_assets/v1
+hardware_root: E:/eit_lab/eit_lab_hardware/eit_ptlc_station
+repository_policy: excluded
+required:
+  full_assembly: TLC设备总装.SLDASM
+  legacy_step: TLC设备总装.STEP
+note: 原始 CAD、装配体、工程图和采购资料只从 hardware_root 获取, 不复制进 Git 仓库.
+

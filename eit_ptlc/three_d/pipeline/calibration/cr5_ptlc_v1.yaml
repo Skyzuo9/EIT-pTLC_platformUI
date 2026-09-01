@@ -1,0 +1,152 @@
+schema: ptlc.robot-calibration/v1
+version: cr5-ptlc-2026-08-01-rail-carriage-center
+
+# 运动学只认该提交。构建时若提交号或点表哈希变化，必须重新运行 calibrate_cr5.py。
+kinematics_source:
+  repository: https://github.com/Dobot-Arm/DOBOT_6Axis_ROS2_V4
+  commit: 37730d08b08c74061ae10d4fa5565b4c4c914885
+  xacro: cra_description/urdf/cr5_robot.xacro
+  mesh_dir: cra_description/meshes/cr5
+
+reference_points:
+  file: config/points/robot/robot_points.json
+  sha256: 4b62a7049b8df0c5e0e8d34920f8cb64695f6dafe73eb04960c3301f9991c673
+  source_records: 74
+  fitted_records: 61
+  excluded_zero_joint_records: 4
+  split: deterministic-index-mod-5
+
+# 坐标链中的 robot-base -> CR5 base_link。单位始终为米，不允许再加全局缩放。
+base_transform:
+  translation_m: [0.0, 0.0, 0.0]
+  rpy_deg: [0.0, 0.0, 0.0]
+
+# 机器场景注册：地轨 4 号工具工位 = 500 mm。
+# x/z 平移由 P8/P9/P10 与 CAD 三个工具侧快换原点拟合；y 高度由原始 CAD
+# 地轨接触面硬约束。禁止再用控制器 Tool 1 TCP 的高度把整个机器人抬离地轨。
+scene_registration:
+  convention: gltf-y-up-metres
+  method: tool-dock-fit-plus-explicit-cad-carriage-alignment
+  reference_rail:
+    slot: 4
+    position_mm: 500.0
+  # Final machine GLB 中机器人地轨托盘的实体上表面。旧值 0.2585 m 是旧 CAD
+  # 机械臂根节点高度，并不是托盘接触面，因此会让 CR5 悬空约 80 mm。
+  base_contact_height_m: 0.178497249
+  rail_support:
+    role: robot-carriage-support
+    # PTLC-07-025 是 CAD 中真实的 170 x 180 mm 机器人支撑板。原生装配保存的是
+    # CAD 建模位置；构建 slot 4 场景时，整套移动托盘会平移到下列参考安装基准。
+    # 禁止再以相邻的大型合并钢板代替这块具名支撑板。
+    source_node_match: PTLC-07-025
+    reference_node: ROBOT_CARRIAGE_SUPPORT
+    socket_node: SOCKET_ROBOT_BASE
+    source_mount_frame_m: [-0.570581000, 0.1784999997, 0.0000977955]
+    reference_mount_frame_m: [-0.231431147, 0.178497249, 0.001677236]
+    top_y_m: 0.178497249
+    footprint_size_m: [0.170000002, 0.180000007]
+    required_constraint: top-centre-datum
+    centre_tolerance_mm: 0.1
+  axis_map_robot_to_gltf:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 0.0, 1.0]
+    - [0.0, -1.0, 0.0]
+  base_transform_at_reference_rail:
+    matrix:
+      - [1.0, 0.0, 0.0, -0.231431147]
+      - [0.0, 0.0, 1.0, 0.178497249]
+      - [0.0, -1.0, 0.0, 0.001677236]
+      - [0.0, 0.0, 0.0, 1.0]
+  # 三个工具侧快换在 CAD 工具站中的共同坐标朝向（glTF Y-up）。
+  dock_frame_rotation:
+    - [0.0, 0.0, -1.0]
+    - [0.0, -1.0, 0.0]
+    - [-1.0, 0.0, 0.0]
+  correspondences:
+    - point_id: robot-main.tool-change.slot-1.target
+      source_name: P8
+      cad_connector: QT2091392-tool-side-slot-1
+      scene_point_m: [-0.546055, 0.256974, -0.421546]
+    - point_id: robot-main.tool-change.slot-2.target
+      source_name: P9
+      cad_connector: QT2091392-tool-side-slot-2
+      scene_point_m: [-0.403556, 0.256974, -0.421546]
+    - point_id: robot-main.tool-change.slot-3.target
+      source_name: P10
+      cad_connector: QT2091392-tool-side-slot-3
+      scene_point_m: [-0.243555, 0.256974, -0.421546]
+  validation:
+    residual_mm: [2.2796, 0.3556, 2.6076]
+    orientation_residual_deg: [0.4398, 0.2400, 0.3616]
+    rms_mm: 2.0102
+    max_mm: 2.6076
+    orientation_rms_deg: 0.3567
+    orientation_max_deg: 0.4398
+
+# 控制器角 -> 官方 joint local-Z 角：q_model = sign * q_controller + zero_offset_deg。
+joints:
+  - {id: J1, origin_xyz_m: [0.0, 0.0, 0.147], origin_rpy_rad: [0.0, 0.0, 0.0], axis: [0.0, 0.0, 1.0], sign: 1, zero_offset_deg: 0.14688754, limit_deg: [-359.8175, 359.8175], origin_node: CR5_J1_ORIGIN, node: CR5_J1_ROTOR}
+  - {id: J2, origin_xyz_m: [0.0, 0.0, 0.0], origin_rpy_rad: [1.5708, 1.5708, 0.0], axis: [0.0, 0.0, 1.0], sign: 1, zero_offset_deg: -0.11469849, limit_deg: [-359.8175, 359.8175], origin_node: CR5_J2_ORIGIN, node: CR5_J2_ROTOR}
+  - {id: J3, origin_xyz_m: [-0.427, -0.00034866, 0.0], origin_rpy_rad: [0.0, 0.0, 0.0], axis: [0.0, 0.0, 1.0], sign: 1, zero_offset_deg: 0.07261087, limit_deg: [-159.9695, 159.9695], origin_node: CR5_J3_ORIGIN, node: CR5_J3_ROTOR}
+  - {id: J4, origin_xyz_m: [-0.357, 0.00034866, 0.141], origin_rpy_rad: [0.0, 0.0, -1.5708], axis: [0.0, 0.0, 1.0], sign: 1, zero_offset_deg: -0.02898851, limit_deg: [-359.8175, 359.8175], origin_node: CR5_J4_ORIGIN, node: CR5_J4_ROTOR}
+  - {id: J5, origin_xyz_m: [0.0, -0.116, 0.0], origin_rpy_rad: [1.5708, 0.0, 0.0], axis: [0.0, 0.0, 1.0], sign: 1, zero_offset_deg: 0.22621536, limit_deg: [-359.8175, 359.8175], origin_node: CR5_J5_ORIGIN, node: CR5_J5_ROTOR}
+  - {id: J6, origin_xyz_m: [0.0, 0.105, 0.0], origin_rpy_rad: [-1.5708, 0.0, 0.0], axis: [0.0, 0.0, 1.0], sign: 1, zero_offset_deg: -0.06467217, limit_deg: [-359.8175, 359.8175], origin_node: CR5_J6_ORIGIN, node: CR5_J6_ROTOR}
+
+flange_node: CR5_LINK6
+tool_mount_node: TOOL_MOUNT
+# 实体 Link6 法兰 -> 工具侧对接坐标。只用于摆放 PTLC 自制法兰、机器人侧快换
+# 以及浏览器挂接工具；它不是控制器 Tool 1 TCP。
+physical_tool_mount:
+  status: fitted-from-three-cad-docks
+  translation_m: [-0.01934521, -0.04603448, 0.01237952]
+  rpy_deg: [89.83065652, -0.62779630, -111.42300984]
+# 原始 CAD 中 Link6 法兰与 PTLC 自制法兰本来是正确接触的。下矩阵把原始 CAD
+# Blender 世界坐标映射到官方 J6 局部坐标；自制法兰和 QT219 整组共用它，不能再
+# 把 QT219 零件原点直接重合到工具侧 TOOL_MOUNT（两个零件原点并非配合坐标系）。
+custom_mount_alignment:
+  status: fitted-cad-flange-to-official-j6
+  method: pca-24-orientations-trimmed-vertex-icp
+  source_model: exports/TLC_full_native.glb
+  source_model_sha256: 098034d3c818cbae63c27b8cc52d06f32e71aa472348bd02335b7979640a1fef
+  official_link6_mesh: vendor/dobot-cr5-37730d08-full/cra_description/meshes/cr5/J6.STL
+  official_link6_mesh_sha256: b969c8f0f7db193647969173f9c98dd3a36027b8372f95cbaf148fae0322ffb9
+  matrix_cad_world_to_link6:
+    - [-0.90533268, 0.40135281, 0.13888366, -0.04829428]
+    - [0.42466754, 0.85971891, 0.28379725, 0.24203207]
+    - [-0.00549808, 0.31591030, -0.94877313, 0.47810171]
+    - [0.0, 0.0, 0.0, 1.0]
+  # 注意: 下列为 ICP 配准的验收值, 也是 as-built 值 —— 2026-08-02 起同轴校正为
+  # "三维反向吸收"(blender_clean._quick_change_lateral_correction): 机器人侧保持
+  # CAD/ICP 原位(导出实测 link6_adapter_nearest_vertex 精确回到 0.0393), TOOL_MOUNT
+  # 平移 -delta(横向 ~3.0 mm + 轴向端面 ~4.3 mm)落到黑色快换轴线并使锁紧位端面贴合
+  # (插销插到底), 工具站(ST_TOOLING)按等价世界向量随动, 示教点对接保持精确。
+  # 历史: 08-01 "横移机器人侧"(法兰台阶)废弃; 08-02 上午"只修横向"(端面 4.3 mm 缝、
+  # 插销悬空)再扩轴向 —— 框架距离≠实体贴合, 端面必须直接量配合面。
+  validation:
+    flange_trimmed_rms_mm: 0.3087
+    flange_median_mm: 0.3457
+    flange_p90_mm: 1.7486
+    link6_adapter_nearest_vertex_mm: 0.0393
+tool_transforms:
+  # 点表中的四个 Tool 0 记录均为六轴全零占位，不能参与标定；保留法兰恒等变换并显式标状态。
+  "0":
+    status: uncalibrated-no-valid-joint-samples
+    translation_m: [0.0, 0.0, 0.0]
+    rpy_deg: [0.0, 0.0, 0.0]
+  "1":
+    status: fitted
+    translation_m: [-0.01815920, -0.04523355, 0.15319049]
+    rpy_deg: [0.04335046, 0.10661375, 0.04641238]
+
+validation:
+  position_mm:
+    train_median: 0.3501
+    train_p95: 0.6430
+    holdout_median: 0.2986
+    holdout_p95: 0.6011
+  orientation_deg:
+    all_median: 0.1634
+    all_p95: 0.4106
+  known_outliers:
+    # 原始点表中存在一条约 21.7 mm 的 joint/pose 不一致记录；soft-L1 拟合不会让它污染标定。
+    - retained-for-audit

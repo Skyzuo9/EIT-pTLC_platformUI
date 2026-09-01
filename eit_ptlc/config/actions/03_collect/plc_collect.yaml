@@ -1,0 +1,119 @@
+# 收集工位 PLC L2 原子动作 (解耦后: 纯设备原子, 与 PLC 50_action/Collect_L2 动作码对齐)
+# 机器人取放 (收集器/瓶) 由上位机 Dobot 直驱, 在 operation 编排里穿插于下列原子之间.
+# 编排序列: init(10) ->[机器人放收集器]-> clamp(21) ->[退出]-> extend(22) ->[放瓶]->
+#           lift_press(23) -> collect(30) -> transport_extend(41) ->[取瓶到中转]->
+#           retract(42) ->[到收集器]-> release_clamp(43) ->[取收集器放中转]
+# 注: bottle_locator 是兼容别名; 中转B定位气缸由 StagingA_L2 action 25 控制, 不属于 Collect 工位四段。
+
+collect.init:
+  kind: plc_l2
+  station: collect
+  action_code: 10
+  label: 收集工位复位
+  hint: 清全部输出并初始化收集泵
+  desc: |-
+    执行步骤：清除瓶定位、下压、夹持、升降、伸缩、进液、排液和正压排液的手/自动输出；取得泵总线后向3号泵发送/3Z0,2,2R并轮询/3Q。
+    前置与安全：PLC须处于运行/就绪态，机器人须退出四气缸运动区；初始化不包含机器人放收集器/瓶或中转定位动作。
+    完成与异常：3号泵空闲且下压、夹持、升降、推出四个原点输入全部成立后返回DONE；PLC没有单独超时ErrorCode，任一反馈不成立时由上位机停滞/绝对超时判TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码10 → A10_init_初始化。
+  modes: []
+collect.clamp:
+  kind: plc_l2
+  station: collect
+  action_code: 21
+  label: 收集-夹持气缸夹紧
+  desc: |-
+    执行步骤：把收集夹持气缸自动输出置TRUE，持续等待“收集平台夹持气缸动点”输入成立。
+    前置与安全：PLC须处于运行/就绪态；收集器必须正确落座且机器人退出夹具范围。本动作不驱动伸缩、升降或瓶定位气缸。
+    完成与异常：夹持动点反馈成立后返回DONE；PLC无气缸超时ErrorCode，反馈不成立时由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码21 → A21_夹持夹紧。
+  modes: []
+collect.extend:
+  kind: plc_l2
+  station: collect
+  action_code: 22
+  label: 收集-伸缩气缸伸出
+  desc: |-
+    执行步骤：只有“推出气缸原点=TRUE且瓶子有无传感器=FALSE”时才把伸缩气缸自动输出置TRUE；随后等待推出气缸动点反馈。
+    前置与安全：PLC须处于运行/就绪态；收集器应已夹紧、放瓶位必须无瓶，机器人在DONE后才能进入。PLC动作内不检查夹持、升降或下压位置。
+    完成与异常：推出动点成立后返回DONE；初始条件不满足或气缸不到位时PLC不会主动报错而会停滞，最终由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码22 → A22_伸缩伸出。
+  modes: []
+collect.lift_press:
+  kind: plc_l2
+  station: collect
+  action_code: 23
+  label: 收集-缩回/升降/下压
+  desc: |-
+    执行步骤：先把伸缩自动输出置FALSE并等待推出气缸原点；若瓶存在则把升降自动输出置TRUE，等待升降动点后再把下压自动输出置TRUE并立即返回DONE。
+    前置与安全：PLC须处于运行/就绪态；瓶必须已放好且机器人退出。本动作不操作中转B定位气缸；PLC只在伸缩已回原点时检查瓶传感器。
+    完成与异常：伸缩原点和升降动点已确认，但DONE只表示下压命令已置位，不等待下压到位；原点时缺瓶为ErrorCode 201，伸缩/升降不到位则由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码23 → A23_缩回升降下压。
+  modes: []
+collect.bottle_locator:
+  kind: plc_l2
+  station: staging_a
+  action_code: 25
+  label: 中转B-瓶板定位气缸目标态
+  desc: |-
+    执行步骤：这是staging_a.locator_b的兼容别名；把target写入StagingA_LocatorB_Target，经StagingA_L2动作码25直接写“溶液收集瓶定位自动”，同一扫描进入DONE。
+    前置与安全：PLC须处于运行/就绪态；该气缸不属于Collect工位，新流程应使用staging_a.locator_b。物料和机器人安全位置由编排保证。
+    完成与异常：DONE只表示目标输出已写入，PLC不读取原点/动点反馈，也不生成气缸错误；物理到位须由外部诊断确认。
+    PLC核对：现役 20260702.project，Application/50_action/StagingA_L2 动作码25内联逻辑。
+  modes: []
+  params:
+    - {name: target, type: bool, required: true, channel: StagingA_LocatorB_Target, label: 中转B定位气缸目标}
+collect.collect:
+  kind: plc_l2
+  station: collect
+  action_code: 30
+  label: 收集-加液/排液洗脱循环
+  desc: |-
+    执行步骤：若collect_forward_instructions非空则打开收集进液输出，发送该指令并轮询/3Q；泵空闲后关进液、开排液和正压排液20秒，再等待5秒沉淀；按collect_count重复，最后关闭排液与正压排液。
+    前置与安全：PLC须处于运行/就绪态；lift_press、瓶存在、收集器夹紧以及泵指令合法由上位机编排保证，A30自身不再次检查这些条件。液体动作非幂等，不自动重发。
+    完成与异常：全部泵循环与每轮25秒排液/沉淀完成后返回DONE；该PLC子程序没有缺瓶、阀反馈或泵错误分支，泵不空闲/动作停滞由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码30 → A30_collect_收集。
+  modes: []
+  params:
+    - {name: solvent_volume_ml, type: float, required: false, default: 2.0, min: 0.1, max: 25.0, label: 溶剂体积 (mL)}
+    - {name: liquid_repeat_count, type: int, required: false, default: 1, min: 1, max: 20, label: 重复打液次数}
+    # 注射泵 DT V/M 可选覆写 (缺省回退 translator 泵档常量; 默认值单一真源=常量)
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: disp_speed, type: int, required: false, min: 1, max: 500, label: "打液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+collect.transport_extend:
+  kind: plc_l2
+  station: collect
+  action_code: 41
+  label: 伸出到转运位
+  hint: "按固定安全顺序: 抬下压→抬升降→伸出"
+  desc: |-
+    执行步骤：依次把下压自动输出置FALSE并等待下压原点，把升降自动输出置FALSE并等待升降原点，再把伸缩自动输出置TRUE并等待推出气缸动点。
+    前置与安全：PLC须处于运行/就绪态；泵和阀动作必须已结束，机器人只能在推出动点DONE后进入。本动作不操作中转B定位气缸。
+    完成与异常：三个气缸反馈按序成立后返回DONE；PLC无独立气缸超时ErrorCode，任一反馈不成立时由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码41 → A41_复位伸出。
+  modes: []
+collect.retract:
+  kind: plc_l2
+  station: collect
+  action_code: 42
+  label: 收回伸缩台
+  hint: 缩回收集伸缩气缸, 等到位反馈
+  desc: |-
+    执行步骤：把收集伸缩气缸自动输出置FALSE，并持续等待推出气缸原点反馈。
+    前置与安全：PLC须处于运行/就绪态；瓶应已取走且机器人退出伸缩运动路径，本动作不松开收集器夹持。
+    完成与异常：推出气缸原点成立后返回DONE；PLC无独立超时ErrorCode，不到位由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码42 → A42_伸缩缩回。
+  modes: []
+collect.release_clamp:
+  kind: plc_l2
+  station: collect
+  action_code: 43
+  label: 松开收集夹爪
+  hint: 松开收集平台夹持, 等到位反馈
+  desc: |-
+    执行步骤：把收集夹持气缸自动输出置FALSE，并持续等待收集平台夹持气缸原点反馈。
+    前置与安全：PLC须处于运行/就绪态；retract应已完成，泵、升降和下压机构处于安全状态；松开后收集器不再受夹具约束。
+    完成与异常：夹持原点成立后返回DONE；PLC无独立超时ErrorCode，不到位由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Collect_L2 动作码43 → A43_松夹持。
+  modes: []

@@ -1,0 +1,133 @@
+schema: ptlc.clip/v3
+name: flow.develop_execute.tank4
+label: 展开-执行 · 展缸号4
+description: '由 PointRegistry 与上位机 operation 编译; 禁止手工填写生产关节角。显式假设: 本段开始时已挂 1 号刀, 机械臂在
+  P1 安全位。板的落点由编译期的取放基准点静态定出(见 clip_compiler.PLATE_POINT_SLOT), 以 plate 原语写进片段; 实时页则由
+  PlateBinding 按调度器账本跟手, 两条链互不干涉。'
+operation:
+  name: develop_execute
+  inputs:
+    tank: 4
+    auto_drain: false
+    dry_duration_s: 0.0
+    wl_result: {}
+    ref_result: {}
+assumptions:
+  vision:
+    voff_rz:
+      valid: true
+      dx_mm: 0.0
+      dy_mm: 0.0
+      drz_deg: 0.0
+      err: 0
+    voff_xy:
+      valid: true
+      dx_mm: 0.0
+      dy_mm: 0.0
+      drz_deg: 0.0
+      err: 0
+flowNotes:
+- '液位等待按润湿前沿表现: 0→14.7cm(板cm, 假设值出处见 WET_FRONT_TARGET_CM)匀速 8s; 真机是液位闭环等待(hard_cap
+  3600s), 前沿高度那时由液位百分比与时间共同决定, 真值用实机对照'
+- 条件分支按“条件成立”那一支编排; 实机按现场反馈选
+source:
+  operation: config/operation/02_develop/develop_execute.yaml
+  referencePointHash: 4b62a7049b8df0c5e0e8d34920f8cb64695f6dafe73eb04960c3301f9991c673
+  kinematicsCommit: 37730d08b08c74061ae10d4fa5565b4c4c914885
+  calibrationVersion: cr5-ptlc-2026-08-01-rail-carriage-center
+  railCalib:
+    axis: axis_11y
+    zeroOffsetMm: 500.0
+    sign: -1
+    rangeMm:
+    - -54.9
+    - 845.1
+home:
+  axis_mm:
+    axis_11y: 500.0
+    axis_9x: 335.0
+    axis_10z: 0.0
+  joints_deg:
+  - -154.523621
+  - -47.783794
+  - 93.294029
+  - 44.639656
+  - -89.062752
+  - 124.999908
+  actuators:
+    ps_rotate: 0.0
+    ps_press: 0.0
+    ps_locator: 0.0
+    ps_shade: 0.0
+    col_extend: 0.0
+    col_lift: 0.0
+    col_press: 0.0
+    smp_locator: 0.0
+    rob_flip_suction: 0.0
+  linkages:
+    rob_grip_plate96: 0.0
+    rob_grip_vial: 0.0
+    col_clamp: 0.0
+    dev_t1_cyl1: 1.0
+    dev_t1_cyl2: 1.0
+    dev_t1_cyl3: 1.0
+    dev_t1_cyl4: 1.0
+    dev_t2_cyl1: 1.0
+    dev_t2_cyl2: 1.0
+    dev_t2_cyl3: 1.0
+    dev_t2_cyl4: 1.0
+  liquid_ml:
+    tank4: 60.0
+steps:
+- label: 起手·装吸盘
+  dur: 0.0
+  do:
+    tool:
+      action: lock
+      id: TOOL_SUCTION
+      snap: true
+- label: 板在位(前置段已放入)
+  at: 0
+  dur: 0
+  do:
+    plate:
+      id: plate
+      at: tank:4
+- label: 展开·溶剂前沿上行(压缩演示)
+  dur: 8.0
+  ease: linear
+  do:
+    wet:
+      id: plate
+      to: 1.0
+- label: '人工确认: {''lit'': ''参考图采集失败, 本次液位检测不可用; 展开完成后确认开始 PLC L2 排液''}'
+  dur: 0.35
+  do:
+    wait: {}
+- label: 4号缸排液 60.0 → 0.0 mL
+  dur: 10.0
+  ease: out
+  do:
+    liquid:
+      id: tank4
+      to_ml: 0.0
+compiled:
+  moveLTrajectories: {}
+  staleJointPoints: []
+  plateAnchorChecks: []
+  dataOnlyMechanisms: []
+  wetRegions:
+    plate:
+      frame: plate-cm
+      plateSizeCm:
+      - 20.0
+      - 20.0
+      bandCm:
+      - 0.0
+      - 0.0
+      - 20.0
+      - 14.7
+      fill:
+        axis: y
+        dir: 1
+      anchor: gravity

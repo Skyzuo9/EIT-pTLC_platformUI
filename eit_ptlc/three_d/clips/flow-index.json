@@ -1,0 +1,4283 @@
+{
+  "schema": "ptlc.flow-index/v1",
+  "referencePointHash": "4b62a7049b8df0c5e0e8d34920f8cb64695f6dafe73eb04960c3301f9991c673",
+  "railCalib": {
+    "axis": "axis_11y",
+    "zeroOffsetMm": 500.0,
+    "sign": -1,
+    "rangeMm": [
+      -54.9,
+      845.1
+    ]
+  },
+  "flows": [
+    {
+      "name": "system_init_all",
+      "label": "全工站初始化",
+      "group": "00_system",
+      "role": "system",
+      "clips": [
+        {
+          "clipName": "flow.system_init_all",
+          "label": "全工站初始化",
+          "variant": [],
+          "url": "/clips/flow.system_init_all.yaml",
+          "stepCount": 13,
+          "motionStepCount": 13
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "sampling_cycle",
+      "label": "上样-周期 (准备 -> 上料 -> 执行 -> 下料)",
+      "group": "01_sampling",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.sampling_cycle",
+          "label": "上样-周期 (准备 -> 上料 -> 执行 -> 下料)",
+          "variant": [],
+          "url": "/clips/flow.sampling_cycle.yaml",
+          "stepCount": 105,
+          "motionStepCount": 88
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "sampling_execute",
+      "label": "上样-执行",
+      "group": "01_sampling",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.sampling_execute",
+          "label": "上样-执行",
+          "variant": [],
+          "url": "/clips/flow.sampling_execute.yaml",
+          "stepCount": 34,
+          "motionStepCount": 25
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "sampling_full",
+      "label": "上样点样-完整流程 (纯设备原子串联; 机械臂放/取板见 robot routes)",
+      "group": "01_sampling",
+      "role": "legacy",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "sampling_load",
+      "label": "上样-上料",
+      "group": "01_sampling",
+      "role": "station_phase",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.flow.sampling_load",
+          "label": "上样-上料",
+          "variant": [],
+          "url": "/clips/plate.flow.sampling_load.yaml"
+        }
+      ]
+    },
+    {
+      "name": "sampling_multi_cycle",
+      "label": "上样-周期(多样品, 一次装板点多条带)",
+      "group": "01_sampling",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.sampling_multi_cycle",
+          "label": "上样-周期(多样品, 一次装板点多条带)",
+          "variant": [],
+          "url": "/clips/flow.sampling_multi_cycle.yaml",
+          "stepCount": 105,
+          "motionStepCount": 88
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "sampling_multi_execute",
+      "label": "上样-执行(多样品多条带)",
+      "group": "01_sampling",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.sampling_multi_execute",
+          "label": "上样-执行(多样品多条带)",
+          "variant": [],
+          "url": "/clips/flow.sampling_multi_execute.yaml",
+          "stepCount": 34,
+          "motionStepCount": 25
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "sampling_place_plate",
+      "label": "上样-机械臂取料放板",
+      "group": "01_sampling",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "sampling_prepare",
+      "label": "上样-准备",
+      "group": "01_sampling",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.sampling_prepare",
+          "label": "上样-准备",
+          "variant": [],
+          "url": "/clips/flow.sampling_prepare.yaml",
+          "stepCount": 18,
+          "motionStepCount": 14
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "sampling_prepare_legacy",
+      "label": "上样-准备(旧)",
+      "group": "01_sampling",
+      "role": "helper",
+      "clips": [
+        {
+          "clipName": "flow.sampling_prepare_legacy",
+          "label": "上样-准备(旧)",
+          "variant": [],
+          "url": "/clips/flow.sampling_prepare_legacy.yaml",
+          "stepCount": 18,
+          "motionStepCount": 14
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "sampling_spot",
+      "label": "上样-点样 (废弃, 见 sampling_execute)",
+      "group": "01_sampling",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "sampling_unload",
+      "label": "上样-下料",
+      "group": "01_sampling",
+      "role": "station_phase",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.flow.sampling_unload",
+          "label": "上样-下料",
+          "variant": [],
+          "url": "/clips/plate.flow.sampling_unload.yaml"
+        }
+      ]
+    },
+    {
+      "name": "sampling_volume_model",
+      "label": "上样-体积模型(派生+守卫)",
+      "group": "01_sampling",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "develop_cycle",
+      "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料)",
+      "group": "02_develop",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.develop_cycle.tank1",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号1",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank1.yaml",
+          "stepCount": 81,
+          "motionStepCount": 70
+        },
+        {
+          "clipName": "flow.develop_cycle.tank2",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号2",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank2.yaml",
+          "stepCount": 81,
+          "motionStepCount": 70
+        },
+        {
+          "clipName": "flow.develop_cycle.tank3",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号3",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank3.yaml",
+          "stepCount": 81,
+          "motionStepCount": 70
+        },
+        {
+          "clipName": "flow.develop_cycle.tank4",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号4",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank4.yaml",
+          "stepCount": 81,
+          "motionStepCount": 70
+        },
+        {
+          "clipName": "flow.develop_cycle.tank5",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号5",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank5.yaml",
+          "stepCount": 73,
+          "motionStepCount": 62
+        },
+        {
+          "clipName": "flow.develop_cycle.tank6",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号6",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank6.yaml",
+          "stepCount": 73,
+          "motionStepCount": 62
+        },
+        {
+          "clipName": "flow.develop_cycle.tank7",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号7",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank7.yaml",
+          "stepCount": 73,
+          "motionStepCount": 62
+        },
+        {
+          "clipName": "flow.develop_cycle.tank8",
+          "label": "展开-周期 (准备 -> 上料 -> 执行 -> 下料) · 展缸号8",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/flow.develop_cycle.tank8.yaml",
+          "stepCount": 73,
+          "motionStepCount": 62
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "develop_execute",
+      "label": "展开-执行",
+      "group": "02_develop",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.develop_execute.tank1",
+          "label": "展开-执行 · 展缸号1",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank1.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.develop_execute.tank2",
+          "label": "展开-执行 · 展缸号2",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank2.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.develop_execute.tank3",
+          "label": "展开-执行 · 展缸号3",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank3.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.develop_execute.tank4",
+          "label": "展开-执行 · 展缸号4",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank4.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.develop_execute.tank5",
+          "label": "展开-执行 · 展缸号5",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank5.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.develop_execute.tank6",
+          "label": "展开-执行 · 展缸号6",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank6.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.develop_execute.tank7",
+          "label": "展开-执行 · 展缸号7",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank7.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.develop_execute.tank8",
+          "label": "展开-执行 · 展缸号8",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/flow.develop_execute.tank8.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "develop_load",
+      "label": "展开-上料",
+      "group": "02_develop",
+      "role": "station_phase",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.flow.develop_load.tank1",
+          "label": "展开-上料 · 1号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank1.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_load.tank2",
+          "label": "展开-上料 · 2号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank2.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_load.tank3",
+          "label": "展开-上料 · 3号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank3.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_load.tank4",
+          "label": "展开-上料 · 4号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank4.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_load.tank5",
+          "label": "展开-上料 · 5号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank5.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_load.tank6",
+          "label": "展开-上料 · 6号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank6.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_load.tank7",
+          "label": "展开-上料 · 7号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank7.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_load.tank8",
+          "label": "展开-上料 · 8号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_load.tank8.yaml"
+        }
+      ]
+    },
+    {
+      "name": "develop_prep_tank1",
+      "label": "展缸-1号缸准备 (调用 tank_prep 动作脚本)",
+      "group": "02_develop",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "develop_prepare",
+      "label": "展开-准备",
+      "group": "02_develop",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.develop_prepare.tank1",
+          "label": "展开-准备 · 展缸号1",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank1.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.develop_prepare.tank2",
+          "label": "展开-准备 · 展缸号2",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank2.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.develop_prepare.tank3",
+          "label": "展开-准备 · 展缸号3",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank3.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.develop_prepare.tank4",
+          "label": "展开-准备 · 展缸号4",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank4.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.develop_prepare.tank5",
+          "label": "展开-准备 · 展缸号5",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank5.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.develop_prepare.tank6",
+          "label": "展开-准备 · 展缸号6",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank6.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.develop_prepare.tank7",
+          "label": "展开-准备 · 展缸号7",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank7.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.develop_prepare.tank8",
+          "label": "展开-准备 · 展缸号8",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/flow.develop_prepare.tank8.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "develop_standby",
+      "label": "展开-就位 (地轨到展开区)",
+      "group": "02_develop",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "develop_unload",
+      "label": "展开-下料",
+      "group": "02_develop",
+      "role": "station_phase",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.flow.develop_unload.tank1",
+          "label": "展开-下料 · 1号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank1.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_unload.tank2",
+          "label": "展开-下料 · 2号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank2.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_unload.tank3",
+          "label": "展开-下料 · 3号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank3.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_unload.tank4",
+          "label": "展开-下料 · 4号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank4.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_unload.tank5",
+          "label": "展开-下料 · 5号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank5.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_unload.tank6",
+          "label": "展开-下料 · 6号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank6.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_unload.tank7",
+          "label": "展开-下料 · 7号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank7.yaml"
+        },
+        {
+          "clipName": "plate.flow.develop_unload.tank8",
+          "label": "展开-下料 · 8号缸",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "tank",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/plate.flow.develop_unload.tank8.yaml"
+        }
+      ]
+    },
+    {
+      "name": "tank_prep",
+      "label": "展缸准备 (兼容入口, 委托 develop_prepare)",
+      "group": "02_develop",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "photoscrape_align_loop",
+      "label": "刮板-对位内环 (通用件)",
+      "group": "03_photoscrape",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "photoscrape_before_photo_capture",
+      "label": "拍照刮板-before拍照",
+      "group": "03_photoscrape",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_before_photo_capture",
+          "label": "拍照刮板-before拍照",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_before_photo_capture.yaml",
+          "stepCount": 6,
+          "motionStepCount": 5
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_before_photo_cycle",
+      "label": "拍照刮板-before拍照周期 (准备 -> 上料 -> 拍照 -> 下料)",
+      "group": "03_photoscrape",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_before_photo_cycle",
+          "label": "拍照刮板-before拍照周期 (准备 -> 上料 -> 拍照 -> 下料)",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_before_photo_cycle.yaml",
+          "stepCount": 36,
+          "motionStepCount": 35
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_cycle",
+      "label": "拍照刮板-周期 (准备 -> 上料 -> 执行 -> 下料)",
+      "group": "03_photoscrape",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_cycle",
+          "label": "拍照刮板-周期 (准备 -> 上料 -> 执行 -> 下料)",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_cycle.yaml",
+          "stepCount": 171,
+          "motionStepCount": 154
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_execute",
+      "label": "拍照刮板-执行 [compat wrapper]",
+      "group": "03_photoscrape",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "photoscrape_full",
+      "label": "拍照刮板-完整流程 [legacy/manual, 非生产主线样板] (相机+CNC全编排)",
+      "group": "03_photoscrape",
+      "role": "legacy",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "photoscrape_load",
+      "label": "拍照刮板-上料",
+      "group": "03_photoscrape",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_load",
+          "label": "拍照刮板-上料",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_load.yaml",
+          "stepCount": 70,
+          "motionStepCount": 63
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_pick",
+      "label": "拍照刮板-下料取板 [helper]",
+      "group": "03_photoscrape",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "photoscrape_place",
+      "label": "拍照刮板-准备+放板 [helper/legacy plate-only]",
+      "group": "03_photoscrape",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "photoscrape_plate_load",
+      "label": "拍照刮板-板上料",
+      "group": "03_photoscrape",
+      "role": "station_phase",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.flow.photoscrape_load",
+          "label": "拍照刮板-板上料",
+          "variant": [],
+          "url": "/clips/plate.flow.photoscrape_load.yaml"
+        }
+      ]
+    },
+    {
+      "name": "photoscrape_prepare",
+      "label": "拍照刮板-准备",
+      "group": "03_photoscrape",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_prepare",
+          "label": "拍照刮板-准备",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_prepare.yaml",
+          "stepCount": 3,
+          "motionStepCount": 3
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_process",
+      "label": "拍照刮板-执行",
+      "group": "03_photoscrape",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_process",
+          "label": "拍照刮板-执行",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_process.yaml",
+          "stepCount": 69,
+          "motionStepCount": 60
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_scrape_calib",
+      "label": "刮板-刮痕标定(自动)",
+      "group": "03_photoscrape",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_scrape_calib",
+          "label": "刮板-刮痕标定(自动)",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_scrape_calib.yaml",
+          "stepCount": 19,
+          "motionStepCount": 15
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_tool_align",
+      "label": "刮板-对刀(对位检查)",
+      "group": "03_photoscrape",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.photoscrape_tool_align",
+          "label": "刮板-对刀(对位检查)",
+          "variant": [],
+          "url": "/clips/flow.photoscrape_tool_align.yaml",
+          "stepCount": 8,
+          "motionStepCount": 6
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "photoscrape_unload",
+      "label": "拍照刮板-下料",
+      "group": "03_photoscrape",
+      "role": "station_phase",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.flow.photoscrape_unload",
+          "label": "拍照刮板-下料",
+          "variant": [],
+          "url": "/clips/plate.flow.photoscrape_unload.yaml"
+        }
+      ]
+    },
+    {
+      "name": "collect_cycle",
+      "label": "收集-周期 (准备 -> 上料 -> 执行 -> 下料)",
+      "group": "04_collect",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.collect_cycle",
+          "label": "收集-周期 (准备 -> 上料 -> 执行 -> 下料)",
+          "variant": [],
+          "url": "/clips/flow.collect_cycle.yaml",
+          "stepCount": 129,
+          "motionStepCount": 113
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "collect_execute",
+      "label": "收集-执行",
+      "group": "04_collect",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.collect_execute",
+          "label": "收集-执行",
+          "variant": [],
+          "url": "/clips/flow.collect_execute.yaml",
+          "stepCount": 18,
+          "motionStepCount": 12
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "collect_full",
+      "label": "收集-完整流程 [弃用, 见 collect_cycle] (纯设备原子串联)",
+      "group": "04_collect",
+      "role": "legacy",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "collect_load",
+      "label": "收集-上料",
+      "group": "04_collect",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.collect_load",
+          "label": "收集-上料",
+          "variant": [],
+          "url": "/clips/flow.collect_load.yaml",
+          "stepCount": 61,
+          "motionStepCount": 54
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "collect_prepare",
+      "label": "收集-准备",
+      "group": "04_collect",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.collect_prepare",
+          "label": "收集-准备",
+          "variant": [],
+          "url": "/clips/flow.collect_prepare.yaml",
+          "stepCount": 6,
+          "motionStepCount": 6
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "collect_unload",
+      "label": "收集-下料",
+      "group": "04_collect",
+      "role": "station_phase",
+      "clips": [
+        {
+          "clipName": "flow.collect_unload",
+          "label": "收集-下料",
+          "variant": [],
+          "url": "/clips/flow.collect_unload.yaml",
+          "stepCount": 53,
+          "motionStepCount": 45
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "ensure_bottle_staged",
+      "label": "耗材-玻璃收集瓶就位保证 (读账本决策 -> 够用则跳过 / 否则条件换板)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.ensure_bottle_staged",
+          "label": "耗材-玻璃收集瓶就位保证 (读账本决策 -> 够用则跳过 / 否则条件换板)",
+          "variant": [],
+          "url": "/clips/flow.ensure_bottle_staged.yaml",
+          "stepCount": 100,
+          "motionStepCount": 74
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "ensure_collector_staged",
+      "label": "耗材-粉末收集器就位保证 (读账本决策 -> 够用则跳过 / 否则条件换板)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.ensure_collector_staged",
+          "label": "耗材-粉末收集器就位保证 (读账本决策 -> 够用则跳过 / 否则条件换板)",
+          "variant": [],
+          "url": "/clips/flow.ensure_collector_staged.yaml",
+          "stepCount": 100,
+          "motionStepCount": 74
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "transfer_bottle_collect_to_staging_b",
+      "label": "转运-单瓶 收集工位→中转B (上位机, 参 slot_id)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.transfer_bottle_collect_to_staging_b.slot_id1",
+          "label": "转运-单瓶 收集工位→中转B (上位机, 参 slot_id) · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_collect_to_staging_b.slot_id1.yaml",
+          "stepCount": 27,
+          "motionStepCount": 23
+        },
+        {
+          "clipName": "flow.transfer_bottle_collect_to_staging_b.slot_id2",
+          "label": "转运-单瓶 收集工位→中转B (上位机, 参 slot_id) · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_collect_to_staging_b.slot_id2.yaml",
+          "stepCount": 27,
+          "motionStepCount": 23
+        },
+        {
+          "clipName": "flow.transfer_bottle_collect_to_staging_b.slot_id3",
+          "label": "转运-单瓶 收集工位→中转B (上位机, 参 slot_id) · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_collect_to_staging_b.slot_id3.yaml",
+          "stepCount": 27,
+          "motionStepCount": 23
+        },
+        {
+          "clipName": "flow.transfer_bottle_collect_to_staging_b.slot_id4",
+          "label": "转运-单瓶 收集工位→中转B (上位机, 参 slot_id) · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_collect_to_staging_b.slot_id4.yaml",
+          "stepCount": 27,
+          "motionStepCount": 23
+        },
+        {
+          "clipName": "flow.transfer_bottle_collect_to_staging_b.slot_id5",
+          "label": "转运-单瓶 收集工位→中转B (上位机, 参 slot_id) · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_collect_to_staging_b.slot_id5.yaml",
+          "stepCount": 27,
+          "motionStepCount": 23
+        },
+        {
+          "clipName": "flow.transfer_bottle_collect_to_staging_b.slot_id6",
+          "label": "转运-单瓶 收集工位→中转B (上位机, 参 slot_id) · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_collect_to_staging_b.slot_id6.yaml",
+          "stepCount": 27,
+          "motionStepCount": 23
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "transfer_bottle_rack_to_staging_b",
+      "label": "转运-瓶组 货架→中转B (上位机, 参 slot_id)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.transfer_bottle_rack_to_staging_b.slot_id1",
+          "label": "转运-瓶组 货架→中转B (上位机, 参 slot_id) · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_rack_to_staging_b.slot_id1.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_bottle_rack_to_staging_b.slot_id2",
+          "label": "转运-瓶组 货架→中转B (上位机, 参 slot_id) · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_rack_to_staging_b.slot_id2.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_bottle_rack_to_staging_b.slot_id3",
+          "label": "转运-瓶组 货架→中转B (上位机, 参 slot_id) · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_rack_to_staging_b.slot_id3.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_bottle_rack_to_staging_b.slot_id4",
+          "label": "转运-瓶组 货架→中转B (上位机, 参 slot_id) · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_rack_to_staging_b.slot_id4.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_bottle_rack_to_staging_b.slot_id5",
+          "label": "转运-瓶组 货架→中转B (上位机, 参 slot_id) · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_rack_to_staging_b.slot_id5.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_bottle_rack_to_staging_b.slot_id6",
+          "label": "转运-瓶组 货架→中转B (上位机, 参 slot_id) · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_rack_to_staging_b.slot_id6.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "transfer_bottle_staging_b_to_collect",
+      "label": "转运-单瓶 中转B→收集工位 (上位机, 参 slot_id)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_collect.slot_id1",
+          "label": "转运-单瓶 中转B→收集工位 (上位机, 参 slot_id) · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_collect.slot_id1.yaml",
+          "stepCount": 29,
+          "motionStepCount": 25
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_collect.slot_id2",
+          "label": "转运-单瓶 中转B→收集工位 (上位机, 参 slot_id) · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_collect.slot_id2.yaml",
+          "stepCount": 29,
+          "motionStepCount": 25
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_collect.slot_id3",
+          "label": "转运-单瓶 中转B→收集工位 (上位机, 参 slot_id) · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_collect.slot_id3.yaml",
+          "stepCount": 29,
+          "motionStepCount": 25
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_collect.slot_id4",
+          "label": "转运-单瓶 中转B→收集工位 (上位机, 参 slot_id) · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_collect.slot_id4.yaml",
+          "stepCount": 29,
+          "motionStepCount": 25
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_collect.slot_id5",
+          "label": "转运-单瓶 中转B→收集工位 (上位机, 参 slot_id) · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_collect.slot_id5.yaml",
+          "stepCount": 29,
+          "motionStepCount": 25
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_collect.slot_id6",
+          "label": "转运-单瓶 中转B→收集工位 (上位机, 参 slot_id) · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_collect.slot_id6.yaml",
+          "stepCount": 29,
+          "motionStepCount": 25
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "transfer_bottle_staging_b_to_rack",
+      "label": "转运-瓶组 中转B→货架 (上位机, 参 slot_id)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_rack.slot_id1",
+          "label": "转运-瓶组 中转B→货架 (上位机, 参 slot_id) · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_rack.slot_id1.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_rack.slot_id2",
+          "label": "转运-瓶组 中转B→货架 (上位机, 参 slot_id) · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_rack.slot_id2.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_rack.slot_id3",
+          "label": "转运-瓶组 中转B→货架 (上位机, 参 slot_id) · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_rack.slot_id3.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_rack.slot_id4",
+          "label": "转运-瓶组 中转B→货架 (上位机, 参 slot_id) · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_rack.slot_id4.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_rack.slot_id5",
+          "label": "转运-瓶组 中转B→货架 (上位机, 参 slot_id) · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_rack.slot_id5.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_bottle_staging_b_to_rack.slot_id6",
+          "label": "转运-瓶组 中转B→货架 (上位机, 参 slot_id) · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.transfer_bottle_staging_b_to_rack.slot_id6.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "transfer_collector_rack_to_staging_a",
+      "label": "转运-收集器组 货架→中转A (上位机, 参 slot_id)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.transfer_collector_rack_to_staging_a.slot_id1",
+          "label": "转运-收集器组 货架→中转A (上位机, 参 slot_id) · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_rack_to_staging_a.slot_id1.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_collector_rack_to_staging_a.slot_id2",
+          "label": "转运-收集器组 货架→中转A (上位机, 参 slot_id) · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_rack_to_staging_a.slot_id2.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_collector_rack_to_staging_a.slot_id3",
+          "label": "转运-收集器组 货架→中转A (上位机, 参 slot_id) · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_rack_to_staging_a.slot_id3.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_collector_rack_to_staging_a.slot_id4",
+          "label": "转运-收集器组 货架→中转A (上位机, 参 slot_id) · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_rack_to_staging_a.slot_id4.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_collector_rack_to_staging_a.slot_id5",
+          "label": "转运-收集器组 货架→中转A (上位机, 参 slot_id) · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_rack_to_staging_a.slot_id5.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.transfer_collector_rack_to_staging_a.slot_id6",
+          "label": "转运-收集器组 货架→中转A (上位机, 参 slot_id) · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_rack_to_staging_a.slot_id6.yaml",
+          "stepCount": 45,
+          "motionStepCount": 30
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "transfer_collector_staging_a_to_rack",
+      "label": "转运-收集器组 中转A→货架 (上位机, 参 slot_id)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_rack.slot_id1",
+          "label": "转运-收集器组 中转A→货架 (上位机, 参 slot_id) · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_rack.slot_id1.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_rack.slot_id2",
+          "label": "转运-收集器组 中转A→货架 (上位机, 参 slot_id) · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_rack.slot_id2.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_rack.slot_id3",
+          "label": "转运-收集器组 中转A→货架 (上位机, 参 slot_id) · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_rack.slot_id3.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_rack.slot_id4",
+          "label": "转运-收集器组 中转A→货架 (上位机, 参 slot_id) · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_rack.slot_id4.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_rack.slot_id5",
+          "label": "转运-收集器组 中转A→货架 (上位机, 参 slot_id) · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_rack.slot_id5.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_rack.slot_id6",
+          "label": "转运-收集器组 中转A→货架 (上位机, 参 slot_id) · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_rack.slot_id6.yaml",
+          "stepCount": 44,
+          "motionStepCount": 29
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "transfer_collector_staging_a_to_scrape",
+      "label": "转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id)",
+      "group": "05_transfer",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_scrape.slot_id1",
+          "label": "转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id) · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_scrape.slot_id1.yaml",
+          "stepCount": 35,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_scrape.slot_id2",
+          "label": "转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id) · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_scrape.slot_id2.yaml",
+          "stepCount": 35,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_scrape.slot_id3",
+          "label": "转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id) · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_scrape.slot_id3.yaml",
+          "stepCount": 35,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_scrape.slot_id4",
+          "label": "转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id) · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_scrape.slot_id4.yaml",
+          "stepCount": 35,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_scrape.slot_id5",
+          "label": "转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id) · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_scrape.slot_id5.yaml",
+          "stepCount": 35,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.transfer_collector_staging_a_to_scrape.slot_id6",
+          "label": "转运-单收集器 中转A→刮板夹具 (上位机, 参 slot_id) · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.transfer_collector_staging_a_to_scrape.slot_id6.yaml",
+          "stepCount": 35,
+          "motionStepCount": 31
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_collect_bottle_pick",
+      "label": "收集工位取瓶",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_collect_bottle_pick.station_idspotting",
+          "label": "收集工位取瓶 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_bottle_pick.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_bottle_pick.station_idscrape",
+          "label": "收集工位取瓶 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_bottle_pick.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_bottle_pick.station_idwaste",
+          "label": "收集工位取瓶 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_bottle_pick.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_collect_bottle_put",
+      "label": "收集工位放瓶",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_collect_bottle_put.station_idspotting",
+          "label": "收集工位放瓶 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_bottle_put.station_idspotting.yaml",
+          "stepCount": 20,
+          "motionStepCount": 17
+        },
+        {
+          "clipName": "flow.robot_collect_bottle_put.station_idscrape",
+          "label": "收集工位放瓶 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_bottle_put.station_idscrape.yaml",
+          "stepCount": 20,
+          "motionStepCount": 17
+        },
+        {
+          "clipName": "flow.robot_collect_bottle_put.station_idwaste",
+          "label": "收集工位放瓶 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_bottle_put.station_idwaste.yaml",
+          "stepCount": 20,
+          "motionStepCount": 17
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_collect_holder_pick_enter",
+      "label": "收集工位取收集器-进入",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_collect_holder_pick_enter.station_idspotting",
+          "label": "收集工位取收集器-进入 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_pick_enter.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_pick_enter.station_idscrape",
+          "label": "收集工位取收集器-进入 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_pick_enter.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_pick_enter.station_idwaste",
+          "label": "收集工位取收集器-进入 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_pick_enter.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_collect_holder_pick_exit",
+      "label": "收集工位取收集器-退出",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_collect_holder_pick_exit.station_idspotting",
+          "label": "收集工位取收集器-退出 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_pick_exit.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_pick_exit.station_idscrape",
+          "label": "收集工位取收集器-退出 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_pick_exit.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_pick_exit.station_idwaste",
+          "label": "收集工位取收集器-退出 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_pick_exit.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_collect_holder_put_enter",
+      "label": "收集工位放收集器-进入",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_collect_holder_put_enter.station_idspotting",
+          "label": "收集工位放收集器-进入 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_put_enter.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_put_enter.station_idscrape",
+          "label": "收集工位放收集器-进入 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_put_enter.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_put_enter.station_idwaste",
+          "label": "收集工位放收集器-进入 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_put_enter.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_collect_holder_put_exit",
+      "label": "收集工位放收集器-退出",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_collect_holder_put_exit.station_idspotting",
+          "label": "收集工位放收集器-退出 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_put_exit.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_put_exit.station_idscrape",
+          "label": "收集工位放收集器-退出 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_put_exit.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_collect_holder_put_exit.station_idwaste",
+          "label": "收集工位放收集器-退出 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_collect_holder_put_exit.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_collector_return_put",
+      "label": "中转A放回单收集器",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_collector_return_put.slot_id1",
+          "label": "中转A放回单收集器 · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.robot_collector_return_put.slot_id1.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_collector_return_put.slot_id2",
+          "label": "中转A放回单收集器 · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.robot_collector_return_put.slot_id2.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_collector_return_put.slot_id3",
+          "label": "中转A放回单收集器 · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.robot_collector_return_put.slot_id3.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_collector_return_put.slot_id4",
+          "label": "中转A放回单收集器 · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.robot_collector_return_put.slot_id4.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_collector_return_put.slot_id5",
+          "label": "中转A放回单收集器 · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.robot_collector_return_put.slot_id5.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_collector_return_put.slot_id6",
+          "label": "中转A放回单收集器 · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.robot_collector_return_put.slot_id6.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_feed_lift_pick_enter",
+      "label": "升降仓吸板-进入",
+      "group": "06_robot",
+      "role": "",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.feed_pick",
+          "label": "上料仓取板",
+          "variant": [],
+          "url": "/clips/plate.feed_pick.yaml"
+        }
+      ]
+    },
+    {
+      "name": "robot_feed_lift_pick_exit",
+      "label": "升降仓吸板-退出",
+      "group": "06_robot",
+      "role": "",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.feed_exit",
+          "label": "持板退出料仓",
+          "variant": [],
+          "url": "/clips/plate.feed_exit.yaml"
+        }
+      ]
+    },
+    {
+      "name": "robot_group_rack_pick",
+      "label": "货架取整组",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_group_rack_pick.slot_id1",
+          "label": "货架取整组 · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_pick.slot_id1.yaml",
+          "stepCount": 22,
+          "motionStepCount": 15
+        },
+        {
+          "clipName": "flow.robot_group_rack_pick.slot_id2",
+          "label": "货架取整组 · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_pick.slot_id2.yaml",
+          "stepCount": 22,
+          "motionStepCount": 15
+        },
+        {
+          "clipName": "flow.robot_group_rack_pick.slot_id3",
+          "label": "货架取整组 · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_pick.slot_id3.yaml",
+          "stepCount": 22,
+          "motionStepCount": 15
+        },
+        {
+          "clipName": "flow.robot_group_rack_pick.slot_id4",
+          "label": "货架取整组 · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_pick.slot_id4.yaml",
+          "stepCount": 22,
+          "motionStepCount": 15
+        },
+        {
+          "clipName": "flow.robot_group_rack_pick.slot_id5",
+          "label": "货架取整组 · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_pick.slot_id5.yaml",
+          "stepCount": 22,
+          "motionStepCount": 15
+        },
+        {
+          "clipName": "flow.robot_group_rack_pick.slot_id6",
+          "label": "货架取整组 · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_pick.slot_id6.yaml",
+          "stepCount": 22,
+          "motionStepCount": 15
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_group_rack_put",
+      "label": "货架放整组",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_group_rack_put.slot_id1",
+          "label": "货架放整组 · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_put.slot_id1.yaml",
+          "stepCount": 23,
+          "motionStepCount": 16
+        },
+        {
+          "clipName": "flow.robot_group_rack_put.slot_id2",
+          "label": "货架放整组 · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_put.slot_id2.yaml",
+          "stepCount": 23,
+          "motionStepCount": 16
+        },
+        {
+          "clipName": "flow.robot_group_rack_put.slot_id3",
+          "label": "货架放整组 · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_put.slot_id3.yaml",
+          "stepCount": 23,
+          "motionStepCount": 16
+        },
+        {
+          "clipName": "flow.robot_group_rack_put.slot_id4",
+          "label": "货架放整组 · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_put.slot_id4.yaml",
+          "stepCount": 23,
+          "motionStepCount": 16
+        },
+        {
+          "clipName": "flow.robot_group_rack_put.slot_id5",
+          "label": "货架放整组 · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_put.slot_id5.yaml",
+          "stepCount": 23,
+          "motionStepCount": 16
+        },
+        {
+          "clipName": "flow.robot_group_rack_put.slot_id6",
+          "label": "货架放整组 · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.robot_group_rack_put.slot_id6.yaml",
+          "stepCount": 23,
+          "motionStepCount": 16
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_group_staging_pick",
+      "label": "中转台取整组",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_group_staging_pick",
+          "label": "中转台取整组",
+          "variant": [],
+          "url": "/clips/flow.robot_group_staging_pick.yaml",
+          "stepCount": 22,
+          "motionStepCount": 15
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_group_staging_put",
+      "label": "中转台放整组",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_group_staging_put",
+          "label": "中转台放整组",
+          "variant": [],
+          "url": "/clips/flow.robot_group_staging_put.yaml",
+          "stepCount": 23,
+          "motionStepCount": 16
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_home_check",
+      "label": "回原点并查询",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_home_check",
+          "label": "回原点并查询",
+          "variant": [],
+          "url": "/clips/flow.robot_home_check.yaml",
+          "stepCount": 2,
+          "motionStepCount": 2
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_individual_pick",
+      "label": "中转台取单件",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_individual_pick.slot_id1",
+          "label": "中转台取单件 · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_pick.slot_id1.yaml",
+          "stepCount": 15,
+          "motionStepCount": 13
+        },
+        {
+          "clipName": "flow.robot_individual_pick.slot_id2",
+          "label": "中转台取单件 · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_pick.slot_id2.yaml",
+          "stepCount": 15,
+          "motionStepCount": 13
+        },
+        {
+          "clipName": "flow.robot_individual_pick.slot_id3",
+          "label": "中转台取单件 · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_pick.slot_id3.yaml",
+          "stepCount": 15,
+          "motionStepCount": 13
+        },
+        {
+          "clipName": "flow.robot_individual_pick.slot_id4",
+          "label": "中转台取单件 · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_pick.slot_id4.yaml",
+          "stepCount": 15,
+          "motionStepCount": 13
+        },
+        {
+          "clipName": "flow.robot_individual_pick.slot_id5",
+          "label": "中转台取单件 · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_pick.slot_id5.yaml",
+          "stepCount": 15,
+          "motionStepCount": 13
+        },
+        {
+          "clipName": "flow.robot_individual_pick.slot_id6",
+          "label": "中转台取单件 · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_pick.slot_id6.yaml",
+          "stepCount": 15,
+          "motionStepCount": 13
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_individual_put",
+      "label": "中转台放单件",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_individual_put.slot_id1",
+          "label": "中转台放单件 · 货架库位1",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_put.slot_id1.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_individual_put.slot_id2",
+          "label": "中转台放单件 · 货架库位2",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_put.slot_id2.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_individual_put.slot_id3",
+          "label": "中转台放单件 · 货架库位3",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_put.slot_id3.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_individual_put.slot_id4",
+          "label": "中转台放单件 · 货架库位4",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_put.slot_id4.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_individual_put.slot_id5",
+          "label": "中转台放单件 · 货架库位5",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_put.slot_id5.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        },
+        {
+          "clipName": "flow.robot_individual_put.slot_id6",
+          "label": "中转台放单件 · 货架库位6",
+          "variant": [
+            {
+              "key": "slot_id",
+              "label": "货架库位",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.robot_individual_put.slot_id6.yaml",
+          "stepCount": 34,
+          "motionStepCount": 29
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_scrape_holder_pick_enter",
+      "label": "刮板工位取收集器-进入",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_scrape_holder_pick_enter.station_idspotting",
+          "label": "刮板工位取收集器-进入 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_pick_enter.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_pick_enter.station_idscrape",
+          "label": "刮板工位取收集器-进入 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_pick_enter.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_pick_enter.station_idwaste",
+          "label": "刮板工位取收集器-进入 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_pick_enter.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_scrape_holder_pick_exit",
+      "label": "刮板工位取收集器-退出",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_scrape_holder_pick_exit.station_idspotting",
+          "label": "刮板工位取收集器-退出 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_pick_exit.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_pick_exit.station_idscrape",
+          "label": "刮板工位取收集器-退出 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_pick_exit.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_pick_exit.station_idwaste",
+          "label": "刮板工位取收集器-退出 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_pick_exit.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_scrape_holder_put_enter",
+      "label": "刮板工位放收集器-进入",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_scrape_holder_put_enter.station_idspotting",
+          "label": "刮板工位放收集器-进入 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_put_enter.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_put_enter.station_idscrape",
+          "label": "刮板工位放收集器-进入 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_put_enter.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_put_enter.station_idwaste",
+          "label": "刮板工位放收集器-进入 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_put_enter.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_scrape_holder_put_exit",
+      "label": "刮板工位放收集器-退出",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_scrape_holder_put_exit.station_idspotting",
+          "label": "刮板工位放收集器-退出 · 落点点样座",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "spotting",
+              "valueLabel": "点样座"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_put_exit.station_idspotting.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_put_exit.station_idscrape",
+          "label": "刮板工位放收集器-退出 · 落点刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "scrape",
+              "valueLabel": "刮板台"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_put_exit.station_idscrape.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        },
+        {
+          "clipName": "flow.robot_scrape_holder_put_exit.station_idwaste",
+          "label": "刮板工位放收集器-退出 · 落点废板仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "落点",
+              "value": "waste",
+              "valueLabel": "废板仓"
+            }
+          ],
+          "url": "/clips/flow.robot_scrape_holder_put_exit.station_idwaste.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_startup_check",
+      "label": "启动自检",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_startup_check",
+          "label": "启动自检",
+          "variant": [],
+          "url": "/clips/flow.robot_startup_check.yaml",
+          "stepCount": 1,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_suction_pick",
+      "label": "台面取板",
+      "group": "06_robot",
+      "role": "",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.spot_pick",
+          "label": "从点样座取板",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "station_id",
+              "value": "spotting",
+              "valueLabel": "spotting"
+            }
+          ],
+          "url": "/clips/plate.spot_pick.yaml"
+        },
+        {
+          "clipName": "plate.scrape_pick",
+          "label": "从刮板台取板",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "station_id",
+              "value": "scrape",
+              "valueLabel": "scrape"
+            }
+          ],
+          "url": "/clips/plate.scrape_pick.yaml"
+        }
+      ]
+    },
+    {
+      "name": "robot_suction_put",
+      "label": "台面放板",
+      "group": "06_robot",
+      "role": "",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.spot_put",
+          "label": "放板到点样座(含视觉纠偏)",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "station_id",
+              "value": "spotting",
+              "valueLabel": "spotting"
+            }
+          ],
+          "url": "/clips/plate.spot_put.yaml"
+        },
+        {
+          "clipName": "plate.scrape_put",
+          "label": "放板到刮板台",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "station_id",
+              "value": "scrape",
+              "valueLabel": "scrape"
+            }
+          ],
+          "url": "/clips/plate.scrape_put.yaml"
+        },
+        {
+          "clipName": "plate.waste_put",
+          "label": "废板入下料仓",
+          "variant": [
+            {
+              "key": "station_id",
+              "label": "station_id",
+              "value": "waste",
+              "valueLabel": "waste"
+            }
+          ],
+          "url": "/clips/plate.waste_put.yaml"
+        }
+      ]
+    },
+    {
+      "name": "robot_tank_pick",
+      "label": "展缸取板",
+      "group": "06_robot",
+      "role": "",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.tank1_pick",
+          "label": "板出展缸1",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/plate.tank1_pick.yaml"
+        },
+        {
+          "clipName": "plate.tank2_pick",
+          "label": "板出展缸2",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/plate.tank2_pick.yaml"
+        },
+        {
+          "clipName": "plate.tank3_pick",
+          "label": "板出展缸3",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/plate.tank3_pick.yaml"
+        },
+        {
+          "clipName": "plate.tank4_pick",
+          "label": "板出展缸4",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/plate.tank4_pick.yaml"
+        },
+        {
+          "clipName": "plate.tank5_pick",
+          "label": "板出展缸5",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/plate.tank5_pick.yaml"
+        },
+        {
+          "clipName": "plate.tank6_pick",
+          "label": "板出展缸6",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/plate.tank6_pick.yaml"
+        },
+        {
+          "clipName": "plate.tank7_pick",
+          "label": "板出展缸7",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/plate.tank7_pick.yaml"
+        },
+        {
+          "clipName": "plate.tank8_pick",
+          "label": "板出展缸8",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/plate.tank8_pick.yaml"
+        }
+      ]
+    },
+    {
+      "name": "robot_tank_put",
+      "label": "展缸放板",
+      "group": "06_robot",
+      "role": "",
+      "status": "ok",
+      "reason": "由既有硬编码路线生成的正式片段(片段名是历史约定, 不改名)",
+      "clips": [
+        {
+          "clipName": "plate.tank1_put",
+          "label": "板入展缸1",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/plate.tank1_put.yaml"
+        },
+        {
+          "clipName": "plate.tank2_put",
+          "label": "板入展缸2",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/plate.tank2_put.yaml"
+        },
+        {
+          "clipName": "plate.tank3_put",
+          "label": "板入展缸3",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/plate.tank3_put.yaml"
+        },
+        {
+          "clipName": "plate.tank4_put",
+          "label": "板入展缸4",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/plate.tank4_put.yaml"
+        },
+        {
+          "clipName": "plate.tank5_put",
+          "label": "板入展缸5",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/plate.tank5_put.yaml"
+        },
+        {
+          "clipName": "plate.tank6_put",
+          "label": "板入展缸6",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/plate.tank6_put.yaml"
+        },
+        {
+          "clipName": "plate.tank7_put",
+          "label": "板入展缸7",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/plate.tank7_put.yaml"
+        },
+        {
+          "clipName": "plate.tank8_put",
+          "label": "板入展缸8",
+          "variant": [
+            {
+              "key": "tank_id",
+              "label": "tank_id",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/plate.tank8_put.yaml"
+        }
+      ]
+    },
+    {
+      "name": "robot_tool_ensure",
+      "label": "智能换刀保证",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_tool_ensure",
+          "label": "智能换刀保证",
+          "variant": [],
+          "url": "/clips/flow.robot_tool_ensure.yaml",
+          "stepCount": 10,
+          "motionStepCount": 9
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_tool_pick",
+      "label": "装刀",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_tool_pick",
+          "label": "装刀",
+          "variant": [],
+          "url": "/clips/flow.robot_tool_pick.yaml",
+          "stepCount": 10,
+          "motionStepCount": 9
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "robot_tool_put",
+      "label": "卸刀",
+      "group": "06_robot",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.robot_tool_put",
+          "label": "卸刀",
+          "variant": [],
+          "url": "/clips/flow.robot_tool_put.yaml",
+          "stepCount": 11,
+          "motionStepCount": 9
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "feedlift_calib_sample",
+      "label": "板仓行程标定-采一组样本 (自检 → 清零 → 逼近 → 记样本)",
+      "group": "07_feedlift",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.feedlift_calib_sample",
+          "label": "板仓行程标定-采一组样本 (自检 → 清零 → 逼近 → 记样本)",
+          "variant": [],
+          "url": "/clips/flow.feedlift_calib_sample.yaml",
+          "stepCount": 3,
+          "motionStepCount": 3
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "feedlift_load_cycle",
+      "label": "升降上料-周期 (伺服升轴↔机械臂吸板 交错; R2 单站 cycle)",
+      "group": "07_feedlift",
+      "role": "cycle",
+      "clips": [
+        {
+          "clipName": "flow.feedlift_load_cycle",
+          "label": "升降上料-周期 (伺服升轴↔机械臂吸板 交错; R2 单站 cycle)",
+          "variant": [],
+          "url": "/clips/flow.feedlift_load_cycle.yaml",
+          "stepCount": 19,
+          "motionStepCount": 17
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "feedlift_measure_count",
+      "label": "板仓行程盘点-立即实测现在有几张 (自检 → 清零 → 逼近 → 盘点对账)",
+      "group": "07_feedlift",
+      "role": "station_task",
+      "clips": [
+        {
+          "clipName": "flow.feedlift_measure_count",
+          "label": "板仓行程盘点-立即实测现在有几张 (自检 → 清零 → 逼近 → 盘点对账)",
+          "variant": [],
+          "url": "/clips/flow.feedlift_measure_count.yaml",
+          "stepCount": 4,
+          "motionStepCount": 3
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "feedlift_unload_cycle",
+      "label": "废料下料-周期 (伺服升轴接料↔机械臂放废板 交错; R2 单站 cycle)",
+      "group": "07_feedlift",
+      "role": "cycle",
+      "clips": [
+        {
+          "clipName": "flow.feedlift_unload_cycle",
+          "label": "废料下料-周期 (伺服升轴接料↔机械臂放废板 交错; R2 单站 cycle)",
+          "variant": [],
+          "url": "/clips/flow.feedlift_unload_cycle.yaml",
+          "stepCount": 19,
+          "motionStepCount": 18
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "rail_move_safe",
+      "label": "地轨-安全移动 (先校验机械臂在安全位再移动)",
+      "group": "08_rail",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "ptlc_full",
+      "label": "pTLC 全工位流程演示 [deprecated/manual, 非生产主线样板]",
+      "group": "09_full",
+      "role": "legacy",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "ptlc_full_v2",
+      "label": "pTLC 全流程 v2",
+      "group": "09_full",
+      "role": "",
+      "clips": [
+        {
+          "clipName": "flow.ptlc_full_v2",
+          "label": "pTLC 全流程 v2",
+          "variant": [],
+          "url": "/clips/flow.ptlc_full_v2.yaml",
+          "stepCount": 705,
+          "motionStepCount": 599
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_af0_batch_startup",
+      "label": "0 批次起手",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_af0_batch_startup",
+          "label": "0 批次起手",
+          "variant": [],
+          "url": "/clips/flow.pf_af0_batch_startup.yaml",
+          "stepCount": 2,
+          "motionStepCount": 1
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s10_collect",
+      "label": "8 粉末收集",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s10_collect",
+          "label": "8 粉末收集",
+          "variant": [],
+          "url": "/clips/flow.pf_s10_collect.yaml",
+          "stepCount": 131,
+          "motionStepCount": 115
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s11_unload",
+      "label": "9 废板下料",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s11_unload",
+          "label": "9 废板下料",
+          "variant": [],
+          "url": "/clips/flow.pf_s11_unload.yaml",
+          "stepCount": 32,
+          "motionStepCount": 31
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s1_load",
+      "label": "1 上样上料",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s1_load",
+          "label": "1 上样上料",
+          "variant": [],
+          "url": "/clips/flow.pf_s1_load.yaml",
+          "stepCount": 63,
+          "motionStepCount": 55
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s2_spot",
+      "label": "2-1 点样执行",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s2_spot",
+          "label": "2-1 点样执行",
+          "variant": [],
+          "url": "/clips/flow.pf_s2_spot.yaml",
+          "stepCount": 34,
+          "motionStepCount": 25
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s3_tank_prep",
+      "label": "2-2 展缸预备",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank1",
+          "label": "2-2 展缸预备 · 展缸号1",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank1.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank2",
+          "label": "2-2 展缸预备 · 展缸号2",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank2.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank3",
+          "label": "2-2 展缸预备 · 展缸号3",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank3.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank4",
+          "label": "2-2 展缸预备 · 展缸号4",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank4.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank5",
+          "label": "2-2 展缸预备 · 展缸号5",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank5.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank6",
+          "label": "2-2 展缸预备 · 展缸号6",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank6.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank7",
+          "label": "2-2 展缸预备 · 展缸号7",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank7.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        },
+        {
+          "clipName": "flow.pf_s3_tank_prep.tank8",
+          "label": "2-2 展缸预备 · 展缸号8",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/flow.pf_s3_tank_prep.tank8.yaml",
+          "stepCount": 40,
+          "motionStepCount": 30
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s4_photo_before",
+      "label": "3 展开前拍照",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s4_photo_before",
+          "label": "3 展开前拍照",
+          "variant": [],
+          "url": "/clips/flow.pf_s4_photo_before.yaml",
+          "stepCount": 35,
+          "motionStepCount": 34
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s5_to_tank",
+      "label": "4 取板进缸",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s5_to_tank.tank1",
+          "label": "4 取板进缸 · 展缸号1",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank1.yaml",
+          "stepCount": 35,
+          "motionStepCount": 35
+        },
+        {
+          "clipName": "flow.pf_s5_to_tank.tank2",
+          "label": "4 取板进缸 · 展缸号2",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank2.yaml",
+          "stepCount": 35,
+          "motionStepCount": 35
+        },
+        {
+          "clipName": "flow.pf_s5_to_tank.tank3",
+          "label": "4 取板进缸 · 展缸号3",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank3.yaml",
+          "stepCount": 35,
+          "motionStepCount": 35
+        },
+        {
+          "clipName": "flow.pf_s5_to_tank.tank4",
+          "label": "4 取板进缸 · 展缸号4",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank4.yaml",
+          "stepCount": 35,
+          "motionStepCount": 35
+        },
+        {
+          "clipName": "flow.pf_s5_to_tank.tank5",
+          "label": "4 取板进缸 · 展缸号5",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank5.yaml",
+          "stepCount": 31,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.pf_s5_to_tank.tank6",
+          "label": "4 取板进缸 · 展缸号6",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank6.yaml",
+          "stepCount": 31,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.pf_s5_to_tank.tank7",
+          "label": "4 取板进缸 · 展缸号7",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank7.yaml",
+          "stepCount": 31,
+          "motionStepCount": 31
+        },
+        {
+          "clipName": "flow.pf_s5_to_tank.tank8",
+          "label": "4 取板进缸 · 展缸号8",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/flow.pf_s5_to_tank.tank8.yaml",
+          "stepCount": 31,
+          "motionStepCount": 31
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s6_develop_wait",
+      "label": "5-1 展开等待",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank1",
+          "label": "5-1 展开等待 · 展缸号1",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank1.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank2",
+          "label": "5-1 展开等待 · 展缸号2",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank2.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank3",
+          "label": "5-1 展开等待 · 展缸号3",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank3.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank4",
+          "label": "5-1 展开等待 · 展缸号4",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank4.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank5",
+          "label": "5-1 展开等待 · 展缸号5",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank5.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank6",
+          "label": "5-1 展开等待 · 展缸号6",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank6.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank7",
+          "label": "5-1 展开等待 · 展缸号7",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank7.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        },
+        {
+          "clipName": "flow.pf_s6_develop_wait.tank8",
+          "label": "5-1 展开等待 · 展缸号8",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/flow.pf_s6_develop_wait.tank8.yaml",
+          "stepCount": 5,
+          "motionStepCount": 4
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s7_consumables",
+      "label": "5-2 备耗材",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s7_consumables",
+          "label": "5-2 备耗材",
+          "variant": [],
+          "url": "/clips/flow.pf_s7_consumables.yaml",
+          "stepCount": 231,
+          "motionStepCount": 179
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s8_to_scrape",
+      "label": "6 出缸上刮板台",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank1",
+          "label": "6 出缸上刮板台 · 展缸号1",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 1,
+              "valueLabel": "1"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank1.yaml",
+          "stepCount": 37,
+          "motionStepCount": 37
+        },
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank2",
+          "label": "6 出缸上刮板台 · 展缸号2",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 2,
+              "valueLabel": "2"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank2.yaml",
+          "stepCount": 37,
+          "motionStepCount": 37
+        },
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank3",
+          "label": "6 出缸上刮板台 · 展缸号3",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 3,
+              "valueLabel": "3"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank3.yaml",
+          "stepCount": 37,
+          "motionStepCount": 37
+        },
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank4",
+          "label": "6 出缸上刮板台 · 展缸号4",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 4,
+              "valueLabel": "4"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank4.yaml",
+          "stepCount": 37,
+          "motionStepCount": 37
+        },
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank5",
+          "label": "6 出缸上刮板台 · 展缸号5",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 5,
+              "valueLabel": "5"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank5.yaml",
+          "stepCount": 33,
+          "motionStepCount": 33
+        },
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank6",
+          "label": "6 出缸上刮板台 · 展缸号6",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 6,
+              "valueLabel": "6"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank6.yaml",
+          "stepCount": 33,
+          "motionStepCount": 33
+        },
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank7",
+          "label": "6 出缸上刮板台 · 展缸号7",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 7,
+              "valueLabel": "7"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank7.yaml",
+          "stepCount": 33,
+          "motionStepCount": 33
+        },
+        {
+          "clipName": "flow.pf_s8_to_scrape.tank8",
+          "label": "6 出缸上刮板台 · 展缸号8",
+          "variant": [
+            {
+              "key": "tank",
+              "label": "展缸号",
+              "value": 8,
+              "valueLabel": "8"
+            }
+          ],
+          "url": "/clips/flow.pf_s8_to_scrape.tank8.yaml",
+          "stepCount": 33,
+          "motionStepCount": 33
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_s9_scrape",
+      "label": "7 拍照刮取",
+      "group": "11_parallel",
+      "role": "segment",
+      "clips": [
+        {
+          "clipName": "flow.pf_s9_scrape",
+          "label": "7 拍照刮取",
+          "variant": [],
+          "url": "/clips/flow.pf_s9_scrape.yaml",
+          "stepCount": 67,
+          "motionStepCount": 59
+        }
+      ],
+      "failures": [],
+      "status": "ok",
+      "reason": ""
+    },
+    {
+      "name": "pf_smoke_a",
+      "label": "并行冒烟段A-占上样位 (集成验收用)",
+      "group": "11_parallel",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "pf_smoke_b",
+      "label": "并行冒烟段B-进缸 (集成验收用)",
+      "group": "11_parallel",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    },
+    {
+      "name": "pf_smoke_c",
+      "label": "并行冒烟段C-缸内等待门 (集成验收用)",
+      "group": "11_parallel",
+      "role": "helper",
+      "status": "hidden",
+      "reason": "脚本标了 ui.hidden, 流程界面也不显示"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+schema: ptlc.script/v1
+kind: operation
+name: unilab_transport_v4_scrape_to_waste
+label: v4 转运 刮板台→废板仓
+ui:
+  role: unilab_transport_v4
+  projection_only: true
+vars: []
+resources:
+- robot
+- station:rail
+- station:photo_scrape
+- station:feedlift
+body:
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: feedlift_unload_cycle
+  inputs: {}
+  outputs: {}

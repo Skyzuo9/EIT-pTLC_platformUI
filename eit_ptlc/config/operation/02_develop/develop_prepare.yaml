@@ -1,0 +1,243 @@
+schema: ptlc.script/v1
+kind: operation
+name: develop_prepare
+label: 展开-准备
+ui:
+  role: station_phase
+  station: develop
+  phase: prepare
+  primary: true
+  order: 21
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8
+- name: solvent_ratio_1
+  scope: local
+  type: FLOAT
+  io: in
+  default: 1
+  comment: 溶剂1配比权重; 与溶剂2-4共同归一化, 润洗/正式上液共用
+  ui:
+    label: 溶剂1权重
+    group: 展开剂配方
+    hint: 按四项之和自动归一化
+    min: 0
+    max: 100
+- name: solvent_ratio_2
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0
+  comment: 溶剂2配比权重
+  ui:
+    label: 溶剂2权重
+    group: 展开剂配方
+    hint: 按四项之和自动归一化
+    min: 0
+    max: 100
+- name: solvent_ratio_3
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0
+  comment: 溶剂3配比权重
+  ui:
+    label: 溶剂3权重
+    group: 展开剂配方
+    hint: 按四项之和自动归一化
+    min: 0
+    max: 100
+- name: solvent_ratio_4
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0
+  comment: 溶剂4配比权重
+  ui:
+    label: 溶剂4权重
+    group: 展开剂配方
+    hint: 按四项之和自动归一化
+    min: 0
+    max: 100
+- name: tank_rinse_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 10
+  comment: 润洗展缸单趟液量 (mL); × rinse_repeat_count 为总润洗量 (当前 10 × 2 = 20 mL)。 名字不可退回 rinse_volume_ml
+    —— 上样 sampling_execute 已占用该名 (点样针润洗), 旋钮覆盖按 变量名寻址, 同名会在 ptlc_full_v2 里互相遮蔽并跨站串值
+  ui:
+    label: 润洗液量 (mL)
+    group: 展开液量与次数
+    min: 0.1
+    max: 25
+- name: develop_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 20
+  comment: 正式展开剂单趟液量 (mL); × up_liquid_repeat_count 为缸内总液量 (当前 20 × 3 = 60 mL)
+  ui:
+    label: 正式展开剂液量 (mL)
+    group: 展开液量与次数
+    min: 0.1
+    max: 25
+- name: rinse_repeat_count
+  scope: local
+  type: INT
+  io: in
+  default: 2
+  comment: 润洗注液重复次数; 第 1 轮顶掉管路上次残留, 第 2 轮起才真正润缸
+  ui:
+    label: 润洗次数
+    group: 展开液量与次数
+    min: 1
+    max: 20
+- name: up_liquid_repeat_count
+  scope: local
+  type: INT
+  io: in
+  default: 3
+  comment: 正式上液重复次数; 单趟受注射器 25 mL 量程限制, 总液量靠趟数凑
+  ui:
+    label: 正式上液次数
+    group: 展开液量与次数
+    min: 1
+    max: 20
+- name: tank_asp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 300
+  comment: 展缸泵吸液速度 V (DT 半步/s, 240 半步=1mL, 300=75mL/min); 润洗注液/正式上液共用。 名字须带 tank_
+    前缀 —— 上样 sampling_prepare 已占用 asp_speed, 同名会在 ptlc_full_v2 里跨站串值
+  ui:
+    label: 吸液泵速 (mL/min)
+    group: 展开泵速
+    min: 50
+    max: 500
+    scale: 0.25
+    unit: mL/min
+- name: tank_disp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 300
+  comment: 展缸泵打液速度 V; 与吸速独立, 润洗注液/正式上液共用
+  ui:
+    label: 打液泵速 (mL/min)
+    group: 展开泵速
+    min: 50
+    max: 500
+    scale: 0.25
+    unit: mL/min
+- name: tank_suction_empty_s
+  scope: local
+  type: FLOAT
+  io: in
+  default: 10.0
+  comment: 润洗抽吸走空判据 (s); 直透 PLC Tank_Suction_Empty_S。名字须带 tank_ 前缀 —— 旋钮覆盖按变量名寻址,
+    无前缀会在 ptlc_full_v2 里与其它工位同名旋钮互相遮蔽
+  ui:
+    label: 走空判据 (s)
+    group: 润洗抽吸
+    hint: 废液传感器需连续满足此时长才算抽干; 瞬断即清零重计
+    min: 1.0
+    max: 60.0
+- name: tank_suction_cap_s
+  scope: local
+  type: FLOAT
+  io: in
+  default: 120.0
+  comment: 润洗抽吸超时窗口 (s); 直透 PLC Tank_Suction_Cap_S。上限锁 120 保证动作 stall_timeout(180) 恒覆盖最坏时长
+  ui:
+    label: 抽吸超时 (s)
+    group: 润洗抽吸
+    hint: 窗口内未凑齐走空判据则 PLC 报 402; 沉降/吹气时长走动作 YAML 默认值
+    min: 10.0
+    max: 120.0
+resources:
+- station:develop
+body:
+- op: comment
+  text: 'prepare: 展缸初始化 (按目标缸号; 周期内一次)'
+- op: call
+  action: develop.init
+  args:
+    target_tank:
+      var: tank
+  mode: RUN
+- op: comment
+  text: 'prepare: 空展缸主动关盖; 后续润洗/正式上液全程保持关盖, 开盖只在 load 放板前执行'
+- op: call
+  action: develop.plate_extend
+  args:
+    target_tank:
+      var: tank
+  mode: RUN
+- op: comment
+  text: 'prepare: 润洗展缸 (第 1 轮顶掉管路残留, 第 2 轮起润缸; 注液无真空 -> 抽吸段声明真空资源, 由资源门引用计数开关泵)'
+- op: call
+  action: develop.rinse_fill
+  args:
+    target_tank:
+      var: tank
+    solvent_volume_ml:
+      var: tank_rinse_volume_ml
+    solvent_ratio_1:
+      var: solvent_ratio_1
+    solvent_ratio_2:
+      var: solvent_ratio_2
+    solvent_ratio_3:
+      var: solvent_ratio_3
+    solvent_ratio_4:
+      var: solvent_ratio_4
+    rinse_repeat_count:
+      var: rinse_repeat_count
+    asp_speed:
+      var: tank_asp_speed
+    disp_speed:
+      var: tank_disp_speed
+  mode: RUN
+- op: with_resources
+  resources:
+  - device:vacuum_pump
+  body:
+  - op: call
+    action: develop.rinse_suction
+    args:
+      target_tank:
+        var: tank
+      empty_s:
+        var: tank_suction_empty_s
+      cap_s:
+        var: tank_suction_cap_s
+    mode: RUN
+- op: comment
+  text: 'prepare: 预置上液 (板进入前完成目标液位; 无真空)'
+- op: call
+  action: develop.fill
+  args:
+    target_tank:
+      var: tank
+    solvent_volume_ml:
+      var: develop_volume_ml
+    solvent_ratio_1:
+      var: solvent_ratio_1
+    solvent_ratio_2:
+      var: solvent_ratio_2
+    solvent_ratio_3:
+      var: solvent_ratio_3
+    solvent_ratio_4:
+      var: solvent_ratio_4
+    up_liquid_repeat_count:
+      var: up_liquid_repeat_count
+    asp_speed:
+      var: tank_asp_speed
+    disp_speed:
+      var: tank_disp_speed
+  mode: RUN

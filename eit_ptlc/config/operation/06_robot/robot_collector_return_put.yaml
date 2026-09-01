@@ -1,0 +1,567 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 collector.return.put 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+# 【手改·勿重生成 (G-1)】body 顶部条件式入口保证 prologue: 仅 enter_anchor==P1 时 home_ensure + tool_ensure (needed=3 小夹爪); 生成器重跑会抹掉
+schema: ptlc.script/v1
+kind: operation
+name: robot_collector_return_put
+label: 中转A放回单收集器
+note: '小夹爪; 位 1-6'
+ui: {subgroup: 中转台, order: 65}
+vars:
+- {name: slot_id, scope: local, type: INT, io: in, default: 1, comment: collector.return.put 主选择值, enum: [1, 2, 3, 4, 5, 6]}
+# 入口锚点: 默认 P1=Home (自成一体); collect_unload 传 P70=收集枢纽, 从 holder_pick_exit 停留处直接接手, 免 P70→P1→P45 空跑
+- {name: enter_anchor, scope: local, type: STRING, io: in, default: P1, comment: 入口锚点 (默认 P1=Home; collect_unload 传 P70 交接)}
+resources: [robot]
+body:
+- {op: comment, text: '入口保证(手改): 仅 P1 入口时确保回零+换刀; P70 交接入口由分支锚断言把关 (上游取件流程已保证工具)'}
+- op: if
+  cond: {binop: ==, left: {var: enter_anchor}, right: {lit: P1}}
+  then:
+  - {op: call, action: robot.home_ensure, mode: RUN}
+  - {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 3}}, outputs: {}}
+- op: if
+  cond:
+    binop: ==
+    left: {var: slot_id}
+    right: {lit: 1}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {var: enter_anchor}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P45}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: staging-a-return.p78.high}
+      motion: {lit: move_l}
+      acc: {lit: 12}
+      vel: {lit: 15}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: staging-a-return.p78.near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: gripper-open}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: staging-a-return.p78.near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: staging-a-return.p78.high}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P45}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P1}
+      motion: {lit: move_j}
+      acc: {lit: 50}
+      vel: {lit: 37}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs:
+  - cond:
+      binop: ==
+      left: {var: slot_id}
+      right: {lit: 2}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {var: enter_anchor}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p79.high}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p79.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-open}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p79.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p79.high}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: slot_id}
+      right: {lit: 3}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {var: enter_anchor}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p80.high}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p80.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-open}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p80.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p80.high}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: slot_id}
+      right: {lit: 4}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {var: enter_anchor}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p81.high}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p81.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-open}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p81.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p81.high}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: slot_id}
+      right: {lit: 5}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {var: enter_anchor}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p82.high}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p82.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-open}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p82.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p82.high}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: slot_id}
+      right: {lit: 6}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {var: enter_anchor}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p83.high}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p83.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-open}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p83.near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: staging-a-return.p83.high}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P45}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: P1}
+        motion: {lit: move_j}
+        acc: {lit: 50}
+        vel: {lit: 37}
+        cp: {lit: 2}
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: P1}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'collector.return.put: 无效选择值'}

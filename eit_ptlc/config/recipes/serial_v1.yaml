@@ -1,0 +1,92 @@
+schema: ptlc.recipe/v1
+name: serial_v1
+label: 串行全流程 v1 (12 段全链式)
+# 每样品消耗的耗材种类: 批次准入时逐样品 reserve_count, 不足即拒收整批
+consumables: [collector, bottle]
+# 串行配方: 与 parallel_v1 同一批段脚本, 但全链式依赖 —— 段间零并行, 一段做完做下一段。
+# 本配方一个 depends_on 都不写: 缺省语义 = 依赖上一段, 声明顺序就是执行顺序。
+#
+# 配方即"谁能和谁并行"的唯一定义处 (工程师改这里, 不改代码):
+#   - 想让某段与前面的段并行: 给它显式写 depends_on 指到更早的公共前驱
+#     (对照 parallel_v1: s3 缸预备 depends [s1] 与点样并行, s7 备耗材 depends [s5] 与展开等待并行);
+#   - 静态校验器兜安全 (R1-R3 / 位置连续 / 接线 / 占位配平), 保存与提交各拦一道;
+#   - 样品间并发度不在配方里 —— 提交实验时的"在制上限"旋钮控制 (1=样品间全串行, 8=全并行)。
+flows:
+  - id: af0
+    script: pf_af0_batch_startup
+    scope: batch
+
+  - id: s1
+    script: pf_s1_load
+    scope: sample
+
+  - id: s2
+    script: pf_s2_spot
+    scope: sample
+
+  - id: s3
+    script: pf_s3_tank_prep
+    scope: sample
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s4
+    script: pf_s4_photo_before
+    scope: sample
+    inputs:
+      sample_id: {ctx: sample_id}
+      save_dir: {ctx: save_dir}
+    outputs:
+      before_path: before_path
+
+  - id: s5
+    script: pf_s5_to_tank
+    scope: sample
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s6
+    script: pf_s6_develop_wait
+    scope: sample
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s7
+    script: pf_s7_consumables
+    scope: sample
+    inputs:
+      reserve_for: {ctx: sample_id}
+    outputs:
+      collector_hole: collector_hole
+      bottle_hole: bottle_hole
+    # 跨段物理占位: 收集器压在刮板接粉夹具里直到 s10 取走 (与 parallel_v1 同账)
+    occupy: [scrape-holder]
+
+  - id: s8
+    script: pf_s8_to_scrape
+    scope: sample
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s9
+    script: pf_s9_scrape
+    scope: sample
+    inputs:
+      sample_id: {ctx: sample_id}
+      save_dir: {ctx: save_dir}
+      before_path: {ctx: before_path}
+      mode: {batch: scrape_mode}
+    # 刮取段完成后自动摄取视觉分析结果 (summary + band metrics, 含 Rf) 入 experiments.db
+    ingest_results: true
+
+  - id: s10
+    script: pf_s10_collect
+    scope: sample
+    inputs:
+      collector_hole: {ctx: collector_hole}
+      bottle_hole: {ctx: bottle_hole}
+    release: [scrape-holder]
+
+  - id: s11
+    script: pf_s11_unload
+    scope: sample

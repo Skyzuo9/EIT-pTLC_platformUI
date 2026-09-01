@@ -1,0 +1,40 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_af0_batch_startup
+label: 0 批次起手
+ui:
+  role: segment
+# 原子流程 af0 (scope: batch): 每批次执行一次, 取代 V2 的每样品安全态 human 门。
+# 边界停放律: 维护型段 (sample: none), 不涉及样品; 进出时机器人空手在安全位由
+# robot_startup_check 与 robot_tool_ensure 的入出口硬门保证。
+flow:
+  atomic: true
+  sample: none
+  from: none
+  to: none
+  hitl: confirm
+  retry: restart
+vars: []
+resources:
+- robot
+- station:rail
+body:
+- op: comment
+  text: '批次级安全确认门 (HITL): 只确认机器人在安全态、末端为空; 挂的是哪把刀交给下面的智能换刀读权威态自行判定 (与 V2 起手式同文案, 但每批一次而非每样品一次)'
+- op: human
+  kind: confirm
+  on_cancel: raise
+  prompt:
+    lit: '[批次起手] 确认机器人处于安全态且末端已空 (吸盘无残留板 / 夹爪无残留件)? 当前挂载工具由系统读 robot_tool_state.json 自行判定并按需换到吸盘, 无需人工声明'
+- op: run_script
+  script: robot_startup_check
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: '起手换刀: 读权威工具态 -> 已是吸盘则跳过, 否则自动换到吸盘 (幂等, 整段可盲重跑)'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 1
+  outputs: {}

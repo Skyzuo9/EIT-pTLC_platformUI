@@ -1,0 +1,20 @@
+schema: ptlc.script/v1
+kind: operation
+name: robot_startup_check
+label: 启动自检
+note: 'RUN; 读状态 + 确保在原点'
+ui: {subgroup: 自检/回零, order: 91}
+# TL-3 (派发单 §8) 起手式自检。
+# RUN 自检 = robot.query 读态 + home_ensure 确保在原点 (P1 ≡ robot-main.home, role=home): 容差内直接过;
+#   否则仅当吸盘无真空且位姿在某 safe_anchor 安全点邻域内才自动 move_j 回 P1 并复验;
+#   邻域外/持真空硬停, 操作员维护模式处置。robot.home (裸回零) 仍为 DEBUG 门控。
+# 增强(后续): query 结果做 no-fault/enabled 断言 (现仅读态+人工 eyeball, 见 TL-3 的 HITL 对账门)。
+vars: []
+resources: [robot]
+body:
+  - {op: comment, text: 读机器人状态 (态/报警/使能; 操作员据此判断)}
+  - {op: call, action: robot.query, mode: RUN}
+  - {op: comment, text: 确保已在原点 P1 (=robot-main.home); 安全邻域内自动回零, 邻域外/持真空停流程}
+  - {op: call, action: robot.home_ensure,
+     args: {joint_tol_deg: {lit: 2.0}, pos_tol_mm: {lit: 5.0}, rot_tol_deg: {lit: 5.0}},
+     mode: RUN}

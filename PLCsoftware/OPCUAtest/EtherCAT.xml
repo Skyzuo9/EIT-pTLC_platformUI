@@ -1,0 +1,2764 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-20T02:02:11.6399309" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站.project" modificationDateTime="2026-06-18T22:35:27.3049867">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="PLC_Servo_伺服" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="FB_SERVOAXIS_0">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_1">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_2">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_3">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_4">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_5">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_6">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_7">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_8">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_9">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="FB_SERVOAXIS_10">
+              <type>
+                <derived name="FB_SERVOAXIS" />
+              </type>
+            </variable>
+            <variable name="HOME_1STEP">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="HOME_2STEP">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="i">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="FB_Teach_1">
+              <type>
+                <derived name="FB_Teach" />
+              </type>
+            </variable>
+            <variable name="FB_Teach_2">
+              <type>
+                <derived name="FB_Teach" />
+              </type>
+            </variable>
+            <variable name="FB_Teach_3">
+              <type>
+                <derived name="FB_Teach" />
+              </type>
+            </variable>
+            <variable name="FB_Teach_4">
+              <type>
+                <derived name="FB_Teach" />
+              </type>
+            </variable>
+            <variable name="FB_Teach_5">
+              <type>
+                <derived name="FB_Teach" />
+              </type>
+            </variable>
+            <variable name="FB_Teach_6">
+              <type>
+                <derived name="FB_Teach" />
+              </type>
+            </variable>
+            <variable name="n">
+              <type>
+                <INT />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">伺服调用 ();
+//检测ECAT通讯连接数量
+IF ethercat1.m_master.m_uiactualnoslaves&lt;&gt;13 THEN
+	ECAT掉站报警:=TRUE;
+	ELSE
+	ECAT掉站报警:=FALSE;
+END_IF
+
+IF MODE_State&lt;&gt;1 THEN
+	伺服一键回原点 ();
+	IF NOT 点样测试 THEN
+		位置示教 ();
+	END_IF
+	
+END_IF
+
+IF MODE_State=1 THEN		
+	FOR n:=1 TO 10 BY 1 DO
+		HMI_打样瓶上料轴3Y.execute[n]:=FALSE;
+		HMI_打样瓶上料轴3Y.write[n]:=FALSE;
+		HMI_点样轴6X.execute[n]:=FALSE;
+		HMI_点样轴6X.write[n]:=FALSE;
+		HMI_点样轴7Y.execute[n]:=FALSE;
+		HMI_点样轴7Y.write[n]:=FALSE;
+		HMI_地轨轴11Y.execute[n]:=FALSE;
+		HMI_地轨轴11Y.write[n]:=FALSE;
+		HMI_上样轴4X轴.execute[n]:=FALSE;
+		HMI_上样轴4X轴.write[n]:=FALSE;
+		HMI_上样轴5Z轴.execute[n]:=FALSE;
+		HMI_上样轴5Z轴.write[n]:=FALSE;	
+	END_FOR
+		HMI_HandWheel_3Y:=FALSE;
+		HMI_HandWheel_4X:=FALSE;
+		HMI_HandWheel_5Z:=FALSE;
+		HMI_HandWheel_6X:=FALSE;
+		HMI_HandWheel_7Y:=FALSE;
+		HMI_HandWheel_8Y:=FALSE;
+		HMI_HandWheel_9X:=FALSE;
+		HMI_HandWheel_10Z:=FALSE;
+		HMI_HandWheel_11Y:=FALSE;
+
+	
+END_IF</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="30_Ethercat任务" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="565dacbc-ff38-4026-b4b4-075f7979a95a">
+                    <pathStructure isFolder="False" name="PLC_Servo_伺服" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="df04d0f5-3935-4dd8-bb13-95d355a4a89e" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>df04d0f5-3935-4dd8-bb13-95d355a4a89e</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="PLC_CNC" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="SMC_Interpolator">
+              <type>
+                <derived name="SMC_Interpolator" />
+              </type>
+            </variable>
+            <variable name="SMC_ControlAxisByPos1">
+              <type>
+                <derived name="SMC_ControlAxisByPos" />
+              </type>
+            </variable>
+            <variable name="SMC_ControlAxisByPos2">
+              <type>
+                <derived name="SMC_ControlAxisByPos" />
+              </type>
+            </variable>
+            <variable name="SMC_ControlAxisByPos3">
+              <type>
+                <derived name="SMC_ControlAxisByPos" />
+              </type>
+            </variable>
+            <variable name="SMC_TRAFO_Gantry3">
+              <type>
+                <derived name="SMC_TRAFO_Gantry3" />
+              </type>
+            </variable>
+            <variable name="SMC_TRAFOF_Gantry3">
+              <type>
+                <derived name="SMC_TRAFOF_Gantry3" />
+              </type>
+            </variable>
+            <variable name="SMC_NCDecoder_0">
+              <type>
+                <derived name="SMC_NCDecoder" />
+              </type>
+            </variable>
+            <variable name="SMC_CheckVelocities">
+              <type>
+                <derived name="SMC_CheckVelocities" />
+              </type>
+            </variable>
+            <variable name="SMC_SmoothPath">
+              <type>
+                <derived name="SMC_SmoothPath" />
+              </type>
+            </variable>
+            <variable name="SR">
+              <type>
+                <derived name="SR" />
+              </type>
+            </variable>
+            <variable name="RS">
+              <type>
+                <derived name="RS" />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml" />
+          </ST>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/cfc" handleUnknown="implementation">
+              <CFC>
+                <inVariable localId="2">
+                  <position x="4" y="42" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>刮板轴10ZDATE.fActPos</expression>
+                </inVariable>
+                <connector localId="1" name="">
+                  <position x="1" y="23" />
+                  <connectionPointIn>
+                    <connection refLocalId="2" formalParameter="刮板轴10ZDATE.fActPos" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="0" executionOrderId="1" typeName="MOVE">
+                  <position x="19" y="40" />
+                  <inputVariables>
+                    <variable formalParameter="In1">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="1" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="Out1">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">operator</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <inVariable localId="11">
+                  <position x="0" y="14" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>CNC_1</expression>
+                </inVariable>
+                <connector localId="10" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="11" formalParameter="CNC_1" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="13">
+                  <position x="0" y="15" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>CNC启动</expression>
+                </inVariable>
+                <connector localId="12" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="13" formalParameter="CNC启动" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="15">
+                  <position x="0" y="20" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>SIZEOF(B1)</expression>
+                </inVariable>
+                <connector localId="14" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="15" formalParameter="SIZEOF(B1)" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="17">
+                  <position x="0" y="21" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>ADR(B1)</expression>
+                </inVariable>
+                <connector localId="16" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="17" formalParameter="ADR(B1)" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="9" executionOrderId="7" typeName="SMC_NCDecoder" instanceName="SMC_NCDecoder_0">
+                  <position x="10" y="12" />
+                  <inputVariables>
+                    <variable formalParameter="bExecute">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="12" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAbort">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAppend">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bStepSuppress">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="piStartPosition">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="nSizeOutQueue">
+                      <connectionPointIn>
+                        <relPosition x="0" y="6" />
+                        <connection refLocalId="14" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="pbyBufferOutQueue">
+                      <connectionPointIn>
+                        <relPosition x="0" y="7" />
+                        <connection refLocalId="16" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bEnableSyntaxChecks">
+                      <connectionPointIn>
+                        <relPosition x="0" y="8" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables>
+                    <variable formalParameter="ncprog">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="10" />
+                      </connectionPointIn>
+                      <connectionPointOut>
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </inOutVariables>
+                  <outputVariables>
+                    <variable formalParameter="bDone">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bBusy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bError">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="wErrorID">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="poqDataOut">
+                      <connectionPointOut>
+                        <relPosition x="0" y="4" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iStatus">
+                      <connectionPointOut>
+                        <relPosition x="0" y="5" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iLineNumberDecoded">
+                      <connectionPointOut>
+                        <relPosition x="0" y="6" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="GCodeText">
+                      <connectionPointOut>
+                        <relPosition x="0" y="7" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="8" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="9" formalParameter="bDone" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="18" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="9" formalParameter="poqDataOut" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="20">
+                  <position x="25" y="25" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>SIZEOF(B2)</expression>
+                </inVariable>
+                <connector localId="19" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="20" formalParameter="SIZEOF(B2)" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="22">
+                  <position x="26" y="27" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>ADR(B2)</expression>
+                </inVariable>
+                <connector localId="21" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="22" formalParameter="ADR(B2)" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="7" executionOrderId="18" typeName="SMC_SmoothPath" instanceName="SMC_SmoothPath">
+                  <position x="37" y="8" />
+                  <inputVariables>
+                    <variable formalParameter="bExecute">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="8" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAbort">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAppend">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="poqDataIn">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                        <connection refLocalId="18" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dEdgeDistance">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dAngleTol">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="nSizeOutQueue">
+                      <connectionPointIn>
+                        <relPosition x="0" y="6" />
+                        <connection refLocalId="19" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="pbyBufferOutQueue">
+                      <connectionPointIn>
+                        <relPosition x="0" y="7" />
+                        <connection refLocalId="21" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="eMode">
+                      <connectionPointIn>
+                        <relPosition x="0" y="8" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bSymmetricalDistances">
+                      <connectionPointIn>
+                        <relPosition x="0" y="9" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bImprovedSymmetricCuts">
+                      <connectionPointIn>
+                        <relPosition x="0" y="10" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="eAddAxMode">
+                      <connectionPointIn>
+                        <relPosition x="0" y="11" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dMinimumCurvatureRadius">
+                      <connectionPointIn>
+                        <relPosition x="0" y="12" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bCheckCurvature">
+                      <connectionPointIn>
+                        <relPosition x="0" y="13" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dRelativeCurvatureTol">
+                      <connectionPointIn>
+                        <relPosition x="0" y="14" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bCheckAddAxVelJump">
+                      <connectionPointIn>
+                        <relPosition x="0" y="15" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dMaxAddAxVelDifference">
+                      <connectionPointIn>
+                        <relPosition x="0" y="16" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="bDone">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bBusy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bError">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="wErrorID">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="poqDataOut">
+                      <connectionPointOut>
+                        <relPosition x="0" y="4" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="udiStopsDueToCurvatureRadius">
+                      <connectionPointOut>
+                        <relPosition x="0" y="5" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="6" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="7" formalParameter="bDone" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="25" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="7" formalParameter="bDone" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="26" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="7" formalParameter="poqDataOut" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="24" executionOrderId="9" typeName="SMC_CheckVelocities" instanceName="SMC_CheckVelocities">
+                  <position x="71" y="11" />
+                  <inputVariables>
+                    <variable formalParameter="bExecute">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="25" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAbort">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="poqDataIn">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                        <connection refLocalId="26" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dAngleTol">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bCheckAddAxVelJump">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dMaxAddAxVelDifference">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="bBusy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bError">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="wErrorID">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="poqDataOut">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="23" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="24" formalParameter="poqDataOut" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="28">
+                  <position x="68" y="36" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>CNC停止</expression>
+                </inVariable>
+                <connector localId="27" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="28" formalParameter="CNC停止" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="30">
+                  <position x="71" y="41" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>4000</expression>
+                </inVariable>
+                <connector localId="29" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="30" formalParameter="4000" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="35" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="wM" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="37">
+                  <position x="100" y="48" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>10</expression>
+                </inVariable>
+                <connector localId="36" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="37" formalParameter="10" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="34" executionOrderId="20" typeName="=">
+                  <position x="105" y="45" />
+                  <inputVariables>
+                    <variable formalParameter="In1">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="35" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="In2">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="36" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="Out1">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">operator</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="33" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="34" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="38" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="3" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="32" executionOrderId="3" typeName="OR">
+                  <position x="85" y="58" />
+                  <inputVariables>
+                    <variable formalParameter="In1">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="33" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="In2">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="38" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="Out1">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">operator</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="31" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="32" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="5" executionOrderId="10" typeName="SMC_Interpolator" instanceName="SMC_Interpolator">
+                  <position x="78" y="32" />
+                  <inputVariables>
+                    <variable formalParameter="bExecute">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="6" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="poqDataIn">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="23" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bSlow_Stop">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                        <connection refLocalId="27" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bEmergency_Stop">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bWaitAtNextStop">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dOverride">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="iVelMode">
+                      <connectionPointIn>
+                        <relPosition x="0" y="6" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dwIpoTime">
+                      <connectionPointIn>
+                        <relPosition x="0" y="7" />
+                        <connection refLocalId="29" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dLastWayPos">
+                      <connectionPointIn>
+                        <relPosition x="0" y="8" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAbort">
+                      <connectionPointIn>
+                        <relPosition x="0" y="9" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bSingleStep">
+                      <connectionPointIn>
+                        <relPosition x="0" y="10" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAcknM">
+                      <connectionPointIn>
+                        <relPosition x="0" y="11" />
+                        <connection refLocalId="31" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bQuick_Stop">
+                      <connectionPointIn>
+                        <relPosition x="0" y="12" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dQuickDeceleration">
+                      <connectionPointIn>
+                        <relPosition x="0" y="13" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dJerkMax">
+                      <connectionPointIn>
+                        <relPosition x="0" y="14" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dQuickStopJerk">
+                      <connectionPointIn>
+                        <relPosition x="0" y="15" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bSuppressSystemMFunctions">
+                      <connectionPointIn>
+                        <relPosition x="0" y="16" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="bDone">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bBusy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bError">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="wErrorID">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="piSetPosition">
+                      <connectionPointOut>
+                        <relPosition x="0" y="4" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iStatus">
+                      <connectionPointOut>
+                        <relPosition x="0" y="5" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bWorking">
+                      <connectionPointOut>
+                        <relPosition x="0" y="6" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iActObjectSourceNo">
+                      <connectionPointOut>
+                        <relPosition x="0" y="7" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dVel">
+                      <connectionPointOut>
+                        <relPosition x="0" y="8" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="vecActTangent">
+                      <connectionPointOut>
+                        <relPosition x="0" y="9" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iLastSwitch">
+                      <connectionPointOut>
+                        <relPosition x="0" y="10" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dwSwitches">
+                      <connectionPointOut>
+                        <relPosition x="0" y="11" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dWayPos">
+                      <connectionPointOut>
+                        <relPosition x="0" y="12" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="wM">
+                      <connectionPointOut>
+                        <relPosition x="0" y="13" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="4" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="wM" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="40">
+                  <position x="96" y="59" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>15</expression>
+                </inVariable>
+                <connector localId="39" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="40" formalParameter="15" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="3" executionOrderId="2" typeName="=">
+                  <position x="103" y="56" />
+                  <inputVariables>
+                    <variable formalParameter="In1">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="4" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="In2">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="39" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="Out1">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">operator</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="42" name="">
+                  <position x="1" y="23" />
+                  <connectionPointIn>
+                    <connection refLocalId="0" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <outVariable localId="41" executionOrderId="4">
+                  <position x="28" y="42" />
+                  <connectionPointIn>
+                    <relPosition x="0" y="0" />
+                    <connection refLocalId="42" />
+                  </connectionPointIn>
+                  <expression>SMC_NCDecoder_0.piStartPosition.dZ</expression>
+                </outVariable>
+                <inVariable localId="45">
+                  <position x="4" y="36" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>拍照轴8YDATE.fActPos</expression>
+                </inVariable>
+                <connector localId="44" name="">
+                  <position x="-11" y="-22" />
+                  <connectionPointIn>
+                    <connection refLocalId="45" formalParameter="拍照轴8YDATE.fActPos" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="43" executionOrderId="5" typeName="MOVE">
+                  <position x="19" y="34" />
+                  <inputVariables>
+                    <variable formalParameter="In1">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="44" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="Out1">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">operator</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <inVariable localId="48">
+                  <position x="4" y="32" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>刮板轴9XDATE.fActPos</expression>
+                </inVariable>
+                <connector localId="47" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="48" formalParameter="刮板轴9XDATE.fActPos" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="46" executionOrderId="6" typeName="MOVE">
+                  <position x="19" y="30" />
+                  <inputVariables>
+                    <variable formalParameter="In1">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="47" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="Out1">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">operator</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="50" name="">
+                  <position x="-11" y="-22" />
+                  <connectionPointIn>
+                    <connection refLocalId="43" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <outVariable localId="49" executionOrderId="8">
+                  <position x="28" y="36" />
+                  <connectionPointIn>
+                    <relPosition x="0" y="0" />
+                    <connection refLocalId="50" />
+                  </connectionPointIn>
+                  <expression>SMC_NCDecoder_0.piStartPosition.dY</expression>
+                </outVariable>
+                <connector localId="52" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="46" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <outVariable localId="51" executionOrderId="11">
+                  <position x="28" y="32" />
+                  <connectionPointIn>
+                    <relPosition x="0" y="0" />
+                    <connection refLocalId="52" />
+                  </connectionPointIn>
+                  <expression>SMC_NCDecoder_0.piStartPosition.dX</expression>
+                </outVariable>
+                <connector localId="54" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="piSetPosition" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="53" executionOrderId="12" typeName="SMC_TRAFO_Gantry3" instanceName="SMC_TRAFO_Gantry3">
+                  <position x="107" y="33" />
+                  <inputVariables>
+                    <variable formalParameter="pi">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="54" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dOffsetX">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dOffsetY">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dOffsetZ">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="dx">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dz">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <inVariable localId="59">
+                  <position x="155" y="42" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>拍照轴8Y</expression>
+                </inVariable>
+                <connector localId="58" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="59" formalParameter="拍照轴8Y" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="60" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="iStatus" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="61" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="bWorking" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="62" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="53" formalParameter="dy" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="64">
+                  <position x="156" y="47" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>100</expression>
+                </inVariable>
+                <connector localId="63" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="64" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="65" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="64" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="66" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="64" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="67" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="64" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="57" executionOrderId="16" typeName="SMC_ControlAxisByPos" instanceName="SMC_ControlAxisByPos2">
+                  <position x="168" y="40" />
+                  <inputVariables>
+                    <variable formalParameter="iStatus">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="60" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bEnable">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                        <connection refLocalId="61" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAvoidGaps">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fSetPosition">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                        <connection refLocalId="62" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapVelocity">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                        <connection refLocalId="63" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapAcceleration">
+                      <connectionPointIn>
+                        <relPosition x="0" y="6" />
+                        <connection refLocalId="65" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapDeceleration">
+                      <connectionPointIn>
+                        <relPosition x="0" y="7" />
+                        <connection refLocalId="66" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapJerk">
+                      <connectionPointIn>
+                        <relPosition x="0" y="8" />
+                        <connection refLocalId="67" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables>
+                    <variable formalParameter="Axis">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="58" />
+                      </connectionPointIn>
+                      <connectionPointOut>
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </inOutVariables>
+                  <outputVariables>
+                    <variable formalParameter="bBusy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bCommandAborted">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bError">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iErrorID">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bStopIpo">
+                      <connectionPointOut>
+                        <relPosition x="0" y="4" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="56" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="57" formalParameter="bStopIpo" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="71">
+                  <position x="156" y="30" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>刮板轴9X</expression>
+                </inVariable>
+                <connector localId="70" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="71" formalParameter="刮板轴9X" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="72" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="iStatus" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="73" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="bWorking" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="74" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="53" formalParameter="dx" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="76">
+                  <position x="156" y="35" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>100</expression>
+                </inVariable>
+                <connector localId="75" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="76" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="77" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="76" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="78" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="76" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="79" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="76" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="69" executionOrderId="17" typeName="SMC_ControlAxisByPos" instanceName="SMC_ControlAxisByPos1">
+                  <position x="168" y="28" />
+                  <inputVariables>
+                    <variable formalParameter="iStatus">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="72" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bEnable">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                        <connection refLocalId="73" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAvoidGaps">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fSetPosition">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                        <connection refLocalId="74" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapVelocity">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                        <connection refLocalId="75" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapAcceleration">
+                      <connectionPointIn>
+                        <relPosition x="0" y="6" />
+                        <connection refLocalId="77" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapDeceleration">
+                      <connectionPointIn>
+                        <relPosition x="0" y="7" />
+                        <connection refLocalId="78" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapJerk">
+                      <connectionPointIn>
+                        <relPosition x="0" y="8" />
+                        <connection refLocalId="79" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables>
+                    <variable formalParameter="Axis">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="70" />
+                      </connectionPointIn>
+                      <connectionPointOut>
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </inOutVariables>
+                  <outputVariables>
+                    <variable formalParameter="bBusy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bCommandAborted">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bError">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iErrorID">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bStopIpo">
+                      <connectionPointOut>
+                        <relPosition x="0" y="4" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="68" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="69" formalParameter="bStopIpo" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="83">
+                  <position x="156" y="57" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>刮板轴10Z</expression>
+                </inVariable>
+                <connector localId="82" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="83" formalParameter="刮板轴10Z" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="84" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="iStatus" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="85" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="bWorking" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="86" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="53" formalParameter="dz" />
+                  </connectionPointIn>
+                </connector>
+                <inVariable localId="88">
+                  <position x="157" y="62" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>100</expression>
+                </inVariable>
+                <connector localId="87" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="88" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="89" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="88" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="90" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="88" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="91" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="88" formalParameter="100" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="81" executionOrderId="15" typeName="SMC_ControlAxisByPos" instanceName="SMC_ControlAxisByPos3">
+                  <position x="168" y="55" />
+                  <inputVariables>
+                    <variable formalParameter="iStatus">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="84" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bEnable">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                        <connection refLocalId="85" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="bAvoidGaps">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fSetPosition">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                        <connection refLocalId="86" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapVelocity">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                        <connection refLocalId="87" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapAcceleration">
+                      <connectionPointIn>
+                        <relPosition x="0" y="6" />
+                        <connection refLocalId="89" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapDeceleration">
+                      <connectionPointIn>
+                        <relPosition x="0" y="7" />
+                        <connection refLocalId="90" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="fGapJerk">
+                      <connectionPointIn>
+                        <relPosition x="0" y="8" />
+                        <connection refLocalId="91" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables>
+                    <variable formalParameter="Axis">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="82" />
+                      </connectionPointIn>
+                      <connectionPointOut>
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </inOutVariables>
+                  <outputVariables>
+                    <variable formalParameter="bBusy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bCommandAborted">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bError">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="iErrorID">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="bStopIpo">
+                      <connectionPointOut>
+                        <relPosition x="0" y="4" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="80" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="81" formalParameter="bStopIpo" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="55" executionOrderId="13" typeName="OR">
+                  <position x="200" y="44" />
+                  <inputVariables>
+                    <variable formalParameter="EN">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="56" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="In2">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="68" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="In3">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                        <connection refLocalId="80" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="ENO">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="Out2">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">operator</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="95" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="34" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="96" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="3" formalParameter="" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="94" executionOrderId="21" typeName="SR" instanceName="SR">
+                  <position x="108" y="50" />
+                  <inputVariables>
+                    <variable formalParameter="SET1">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="95" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="RESET">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="96" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables />
+                  <outputVariables>
+                    <variable formalParameter="Q1">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="93" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="94" formalParameter="Q1" />
+                  </connectionPointIn>
+                </connector>
+                <outVariable localId="92" executionOrderId="14">
+                  <position x="119" y="53" />
+                  <connectionPointIn>
+                    <relPosition x="0" y="0" />
+                    <connection refLocalId="93" />
+                  </connectionPointIn>
+                  <expression>刮板拍照无刷电机自动</expression>
+                </outVariable>
+                <inVariable localId="97">
+                  <position x="2" y="55" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>刮板轴9X</expression>
+                </inVariable>
+                <inVariable localId="98">
+                  <position x="2" y="56" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>拍照轴8Y</expression>
+                </inVariable>
+                <inVariable localId="99">
+                  <position x="2" y="57" />
+                  <connectionPointOut>
+                    <expression />
+                  </connectionPointOut>
+                  <expression>刮板轴10Z</expression>
+                </inVariable>
+                <connector localId="101" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="5" formalParameter="bDone" />
+                  </connectionPointIn>
+                </connector>
+                <outVariable localId="100" executionOrderId="19">
+                  <position x="101" y="34" />
+                  <connectionPointIn>
+                    <relPosition x="0" y="0" />
+                    <connection refLocalId="101" />
+                  </connectionPointIn>
+                  <expression>CNC完成</expression>
+                </outVariable>
+                <connector localId="103" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="97" formalParameter="刮板轴9X" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="104" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="98" formalParameter="拍照轴8Y" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="105" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="99" formalParameter="刮板轴10Z" />
+                  </connectionPointIn>
+                </connector>
+                <block localId="102" executionOrderId="22" typeName="SMC_TRAFOF_Gantry3" instanceName="SMC_TRAFOF_Gantry3">
+                  <position x="16" y="53" />
+                  <inputVariables>
+                    <variable formalParameter="dOffsetX">
+                      <connectionPointIn>
+                        <relPosition x="0" y="3" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dOffsetY">
+                      <connectionPointIn>
+                        <relPosition x="0" y="4" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="dOffsetZ">
+                      <connectionPointIn>
+                        <relPosition x="0" y="5" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="minX">
+                      <connectionPointIn>
+                        <relPosition x="0" y="6" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="maxX">
+                      <connectionPointIn>
+                        <relPosition x="0" y="7" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="minY">
+                      <connectionPointIn>
+                        <relPosition x="0" y="8" />
+                      </connectionPointIn>
+                    </variable>
+                    <variable formalParameter="maxY">
+                      <connectionPointIn>
+                        <relPosition x="0" y="9" />
+                      </connectionPointIn>
+                    </variable>
+                  </inputVariables>
+                  <inOutVariables>
+                    <variable formalParameter="DriveX">
+                      <connectionPointIn>
+                        <relPosition x="0" y="0" />
+                        <connection refLocalId="103" />
+                      </connectionPointIn>
+                      <connectionPointOut>
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="DriveY">
+                      <connectionPointIn>
+                        <relPosition x="0" y="1" />
+                        <connection refLocalId="104" />
+                      </connectionPointIn>
+                      <connectionPointOut>
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="DriveZ">
+                      <connectionPointIn>
+                        <relPosition x="0" y="2" />
+                        <connection refLocalId="105" />
+                      </connectionPointIn>
+                      <connectionPointOut>
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </inOutVariables>
+                  <outputVariables>
+                    <variable formalParameter="dx">
+                      <connectionPointOut>
+                        <relPosition x="0" y="0" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dy">
+                      <connectionPointOut>
+                        <relPosition x="0" y="1" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dz">
+                      <connectionPointOut>
+                        <relPosition x="0" y="2" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dnx">
+                      <connectionPointOut>
+                        <relPosition x="0" y="3" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dny">
+                      <connectionPointOut>
+                        <relPosition x="0" y="4" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="ratio">
+                      <connectionPointOut>
+                        <relPosition x="0" y="5" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dnOffsetX">
+                      <connectionPointOut>
+                        <relPosition x="0" y="6" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                    <variable formalParameter="dnOffsetY">
+                      <connectionPointOut>
+                        <relPosition x="0" y="7" />
+                        <expression />
+                      </connectionPointOut>
+                    </variable>
+                  </outputVariables>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/cfccalltype" handleUnknown="implementation">
+                      <CallType xmlns="">functionblock</CallType>
+                    </data>
+                  </addData>
+                </block>
+                <connector localId="106" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="11" formalParameter="CNC_1" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="107" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="13" formalParameter="CNC启动" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="108" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="15" formalParameter="SIZEOF(B1)" />
+                  </connectionPointIn>
+                </connector>
+                <connector localId="109" name="">
+                  <position x="0" y="0" />
+                  <connectionPointIn>
+                    <connection refLocalId="17" formalParameter="ADR(B1)" />
+                  </connectionPointIn>
+                </connector>
+              </CFC>
+            </data>
+          </addData>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="30_Ethercat任务" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="565dacbc-ff38-4026-b4b4-075f7979a95a">
+                    <pathStructure isFolder="False" name="PLC_CNC" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="194cbd36-f33f-4b07-9eb6-8c5c701f1c5a" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>194cbd36-f33f-4b07-9eb6-8c5c701f1c5a</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="PLC_HandWheel_手轮" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="FB_HandWheel_0">
+              <type>
+                <derived name="FB_HandWheel" />
+              </type>
+            </variable>
+            <variable name="HC_Counter_0">
+              <type>
+                <derived name="HC_Counter" />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">//将外部脉冲发生器的数值传给虚拟轴Encoder.fActPosition
+SMC_FreeEncoder.fActPosition:=Encoder.fActPosition;
+
+//脉冲发生器使能
+HC_Counter_0(
+	Axis:=Encoder , 
+	Enable:= 急停 AND NOT 手自动 , 
+	Invert:= , 
+	Valid=&gt; , 
+	Busy=&gt; , 
+	Position=&gt; , 
+	Velocity=&gt; , 
+	Direction=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+
+IF MODE_State&lt;&gt;1 THEN
+	//调用手轮控制块
+	FB_HandWheel_0(
+		Axis_Spindle:=SMC_FreeEncoder  , 
+		AXIS_1:=打样瓶上料轴3Y  , 
+		AXIS_2:= 上样轴4X轴 , 
+		AXIS_3:= 上样轴5Z轴 , 
+		AXIS_4:= 点样轴6X , 
+		AXIS_5:= 点样轴7Y , 
+		AXIS_6:= 拍照轴8Y , 
+		AXIS_7:= 刮板轴9X , 
+		AXIS_8:= 刮板轴10Z, 
+		AXIS_9:= 地轨轴11Y  , 
+		Speed_X1:= 倍率X1 , 
+		Speed_X10:= 倍率X10, 
+		Speed_X100:= 倍率X100, 
+		Reset:= 复位, 
+		HandWheel_3Y:=  HMI_HandWheel_3Y , 
+		HandWheel_4X:=  HMI_HandWheel_4X, 
+		HandWheel_5Z:=  HMI_HandWheel_5Z, 
+		HandWheel_6X:=  HMI_HandWheel_6X, 
+		HandWheel_7Y:= HMI_HandWheel_7Y, 
+		HandWheel_8Y:= HMI_HandWheel_8Y, 
+		HandWheel_9X:= HMI_HandWheel_9X, 
+		HandWheel_10Z:= HMI_HandWheel_10Z, 
+		HandWheel_11Y:= HMI_HandWheel_11Y, 
+		xStop_1=&gt;打样瓶上料轴3YDATE.xStop , 
+		xStop_2=&gt;上样轴4X轴DATE.xStop , 
+		xStop_3=&gt; 上样轴5Z轴DATE.xStop, 
+		xStop_4=&gt;点样轴6XDATE.xStop , 
+		xStop_5=&gt;点样轴7YDATE.xStop , 
+		xStop_6=&gt;拍照轴8YDATE.xStop , 
+		xStop_7=&gt;刮板轴9XDATE.xStop , 
+		xStop_8=&gt;刮板轴10ZDATE.xStop , 
+		xStop_9=&gt;地轨轴11YDATE.xStop, 
+		Error =&gt; , 
+		ErrorID =&gt; , );
+END_IF
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="30_Ethercat任务" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="565dacbc-ff38-4026-b4b4-075f7979a95a">
+                    <pathStructure isFolder="False" name="PLC_HandWheel_手轮" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="96497769-2fd2-429e-9eb8-dade05ea7ea1" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>96497769-2fd2-429e-9eb8-dade05ea7ea1</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="伺服一键回原点">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">//一键回原点
+IF 一键回原点 THEN
+	IF MODE_State &lt;&gt;1    THEN
+	IF 一键回原点 AND NOT ManualAuto THEN
+		玻璃上料轴1ZDATE.xHome  :=TRUE;
+	玻璃上料轴2ZDATE.xHome  :=TRUE;
+	刮板轴10ZDATE.xHome :=TRUE;
+	上样轴5Z轴DATE .xHome :=TRUE;
+	点样轴6XDATE  .xHome :=TRUE;
+	点样轴7YDATE .xHome :=TRUE;
+	地轨轴11YDATE .xHome :=TRUE;
+	HOME_1STEP:=1;
+	HOME_2STEP:=1;
+	END_IF
+	END_IF
+	
+	IF 玻璃上料轴1ZDATE.bHomed  THEN
+		玻璃上料轴1ZDATE.xHome  :=FALSE;
+	END_IF
+	
+	IF 玻璃上料轴2ZDATE.bHomed  THEN
+		玻璃上料轴2ZDATE.xHome  :=FALSE;
+	END_IF
+	
+	IF 点样轴6XDATE.bHomed  THEN
+		点样轴6XDATE.xHome  :=FALSE;
+	END_IF
+	
+	IF 点样轴7YDATE.bHomed  THEN
+		点样轴7YDATE.xHome  :=FALSE;
+	END_IF
+	
+	IF 地轨轴11YDATE.bHomed  THEN
+		地轨轴11YDATE.xHome  :=FALSE;
+	END_IF
+	
+	//刮板拍照回原点流程
+	CASE HOME_1STEP OF
+		1 :
+		IF 刮板轴10ZDATE.bHomed THEN
+			刮板轴10ZDATE.xHome :=FALSE;
+			刮板轴9XDATE.xHome :=TRUE;
+			拍照轴8YDATE.xHome :=TRUE;
+			HOME_1STEP:=2;
+			END_IF
+		2:
+		IF 刮板轴9XDATE.bHomed THEN
+			刮板轴9XDATE.xHome :=FALSE;
+		END_IF
+		IF 拍照轴8YDATE.bHomed  THEN
+			拍照轴8YDATE.xHome :=FALSE;
+		END_IF
+		IF 刮板轴10ZDATE.bHomed AND 刮板轴9XDATE.bHomed THEN
+			HOME_1STEP:=0;
+		END_IF
+	
+	END_CASE
+	//上样点样回原点流程
+	CASE HOME_2STEP OF
+		1 :
+		IF 上样轴5Z轴DATE.bHomed THEN
+			上样轴5Z轴DATE.xHome :=FALSE;
+			上样轴4X轴DATE .xHome :=TRUE;
+			打样瓶上料轴3YDATE.xHome :=TRUE;
+			HOME_2STEP:=2;
+			END_IF
+		2:
+		IF 上样轴4X轴DATE.bHomed THEN
+			上样轴4X轴DATE.xHome :=FALSE;
+		END_IF
+		IF 打样瓶上料轴3YDATE.bHomed  THEN
+			打样瓶上料轴3YDATE.xHome :=FALSE;
+		END_IF
+		IF 打样瓶上料轴3YDATE.bHomed AND 上样轴4X轴DATE.bHomed THEN
+			HOME_2STEP:=0;
+		END_IF
+	
+	END_CASE
+	IF 玻璃上料轴1ZDATE.bHomed AND 玻璃上料轴2ZDATE.bHomed AND 点样轴6XDATE.bHomed AND 点样轴7YDATE.bHomed AND 地轨轴11YDATE.bHomed AND 刮板轴10ZDATE.bHomed AND 刮板轴9XDATE.bHomed AND 上样轴5Z轴DATE.bHomed AND 上样轴4X轴DATE.bHomed AND 拍照轴8YDATE.bHomed  AND 打样瓶上料轴3YDATE.bHomed THEN
+		一键回原点:=FALSE;
+	END_IF
+END_IF
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="30_Ethercat任务" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="565dacbc-ff38-4026-b4b4-075f7979a95a">
+                    <pathStructure isFolder="False" name="PLC_Servo_伺服" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="df04d0f5-3935-4dd8-bb13-95d355a4a89e">
+                      <pathStructure isFolder="False" name="伺服一键回原点" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="23e1ae8d-b443-45bc-981f-62d175ecdf5b" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>23e1ae8d-b443-45bc-981f-62d175ecdf5b</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="伺服调用">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">//玻璃上料轴1Z伺服控制
+FB_SERVOAXIS_0(
+	AXIS:= 玻璃上料轴1Z ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 玻璃上料轴1ZDATE.xHome,          //轴回零命令
+	xJogPos:=玻璃上料轴1ZDATE.xJogPos OR Z1JOG_pos  ,     //轴正转命令
+	xJogNeg:=玻璃上料轴1ZDATE.xJogNeg OR Z1JOG_neg ,     //轴反转命令
+	xStop:= 玻璃上料轴1ZDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 玻璃上料轴1ZDATE.xMoveAbs ,   //轴绝对定位命令
+	xMoveRel:= 玻璃上料轴1ZDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 玻璃上料轴1ZDATE.XReset OR 复位 ,       //轴复位
+	fAbsTarget:= 玻璃上料轴1ZDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=玻璃上料轴1ZDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 玻璃上料轴1ZDATE.fVelocity ,    //轴定位速度
+	fAcc:=1000.0 ,              //轴加速度
+	fDec:= 1000.0,              //轴减速度
+	fJogVel:= 15.0 ,        //轴JOG速度
+	bEnabled=&gt; 玻璃上料轴1ZDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt; 回零完成1Z ,          //轴回原点完成
+	bBusy=&gt; 玻璃上料轴1ZDATE.bBusy ,            //轴运行中
+	bError=&gt; 玻璃上料轴1ZDATE.bError ,          //轴错误
+	iErrorCode=&gt;玻璃上料轴1ZDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;玻璃上料轴1ZDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;玻璃上料轴1ZDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;玻璃上料轴1ZDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;玻璃上料轴1ZDATE.bReMoveDone ,);    //轴相对定位完成 
+玻璃上料轴1ZDATE.bHomed S= 回零完成1Z;
+IF  玻璃上料轴1ZDATE.xHome THEN
+	玻璃上料轴1ZDATE.bHomed:=FALSE;
+END_IF
+
+//玻璃上料轴2Z伺服控制
+FB_SERVOAXIS_1(
+	AXIS:= 玻璃上料轴2Z ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 玻璃上料轴2ZDATE.xHome,          //轴回零命令
+	xJogPos:=玻璃上料轴2ZDATE.xJogPos OR Z2JOG_POS ,     //轴正转命令
+	xJogNeg:=玻璃上料轴2ZDATE.xJogNeg OR Z2JOG_NEG ,     //轴反转命令
+	xStop:= 玻璃上料轴2ZDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 玻璃上料轴2ZDATE.xMoveAbs ,   //轴绝对定位命令
+	xMoveRel:= 玻璃上料轴2ZDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 玻璃上料轴2ZDATE.XReset OR 复位 ,       //轴复位
+	fAbsTarget:= 玻璃上料轴2ZDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=玻璃上料轴2ZDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 玻璃上料轴2ZDATE.fVelocity ,    //轴定位速度
+	fAcc:=1000.0 ,              //轴加速度
+	fDec:= 1000.0,              //轴减速度
+	fJogVel:= 15.0 ,        //轴JOG速度
+	bEnabled=&gt; 玻璃上料轴2ZDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt; 回零完成2Z ,          //轴回原点完成
+	bBusy=&gt; 玻璃上料轴2ZDATE.bBusy ,            //轴运行中
+	bError=&gt; 玻璃上料轴2ZDATE.bError ,          //轴错误
+	iErrorCode=&gt;玻璃上料轴2ZDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;玻璃上料轴2ZDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;玻璃上料轴2ZDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;玻璃上料轴2ZDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;玻璃上料轴2ZDATE.bReMoveDone ,);    //轴相对定位完成 
+玻璃上料轴2ZDATE.bHomed S= 回零完成2Z;
+IF  玻璃上料轴2ZDATE.xHome THEN
+	玻璃上料轴2ZDATE.bHomed:=FALSE;
+END_IF	
+	
+	
+	
+	
+	
+FB_SERVOAXIS_2(
+	AXIS:= 打样瓶上料轴3Y ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 打样瓶上料轴3YDATE.xHome,          //轴回零命令
+	xJogPos:=打样瓶上料轴3YDATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=打样瓶上料轴3YDATE.xJogNeg  ,     //轴反转命令
+	xStop:= 打样瓶上料轴3YDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 打样瓶上料轴3YDATE.xMoveAbs ,   //轴绝对定位命令
+	xMoveRel:= 打样瓶上料轴3YDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 打样瓶上料轴3YDATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 打样瓶上料轴3YDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=打样瓶上料轴3YDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 打样瓶上料轴3YDATE.fVelocity ,    //轴定位速度
+	fAcc:=500.0 ,              //轴加速度
+	fDec:= 500.0 ,              //轴减速度
+	fJogVel:= 50.0 ,        //轴JOG速度
+	bEnabled=&gt; 打样瓶上料轴3YDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt; 回零完成3Y ,          //轴回原点完成
+	bBusy=&gt; 打样瓶上料轴3YDATE.bBusy ,            //轴运行中
+	bError=&gt; 打样瓶上料轴3YDATE.bError ,          //轴错误
+	iErrorCode=&gt;打样瓶上料轴3YDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;打样瓶上料轴3YDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;打样瓶上料轴3YDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;打样瓶上料轴3YDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;打样瓶上料轴3YDATE.bReMoveDone ,);    //轴相对定位完成 
+打样瓶上料轴3YDATE.bHomed S= 回零完成3Y;
+IF  打样瓶上料轴3YDATE.xHome THEN
+	打样瓶上料轴3YDATE.bHomed:=FALSE;
+END_IF		
+
+	
+	
+//点样轴6X伺服控制
+FB_SERVOAXIS_3(
+	AXIS:= 点样轴6X ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 点样轴6XDATE.xHome,          //轴回零命令
+	xJogPos:=点样轴6XDATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=点样轴6XDATE.xJogNeg  ,     //轴反转命令
+	xStop:= 点样轴6XDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 点样轴6XDATE.xMoveAbs ,   //轴绝对定位命令
+	xMoveRel:= 点样轴6XDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 点样轴6XDATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 点样轴6XDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=点样轴6XDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 点样轴6XDATE.fVelocity ,    //轴定位速度
+	fAcc:=5500.0 ,              //轴加速度
+	fDec:= 5500.0,              //轴减速度
+	fJogVel:= 50.0 ,        //轴JOG速度
+	bEnabled=&gt; 点样轴6XDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt; 回零完成6X ,          //轴回原点完成
+	bBusy=&gt; 点样轴6XDATE.bBusy ,            //轴运行中
+	bError=&gt; 点样轴6XDATE.bError ,          //轴错误
+	iErrorCode=&gt;点样轴6XDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;点样轴6XDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;点样轴6XDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;点样轴6XDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;点样轴6XDATE.bReMoveDone ,);    //轴相对定位完成 
+点样轴6XDATE.bHomed S=回零完成6X;
+IF  点样轴6XDATE.xHome THEN
+	点样轴6XDATE.bHomed:=FALSE;
+END_IF
+
+
+
+//点样轴7Y伺服控制
+FB_SERVOAXIS_4(
+	AXIS:= 点样轴7Y ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 点样轴7YDATE.xHome,          //轴回零命令
+	xJogPos:=点样轴7YDATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=点样轴7YDATE.xJogNeg  ,     //轴反转命令
+	xStop:= 点样轴7YDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 点样轴7YDATE.xMoveAbs ,   //轴绝对定位命令
+	xMoveRel:= 点样轴7YDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 点样轴7YDATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 点样轴7YDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=点样轴7YDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 点样轴7YDATE.fVelocity ,    //轴定位速度
+	fAcc:=500.0 ,              //轴加速度
+	fDec:= 500.0 ,              //轴减速度
+	fJogVel:= 50.0 ,        //轴JOG速度
+	bEnabled=&gt; 点样轴7YDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt;  回零完成7Y,          //轴回原点完成
+	bBusy=&gt; 点样轴7YDATE.bBusy ,            //轴运行中
+	bError=&gt; 点样轴7YDATE.bError ,          //轴错误
+	iErrorCode=&gt;点样轴7YDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;点样轴7YDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;点样轴7YDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;点样轴7YDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;点样轴7YDATE.bReMoveDone ,);    //轴相对定位完成 
+点样轴7YDATE.bHomed S=回零完成7Y;
+IF  点样轴7YDATE.xHome THEN
+	点样轴7YDATE.bHomed:=FALSE;
+END_IF	
+
+
+
+
+//拍照轴8Y伺服控制
+FB_SERVOAXIS_5(
+	AXIS:= 拍照轴8Y ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 拍照轴8YDATE.xHome,          //轴回零命令
+	xJogPos:=拍照轴8YDATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=拍照轴8YDATE.xJogNeg  ,     //轴反转命令
+	xStop:= 拍照轴8YDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 拍照轴8YDATE.xMoveAbs AND  刮板拍照遮光气缸上位 AND 刮板轴10ZDATE.fActPos&lt;6 ,   //轴绝对定位命令
+	xMoveRel:= 拍照轴8YDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 拍照轴8YDATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 拍照轴8YDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=拍照轴8YDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 拍照轴8YDATE.fVelocity ,    //轴定位速度
+	fAcc:=500.0 ,              //轴加速度
+	fDec:= 500.0 ,              //轴减速度
+	fJogVel:= 50.0 ,        //轴JOG速度
+	bEnabled=&gt; 拍照轴8YDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt; 回零完成8Y ,          //轴回原点完成
+	bBusy=&gt; 拍照轴8YDATE.bBusy ,            //轴运行中
+	bError=&gt; 拍照轴8YDATE.bError ,          //轴错误
+	iErrorCode=&gt;拍照轴8YDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;拍照轴8YDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;拍照轴8YDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;拍照轴8YDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;拍照轴8YDATE.bReMoveDone ,);    //轴相对定位完成 
+	拍照轴8YDATE.bHomed S=回零完成8Y;
+IF  拍照轴8YDATE.xHome THEN
+	拍照轴8YDATE.bHomed:=FALSE;
+END_IF		
+
+
+
+
+//刮板轴9X伺服控制
+FB_SERVOAXIS_6(
+	AXIS:= 刮板轴9X ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 刮板轴9XDATE.xHome,          //轴回零命令
+	xJogPos:=刮板轴9XDATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=刮板轴9XDATE.xJogNeg  ,     //轴反转命令
+	xStop:= 刮板轴9XDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 刮板轴9XDATE.xMoveAbs AND  刮板轴10ZDATE.fActPos&lt;6,   //轴绝对定位命令
+	xMoveRel:= 刮板轴9XDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 刮板轴9XDATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 刮板轴9XDATE.fAbsTarget  ,  //轴绝对定位距离
+	fRelTarget:=刮板轴9XDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 刮板轴9XDATE.fVelocity ,    //轴定位速度
+	fAcc:=500.0 ,              //轴加速度
+	fDec:= 500.0 ,              //轴减速度
+	fJogVel:= 50.0 ,        //轴JOG速度
+	bEnabled=&gt; 刮板轴9XDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt;  回零完成9X,          //轴回原点完成
+	bBusy=&gt; 刮板轴9XDATE.bBusy ,            //轴运行中
+	bError=&gt; 刮板轴9XDATE.bError ,          //轴错误
+	iErrorCode=&gt;刮板轴9XDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;刮板轴9XDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;刮板轴9XDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;刮板轴9XDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;刮板轴9XDATE.bReMoveDone ,);    //轴相对定位完成 
+刮板轴9XDATE.bHomed S= 回零完成9X;
+IF  刮板轴9XDATE.xHome THEN
+	刮板轴9XDATE.bHomed:=FALSE;
+END_IF
+
+
+
+//刮板轴10Z伺服控制
+FB_SERVOAXIS_7(
+	AXIS:= 刮板轴10Z ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 刮板轴10ZDATE.xHome,          //轴回零命令
+	xJogPos:=刮板轴10ZDATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=刮板轴10ZDATE.xJogNeg  ,     //轴反转命令
+	xStop:= 刮板轴10ZDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 刮板轴10ZDATE.xMoveAbs ,   //轴绝对定位命令
+	xMoveRel:= 刮板轴10ZDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 刮板轴10ZDATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 刮板轴10ZDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=刮板轴10ZDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 刮板轴10ZDATE.fVelocity ,    //轴定位速度
+	fAcc:=500.0  ,              //轴加速度
+	fDec:= 500.0 ,              //轴减速度
+	fJogVel:= 50.0 ,        //轴JOG速度
+	bEnabled=&gt; 刮板轴10ZDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt; 回零完成10Z ,          //轴回原点完成
+	bBusy=&gt; 刮板轴10ZDATE.bBusy ,            //轴运行中
+	bError=&gt; 刮板轴10ZDATE.bError ,          //轴错误
+	iErrorCode=&gt;刮板轴10ZDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;刮板轴10ZDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;刮板轴10ZDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;刮板轴10ZDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;刮板轴10ZDATE.bReMoveDone ,);    //轴相对定位完成 
+刮板轴10ZDATE.bHomed S= 回零完成10Z;
+IF  刮板轴10ZDATE.xHome THEN
+	刮板轴10ZDATE.bHomed:=FALSE;
+END_IF	
+	
+	
+//地轨轴11Y伺服控制
+FB_SERVOAXIS_8(
+	AXIS:= 地轨轴11Y ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 地轨轴11YDATE.xHome,          //轴回零命令
+	xJogPos:=地轨轴11YDATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=地轨轴11YDATE.xJogNeg  ,     //轴反转命令
+	xStop:= 地轨轴11YDATE.xStop ,         //轴停止命令
+	xMoveAbs:= 地轨轴11YDATE.xMoveAbs  ,   //轴绝对定位命令
+	xMoveRel:= 地轨轴11YDATE.xMoveRel,    //轴相对定位命令
+	XReset:= 地轨轴11YDATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 地轨轴11YDATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=地轨轴11YDATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 地轨轴11YDATE.fVelocity ,    //轴定位速度
+	fAcc:=500.0 ,              //轴加速度
+	fDec:= 500.0 ,              //轴减速度
+	fJogVel:= 50.0 ,        //轴JOG速度
+	bEnabled=&gt; 地轨轴11YDATE.bEnabled ,      //轴使能完成
+	bHomed=&gt;  回零完成11Y,          //轴回原点完成
+	bBusy=&gt; 地轨轴11YDATE.bBusy ,            //轴运行中
+	bError=&gt; 地轨轴11YDATE.bError ,          //轴错误
+	iErrorCode=&gt;地轨轴11YDATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;地轨轴11YDATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;地轨轴11YDATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;地轨轴11YDATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;地轨轴11YDATE.bReMoveDone ,);    //轴相对定位完成 
+地轨轴11YDATE.bHomed S=回零完成11Y;
+IF  地轨轴11YDATE.xHome THEN
+	地轨轴11YDATE.bHomed:=FALSE;
+END_IF
+
+
+	
+//上样轴4X轴伺服控制
+FB_SERVOAXIS_9(
+	AXIS:= 上样轴4X轴 ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 上样轴4X轴DATE.xHome,          //轴回零命令
+	xJogPos:=上样轴4X轴DATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=上样轴4X轴DATE.xJogNeg  ,     //轴反转命令
+	xStop:= 上样轴4X轴DATE.xStop ,         //轴停止命令
+	xMoveAbs:= 上样轴4X轴DATE.xMoveAbs AND  上样轴5Z轴DATE.fActPos&lt;3 ,   //轴绝对定位命令
+	xMoveRel:= 上样轴4X轴DATE.xMoveRel,    //轴相对定位命令
+	XReset:= 上样轴4X轴DATE.XReset OR 复位,       //轴复位
+	fAbsTarget:= 上样轴4X轴DATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=上样轴4X轴DATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 上样轴4X轴DATE.fVelocity ,    //轴定位速度
+	fAcc:=200.0 ,              //轴加速度
+	fDec:= 200.0 ,              //轴减速度
+	fJogVel:= 5.0,        //轴JOG速度
+	bEnabled=&gt; 上样轴4X轴DATE.bEnabled ,      //轴使能完成
+	bHomed=&gt;  回零完成4X,          //轴回原点完成
+	bBusy=&gt; 上样轴4X轴DATE.bBusy ,            //轴运行中
+	bError=&gt; 上样轴4X轴DATE.bError ,          //轴错误
+	iErrorCode=&gt;上样轴4X轴DATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;上样轴4X轴DATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;上样轴4X轴DATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;上样轴4X轴DATE.bAbMoveDone ,  //轴绝对定位完成
+	bReMoveDone =&gt;上样轴4X轴DATE.bReMoveDone ,);    //轴相对定位完成 
+上样轴4X轴DATE.bHomed S=回零完成4X;
+	%QB2216:= 27;             //回零模式27
+IF NOT  急停 OR 上样轴4X轴DATE.xHome THEN
+	上样轴4X轴DATE.bHomed:=FALSE;
+END_IF
+
+
+//上样轴5Z轴伺服控制
+FB_SERVOAXIS_10(
+	AXIS:= 上样轴5Z轴 ,                    //轴名称
+	xEnable:=急停  ,                         //轴使能
+	xHome:= 上样轴5Z轴DATE.xHome,          //轴回零命令
+	xJogPos:=上样轴5Z轴DATE.xJogPos  ,     //轴正转命令
+	xJogNeg:=上样轴5Z轴DATE.xJogNeg  ,     //轴反转命令
+	xStop:= 上样轴5Z轴DATE.xStop ,         //轴停止命令
+	xMoveAbs:= 上样轴5Z轴DATE.xMoveAbs ,   //轴绝对定位命令
+	xMoveRel:= 上样轴5Z轴DATE.xMoveRel,    //轴相对定位命令
+	XReset:= 上样轴5Z轴DATE.XReset OR 复位 ,       //轴复位
+	fAbsTarget:= 上样轴5Z轴DATE.fAbsTarget ,  //轴绝对定位距离
+	fRelTarget:=上样轴5Z轴DATE.fRelTarget  ,  //轴相对移动距离
+	fVelocity:= 上样轴5Z轴DATE.fVelocity ,    //轴定位速度
+	fAcc:=300.0  ,              //轴加速度
+	fDec:= 300.0 ,              //轴减速度
+	fJogVel:= 20.0 ,        //轴JOG速度
+	bEnabled=&gt; 上样轴5Z轴DATE.bEnabled ,      //轴使能完成
+	bHomed=&gt; 回零完成5Z ,          //轴回原点完成
+	bBusy=&gt; 上样轴5Z轴DATE.bBusy ,            //轴运行中
+	bError=&gt; 上样轴5Z轴DATE.bError ,          //轴错误
+	iErrorCode=&gt;上样轴5Z轴DATE.iErrorCode  ,  //轴错误代码
+	fActPos=&gt;上样轴5Z轴DATE.fActPos  ,        //轴当前位置
+	fActVel=&gt;上样轴5Z轴DATE.fActVel  ,        //轴当前速度
+	bAbMoveDone=&gt;上样轴5Z轴DATE.bAbMoveDone ,   //轴绝对定位完成
+	bReMoveDone =&gt;上样轴5Z轴DATE.bReMoveDone , );   //轴相对定位完成 
+上样轴5Z轴DATE.bHomed S=回零完成5Z;
+	%QB2228:= 27;                 //回零模式27
+IF NOT  急停 OR 上样轴5Z轴DATE.xHome THEN
+	上样轴5Z轴DATE.bHomed:=FALSE;
+END_IF	
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="30_Ethercat任务" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="565dacbc-ff38-4026-b4b4-075f7979a95a">
+                    <pathStructure isFolder="False" name="PLC_Servo_伺服" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="df04d0f5-3935-4dd8-bb13-95d355a4a89e">
+                      <pathStructure isFolder="False" name="伺服调用" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="b7c4d942-09ee-423d-8177-a954e9000494" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>b7c4d942-09ee-423d-8177-a954e9000494</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="位置示教">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+//打样瓶上料轴3Y位置示教
+FB_Teach_1(HMI_Servo:=HMI_打样瓶上料轴3Y , 
+			Servo:=打样瓶上料轴3YDATE );
+//点样轴6X位置示教
+FB_Teach_2(HMI_Servo:=HMI_点样轴6X , 
+			Servo:=点样轴6XDATE );
+//点样轴7Y位置示教
+FB_Teach_3(HMI_Servo:=HMI_点样轴7Y , 
+			Servo:=点样轴7YDATE );			
+//地轨轴11Y位置示教
+FB_Teach_4(HMI_Servo:=HMI_地轨轴11Y , 
+			Servo:=地轨轴11YDATE );			
+//上样轴4X轴位置示教
+FB_Teach_5(HMI_Servo:=HMI_上样轴4X轴 , 
+			Servo:=上样轴4X轴DATE );			
+//上样轴5Z轴位置示教
+FB_Teach_6(HMI_Servo:=HMI_上样轴5Z轴 , 
+			Servo:=上样轴5Z轴DATE );			
+			
+			
+			
+			
+			</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="30_Ethercat任务" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="565dacbc-ff38-4026-b4b4-075f7979a95a">
+                    <pathStructure isFolder="False" name="PLC_Servo_伺服" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="df04d0f5-3935-4dd8-bb13-95d355a4a89e">
+                      <pathStructure isFolder="False" name="位置示教" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="ce2fde22-1758-4b51-adf2-09647652b57f" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>ce2fde22-1758-4b51-adf2-09647652b57f</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="30_Ethercat任务">
+          <Object Name="PLC_Servo_伺服" ObjectId="df04d0f5-3935-4dd8-bb13-95d355a4a89e">
+            <Object Name="伺服一键回原点" ObjectId="23e1ae8d-b443-45bc-981f-62d175ecdf5b" />
+            <Object Name="伺服调用" ObjectId="b7c4d942-09ee-423d-8177-a954e9000494" />
+            <Object Name="位置示教" ObjectId="ce2fde22-1758-4b51-adf2-09647652b57f" />
+          </Object>
+          <Object Name="PLC_CNC" ObjectId="194cbd36-f33f-4b07-9eb6-8c5c701f1c5a" />
+          <Object Name="PLC_HandWheel_手轮" ObjectId="96497769-2fd2-429e-9eb8-dade05ea7ea1" />
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

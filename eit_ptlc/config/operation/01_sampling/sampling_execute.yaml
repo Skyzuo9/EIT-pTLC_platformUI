@@ -1,0 +1,365 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_execute
+label: 上样-执行
+# 过阀排空点样体积模型 (排空余量E / 气隔断G / 喷出冗余S 的派生与三条硬闸) 已外提到
+# sampling_volume_model —— 推导注释与实现都在那里, 本脚本只 run_script 取回四个派生量。
+# 多样品上样 (sampling_multi_execute) 复用同一个子流程, 故模型改动只有一处。
+ui:
+  role: station_phase
+  station: sampling
+  phase: execute
+  primary: true
+  order: 13
+vars:
+- name: plate_spec
+  scope: local
+  type: STRING
+  io: in
+  default: 4×6
+  comment: 上样吸液孔板规格
+  enum: ['4×6', '6×8']
+  ui:
+    label: 吸样孔板规格
+    group: 吸样孔位
+- name: plate_no
+  scope: local
+  type: STRING
+  io: in
+  default: '1'
+  comment: 上样吸液盘位号
+  enum: ['1', '2']
+  ui:
+    label: 吸样盘位号
+    group: 吸样孔位
+- name: well
+  scope: local
+  type: STRING
+  io: in
+  default: A1
+  comment: 上样吸液孔位
+  ui:
+    label: 吸样孔位
+    group: 吸样孔位
+- name: spot_x_start
+  scope: local
+  type: FLOAT
+  io: in
+  comment: 点样X起点 (缺省=示教基准)
+  ui:
+    label: 点样X起点
+    group: 点样几何
+    min: -500
+    max: 500
+    live_from: spot_pose.x_start
+- name: spot_x_end
+  scope: local
+  type: FLOAT
+  io: in
+  comment: 点样X终点 (缺省=示教基准)
+  ui:
+    label: 点样X终点
+    group: 点样几何
+    min: -500
+    max: 500
+    live_from: spot_pose.x_end
+- name: spot_y_height
+  scope: local
+  type: FLOAT
+  io: in
+  comment: 点样Y高度 (缺省=示教基准)
+  ui:
+    label: 点样Y高度
+    group: 点样几何
+    min: -500
+    max: 500
+    live_from: spot_pose.y_height
+- name: sample_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 2
+  comment: 孔内实际装样体积 (mL); 吸取按抽干计, 点样推送量=本值+喷出冗余
+  ui:
+    label: 孔内样品体积(mL)
+    group: 点样参数
+    min: 0.1
+    max: 10
+- name: dry_cycles
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 每程喷涂后吹气往复趟数 (1趟=来回一遍)
+  ui:
+    label: 每程吹气往复趟数(1趟=来回一遍)
+    group: 点样参数
+    min: 1
+    max: 20
+- name: spot_speed_mm_s
+  scope: local
+  type: FLOAT
+  io: in
+  default: 40
+  comment: 喷涂扫线速度 (mm/s)
+  ui:
+    label: 喷涂扫线速度(mm/s)
+    group: 点样参数
+    min: 0.1
+    max: 200
+- name: dry_speed_mm_s
+  scope: local
+  type: FLOAT
+  io: in
+  default: 20
+  comment: 吹气扫线速度 (mm/s)
+  ui:
+    label: 吹气扫线速度(mm/s)
+    group: 点样参数
+    min: 0.1
+    max: 300
+- name: spot_disp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 6
+  # 值仍是 DT V (半步/s, 整数 1..500); ui.scale 0.25 仅界面显示成 mL/min (25mL/6000半步×60s=0.25), 1档=0.25 mL/min
+  comment: 条带供液泵速度 (底层 DT V 1..500; 界面 mL/min, 步进0.25)
+  ui:
+    label: 供液泵速(mL/min)
+    group: 点样参数
+    min: 1
+    max: 500
+    scale: 0.25
+    unit: mL/min
+- name: over_aspirate_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 1.5
+  comment: 排空余量E (mL); 必须大于针流路死体积1.125, 多出的部分成为每轮点样起始空喷段
+  ui:
+    label: 排空余量(mL, >1.125)
+    group: 体积余量(标定)
+    min: 1.2
+    max: 5
+- name: air_gap_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 0.2
+  comment: 气隔断G (mL); 首轮由 prep 建立, 润洗轮由 A55 抬针吸入
+  ui:
+    label: 气隔断(mL)
+    group: 体积余量(标定)
+    min: 0.1
+    max: 1
+- name: rinse_rounds
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 润洗回收轮数 (0=只点一轮不回收; 每轮=润洗混匀+再吸样+再点样)
+  ui:
+    label: 润洗回收轮数
+    group: 润洗回收
+    min: 0
+    max: 10
+- name: rinse_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 3
+  comment: 每轮润洗液体积 (mL); A55 的[1]已把针流路重新填满液, 故本值全量入孔
+  ui:
+    label: 润洗液体积(mL)
+    group: 润洗回收
+    min: 1.5
+    max: 25
+- name: mix_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 1.5
+  comment: 每轮单次吹打体积 (mL, 应不大于净润洗量)
+  ui:
+    label: 单次吹打体积(mL)
+    group: 润洗回收
+    min: 0.1
+    max: 25
+- name: mix_count
+  scope: local
+  type: INT
+  io: in
+  default: 3
+  comment: 每轮吹打次数
+  ui:
+    label: 吹打次数
+    group: 润洗回收
+    min: 1
+    max: 20
+# ---- 派生体积 (op: assign 计算, 不进 UI) ----
+- name: spray_margin_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 喷出冗余S = (排空余量E - 针流路死体积1.125) + 气隔断G/2; 取合法窗口正中, 无独立自由度故不设旋钮
+- name: aspirate_total_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 首轮吸取总量 = 样品V + 排空余量E
+- name: band_end_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 点样活塞终点 N = G+E-S (每轮同值)
+- name: aspirate_round_ml
+  scope: local
+  type: FLOAT
+  io: var
+  default: 0.0
+  comment: 润洗轮吸取总量 = 润洗液R + 排空余量E (孔内净液量就是R, 推导见文件头)
+- name: round_idx
+  scope: local
+  type: INT
+  io: var
+  default: 0
+  comment: 润洗轮循环计数
+resources:
+- station:sampling
+body:
+- op: comment
+  text: '派生体积计算 + 守卫: 全部在 sampling_volume_model 里 (模型推导注释同处), 本处只取回四个派生量'
+- op: run_script
+  script: sampling_volume_model
+  inputs:
+    sample_volume_ml: {var: sample_volume_ml}
+    over_aspirate_ml: {var: over_aspirate_ml}
+    air_gap_ml: {var: air_gap_ml}
+    rinse_volume_ml: {var: rinse_volume_ml}
+  outputs:
+    spray_margin_ml: {var: spray_margin_ml}
+    aspirate_total_ml: {var: aspirate_total_ml}
+    band_end_ml: {var: band_end_ml}
+    aspirate_round_ml: {var: aspirate_round_ml}
+- op: comment
+  text: 'execute: 首轮 = 过阀排空吸取 (A50 内置气隔断: 移孔位前于空气中吸G, 再下探抽干孔, 样品整段拖过三通)'
+- op: comment
+  text: '全程无真空: aspirate 的两条指令均为口3回抽, 分配阀不切废液口2, 无废液流量需抽走'
+- op: call
+  action: sampling.aspirate
+  args:
+    plate_spec:
+      var: plate_spec
+    plate_no:
+      var: plate_no
+    well:
+      var: well
+    sample_volume_ml:
+      var: aspirate_total_ml
+    air_gap_ml:
+      var: air_gap_ml
+    asp_speed:
+      lit: 50
+    step_delay:
+      lit: 1500
+  mode: RUN
+- op: comment
+  text: 'execute: 单条带点样+连续吹干, 活塞停在 N (泵腔余液为纯驱动清洗液)'
+- op: call
+  action: sampling.spot_band_layer
+  mode: RUN
+  args:
+    ref_spot:
+      lit: spot_pose
+    x_start:
+      var: spot_x_start
+    x_end:
+      var: spot_x_end
+    y_height:
+      var: spot_y_height
+    spot_disp_speed:
+      var: spot_disp_speed
+    spot_speed_mm_s:
+      var: spot_speed_mm_s
+    dry_speed_mm_s:
+      var: dry_speed_mm_s
+    dry_cycles:
+      var: dry_cycles
+    step_delay:
+      lit: 1500
+    spot_end_position_ml:
+      var: band_end_ml
+- op: comment
+  text: '润洗回收轮 xN: 回打余量(实排针流路气柱)+润洗混匀(A55自带气隔断, 终态活塞=G) -> 排空吸取 -> 点样'
+- op: for
+  var: round_idx
+  start: {lit: 0}
+  stop: {var: rinse_rounds}
+  body:
+  - op: call
+    action: sampling.rinse_mix
+    mode: RUN
+    args:
+      plate_spec:
+        var: plate_spec
+      plate_no:
+        var: plate_no
+      well:
+        var: well
+      rinse_volume_ml:
+        var: rinse_volume_ml
+      mix_volume_ml:
+        var: mix_volume_ml
+      mix_count:
+        var: mix_count
+      air_gap_ml:
+        var: air_gap_ml
+  - op: comment
+    text: 润洗轮吸样 (A55 终态活塞已在 A{G}, 故 A50 的绝对吸气为零位移; 仍传 air_gap_ml 作幂等兜底)
+  - op: call
+    action: sampling.aspirate
+    mode: RUN
+    args:
+      plate_spec:
+        var: plate_spec
+      plate_no:
+        var: plate_no
+      well:
+        var: well
+      sample_volume_ml:
+        var: aspirate_round_ml
+      air_gap_ml:
+        var: air_gap_ml
+      asp_speed:
+        lit: 50
+      step_delay:
+        lit: 1500
+  - op: call
+    action: sampling.spot_band_layer
+    mode: RUN
+    args:
+      ref_spot:
+        lit: spot_pose
+      x_start:
+        var: spot_x_start
+      x_end:
+        var: spot_x_end
+      y_height:
+        var: spot_y_height
+      spot_disp_speed:
+        var: spot_disp_speed
+      spot_speed_mm_s:
+        var: spot_speed_mm_s
+      dry_speed_mm_s:
+        var: dry_speed_mm_s
+      dry_cycles:
+        var: dry_cycles
+      step_delay:
+        lit: 1500
+      spot_end_position_ml:
+        var: band_end_ml

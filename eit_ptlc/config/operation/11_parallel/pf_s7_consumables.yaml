@@ -1,0 +1,96 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_s7_consumables
+label: 5-2 备耗材
+ui:
+  role: segment
+# 原子流程 s7: 位置中立段 (样品此时在缸内展开, 本段不碰样品)。收集器/瓶按账本决策就位,
+# 收集器链放入刮板接粉夹具 —— 配方 depends 取 s5, 与 s6 展开等待 (最长 3600s) 重叠执行。
+# reserve_for 传本样品号: plan_staging 排除他人预留并落本样品孔级预留 (plan 与 s10 消费
+# 之间的窗口内, 该孔对其他样品不可见, 整板也不会被换走)。
+# 刮板接粉夹具是跨段物理占位 (本段放入, s10 才取走): 调度器夹具账本保证 s7 派发时夹具为空。
+# retry: resume —— ensure_*/locator 幂等, 但 transfer 已完成后盲重跑会向已占夹具再压一件;
+# 断点续跑 (人工确认物理态后从失败顶层语句续) 是唯一安全重试路径。
+flow:
+  atomic: true
+  sample: required
+  from: same
+  to: same
+  hitl: none
+  retry: resume
+vars:
+- name: reserve_for
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 本样品号 (孔级预留归属; 调度器注入 sample_id)
+- name: collector_hole
+  scope: local
+  type: INT
+  io: out
+  default: 1
+  comment: 本样品收集器所在中转A孔号 (跨段上下文, s10 取件与归还须同孔)
+- name: bottle_hole
+  scope: local
+  type: INT
+  io: out
+  default: 1
+  comment: 本样品收集瓶所在中转B孔号 (跨段上下文, s10 取瓶与成品瓶回位须同孔)
+resources:
+- robot
+- station:rail
+- consumable-group
+- staging-a
+- staging-b
+- scrape-holder
+- station:photo_scrape
+body:
+- op: comment
+  text: '耗材就位保证 (按账本决策): 中转板还有未用孔就原地复用; 中转空则取新板; 耗尽则先送回满板再取新板 (整板转运的工具2大夹爪由 ensure_* 内部按需切换)'
+- op: run_script
+  script: ensure_collector_staged
+  inputs:
+    reserve_for:
+      var: reserve_for
+  outputs:
+    hole:
+      var: collector_hole
+- op: run_script
+  script: ensure_bottle_staged
+  inputs:
+    reserve_for:
+      var: reserve_for
+  outputs:
+    hole:
+      var: bottle_hole
+- op: comment
+  text: '段级兜底: 两个 ensure_* 退出时已各自把本区夹紧, 此处成对再写一次保持显式终态 (幂等; 与 V2 同)'
+- op: call
+  action: staging_a.locator_a
+  args:
+    target:
+      lit: true
+  mode: RUN
+- op: call
+  action: staging_a.locator_b
+  args:
+    target:
+      lit: true
+  mode: RUN
+- op: comment
+  text: '取单件切工具3小夹爪 (整板转运是大夹爪; 单件取点 P46-51 按小夹爪示教)'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 3
+  outputs: {}
+- op: comment
+  text: '收集器链放入刮板接粉夹具 (必须在 s9 刮取前就位, 粉末落入其中)'
+- op: run_script
+  script: transfer_collector_staging_a_to_scrape
+  inputs:
+    slot_id:
+      var: collector_hole
+  outputs: {}

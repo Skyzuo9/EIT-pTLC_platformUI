@@ -1,0 +1,56 @@
+schema: ptlc.script/v1
+kind: operation
+name: develop_cycle
+label: 展开-周期 (准备 -> 上料 -> 执行 -> 下料)
+ui:
+  role: station_task
+  station: develop
+  primary: true
+  order: 20
+# 站内四段式主入口。顶层 recipe 仍只调用 develop_cycle; 本文件不承载跨站 handoff。
+# 四段 step 可单独点跑: prepare/load/execute/unload。展开完成判定仍在 execute 内保留 HITL 门,
+# 排液与释放缸状态分别由 develop.drain(code 50) / develop.release_tank(code 51) 闭环。
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8
+resources:
+- station:develop
+- robot
+- station:rail
+body:
+- op: comment
+  text: "prepare: 展缸初始化后关盖, 关盖完成润洗与板前预置上液"
+- op: run_script
+  script: develop_prepare
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: "load: 机器人放板入缸并夹持到位"
+- op: run_script
+  script: develop_load
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: "execute: 展开等待状态、完成门与 PLC L2 排液闭环"
+- op: run_script
+  script: develop_execute
+  inputs:
+    tank:
+      var: tank
+  outputs: {}
+- op: comment
+  text: "unload: 放板缸让位、机器人取板出缸、释放缸资源"
+- op: run_script
+  script: develop_unload
+  inputs:
+    tank:
+      var: tank
+  outputs: {}

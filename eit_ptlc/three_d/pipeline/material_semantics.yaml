@@ -1,0 +1,548 @@
+# 功能: SolidWorks 材质名 -> PBR 参数 的语义映射表.
+#
+# 这是"用真实材质替代按零件名猜测"的核心: SolidWorks 里每个零件都带着设计者指定的
+# 材质名(6061 合金/304 不锈钢/亚克力…), 那是权威的物性信息; 而 CAD 里的颜色多半是
+# 设计过程中为了区分零件随手指的, 不适合直接搬进演示画面.
+#
+# 所以策略是: **材质名决定物性(金属度/粗糙度/透射), 颜色以实机照片为准**.
+# 2026-07-31 依据 8 张实机照片整体校准: 实机是"实验室亮银白"(亮白喷粉外罩/银色铝/
+# 黑色功能模块/蓝色气管/暖白机械臂), 此前的"深色控制台"配色是方向性偏差, 已弃用.
+#
+# 匹配方式: 对 SolidWorks 材质名做不区分大小写的正则匹配, 自上而下第一条命中即生效.
+# 材质名可能是中文(如"304")、英文(如"AISI 304")或中英混排, 因此每条都给多个别名.
+
+schema: ptlc.material-semantics/v1
+
+rules:
+  # -- 铝合金 ---------------------------------------------------------------
+  # 机加工件的主力材质. 照片 2/6/8: 实机机加件是明亮的银白阳极氧化
+  - id: MAT_ALUMINUM
+    label: 铝合金
+    patterns: [ "6061", "6063", "7075", "5052", "2A12", "铝合金", "铝", "alumin" ]
+    base_color: "#c5cad2"
+    roughness: 0.40
+    metalness: 0.9
+
+  # 型材单列. 照片 1: 实机型材立柱是银色本色阳极氧化, 不是深色
+  - id: MAT_EXTRUSION
+    label: 铝型材
+    patterns: [ "型材", "extrusion", "profile" ]
+    base_color: "#b3b9c2"
+    roughness: 0.45
+    metalness: 0.85
+
+  # -- 钢 -------------------------------------------------------------------
+  - id: MAT_STAINLESS
+    label: 不锈钢
+    patterns: [ "304", "316", "301", "430", "17-4", "不锈钢", "stainless" ]
+    base_color: "#ccd3db"
+    roughness: 0.3
+    metalness: 0.95
+
+  - id: MAT_STEEL
+    label: 碳钢/合金钢
+    patterns: [ "45#", "Q235", "Q345", "20#", "40Cr", "碳钢", "合金钢", "钢", "steel", "iron", "铸铁" ]
+    base_color: "#9ba3ae"
+    roughness: 0.45
+    metalness: 0.88
+
+  # -- 透明件(观感差异最大, 必须分出来) -------------------------------------
+  - id: MAT_GLASS
+    label: 玻璃/石英
+    patterns: [ "玻璃", "石英", "glass", "quartz", "silica" ]
+    # 照片 5: 实机罩板玻璃近乎无色, 蓝色调只留一点点
+    base_color: "#dceaf2"
+    roughness: 0.05
+    metalness: 0.0
+    transmission: 0.92
+    ior: 1.46
+    alpha: 0.28
+
+  # 注射泵针筒专用玻璃 MAT_SYRINGE_GLASS **不在本文件**, 它住在 materials.yaml 的
+  # rules 段 —— 本文件这一段是按 **CAD 材质名** 匹配的(match_rule 拿 SolidWorks 的
+  # 材质名去撞 patterns), 而针筒是 03 步现造的几何, 压根没有 CAD 材质名, 写在这里
+  # 永远不会被 build_materials 输出. 2026-08-05 就这么栽过一次: 管线一路绿灯, 只有
+  # build_pump_visuals 的一行警告("找不到配方 ..., 用兜底灰")说明针筒变成了灰塑料.
+  # 按零件名的角色规则一律归 materials.yaml 的 rules 段(见 docs/CLAUDE.md 硬约束 24).
+  - id: MAT_ACRYLIC
+    label: 亚克力/PC/透明塑料
+    patterns: [ "亚克力", "有机玻璃", "PMMA", "acrylic", "聚碳", "PC", "polycarbonate" ]
+    base_color: "#dceaf2"
+    roughness: 0.12
+    metalness: 0.0
+    transmission: 0.72
+    alpha: 0.42
+
+  # -- 工程塑料 -------------------------------------------------------------
+  - id: MAT_PEEK
+    label: PEEK/PTFE 等工程塑料
+    patterns: [ "PEEK", "PTFE", "聚四氟", "特氟龙", "teflon", "POM", "赛钢", "尼龙", "nylon", "PA6", "PA66" ]
+    # 照片 1/2/8: 实机的 POM/PTFE 支架、滤器全是白色
+    base_color: "#e8e6df"
+    roughness: 0.5
+    metalness: 0.0
+
+  - id: MAT_PLASTIC
+    label: 通用塑料
+    patterns: [ "ABS", "PP", "PE", "PVC", "塑料", "plastic", "树脂", "resin" ]
+    # 实机没有深蓝塑料件; 无法细分的塑料给中性灰
+    base_color: "#8f96a0"
+    roughness: 0.62
+    metalness: 0.05
+
+  # -- 弹性体 ---------------------------------------------------------------
+  # 优力胶(聚氨酯)在本机上确有其物: 抽液机构那几根米黄色立柱就是它, CAD 里给的是
+  # #E2D795. 它不是灰的, 是整机为数不多真带颜色的材质之一, 单列一条保住这份区分.
+  - id: MAT_URETHANE
+    label: 优力胶/聚氨酯
+    patterns: [ "优力胶", "聚氨酯", "urethane", "polyurethane", "PU胶", "牛筋" ]
+    base_color: "#c9b978"
+    roughness: 0.7
+    metalness: 0.0
+
+  - id: MAT_SILICONE
+    label: 硅胶/橡胶
+    patterns: [ "硅胶", "橡胶", "丁腈", "氟胶", "silicone", "rubber", "EPDM", "NBR", "viton" ]
+    base_color: "#2a2f38"
+    roughness: 0.88
+    metalness: 0.0
+
+  # -- 其它 -----------------------------------------------------------------
+  - id: MAT_COPPER
+    label: 铜/黄铜
+    patterns: [ "黄铜", "紫铜", "青铜", "铜", "brass", "copper", "bronze" ]
+    base_color: "#b08d57"
+    roughness: 0.35
+    metalness: 0.95
+
+  - id: MAT_TITANIUM
+    label: 钛合金
+    patterns: [ "钛", "titanium", "TC4", "TA2" ]
+    base_color: "#8e8f92"
+    roughness: 0.42
+    metalness: 0.92
+
+# ---------------------------------------------------------------------------
+# SolidWorks 原生 glTF 自带的外观名 -> PBR 参数.
+#
+# 这是**目前最好的真实材质来源**: 整机原生 GLB 里有 744 个材质, 但去掉 `-N` 实例后缀后
+# 只收敛成 15 个语义族(satin finish aluminum ×142 / polished steel ×26 / matte steel ×9 …),
+# 每个都是设计者在 CAD 里指定的外观名. 它随几何一起免费带出来, 不必再逐零件走 COM 读.
+#
+# 匹配方式: 对材质名做不区分大小写的正则匹配, 自上而下第一条命中即生效.
+# 未命中的(主要是通用的 `color-N`)退回按零件名的规则, 见 materials.yaml 的 rules 段.
+# ---------------------------------------------------------------------------
+native_materials:
+  - id: MAT_NAT_ALUMINUM
+    label: 缎面铝
+    patterns: [ "satin finish aluminum", "aluminum", "aluminium" ]
+    # 照片 2/6/8: 机加件银亮
+    base_color: "#c5cad2"
+    roughness: 0.35
+    metalness: 0.88
+
+  - id: MAT_NAT_ALU_COAT
+    label: 铝喷粉
+    patterns: [ "aluminum powdercoat", "powdercoat" ]
+    # 照片 1/5: 外罩板是亮白粉体喷涂, 不是深灰
+    base_color: "#e9ebec"
+    roughness: 0.55
+    metalness: 0.12
+
+  - id: MAT_NAT_POLISHED_STEEL
+    label: 抛光钢
+    patterns: [ "polished steel", "chrome", "stainless" ]
+    # 照片 4/8: 台面拉丝亮面
+    base_color: "#d8dde4"
+    roughness: 0.15
+    metalness: 0.96
+
+  - id: MAT_NAT_MATTE_STEEL
+    label: 哑光钢/铸铁
+    patterns: [ "matte steel", "wrought iron", "cast iron", "steel", "iron" ]
+    base_color: "#9ba3ae"
+    roughness: 0.55
+    metalness: 0.85
+
+  - id: MAT_NAT_BLACK_PAINT
+    label: 黑喷漆
+    patterns: [ "black spray paint", "black paint", "matte black" ]
+    base_color: "#22262e"
+    roughness: 0.6
+    metalness: 0.1
+
+  - id: MAT_NAT_GOLD
+    label: 哑光金/黄铜
+    patterns: [ "matte gold", "gold", "brass", "bronze", "copper" ]
+    base_color: "#b08d57"
+    roughness: 0.38
+    metalness: 0.94
+
+  - id: MAT_NAT_RUBBER
+    label: 橡胶
+    patterns: [ "glossy rubber", "rubber", "epdm", "nbr" ]
+    base_color: "#2a2f38"
+    roughness: 0.75
+    metalness: 0.0
+
+  - id: MAT_NAT_PLASTIC
+    label: 塑料/陶瓷
+    patterns: [ "plastic", "porcelaine", "porcelain", "ceramic", "nylon", "abs" ]
+    # 照片 1/2/8: 实机塑料支架/滤器为白色
+    base_color: "#e8e6df"
+    roughness: 0.5
+    metalness: 0.0
+
+  # white-pw-mt11050 在本机上用于展缸相关的白色件, 其中一个实例还是透明的
+  - id: MAT_NAT_WHITE
+    label: 白色件
+    patterns: [ "^white", "white-pw" ]
+    base_color: "#eef0f2"
+    roughness: 0.45
+    metalness: 0.1
+
+# ---------------------------------------------------------------------------
+# 通用外观(`color-N`)的颜色直采.
+#
+# 原生 GLB 里 744 个材质有 535 个属于通用的 `color` 族, 匹配不上任何具名材质规则.
+# 但它们的**基色本身就是信息**: 实测里面藏着青色气管接头(#00FFFF ×14)、
+# 米黄优力胶(#E2D795 ×9)、红色件(#FF0000 ×3) —— 这些正是整机上为数不多的真彩色.
+#
+# 所以策略是按饱和度分流: 够鲜艳的直接采用它的颜色(那是设计者特意指定的),
+# 接近白/灰的(#FFFFFF ×412)不采, 让它们退回本项目的深色控制台兜底色, 免得
+# 一大片惨白抢掉画面重心.
+# ---------------------------------------------------------------------------
+# 2026-07-31 语义变更: 本段现在服务「颜色轴」—— 每个零件的原生基色**一律直采(含白灰)**,
+# 不再按饱和度筛选(白也是信息; 把白灰丢进兜底正是"材质图不如装配图"的根源).
+# min_saturation 等旧键已废弃, 保留只为兼容.
+native_color_passthrough:
+  enabled: true
+  min_saturation: 0.25
+  min_lightness: 0.12
+  max_lightness: 0.88
+  roughness: 0.45
+  metalness: 0.1
+  # 颜色量化步长(每通道 0~255 按此取整), 用于约束材质实例数与绘制调用
+  quantize_step: 8
+  # 颜色纠错表: CAD 里的"标记色/错色" → 实物色. 键为 CAD 基色(6 位大写十六进制).
+  # 依据 work/native_inventory.json 审计(2026-07-31)与实机照片:
+  # 实机上除(未建模的)气管外没有任何蓝色 —— 所有青/蓝标记色一律中性化.
+  recolor:
+    "00FFFF": "#CFD4DA" # 旋转环/接头等 174 件: CAD 青色标记, 实物银灰
+    "EFF5FF": "#F1F2F4" # PTLC 自制件泛蓝白 349 件 → 中性白
+    "E6EAF7": "#EDEFF1"
+    "BBD0DB": "#C6CBD1" # CQ05 气缸的厂商淡蓝 → 银灰
+    "BDDCE3": "#CDD3D8"
+    "00BDE2": "#9AA2AC" # GTB6 缓冲器营销模型的青
+    "0000FF": "#3A3F46" # GTB6 营销模型的蓝 → 深灰
+    "F2EDC9": "#BFC4CB" # 线槽米黄 → 实物浅灰(照片 1/2)
+    # 保留不纠错的真实彩色: FFC400(PEEK接头金) FFEDCA(锥堆头乳白) FF0000(急停红)
+    # F8D658(警示黄) FFBC89(传感器橙)
+
+    # ---------------------------------------------------------------------------
+    # 透明件的观感参数. CAD 里的 transparency 是设计者一个个手调出来的, 是整机为数不多
+    # 可信且高价值的外观信号(门板 0.4 / 石英玻璃 0.4 / 下相机盖板玻璃 0.75), 因此
+    # build_materials.py 把它单独成段, 优先级高于按材质名的映射.
+    # 这里只定义"透明件长什么样", α 本身来自 CAD 实测值.
+    # ---------------------------------------------------------------------------
+    # 同时作为「原生 alpha<1 零件」的玻璃物性模板(blender_clean 的 glass_template)
+glass_from_transparency:
+  base_color: "#eef2f5"
+  roughness: 0.08
+  ior: 1.46
+
+# ---------------------------------------------------------------------------
+# 兜底: SolidWorks 里没指定材质的零件(采购件通常都没有)走这里.
+# 此时退回按零件名匹配的旧规则(materials.yaml 的 rules 段), 两套并存:
+#   有材质名 -> 按本表的物性
+#   无材质名 -> 按零件名猜(原有规则)
+# ---------------------------------------------------------------------------
+fallback:
+  id: MAT_DEFAULT
+  label: 未指定材质
+  # 整机基调是亮银白, 兜底色跟着走, 免得未识别件在一片亮色里发暗
+  base_color: "#a9afb8"
+  roughness: 0.5
+  metalness: 0.4
+
+# ---------------------------------------------------------------------------
+# 语义覆盖: 有些零件的"功能"比"材料"更该决定它长什么样.
+# 例如状态灯是塑料做的, 但它必须自发光; 展缸是玻璃, 但要比普通玻璃更显形。
+# 这一段在材质映射之后应用, 优先级最高.
+# ---------------------------------------------------------------------------
+functional_overrides:
+  - id: MAT_STATUS_LIGHT
+    label: 状态灯
+    # ZHD24 = 三色灯厂商模型(整灯单网格, 名字不含中文关键词, 必须按型号匹配);
+    # "立柱"要排除 —— PTLC-08-011 三色灯立柱只是根银色杆, 曾因名字含"三色灯"被误点亮.
+    # 整灯单网格会被这条整根点亮 —— 赋材质之后由 rig_map.yaml 的 tower_split 把它
+    # 拆成 灯罩(保留本材质) 与 外壳(抛光钢) 两段, 只让上半段发光
+    patterns: [ "LIGHT_STATUS", "ZHD24", "san_se_deng(?!_li_zhu)", "zhi_shi_deng", "三色灯(?!立柱)", "指示灯" ]
+    # 照片 2/4/6: 实机三色灯是乳白灯柱透出绿光, 不是通体荧光绿; 发光强度也收敛一点
+    base_color: "#d6f5e4"
+    roughness: 0.3
+    metalness: 0.0
+    emission: "#35d17a"
+    emission_strength: 2.5
+
+  # 视觉纠偏补光(机器人 DO7 外接光源, 装在下相机上)。**必须排在 MAT_UV_LAMP 之前** ——
+  # functional_overrides 是"第一个匹配即 break"(blender_clean.assign_materials), 排后面就被
+  # UV 那条的宽 pattern 抢走。
+  #
+  # 2026-08-04 拆出来的原因: MAT_UV_LAMP 原 patterns 里有个过宽的 "光源", 把这块
+  # **纯铝安装板**(PTLC-08-004 下相机环形光源安装块)刷成了紫色自发光; 更要命的是它因此
+  # 与真正的紫外面光源同材质同工位, 被 join_static_per_station 并成了一个 **1.12m 长、
+  # 5344 三角形**的合并块 STATIC_MAT_UV_LAMP —— 那两盏灯在业务上时机完全不同
+  # (P86 纠偏补光 vs 刮板台 UV), 合在一起就没法分别驱动, 整块进辉光还会糊掉半个工位。
+  #
+  # 它是白光补光, 不是紫外; 且真机上只在 vision.capture_plate_offset 那约 1.3s 亮
+  # (pallas_vision_client._run_with_light: 开 DO7 → 稳定 light_settle_ms → 拍 → finally 关),
+  # 所以**默认不发光**, 由前端片段/实时事件接管点亮(与三色塔灯同款约定: 没被接管就不进辉光)。
+  # ⚠ CAD 里没有独立的发光环本体, 这里是"以安装块代灯"。
+  - id: MAT_VISION_FILL
+    label: 视觉补光(DO7)
+    patterns: [ "PTLC-08-004", "下相机环形光源", "xia_xiang_ji_huan_xing_guang_yuan" ]
+    base_color: "#f2f4f7"
+    roughness: 0.35
+    metalness: 0.0
+    emission: "#ffffff"
+    emission_strength: 0.0
+
+  # ⚠ 不要再往 patterns 里加 "光源" 这种宽词: 它会把安装板/支架一并吃进来(见上一条的教训)。
+  # 现役命中: PTLC-06-027 紫外面光源-1 + 紫外灯PCB板-1..4, 都是刮板台暗箱里的 UV 面光源。
+  - id: MAT_UV_LAMP
+    label: 紫外光源
+    patterns: [ "zi_wai", "紫外", "uv_", "mian_guang_yuan", "面光源" ]
+    base_color: "#8b6cff"
+    roughness: 0.3
+    metalness: 0.0
+    emission: "#8b6cff"
+    emission_strength: 2.5
+
+  # 展开剂是无色有机溶剂, 取淡蓝而非绿(2026-08-03 用户指认: 深绿不像液体).
+  # 运行时颜色由前端 _updateTanks 每帧按缸相位覆写(gen_twin_manifest.TANK_STATE_STYLES),
+  # 这里的基色只在预览渲染与未接实时数据时可见 —— 两处要一起改, 否则改了不生效.
+  #
+  # **必须保持不透明(alpha 1.0 且无 transmission)**, 这是渲染顺序的硬约束, 不是观感取舍:
+  # glTF 的 BLEND 材质经 GLTFLoader 会拿到 depthWrite=false, 于是液体与缸壁(MAT_TANK 也是
+  # BLEND)一起进透明队列、按物体中心排序; 液面盒在缸的前沿, 中心比缸体更近相机, 就会被画
+  # 在缸壁**之上**, 成了糊在缸外面的一条实心色带. 不透明的液体走前置的实体队列、正常写深度,
+  # 玻璃缸壁随后混合叠上去, 才是"透过玻璃看到液体"的正确观感.
+  - id: MAT_LIQUID
+    label: 展缸液面
+    patterns: [ "^LIQUID" ]
+    # 色值经整架距离的渲染对照选定: 再淡(#a9cfe0)会被近白的玻璃缸壁吃掉、远景看不出液位.
+    base_color: "#6fb9d8"
+    roughness: 0.08
+    metalness: 0.0
+    alpha: 1.0
+
+  # 只认平面展缸本体与溶液槽, 按料号锚定(中文原名与拼音别名都带 ASCII 料号前缀).
+  # 此前的负向断言 展缸(?!架|注射) 挡不住"展缸支架侧板/展缸组装外罩/展缸安装板"
+  # 这类插字变体, 27 件实心钣金被拍成透明; 缸盖 PTLC-02-011 也是钣金,
+  # 保持不透明(用户拍板, 2026-07-31 第二次修复)
+  - id: MAT_TANK
+    label: 平面展缸
+    patterns: [ "PTLC-02-012", "PTLC-02-014", "rong_ye_cao", "溶液槽" ]
+    base_color: "#eef2f5"
+    roughness: 0.12
+    metalness: 0.0
+    transmission: 0.72
+    alpha: 0.42
+
+  # 上料架样品瓶(玻璃管): 实物是透明玻璃瓶, CAD 原生外观却是不透明纯白, 落兜底后整瓶
+  # 烘成实心白 —— 用户对照演示截图点名过这个错误(2026-07-31). 观感参数沿用本表
+  # MAT_GLASS(玻璃/石英)的既定值. 模式带 `-` 结尾锚定实例名, 防止误伤
+  # 样品瓶夹爪/样品瓶支架总装/样品瓶夹具总装(它们是金属件).
+  - id: MAT_SAMPLE_VIAL
+    label: 样品瓶玻璃
+    patterns: [ "样品瓶-", "yang_pin_ping_-" ]
+    base_color: "#dceaf2"
+    roughness: 0.05
+    metalness: 0.0
+    transmission: 0.92
+    ior: 1.46
+    alpha: 0.28
+
+  # 硅胶收集粉桶(注射器/吹气头/滤芯): 实物是白色塑料桶体, CAD 无材质名且原生外观纯白,
+  # 落兜底半金属白后在深色环境里反光成"不锈钢"—— 用户对照演示截图点名过这个错误
+  # (2026-07-31). 观感参数沿用本表 MAT_PEEK 的白塑料值. `^` 锚定防止误伤
+  # 展缸的 PTLC-02-020 过滤芯(guo_lv_xin, 不以 lv_xin 开头).
+  - id: MAT_POWDER_BUCKET
+    label: 粉桶白塑料
+    patterns: [ "^注射器", "^吹气头", "^滤芯", "^zhu_she_qi", "^chui_qi_tou", "^lv_xin" ]
+    base_color: "#e8e6df"
+    roughness: 0.5
+    metalness: 0.0
+
+  # 上样孔板(24 孔深孔板)的聚丙烯本色. 这块板由 blender_clean.build_sample_plates 在
+  # assign_materials **之后**现造, 所以 patterns 永远匹配不到任何 CAD 零件 —— 它在这里
+  # 只为让本配方进 materials.yaml, 由 build_sample_plates 按名检索后 build_material 复用
+  # 同一个裸名实例(多建一份同色材质等于多一个绘制批次, 前端按名找材质还会落空).
+  # 观感取"哑光微冷白塑料", 与整机的钣金/型材一眼分得开; 暂按不透明处理 ——
+  # 24 个孔腔叠 alpha 混合会带来排序伪影, 整机尺度下半透的信息量不抵这个代价.
+  - id: MAT_LABWARE_PP
+    label: 实验耗材聚丙烯
+    patterns: [ "^INV_SAMPLE_PLATE" ]
+    base_color: "#e0e2de"
+    roughness: 0.42
+    metalness: 0.0
+appearance_overrides:
+  # 人工覆盖: 材质名 -> 观感参数. **优先级最高, 压过下面所有规则.**
+  # 本段由「材质工作台」(/3d/materials)写回, 每次保存整段重建; 手改也可以, 但会被下次保存覆盖.
+  # 键是最终材质名, 与它由哪条规则产生无关 —— rules / native_materials / 颜色直采 调法一样.
+  # 只列想改的字段即可, 未列出的沿用原规则的值.
+  MAT_COVER_D0D0C8:
+    base_color: "#FFFFFF"
+    roughness: 0.33
+    metalness: 0
+  MAT_DEFAULT_B8B8B8:
+    base_color: "#B8BDC4"
+    roughness: 0.55
+    metalness: 0.08
+  MAT_DEFAULT_C0C0C8:
+    base_color: "#000085"
+  MAT_DEFAULT_FFFFFF:
+    base_color: "#B8BDC4"
+    roughness: 0.55
+    metalness: 0.08
+  MAT_LABWARE_PP:
+    base_color: "#FFFFFF"
+    roughness: 0.68
+    metalness: 0
+    alpha: 1
+  MAT_NAT_GOLD_B08D57:
+    base_color: "#919191"
+    metalness: 0
+  MAT_PLASTIC_C0C0C8:
+    base_color: "#B5B5B5"
+    metalness: 0.38
+  MAT_POWDER_BUCKET:
+    alpha: 0.64
+  MAT_SAMPLE_VIAL:
+    base_color: "#FFFFFF"
+    roughness: 0
+    metalness: 0.05
+    alpha: 0.86
+    ior: 2.22
+    emission_strength: 4.8
+  MAT_STEEL_PLATE_F0F0F0:
+    base_color: "#B8BDC4"
+    roughness: 0.55
+    metalness: 0.08
+    alpha: 1
+part_overrides:
+  # 零件级覆盖: 零件节点名 -> 观感参数(与 appearance_overrides 同一套字段).
+  # 本段由「材质工作台」写回, 每次保存整段重建. 键可写 glTF 原名(中文)或拼音 slug,
+  # 管线按 name_variants 双写法 + 空白消毒 + 47 字符截断匹配.
+  # 效果: 命中零件以其当前材质为底叠加补丁, 强制生成专属实例 MAT_PART_<slug> ——
+  # 该零件因此脱离共享材质, 重跑一次后在合并模型里单独成块, 永久可实时预览.
+  # 注意: 每条覆盖约 +1 绘制调用(05_report 有 500 上限门禁), 不宜超过几十条.
+  PTLC-08-010 下相机盖板玻璃-1:
+    base_color: "#B8BDC4"
+    roughness: 0.55
+    metalness: 0.08
+  注射泵压环-SMP:
+    base_color: "#B8BDC4"
+    roughness: 0.55
+    metalness: 0.75
+    transmission: 0.92
+    ior: 1.5
+  注射泵柱塞-SMP:
+    base_color: "#FFFFFF"
+    alpha: 1
+  注射泵滑车-SMP:
+    base_color: "#C5CAD2"
+    roughness: 0.4
+    metalness: 0.9
+  管路润洗收集瓶-1:
+    base_color: "#E8E6DF"
+    roughness: 0.5
+    metalness: 0
+    alpha: 1
+  钻头-3:
+    base_color: "#B0B0B0"
+    roughness: 0.3
+    metalness: 0.95
+  钻头夹具-2:
+    base_color: "#B8BDC4"
+    roughness: 0.55
+    metalness: 0.08
+  镜头-1:
+    base_color: "#C8CCD2"
+    roughness: 0.35
+    metalness: 0.9
+part_groups:
+  # 材质组: 组名 -> { parts: [零件原名...], 观感字段子集 }.
+  # 组内成员共享一个专属材质实例 MAT_GROUP_<slug>(底=parts 首个成员的类材质 ⊕ 组参数),
+  # 重跑后按工位合并为同一 STATIC 块 —— 这就是"哪些零件合并在一起"的决定权.
+  # 生效叠加序: 材质类 < 材质组 < 单件覆盖(part_overrides). 一零件至多属一组.
+  # 本段由「材质工作台」写回, 每次保存整段重建.
+  相机镜头-cam-lens:
+    parts:
+      - 相机镜头-1
+    base_color: "#C8CCD2"
+    roughness: 0.35
+    metalness: 0.9
+  缎面铝末端-satin-alu:
+    parts:
+      - PTLC-07-020 96孔板夹具-1
+      - PTLC-07-021 96孔板夹具1-1
+      - PTLC-07-018 96孔板夹爪1-1
+      - PTLC-07-019 96孔板夹爪-1
+      - 短柱1-1
+      - 短柱1-2
+      - 短柱1-3
+      - 短柱1-4
+      - PTLC-07-010 电爪连接板-1
+    base_color: "#F0F0F0"
+    roughness: 0.35
+    metalness: 0.88
+part_isolate:
+  # 孤立清单: 零件原名列表(剥 .00N 后缀的 base 名), 语义="只脱离静态合并、不改观感".
+  # 本段由「材质工作台」的"拆出为独立零件"写回, 每次保存整段重建.
+  # 效果: 命中零件以当前材质为底生成专属实例 MAT_SOLO_<slug>(观感不变), 合并时因
+  # 材质名唯一而独立成块; 同名多实例会一并孤立. 要改观感请改用 part_overrides ——
+  # 两段互斥, 重叠键在 build_materials 清洗期丢弃孤立标记并告警.
+  # 备注: 04 优化的材质去重会把"参数与类完全相同"的 MAT_SOLO 名折叠回类名,
+  # 不影响独立性(几何拆分已在 Blender 侧烘定, 每次重跑都会重演).
+  # 注意: 每条约 +1 绘制调用(05_report 有 500 上限门禁), 不宜超过几十条.
+  #
+  # 下面 25 条全是**柜门相关**: 沙盒 fx/doors.js 要逐扇挂铰链枢轴转, 门体连同骑在门上的
+  # 五金都必须脱离静态合并块(合并块只能整体动, 而它们分属 8 扇不同的门).
+  #
+  # ① 门体 9 件. 名带"固定"的那 4 扇曾被判为"按图纸不可开"而漏掉, 实为误判 ——
+  #    CAD 里每扇都带 2 只合页(AKQ41-G-Z-6065)+1 只把手(XAD51-A100), 是真门;
+  #    前后长面各 3 扇, 其中 固定门板-5+-6(前) 与 固定门板-2+-3(后) 各是一对对开门.
+  - 上料门板-1
+  - 侧门-1
+  - 侧门-2
+  - 侧门板-1
+  - 门板-5
+  - 固定门板-2
+  - 固定门板-3
+  - 固定门板-5
+  - 固定门板-6
+  # ② 门把手 8 只, 每扇一只, 骑在自由边(摆幅最大, 不跟着转就会明显悬在半空).
+  #    8 个基名互不相同, 各自独立成节点.
+  - XAD51-A100-1
+  - XAD51-A100-2
+  - XAD51-A100-3
+  - XAD51-A100-4
+  - XAD51-A100-5
+  - XAD51-A100-6
+  - XAD51-A100-7
+  - XAD51-A100-8
+  # ③ 合页门叶 8 组(每扇 2 片). 这些名字**不是 CAD 原名** —— 16 片门叶在 CAD 里同名
+  #    (只靠 Blender 的 .00N 区分), 而本段会剥掉 .00N 再去重, 直接写原名等于没写.
+  #    故由 blender_clean.rename_door_hinge_leaves() 先按几何(门叶中心落在哪扇门的
+  #    门板盒内)改成下面这些稳定名, 再由本段孤立. 同扇门两片同名 -> 同材质 -> 合并成
+  #    一个 STATIC_MAT_SOLO_DOOR_HINGE_<门键> 节点(省一半绘制调用, 反正它俩同进同出).
+  - DOOR_HINGE_feed
+  - DOOR_HINGE_back
+  - DOOR_HINGE_sideL1
+  - DOOR_HINGE_sideL2
+  - DOOR_HINGE_frontL1
+  - DOOR_HINGE_frontL2
+  - DOOR_HINGE_backL1
+  - DOOR_HINGE_backL2

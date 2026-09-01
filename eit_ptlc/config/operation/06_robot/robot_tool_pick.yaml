@@ -1,0 +1,438 @@
+schema: ptlc.script/v1
+kind: operation
+name: robot_tool_pick
+label: 装刀
+note: '刀库取工具上腕; 1吸盘/2大爪/3小爪'
+ui: {subgroup: 刀库, order: 81}
+vars:
+- name: tool_id
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: tool.pick 主选择值
+  enum:
+    - {value: 1, label: 1 吸盘}
+    - {value: 2, label: 2 大夹爪}
+    - {value: 3, label: 3 小夹爪}
+resources:
+- robot
+body:
+- op: if
+  cond:
+    binop: ==
+    left:
+      var: tool_id
+    right:
+      lit: 1
+  then:
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: robot-main.tool-change.slot-1.approach-high
+      motion:
+        lit: move_l
+      acc:
+        lit: 60
+      vel:
+        lit: 50
+      cp:
+        lit: 20
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: robot-main.tool-change.slot-1.approach-near
+      motion:
+        lit: move_l
+      acc:
+        lit: 12
+      vel:
+        lit: 15
+      cp:
+        lit: 0
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: robot-main.tool-change.slot-1.target
+      motion:
+        lit: move_l
+      acc:
+        lit: 6
+      vel:
+        lit: 5
+      cp:
+        lit: 0
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action:
+        lit: quick-change-lock
+      timeout_ms:
+        lit: 3000
+    mode: RUN
+  - op: call
+    action: robot.set_mounted_tool
+    args:
+      tool_id:
+        lit: 1
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: robot-main.tool-change.slot-1.approach-near
+      motion:
+        lit: move_l
+      acc:
+        lit: 6
+      vel:
+        lit: 10
+      cp:
+        lit: 0
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: robot-main.tool-change.slot-1.approach-high
+      motion:
+        lit: move_l
+      acc:
+        lit: 18
+      vel:
+        lit: 20
+      cp:
+        lit: 20
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: robot-main.tool-change.ready
+      motion:
+        lit: move_j
+      acc:
+        lit: 60
+      vel:
+        lit: 50
+      cp:
+        lit: 50
+    mode: RUN
+  - op: call
+    action: robot.dwell
+    args:
+      duration_ms:
+        lit: 500
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name:
+        lit: robot-main.home
+      motion:
+        lit: move_j
+      acc:
+        lit: 50
+      vel:
+        lit: 37
+      cp:
+        lit: 2
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id:
+        lit: robot-main.home
+      joint_tol_deg:
+        lit: 2
+      pos_tol_mm:
+        lit: 5
+      rot_tol_deg:
+        lit: 5
+    mode: RUN
+  elifs:
+  - cond:
+      binop: ==
+      left:
+        var: tool_id
+      right:
+        lit: 2
+    body:
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-2.approach-high
+        motion:
+          lit: move_l
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-2.approach-near
+        motion:
+          lit: move_l
+        acc:
+          lit: 12
+        vel:
+          lit: 15
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-2.target
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 5
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action:
+          lit: quick-change-lock
+        timeout_ms:
+          lit: 3000
+      mode: RUN
+    - op: call
+      action: robot.set_mounted_tool
+      args:
+        tool_id:
+          lit: 2
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-2.approach-near
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 10
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-2.approach-high
+        motion:
+          lit: move_l
+        acc:
+          lit: 18
+        vel:
+          lit: 20
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.ready
+        motion:
+          lit: move_j
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 50
+      mode: RUN
+    - op: call
+      action: robot.dwell
+      args:
+        duration_ms:
+          lit: 500
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.home
+        motion:
+          lit: move_j
+        acc:
+          lit: 50
+        vel:
+          lit: 37
+        cp:
+          lit: 2
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id:
+          lit: robot-main.home
+        joint_tol_deg:
+          lit: 2
+        pos_tol_mm:
+          lit: 5
+        rot_tol_deg:
+          lit: 5
+      mode: RUN
+  - cond:
+      binop: ==
+      left:
+        var: tool_id
+      right:
+        lit: 3
+    body:
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-3.approach-high
+        motion:
+          lit: move_l
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-3.approach-near
+        motion:
+          lit: move_l
+        acc:
+          lit: 12
+        vel:
+          lit: 15
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-3.target
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 5
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action:
+          lit: quick-change-lock
+        timeout_ms:
+          lit: 3000
+      mode: RUN
+    - op: call
+      action: robot.set_mounted_tool
+      args:
+        tool_id:
+          lit: 3
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-3.approach-near
+        motion:
+          lit: move_l
+        acc:
+          lit: 6
+        vel:
+          lit: 10
+        cp:
+          lit: 0
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.slot-3.approach-high
+        motion:
+          lit: move_l
+        acc:
+          lit: 18
+        vel:
+          lit: 20
+        cp:
+          lit: 20
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.tool-change.ready
+        motion:
+          lit: move_j
+        acc:
+          lit: 60
+        vel:
+          lit: 50
+        cp:
+          lit: 50
+      mode: RUN
+    - op: call
+      action: robot.dwell
+      args:
+        duration_ms:
+          lit: 500
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name:
+          lit: robot-main.home
+        motion:
+          lit: move_j
+        acc:
+          lit: 50
+        vel:
+          lit: 37
+        cp:
+          lit: 2
+      mode: RUN
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id:
+          lit: robot-main.home
+        joint_tol_deg:
+          lit: 2
+        pos_tol_mm:
+          lit: 5
+        rot_tol_deg:
+          lit: 5
+      mode: RUN
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message:
+      lit: 'tool.pick: 无效选择值'

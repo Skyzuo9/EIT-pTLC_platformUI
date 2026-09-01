@@ -1,0 +1,1303 @@
+{
+  "schema": "ptlc.payload-poses/v1",
+  "generatedFrom": "machine.full.glb",
+  "note": "localCenter 是该载荷子树逐顶点世界 AABB 中心折算回节点局部坐标的结果; INV_* 空节点的原点是任意的, 落位门禁必须用几何而不是原点。站侧座位(STA_*)按 id 与 CAD 叶名双键各存一份(同值): 编译器 _align_to_cad 源端按被携节点叶名查、目的端按载荷 id 查, 两边都要命中。",
+  "poses": {
+    "INV_MAGAZINE_FEED_TEMPLATE": {
+      "localCenter": [
+        0.0,
+        0.0,
+        0.00150156
+      ],
+      "worldCenter": [
+        0.56741875,
+        -0.44227183,
+        0.4360972
+      ]
+    },
+    "INV_MAGAZINE_WASTE_TEMPLATE": {
+      "localCenter": [
+        0.0,
+        0.0,
+        0.00150156
+      ],
+      "worldCenter": [
+        0.88741899,
+        -0.43663943,
+        0.436097
+      ]
+    },
+    "INV_RACK_BOTTLE_1_ITEM_1": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.296415,
+        -0.1165037
+      ]
+    },
+    "INV_RACK_BOTTLE_1_ITEM_2": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.296415,
+        -0.1165037
+      ]
+    },
+    "INV_RACK_BOTTLE_1_ITEM_3": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.296415,
+        -0.1165037
+      ]
+    },
+    "INV_RACK_BOTTLE_1_ITEM_4": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.296415,
+        -0.15650164
+      ]
+    },
+    "INV_RACK_BOTTLE_1_ITEM_5": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.296415,
+        -0.15650164
+      ]
+    },
+    "INV_RACK_BOTTLE_1_ITEM_6": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.296415,
+        -0.15650164
+      ]
+    },
+    "INV_RACK_BOTTLE_1": {
+      "localCenter": [
+        -0.00353491,
+        0.75580351,
+        0.14861943
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.29506751,
+        -0.1365028
+      ]
+    },
+    "INV_RACK_BOTTLE_2_ITEM_1": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.296415,
+        0.02349587
+      ]
+    },
+    "INV_RACK_BOTTLE_2_ITEM_2": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.296415,
+        0.02349587
+      ]
+    },
+    "INV_RACK_BOTTLE_2_ITEM_3": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.296415,
+        0.02349587
+      ]
+    },
+    "INV_RACK_BOTTLE_2_ITEM_4": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.296415,
+        -0.01650205
+      ]
+    },
+    "INV_RACK_BOTTLE_2_ITEM_5": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.296415,
+        -0.01650205
+      ]
+    },
+    "INV_RACK_BOTTLE_2_ITEM_6": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.296415,
+        -0.01650205
+      ]
+    },
+    "INV_RACK_BOTTLE_2": {
+      "localCenter": [
+        -0.00353491,
+        0.75580351,
+        0.14861943
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.29506751,
+        0.00349677
+      ]
+    },
+    "INV_RACK_BOTTLE_3_ITEM_1": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.296415,
+        0.1634959
+      ]
+    },
+    "INV_RACK_BOTTLE_3_ITEM_2": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.296415,
+        0.1634959
+      ]
+    },
+    "INV_RACK_BOTTLE_3_ITEM_3": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.296415,
+        0.1634959
+      ]
+    },
+    "INV_RACK_BOTTLE_3_ITEM_4": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.296415,
+        0.12349798
+      ]
+    },
+    "INV_RACK_BOTTLE_3_ITEM_5": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.296415,
+        0.12349798
+      ]
+    },
+    "INV_RACK_BOTTLE_3_ITEM_6": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.296415,
+        0.12349798
+      ]
+    },
+    "INV_RACK_BOTTLE_3": {
+      "localCenter": [
+        -0.00353491,
+        0.75580351,
+        0.14861943
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.29506751,
+        0.1434968
+      ]
+    },
+    "INV_RACK_BOTTLE_4_ITEM_1": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.13726496,
+        -0.1165037
+      ]
+    },
+    "INV_RACK_BOTTLE_4_ITEM_2": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.13726496,
+        -0.1165037
+      ]
+    },
+    "INV_RACK_BOTTLE_4_ITEM_3": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.13726496,
+        -0.1165037
+      ]
+    },
+    "INV_RACK_BOTTLE_4_ITEM_4": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.13726496,
+        -0.15650164
+      ]
+    },
+    "INV_RACK_BOTTLE_4_ITEM_5": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.13726496,
+        -0.15650164
+      ]
+    },
+    "INV_RACK_BOTTLE_4_ITEM_6": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.13726496,
+        -0.15650164
+      ]
+    },
+    "INV_RACK_BOTTLE_4": {
+      "localCenter": [
+        -0.00353491,
+        0.75580351,
+        0.14861943
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.13591748,
+        -0.1365028
+      ]
+    },
+    "INV_RACK_BOTTLE_5_ITEM_1": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.13726496,
+        0.02349587
+      ]
+    },
+    "INV_RACK_BOTTLE_5_ITEM_2": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.13726496,
+        0.02349587
+      ]
+    },
+    "INV_RACK_BOTTLE_5_ITEM_3": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.13726496,
+        0.02349587
+      ]
+    },
+    "INV_RACK_BOTTLE_5_ITEM_4": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.13726496,
+        -0.01650205
+      ]
+    },
+    "INV_RACK_BOTTLE_5_ITEM_5": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.13726496,
+        -0.01650205
+      ]
+    },
+    "INV_RACK_BOTTLE_5_ITEM_6": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.13726496,
+        -0.01650205
+      ]
+    },
+    "INV_RACK_BOTTLE_5": {
+      "localCenter": [
+        -0.00353491,
+        0.75580351,
+        0.14861943
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.13591748,
+        0.00349677
+      ]
+    },
+    "INV_RACK_BOTTLE_6_ITEM_1": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.13726496,
+        0.16349593
+      ]
+    },
+    "INV_RACK_BOTTLE_6_ITEM_2": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.13726496,
+        0.16349593
+      ]
+    },
+    "INV_RACK_BOTTLE_6_ITEM_3": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.13726496,
+        0.16349593
+      ]
+    },
+    "INV_RACK_BOTTLE_6_ITEM_4": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.22227586,
+        0.13726496,
+        0.12349801
+      ]
+    },
+    "INV_RACK_BOTTLE_6_ITEM_5": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.17977584,
+        0.13726496,
+        0.12349801
+      ]
+    },
+    "INV_RACK_BOTTLE_6_ITEM_6": {
+      "localCenter": [
+        2.87e-06,
+        0.0475,
+        3.02e-06
+      ],
+      "worldCenter": [
+        -1.13727582,
+        0.13726496,
+        0.12349801
+      ]
+    },
+    "INV_RACK_BOTTLE_6": {
+      "localCenter": [
+        -0.00353491,
+        0.75580351,
+        0.14861943
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.13591748,
+        0.14349683
+      ]
+    },
+    "INV_RACK_COLLECTOR_1_ITEM_1": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.63219998,
+        -0.11400258
+      ]
+    },
+    "INV_RACK_COLLECTOR_1_ITEM_2": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.63219998,
+        -0.11400258
+      ]
+    },
+    "INV_RACK_COLLECTOR_1_ITEM_3": {
+      "localCenter": [
+        0.00233954,
+        0.03975001,
+        0.02151903
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.63219998,
+        -0.13564944
+      ]
+    },
+    "INV_RACK_COLLECTOR_1_ITEM_4": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.63219998,
+        -0.15900281
+      ]
+    },
+    "INV_RACK_COLLECTOR_1_ITEM_5": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.63219998,
+        -0.15900281
+      ]
+    },
+    "INV_RACK_COLLECTOR_1_ITEM_6": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.63219998,
+        -0.15900281
+      ]
+    },
+    "INV_RACK_COLLECTOR_1": {
+      "localCenter": [
+        -0.0024941,
+        0.77013601,
+        0.00114672
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.6292,
+        -0.1365028
+      ]
+    },
+    "INV_RACK_COLLECTOR_2_ITEM_1": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.63219998,
+        0.02599699
+      ]
+    },
+    "INV_RACK_COLLECTOR_2_ITEM_2": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.63219998,
+        0.02599699
+      ]
+    },
+    "INV_RACK_COLLECTOR_2_ITEM_3": {
+      "localCenter": [
+        0.00233954,
+        0.03975001,
+        0.02151903
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.63219998,
+        0.00435013
+      ]
+    },
+    "INV_RACK_COLLECTOR_2_ITEM_4": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.63219998,
+        -0.01900323
+      ]
+    },
+    "INV_RACK_COLLECTOR_2_ITEM_5": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.63219998,
+        -0.01900323
+      ]
+    },
+    "INV_RACK_COLLECTOR_2_ITEM_6": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.63219998,
+        -0.01900323
+      ]
+    },
+    "INV_RACK_COLLECTOR_2": {
+      "localCenter": [
+        -0.0024941,
+        0.77013601,
+        0.00114673
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.6292,
+        0.00349677
+      ]
+    },
+    "INV_RACK_COLLECTOR_3_ITEM_1": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.63220006,
+        0.16599671
+      ]
+    },
+    "INV_RACK_COLLECTOR_3_ITEM_2": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.63220006,
+        0.16599671
+      ]
+    },
+    "INV_RACK_COLLECTOR_3_ITEM_3": {
+      "localCenter": [
+        0.00233954,
+        0.03975001,
+        0.02151905
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.63220006,
+        0.14434983
+      ]
+    },
+    "INV_RACK_COLLECTOR_3_ITEM_4": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.63220006,
+        0.12099649
+      ]
+    },
+    "INV_RACK_COLLECTOR_3_ITEM_5": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.63220006,
+        0.12099649
+      ]
+    },
+    "INV_RACK_COLLECTOR_3_ITEM_6": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.63220006,
+        0.12099649
+      ]
+    },
+    "INV_RACK_COLLECTOR_3": {
+      "localCenter": [
+        -0.0024941,
+        0.77013604,
+        0.00114672
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.62920005,
+        0.14349649
+      ]
+    },
+    "INV_RACK_COLLECTOR_4_ITEM_1": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.47296999,
+        -0.11400258
+      ]
+    },
+    "INV_RACK_COLLECTOR_4_ITEM_2": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.47296999,
+        -0.11400258
+      ]
+    },
+    "INV_RACK_COLLECTOR_4_ITEM_3": {
+      "localCenter": [
+        0.00233954,
+        0.03975001,
+        0.02151903
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.47296999,
+        -0.13564944
+      ]
+    },
+    "INV_RACK_COLLECTOR_4_ITEM_4": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.47296999,
+        -0.15900281
+      ]
+    },
+    "INV_RACK_COLLECTOR_4_ITEM_5": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.47296999,
+        -0.15900281
+      ]
+    },
+    "INV_RACK_COLLECTOR_4_ITEM_6": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.47296999,
+        -0.15900281
+      ]
+    },
+    "INV_RACK_COLLECTOR_4": {
+      "localCenter": [
+        -0.0024941,
+        0.77013601,
+        0.00114672
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.46997001,
+        -0.1365028
+      ]
+    },
+    "INV_RACK_COLLECTOR_5_ITEM_1": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.47296999,
+        0.02599701
+      ]
+    },
+    "INV_RACK_COLLECTOR_5_ITEM_2": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.47296999,
+        0.02599701
+      ]
+    },
+    "INV_RACK_COLLECTOR_5_ITEM_3": {
+      "localCenter": [
+        0.00233954,
+        0.03975001,
+        0.02151904
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.47296999,
+        0.00435014
+      ]
+    },
+    "INV_RACK_COLLECTOR_5_ITEM_4": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.47296999,
+        -0.01900322
+      ]
+    },
+    "INV_RACK_COLLECTOR_5_ITEM_5": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.47296999,
+        -0.01900322
+      ]
+    },
+    "INV_RACK_COLLECTOR_5_ITEM_6": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.47296999,
+        -0.01900322
+      ]
+    },
+    "INV_RACK_COLLECTOR_5": {
+      "localCenter": [
+        -0.0024941,
+        0.77013601,
+        0.00114673
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.46997001,
+        0.00349678
+      ]
+    },
+    "INV_RACK_COLLECTOR_6_ITEM_1": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.47296999,
+        0.16599674
+      ]
+    },
+    "INV_RACK_COLLECTOR_6_ITEM_2": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.47296999,
+        0.16599674
+      ]
+    },
+    "INV_RACK_COLLECTOR_6_ITEM_3": {
+      "localCenter": [
+        0.00233954,
+        0.03975001,
+        0.02151904
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.47296999,
+        0.14434987
+      ]
+    },
+    "INV_RACK_COLLECTOR_6_ITEM_4": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.22727958,
+        0.47296999,
+        0.12099652
+      ]
+    },
+    "INV_RACK_COLLECTOR_6_ITEM_5": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.17978005,
+        0.47296999,
+        0.12099652
+      ]
+    },
+    "INV_RACK_COLLECTOR_6_ITEM_6": {
+      "localCenter": [
+        -7e-08,
+        0.03975001,
+        -1.02e-06
+      ],
+      "worldCenter": [
+        -1.13228063,
+        0.47296999,
+        0.12099652
+      ]
+    },
+    "INV_RACK_COLLECTOR_6": {
+      "localCenter": [
+        -0.0024941,
+        0.77013601,
+        0.00114672
+      ],
+      "worldCenter": [
+        -1.17978001,
+        0.46997001,
+        0.14349652
+      ]
+    },
+    "INV_SAMPLE_PLATE_1": {
+      "localCenter": [
+        1.08154064,
+        0.0965,
+        0.0450976
+      ],
+      "worldCenter": [
+        1.08154064,
+        0.0965,
+        0.0450976
+      ]
+    },
+    "INV_SAMPLE_PLATE_2": {
+      "localCenter": [
+        1.08154064,
+        0.0965,
+        0.15710028
+      ],
+      "worldCenter": [
+        1.08154064,
+        0.0965,
+        0.15710028
+      ]
+    },
+    "INV_STAGING_A_ITEM_1": {
+      "localCenter": [
+        6.3e-07,
+        0.03975,
+        -1.75e-06
+      ],
+      "worldCenter": [
+        0.56492139,
+        0.23157976,
+        0.0744988
+      ]
+    },
+    "INV_STAGING_A_ITEM_2": {
+      "localCenter": [
+        6.3e-07,
+        0.03975,
+        -1.75e-06
+      ],
+      "worldCenter": [
+        0.61242086,
+        0.23157976,
+        0.0744988
+      ]
+    },
+    "INV_STAGING_A_ITEM_3": {
+      "localCenter": [
+        6.3e-07,
+        0.03975,
+        -1.75e-06
+      ],
+      "worldCenter": [
+        0.65992034,
+        0.23157976,
+        0.0744988
+      ]
+    },
+    "INV_STAGING_A_ITEM_4": {
+      "localCenter": [
+        6.3e-07,
+        0.03975,
+        -1.75e-06
+      ],
+      "worldCenter": [
+        0.56492139,
+        0.23157976,
+        0.02949858
+      ]
+    },
+    "INV_STAGING_A_ITEM_5": {
+      "localCenter": [
+        6.3e-07,
+        0.03975,
+        -1.75e-06
+      ],
+      "worldCenter": [
+        0.61242086,
+        0.23157976,
+        0.02949858
+      ]
+    },
+    "INV_STAGING_A_ITEM_6": {
+      "localCenter": [
+        6.3e-07,
+        0.03975,
+        -1.75e-06
+      ],
+      "worldCenter": [
+        0.65992034,
+        0.23157976,
+        0.02949858
+      ]
+    },
+    "INV_STAGING_A": {
+      "localCenter": [
+        0.61241901,
+        0.22574976,
+        0.05609764
+      ],
+      "worldCenter": [
+        0.61241901,
+        0.22857976,
+        0.05199764
+      ]
+    },
+    "INV_STAGING_B_ITEM_1": {
+      "localCenter": [
+        8.97e-06,
+        0.0475,
+        -5.3e-06
+      ],
+      "worldCenter": [
+        0.24050918,
+        0.21409559,
+        0.24859173
+      ]
+    },
+    "INV_STAGING_B_ITEM_2": {
+      "localCenter": [
+        8.97e-06,
+        0.0475,
+        -5.3e-06
+      ],
+      "worldCenter": [
+        0.24050918,
+        0.21409559,
+        0.20609176
+      ]
+    },
+    "INV_STAGING_B_ITEM_3": {
+      "localCenter": [
+        8.97e-06,
+        0.0475,
+        -5.3e-06
+      ],
+      "worldCenter": [
+        0.24050919,
+        0.21409559,
+        0.16359178
+      ]
+    },
+    "INV_STAGING_B_ITEM_4": {
+      "localCenter": [
+        8.97e-06,
+        0.0475,
+        -5.3e-06
+      ],
+      "worldCenter": [
+        0.20051124,
+        0.21409559,
+        0.24859173
+      ]
+    },
+    "INV_STAGING_B_ITEM_5": {
+      "localCenter": [
+        8.97e-06,
+        0.0475,
+        -5.3e-06
+      ],
+      "worldCenter": [
+        0.20051124,
+        0.21409559,
+        0.20609176
+      ]
+    },
+    "INV_STAGING_B_ITEM_6": {
+      "localCenter": [
+        8.97e-06,
+        0.0475,
+        -5.3e-06
+      ],
+      "worldCenter": [
+        0.20051126,
+        0.21409559,
+        0.16359178
+      ]
+    },
+    "INV_STAGING_B": {
+      "localCenter": [
+        0.21241903,
+        0.21184759,
+        0.2060976
+      ],
+      "worldCenter": [
+        0.22051901,
+        0.21274759,
+        0.2060976
+      ]
+    },
+    "STA_SCRAPE_HOLDER": {
+      "localCenter": [
+        2.5e-06,
+        0.03974998,
+        -8.9e-07
+      ],
+      "worldCenter": [
+        0.69291874,
+        0.31814998,
+        -0.25215032
+      ]
+    },
+    "硅胶收集-1.008": {
+      "localCenter": [
+        2.5e-06,
+        0.03974998,
+        -8.9e-07
+      ],
+      "worldCenter": [
+        0.69291874,
+        0.31814998,
+        -0.25215032
+      ]
+    },
+    "样品瓶-2": {
+      "localCenter": [
+        -9.53e-06,
+        0.0475,
+        4.56e-06
+      ],
+      "worldCenter": [
+        0.19740991,
+        0.26218571,
+        0.45609224
+      ]
+    },
+    "STA_COLLECT_BOTTLE": {
+      "localCenter": [
+        -9.53e-06,
+        0.0475,
+        4.56e-06
+      ],
+      "worldCenter": [
+        0.19740991,
+        0.26218571,
+        0.45609224
+      ]
+    },
+    "硅胶收集-1": {
+      "localCenter": [
+        -7e-07,
+        0.03975001,
+        2.4e-07
+      ],
+      "worldCenter": [
+        0.19741947,
+        0.36964971,
+        0.45609659
+      ]
+    },
+    "STA_COLLECT_HOLDER": {
+      "localCenter": [
+        -7e-07,
+        0.03975001,
+        2.4e-07
+      ],
+      "worldCenter": [
+        0.19741947,
+        0.36964971,
+        0.45609659
+      ]
+    }
+  }
+}

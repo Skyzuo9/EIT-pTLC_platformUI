@@ -1,0 +1,255 @@
+# params 书写约定: 每项是 YAML 流式映射 {..}, 裸逗号是键分隔符 —— 值文本内含逗号必须加引号
+# (如 label: "吸液速度 V (DT, 缺省=泵档)"), 否则 label 被截断且余段变成野键, UI 显示残缺。
+#
+# 上样点样工位 PLC L2 原子动作 (与 PLC 50_action/Sampling_L2 动作码对齐)
+# 机器人放/取硅胶板由上位机 Dobot 直驱, 穿插于下列原子之间.
+# 编排序列: init(10) -> clean(20) -> place_axis(31) ->[机器人放板]-> place_locate(32) ->
+#           prep(40) -> absorb(50) -> spray_axis(61) -> spot(60/62) ->
+#           [可选 rinse_mix(55) -> aspirate(50) -> spot(62)] -> place_release(33) ->[机器人取板]
+# 泵动作 (clean/prep/aspirate/rinse_mix/spot) 的语义参数 (体积/驱动液留存/次数/孔位) 由执行器经
+# tools/pump/profiles.py 的 builder 翻译为注射泵 DT 指令 (Sampling_*_instructions) 再写 PLC.
+# 速度/延时 (DT V/M: asp_speed/disp_speed/spot_disp_speed/step_delay) 为可选覆写参数,
+# 不传则由 translator 模块常量兜底 (默认值单一真源=常量, 不在此复制数值).
+
+sampling.init:
+  kind: plc_l2
+  station: sampling
+  action_code: 10
+  label: 上样工位复位
+  hint: 各轴回零位并初始化点样泵
+  desc: |-
+    执行步骤：清除上样定位、三通和吹气的手/自动输出及各动作状态，先把5Z移到0，再把4X、6X、7Y移到0；随后向4号注射泵发送 /4Z0,1,1R 初始化命令并轮询 /4Q。
+    前置与安全：PLC须处于运行态、PLC_Ready成立且不在部署维护态；机器人须退出轴运动区。本动作只把3Y目标写为0，并未命令3Y移动，也不包含机器人放板或样品吸取。
+    完成与异常：4X、5Z、6X、7Y到位且泵空闲上升沿到达后返回DONE；本子程序没有单独的伺服/泵错误分支，轴或泵不完成时由上位机停滞/绝对超时判定，启动门失败为ErrorCode 190。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码10 → A10_init_初始化。
+  modes: []
+
+sampling.clean:
+  kind: plc_l2
+  station: sampling
+  action_code: 20
+  label: 上样-重清洗
+  desc: |-
+    执行步骤：先把5Z升到0，再把4X移到Sampling_4X_WashTarget、6X移到清洗位并下降5Z；重清洗模式每轮依次发送指令1（三通点样头侧）、再次发送指令1（三通上样针侧）和指令2，每段均用/4Q确认4号泵空闲。
+    前置与安全：PLC须处于运行/就绪态，清洗目标和泵指令须已由上位机写入；针头与排液端应在清洗/废液安全位置。该液体动作非幂等，不自动重发，停滞预算为120秒。
+    完成与异常：完成Sampling_clean_count轮后复位三通到上样针侧并返回DONE；该PLC子程序没有显式bActionError分支，泵无响应、轴不到位等由上位机停滞/绝对超时报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码20 → A20_clean_清洗（Sampling_clean_mode=0）。
+  stall_timeout: 120.0   # 泵循环内部静默窗口长, 单独放宽停滞判停, 不牵动全局阈值
+  modes: []
+  params:
+    - {name: wash_volume_ml, type: float, required: false, default: 25.0, min: 0.1, max: 25.0, label: 单次清洗体积 (mL)}
+    - {name: cleaning_count, type: int, required: false, default: 3, min: 1, max: 20, label: 清洗重复次数}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: disp_speed, type: int, required: false, min: 1, max: 500, label: "打液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+# 轻清洗充液: 与 sampling.clean 共用动作码20与 clean 通道, 由 Sampling_clean_mode=1 区分。
+# 一次吸满(=三段之和): entry1 链式[吸+充上样流路+冲外壁], entry2 单独[冲点样头至A0];
+# PLC 在 entry 边界(Q确认泵空闲后)切三通→点样, 结束复位→上样。
+# 物理前置(编排层保证): 上样针在废液/清洗位(17mL从针尖排出), 点样头在其清洗位(3mL从点样头排出)。
+sampling.flush:
+  kind: plc_l2
+  station: sampling
+  action_code: 20
+  label: 上样-充液润洗
+  desc: |-
+    执行步骤：与clean共用动作码20；轴先进入相同清洗位，Sampling_clean_mode=1时在三通为上样针侧发送指令1，/4Q确认泵空闲后切到点样头侧发送指令2，第二次确认空闲后把三通复位到上样针侧。
+    前置与安全：PLC须处于运行/就绪态；上样针必须在废液/清洗位、点样头在清洗位，充液润洗两条DT指令及三段总体积须已通过上位机校验。
+    完成与异常：两条指令均收到泵空闲确认且三通命令复位后返回DONE；PLC不读取三通到位反馈，也无显式泵错误分支，泵或轴不完成时由上位机超时报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码20 → A20_clean_清洗（Sampling_clean_mode=1）。
+  stall_timeout: 120.0   # 泵循环内部静默窗口长, 单独放宽停滞判停, 不牵动全局阈值
+  modes: []
+  params:
+    - {name: flush_volume_ml, type: float, required: false, default: 17.0, min: 0.1, max: 25.0, label: 上样流路充液体积 (mL)}
+    - {name: outer_wash_volume_ml, type: float, required: false, default: 5.0, min: 0.1, max: 25.0, label: 针外壁清洗体积 (mL)}
+    - {name: spot_head_volume_ml, type: float, required: false, default: 3.0, min: 0.1, max: 25.0, label: 点样头清洗体积 (mL)}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: flush_disp_speed, type: int, required: false, min: 1, max: 500, label: "充液/外壁打速 V (DT, 缺省=300)"}
+    - {name: spot_head_disp_speed, type: int, required: false, min: 1, max: 500, label: "点样头打速 V (DT, 缺省=100)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+sampling.place_axis:
+  kind: plc_l2
+  station: sampling
+  action_code: 31
+  label: 上样-移轴至放板位
+  desc: |-
+    执行步骤：把点样7Y轴绝对目标设为HMI_点样轴7Y.position[1]，置位xMoveAbs并等待bAbMoveDone，随后撤销移动命令。
+    前置与安全：PLC须处于运行/就绪态；定位夹具应让位，机器人不得伸入7Y运动区域。本动作不操作机器人，也不校验机器人位置。
+    完成与异常：7Y的bAbMoveDone成立后返回DONE；PLC动作内没有伺服报警分支，未到位时由L2停滞/绝对超时返回TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码31 → A31_放板移轴。
+  modes: []
+sampling.place_locate:
+  kind: plc_l2
+  station: sampling
+  action_code: 32
+  label: 上样-定位夹紧
+  desc: |-
+    执行步骤：把“上样定位自动”置TRUE，同时置Sampling_Place_materials_OK为TRUE，并在同一扫描周期返回DONE。
+    前置与安全：PLC须处于运行/就绪态；板必须正确落座、机器人已退出夹具范围且7Y已在放板位。PLC本动作不检查这些编排前置。
+    完成与异常：DONE仅表示定位输出命令已写入，不表示气缸已到夹紧反馈；PLC子程序不等待到位也不产生气缸错误，物理到位必须由设备联锁/外部诊断确认。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码32 → A32_放板定位。
+  modes: []
+sampling.place_release:
+  kind: plc_l2
+  station: sampling
+  action_code: 33
+  label: 上样-定位松开
+  desc: |-
+    执行步骤：把“上样定位自动”置FALSE，并在同一扫描周期返回DONE，为后续机器人取板发出松开命令。
+    前置与安全：PLC须处于运行/就绪态；工艺运动应已停止且取板路径安全，松开后板件不再由夹具约束。
+    完成与异常：DONE仅表示松开输出已写入，不表示原位反馈成立；PLC子程序不等待气缸反馈，机器人进入前必须由编排/设备信号另行确认安全。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码33 → A33_定位松开。
+  modes: []
+
+sampling.prep:
+  kind: plc_l2
+  station: sampling
+  action_code: 40
+  label: 上样-蓄驱动液
+  desc: |-
+    执行步骤：先把5Z抬到0使针尖离液悬空；取得共享泵总线后只发送Sampling_prep_instructions[1]（自口3绝对回抽至A{n}），随后循环/4Q直到4号泵空闲，回抽量和泵速由上位机生成该DT指令。
+    前置与安全：PLC须处于运行/就绪态，充液润洗应已完成使管路满液，针尖须在空气中（本动作自带抬针）。液柱不可压缩，一次回抽在两端同时成立：泵腔侧吸入等量清洗液（点样驱动液储备），针尖侧同时形成等量空气段；现行过阀排空点样流程按后者即“气隔断”语义消费该参数，隔离样品与共管清洗液柱。
+    完成与异常：5Z到0且收到泵空闲上升沿后释放泵总线并返回DONE；PLC无显式泵/伺服错误分支，不完成时由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码40 → A40_prep_上样准备。
+  modes: []
+  params:
+    # 参数名 air_buffer_ml 为兼容既有 operation 与 translator 契约保留；一次回抽两端同时成立，
+    # 泵腔侧存等量清洗液、针尖侧形成等量空气段，现行流程按气隔断语义消费（与 rinse_mix.air_gap_ml 同域）。
+    - {name: air_buffer_ml, type: float, required: false, default: 0.2, min: 0.1, max: 1.0, label: "针尖气隔断体积 (mL, 泵腔侧等量存清洗液)"}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+sampling.aspirate:
+  kind: plc_l2
+  station: sampling
+  action_code: 50
+  label: 上样-吸取样品
+  desc: |-
+    执行步骤：5Z先升到0；若指令[2]非空则在此原位空气中发送该绝对吸气指令并经/4Q确认空闲后释放泵总线（建立针尖气隔断），随后4X/3Y才移到主机下发孔位，再把5Z降到HMI position[2]；PLC从指令[1]解析P增量，查询/4?得到真实活塞位，校验当前位置+增量≤6000后发送相对回抽指令，/4Q空闲后抬5Z到0。
+    前置与安全：PLC须处于运行/就绪态；孔板标定、4X/3Y目标和P指令必须有效，针路无碰撞。气隔断必须在移向孔位之前吸入——吸气前针尖内为满液，带液移动途中的挂壁滴液会滴进样品孔稀释样品；指令[2]为绝对A{gap}，故润洗轮（进入时活塞已在A{gap}）为零位移，天然幂等。该吸液为非幂等物理动作，不自动重发。
+    完成与异常：回抽完成且5Z安全抬起后返回DONE；P指令无效或行程越界为ErrorCode 463，/4?连续5次无有效帧为464，错误路径同样先抬针；轴/泵停滞由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码50 → A50_absorb_吸收液体（step 2/3 为气隔断段）。
+  modes: []
+  params:
+    # 孔位寻址 (执行器据此取标定算 xy 写 Sampling_4X/3Y_Target; 非泵 builder 消费, 见 executor.PLATE_WELL_PARAMS)
+    - {name: plate_spec, type: enum, required: true, default: "4×6", options: ["4×6", "6×8"], label: 盘位规格}
+    - {name: plate_no, type: enum, required: true, default: "1", options: ["1", "2"], label: 盘位号}
+    - {name: well, type: string, required: true, default: "A1", label: 孔位编号 (如 A1)}
+    # A50 用 P<n> 相对叠加；PLC 直接解析该指令并以真活塞位 + n <= 6000 做最终安全闸。
+    # max 15.0 的物理来源: 针尖到泵腔的距离 = 针流路 1.125 + 泵至三通上样路 loop 环 15.7 (实测) = 16.825 mL,
+    # 吸入量超过它样品段就被抽进注射器筒 (破坏"样品不进泵腔"原则, 且 PLC 的 6000 步=25mL 闸拦不住);
+    # 取 15.0 留 1.825 mL 管路容差余量。旧值 12.0 是 v2 空气驱动策略 peak=2×sample+margin<=25 的
+    # 遗留 (该策略样品进泵腔), 与现行过阀排空流程无关, 已废弃。
+    - {name: sample_volume_ml, type: float, required: false, default: 5.0, min: 0.1, max: 15.0, label: 相对回抽样品体积 (mL)}
+    # required:false 且刻意不设 default —— 不传即跳过吸气段 (同 spot_band_layer 的 x_start "不传走点表基准"),
+    # 使先调 sampling.prep 建立气隔断的 legacy 编排逐字不变。
+    - {name: air_gap_ml, type: float, required: false, min: 0.1, max: 1.0, label: "针尖气隔断体积 (mL, 移孔位前于空气中吸入; 不传则跳过)"}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+# 点样后润洗吹打: 仅供点样轮之间、针对同一原样品孔调用。
+# A55 先把泵腔当前余量(纯驱动清洗液)经上样针回打原孔，再从口1加入润洗液，抬针吸气隔断后
+# 在原孔内循环吹打；终态活塞停在 A{gap}，气隔断已建立。后续直接编排 aspirate -> spot_band_layer，
+# 不再 prep(气隔断由本动作自带)。
+sampling.rinse_mix:
+  kind: plc_l2
+  station: sampling
+  action_code: 55
+  label: 上样-原孔润洗混匀
+  desc: |-
+    执行步骤：5Z升到0后4X/3Y回到主机下发的原样品孔，再下降5Z；三通保持上样针侧，依次执行“泵腔余量回打并回A0”“口1吸润洗液后经口3全部打入原孔”两条命令；随后抬5Z到0在空气中执行“口3吸气隔断至A{gap}”，再下降5Z执行“口3吸至A{gap+mix}并回打A{gap}”混匀命令，第四条按count循环，最后抬针。
+    前置与安全：PLC须处于运行/就绪态；只用于点样轮之间且仍指向同一原样品孔，四条命令非空、count为1–20。Reset会先停三轴/关闭三通并在泵总线空闲时发送/4T，不自动重发。
+    完成与异常：每条命令均经/4Q空闲确认、全部循环结束且5Z抬到0后返回DONE；终态活塞停在A{gap}(气隔断保留在针尖端)；参数/指令非法为ErrorCode 466且不可重试，泵或轴停滞由600秒预算判TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码55 → A55_润洗吹打混匀(四条指令+抬针吸气版)。
+  stall_timeout: 600.0
+  # 绝对上限必须严格大于停滞预算, 否则 stall 永远轮不到触发 (两者同时到点) 等于失效。
+  # 实际耗时: 四条泵指令约 30s + 步间延时与 /4Q 轮询 + 5Z 三次升降与 XY 移位, 合计约 100s,
+  # 900 只是兜底病态挂死, 不构成约束。
+  action_timeout: 900.0
+  modes: []
+  params:
+    # 与 sampling.aspirate 同一孔位寻址契约；执行器在 L2 Start 前写 Sampling_4X/3Y_Target。
+    - {name: plate_spec, type: enum, required: true, default: "4×6", options: ["4×6", "6×8"], label: 盘位规格}
+    - {name: plate_no, type: enum, required: true, default: "1", options: ["1", "2"], label: 盘位号}
+    - {name: well, type: string, required: true, default: "A1", label: 孔位编号 (如 A1)}
+    - {name: rinse_volume_ml, type: float, required: true, min: 0.1, max: 25.0, label: 润洗液体积 (mL)}
+    - {name: mix_volume_ml, type: float, required: true, min: 0.1, max: 25.0, label: 单次吹打体积 (mL)}
+    - {name: mix_count, type: int, required: true, min: 1, max: 20, label: 吹打次数}
+    - {name: air_gap_ml, type: float, required: false, default: 0.2, min: 0.1, max: 1.0, label: 混匀气隔断体积 (mL)}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "吸液速度 V (DT, 缺省=泵档)"}
+    - {name: disp_speed, type: int, required: false, min: 1, max: 500, label: "打液速度 V (DT, 缺省=泵档)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+# 点样: 触发前据 ref_spot 指定的组合点位 (plc_servo_composite key, 含 X起点/X终点/Y高度 三成员) 取值
+# 整体写入 PLC Spot_*_Target flat 节点, 再触发动作 60 (合并自原 push_spot_targets; 值在点位表
+# points/plc/spotting.yaml, 用哪个点位由调用方显式给定, 单独执行也须指明)。多带由 operation 逐带调用点样
+# 动作, 每带几何经运行前临时覆盖 (见 spot_band_layer 的 x_start/x_end/y_height; 覆盖不回写点表)。
+sampling.spot:
+  kind: plc_l2
+  station: sampling
+  action_code: 60
+  label: 上样-点样(旧单次)
+  desc: |-
+    执行步骤：6X/7Y先到主机写入的Spot起点/Y目标，三通切到点样头并执行dispense指令1；泵空闲后开启吹气、发送指令2并让6X扫到终点，泵未空闲时6X在起止点往返；收尾把6X/7Y移到各自HMI position[1]并松开上样定位。
+    前置与安全：PLC须处于运行/就绪态，Spot目标和两条DT指令须已写入；这是旧兼容链路，当前prep保液/P相对吸液工艺应使用spot_band_layer。PLC不检查板件夹紧或机器人位置。
+    完成与异常：泵空闲、6X完成扫线、6X/7Y回清洗位并关闭三通/吹气后返回DONE；该子程序无显式设备错误分支，泵或轴不完成由上位机报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码60 → A60_spray_点样。
+  modes: []
+  params:
+    - {name: ref_spot, type: point_ref, required: true, label: 点样位置-组合点位}
+    # max 12.0 在本动作是对的: 走 v2 空气驱动策略, 样品进泵腔, 峰值 = 2×sample + margin <= 25mL。
+    # 不要跟 sampling.aspirate 的 15.0 对齐 —— 两者约束来源不同。
+    - {name: sample_volume_ml, type: float, required: false, default: 5.0, min: 0.1, max: 12.0, label: 样品体积 (mL)}
+    - {name: asp_speed, type: int, required: false, min: 1, max: 500, label: "驱动空气吸取速度 V (DT, 缺省=泵档)"}
+    - {name: spot_disp_speed, type: int, required: false, min: 1, max: 500, label: "点样打液速度 V (DT, 缺省=50)"}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "步间延时 M (ms, 缺省=泵档)"}
+
+sampling.spray_axis:
+  kind: plc_l2
+  station: sampling
+  action_code: 61
+  label: 上样-移轴至点样位
+  desc: |-
+    执行步骤：把点样7Y绝对目标设为HMI_点样轴7Y.position[2]，置位xMoveAbs，等待bAbMoveDone后撤销移动命令。
+    前置与安全：PLC须处于运行/就绪态；硅胶板应已定位夹紧且机器人已退出工位，PLC本动作不检查这些编排前置。
+    完成与异常：7Y到位位成立后返回DONE；PLC无显式伺服报警分支，未到位由L2停滞/绝对超时报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码61 → A61_喷涂移轴。
+  modes: []
+
+# 单条带层点样: 一个条带/一层 = 一个 PLC L2 action。PLC 内部强同步完成 (模型B, 循环到活塞到0):
+#   到起点 -> [发一程 A0R + 6X 正扫点样 -> 到位后发新鲜 Q 判泵位: 未到0则停泵(/4T)+吹气往复吹干+回起点再来一程] 循环
+#   -> A0R 自然打到目标0(泵不经我们T而自空闲) 即收尾 -> 带气去 PLC 现有点样头清洗/回位 -> 在清洗位关气。多个条带/多层由 operation 多次调用本动作,
+#   每带的点样几何 (X起点/终点/Y高度) 可经 x_start/x_end/y_height 运行前逐带临时覆盖 (缺省走点表示教基准)。
+sampling.spot_band_layer:
+  kind: plc_l2
+  station: sampling
+  action_code: 62
+  label: 上样-单条带点样+吹干
+  desc: |-
+    执行步骤：6X/7Y到Spot起点/Y目标后，开启点样头三通和吹气，发送一程Sampling_band_run_instruction并按当前方向液体扫线；到端点立即发/4T，同时以干燥速度往返dry_cycles次并并行查询/4?活塞位，未到end_position+5则反向开始下一程，最多60程；结束后带气回6X/7Y清洗位并关闭输出。
+    前置与安全：PLC须处于运行/就绪态；板已夹紧，Spot几何、液体/干燥速度、干燥次数和活塞终点须已写入且在上位机范围内。每次只处理一个条带/一层，非幂等，不自动重发。
+    完成与异常：活塞达到目标、扫线/吹干和清洗位收尾完成后返回DONE；超过60程为ErrorCode 462，/4?连续5次无有效帧为465并停轴关气关阀，其他轴/泵停滞由600秒预算报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/Sampling_L2 动作码62 → A62_单条带点样。
+  stall_timeout: 600.0
+  # 绝对上限单独放大 (全局缺省 600s 不够): 本动作是全流程最慢的一步 —— 蛇形分程供液, 每程
+  # = 液体扫线(带长/spot_speed) + dry_cycles×2 段吹干(带长/dry_speed), 泵仅在液体程输液。
+  # 缺省几何 (带长170mm, 40/20mm/s, dry_cycles=1, 泵速V6=1.5mL/min) 约 21s/程、0.106mL/程:
+  # 首轮推 2.475mL ≈ 24 程 ≈ 510s, 润洗轮推 3.475mL ≈ 33 程 ≈ 700s, 均超全局 600s。
+  # 该上限不因 PLC 推进复位, 超时即 TIMEOUT「结果不明确禁止自动重发」而 PLC 仍在点样。
+  action_timeout: 1200.0
+  modes: []
+  params:
+    - {name: ref_spot, type: point_ref, required: true, label: 点样位置-组合点位}
+    # 点样几何运行前覆盖 (名 == spot_pose 组合成员 key; 执行器按名弹出作 member_overrides 透传 push_composite)。
+    # required:false 且缺省不传 → 走点表示教基准 (base-by-read); 给了值则动作层强制 min/max = 真安全闸。
+    - {name: x_start,  type: float, required: false, min: -500.0, max: 500.0, label: 点样X起点覆盖 (缺省=示教基准)}
+    - {name: x_end,    type: float, required: false, min: -500.0, max: 500.0, label: 点样X终点覆盖 (缺省=示教基准)}
+    - {name: y_height, type: float, required: false, min: -500.0, max: 500.0, label: 点样Y高度覆盖 (缺省=示教基准)}
+    # 值仍是 DT V (半步/s, 整数 1..500, 缺省走泵档=9); scale 0.25 仅 UI 显示成 mL/min (25mL/6000半步×60s=0.25), 1档=0.25 mL/min
+    - {name: spot_disp_speed, type: int, required: false, min: 1, max: 500, scale: 0.25, unit: "mL/min", label: 条带供液泵速度}
+    - {name: spot_speed_mm_s, type: float, required: false, default: 5.0, min: 0.1, max: 200.0, label: 液体点样扫线速度 (mm/s)}
+    - {name: dry_speed_mm_s, type: float, required: false, default: 20.0, min: 0.1, max: 300.0, label: 只吹气扫线速度 (mm/s)}
+    - {name: dry_cycles, type: int, required: false, default: 1, min: 1, max: 20, label: 连续吹气往复周期数}
+    - {name: step_delay, type: int, required: false, min: 0, max: 10000, label: "泵指令步间延时 M (ms, 缺省=泵档)"}
+    - {name: spot_end_position_ml, type: float, required: false, min: 0.0, max: 5.0, label: "点样活塞终点位置 (mL, 死体积补偿, 缺省=0)"}

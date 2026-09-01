@@ -1,0 +1,46 @@
+{
+    "mcpServers":  {
+                       "codesys":  {
+                                       "command":  "node",
+                                       "args":  [
+                                                    "E:\\eit_lab\\pTLC_platformUI\\eit_ptlc\\tools\\codesys-mcp\\server.mjs",
+                                                    "--exe=D:\\InoProShop\\CODESYS\\Common\\InoProShop.exe",
+                                                    "--profile=InoProShop(V1.9.1.6)",
+                                                    "--project=E:\\eit_lab\\pTLC_platformUI\\eit_ptlc\\plc\\20260702.project",
+                                                    "--ipc=E:\\eit_lab\\pTLC_platformUI\\eit_ptlc\\var\\codesys-ipc-20260702",
+                                                    "--plcip=192.168.0.50",
+                                                    "--idle=0",
+                                                    "--session-idle-release=60",
+                                                    "--session-wait-timeout=300",
+                                                    "--session-max-hold=900"
+                                                ]
+                                   },
+                       "playwright":  {
+                                          "command":  "npx",
+                                          "args":  [
+                                                       "-y",
+                                                       "@playwright/mcp@latest"
+                                                   ]
+                                      },
+                       "solidworks":  {
+                                            "command":  "C:/ProgramData/miniforge3/python.exe",
+                                            "args":  [
+                                                         "E:/eit_lab/pTLC_platformUI/eit_ptlc/three_d/mcp_servers/sw_mcp/server.py"
+                                                     ],
+                                            "env":  {
+                                                        "PYTHONIOENCODING":  "utf-8",
+                                                        "PYTHONUTF8":  "1"
+                                                    }
+                                        },
+                       "blender":  {
+                                       "command":  "C:/ProgramData/miniforge3/python.exe",
+                                       "args":  [
+                                                    "E:/eit_lab/pTLC_platformUI/eit_ptlc/three_d/mcp_servers/blender_mcp/server.py"
+                                                ],
+                                       "env":  {
+                                                   "PYTHONIOENCODING":  "utf-8",
+                                                   "PYTHONUTF8":  "1"
+                                               }
+                                      }
+                   }
+}

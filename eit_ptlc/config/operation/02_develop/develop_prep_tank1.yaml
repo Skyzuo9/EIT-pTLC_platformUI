@@ -1,0 +1,12 @@
+schema: ptlc.script/v1
+kind: operation
+name: develop_prep_tank1
+label: 展缸-1号缸准备 (调用 tank_prep 动作脚本)
+ui:
+  role: helper
+  hidden: true
+# prepare-only wrapper: 固定 1 号缸调用 tank_prep, 不表示完整 develop_cycle。
+vars: []
+resources: [develop_prep, "tank_action:1"]
+body:
+  - {op: run_script, script: tank_prep, inputs: {tank: {lit: 1}}, outputs: {}}

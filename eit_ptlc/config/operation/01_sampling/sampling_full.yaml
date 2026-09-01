@@ -1,0 +1,71 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_full
+label: 上样点样-完整流程 (纯设备原子串联; 机械臂放/取板见 robot routes)
+ui:
+  role: legacy
+  hidden: true
+  order: 90
+vars: []
+resources:
+- station:sampling
+body:
+- op: call
+  action: sampling.init
+  mode: RUN
+- op: comment
+  text: 真空区间 (清洗->准备(I2打出)->吸液 全程抽废液; 跨多原子动作, 区间退出即释放, 异常路径也不漏关)
+- op: with_resources
+  resources:
+  - device:vacuum_pump
+  body:
+  - op: call
+    action: sampling.clean
+    mode: RUN
+    args:
+      wash_volume_ml:
+        lit: 0.1
+      cleaning_count:
+        lit: 1
+  - op: call
+    action: sampling.place_axis
+    mode: RUN
+  - op: comment
+    text: 机器人放板后定位
+  - op: call
+    action: sampling.place_locate
+    mode: RUN
+  - op: call
+    action: sampling.prep
+    mode: RUN
+    args:
+      air_buffer_ml:
+        lit: 0.2
+  - op: call
+    action: sampling.aspirate
+    args:
+      plate_spec:
+        lit: "4×6"
+      plate_no:
+        lit: "1"
+      well:
+        lit: C5
+      sample_volume_ml:
+        lit: 0.1
+    mode: RUN
+- op: comment
+  text: 点样不需真空 (已在真空区间之外)
+- op: call
+  action: sampling.spot_band_layer
+  mode: RUN
+  args:
+    ref_spot:
+      lit: spot_pose
+    spot_disp_speed:
+      lit: 2
+    spot_speed_mm_s:
+      lit: 5.0
+    dry_speed_mm_s:
+      lit: 20.0
+    dry_cycles:
+      lit: 2

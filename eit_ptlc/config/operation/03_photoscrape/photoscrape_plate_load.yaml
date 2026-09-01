@@ -1,0 +1,42 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_plate_load
+label: 拍照刮板-板上料
+ui:
+  role: station_phase
+  station: photo_scrape
+  phase: load
+  primary: false
+  order: 32.1
+# 板-only 上料: 机器人持板 -> 刮板夹具, 再定位夹紧。
+# before-photo 和 after-develop 回刮板都可复用; 接粉收集器上料属于 photoscrape_load/耗材链。
+vars: []
+resources:
+- robot
+- station:photo_scrape
+- station:rail
+body:
+- op: comment
+  text: "plate/load: 机器人已持板; 先安全建立刮板拍照位(位2)地轨窗口"
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 2
+  outputs: {}
+- op: comment
+  text: "plate/load: 机器人放板 持板->刮板"
+- op: run_script
+  script: robot_suction_put
+  inputs:
+    station_id:
+      lit: scrape
+  outputs: {}
+- op: comment
+  text: "plate/load: 定位气缸夹紧"
+- op: call
+  action: photoscrape.locate_cylinder
+  mode: RUN
+  args:
+    clamped:
+      lit: true

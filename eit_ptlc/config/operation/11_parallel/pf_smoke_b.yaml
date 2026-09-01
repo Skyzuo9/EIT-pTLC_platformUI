@@ -1,0 +1,32 @@
+schema: ptlc.script/v1
+kind: operation
+name: pf_smoke_b
+label: 并行冒烟段B-进缸 (集成验收用)
+ui:
+  role: helper
+  hidden: true
+# 冒烟配方段B: 展缸 L2 初始化并把样品从点样座"搬"进缸N (缸号由调度器缸池分配注入)。
+# 段 DONE 后点样座腾空, 下一个样品的段A 才能进场 —— 验收判据"A 离开点样后 B 进入"。
+flow:
+  atomic: true
+  sample: required
+  from: spot_seat
+  to: tank:{tank}
+  hitl: none
+  retry: restart
+vars:
+- name: tank
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 目标缸号 1-8 (调度器注入)
+resources:
+- station:develop
+body:
+- op: call
+  action: develop.init
+  args:
+    target_tank:
+      var: tank
+  mode: RUN

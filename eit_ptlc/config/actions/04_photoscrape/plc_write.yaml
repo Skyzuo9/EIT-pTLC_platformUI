@@ -1,0 +1,35 @@
+# 拍照刮板 CNC 路径下发 (plc_write: PC 侧 flat 节点块写 + 回读确认; B方案单写者)
+# 真机契约见 plc/Now.xml: g_sx/g_sy/g_cx/g_cy=REAL[1..400], g_scrape_feed=INT, g_pass_z=REAL。
+# 数组由 cnc_path 动作恒定生成满 400 点 (无需点数), driver 写后逐元素回读确认; atol 为 REAL 容差。
+
+# 块写 (一次, scrape 循环前): 4 数组 + 进给。args 由 cnc_path 动作 result 经 VM 表达式喂入。
+photoscrape.write_cnc_path:
+  kind: plc_write
+  label: 下发-写刮取路径到PLC
+  desc: |-
+    执行步骤：把 sx/sy/cx/cy 四个最多400点 REAL 数组和 feed 块写到 PLC 的 g_sx/g_sy/g_cx/g_cy/g_scrape_feed 节点，再逐字段/逐元素回读并按 atol=0.001 比较。
+    前置与安全：输入必须来自已审查的 cnc_path 结果且数组长度/数值合法；单写者锁串行化写入，本动作只下发参数、不启动 CNC。
+    完成与异常：全部回读一致后返回 DONE；节点缺失、类型/长度错误、写入或回读不一致返回 ERROR。
+    实现核对：ActionExecutor._exec_plc_write → OpcUaDriver.write_block_confirmed，字段映射以本动作 fields 为唯一入口。
+  modes: []
+  atol: 0.001
+  fields:
+    - {key: sx,   node: g_sx,          label: 刮取X数组}
+    - {key: sy,   node: g_sy,          label: 刮取Y数组}
+    - {key: cx,   node: g_cx,          label: 收集X数组}
+    - {key: cy,   node: g_cy,          label: 收集Y数组}
+    - {key: feed, node: g_scrape_feed, label: 刮取进给}
+
+# 每 pass 写本层 Z 切深 (标量, scrape(40) 触发前); VM 循环逐 pass 写 pass_z_list[k]。
+photoscrape.write_pass_z:
+  kind: plc_write
+  label: 下发-写本层Z切深
+  desc: |-
+    执行步骤：在每个 scrape pass 前把本层 z 写入 PLC g_pass_z，并立即回读以 atol=0.001 确认实际下发值。
+    前置与安全：z 应来自 cnc_path 的 pass_z_list 且满足机床Z安全范围；本动作只写参数，不启动刀具运动。
+    完成与异常：回读与目标一致后返回 DONE；节点缺失、数值非法、写入或回读不一致返回 ERROR。
+    实现核对：ActionExecutor._exec_plc_write → OpcUaDriver.write_block_confirmed，写入目标由fields中的g_pass_z限定。
+  modes: []
+  atol: 0.001
+  fields:
+    - {key: z, node: g_pass_z, label: 本pass Z高度}

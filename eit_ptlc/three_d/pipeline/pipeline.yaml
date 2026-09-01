@@ -1,0 +1,195 @@
+# PTLC 三维可视化资产管线配置
+# 功能: 集中管理所有绝对路径/转换公差/性能预算, 供 01~05 各步骤脚本读取.
+# 说明: 本文件是管线的唯一配置入口; 换一台机器只需改这里.
+
+paths:
+  # 工具链
+  python: "C:/ProgramData/miniforge3/python.exe"
+  blender: "C:/Program Files/Blender Foundation/Blender 5.2/blender.exe"
+
+  # 目录(全部位于 three_d 之下)
+  root: ".."
+  work: "../work"
+  exports: "../exports"
+  models: "../models"
+  docs: "../docs"
+
+  # 图纸源目录(只读, 绝不写入)
+  cad_root: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station"
+
+sources:
+  # 整机装配体 —— 一切的源头. 原生 glTF 导出直接吃它.
+  full_assembly: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/TLC设备总装.SLDASM"
+
+  # 首选源: SolidWorks 自带 XR 导出器直出的整机 GLB(00 步产物).
+  # 相对 STEP 保住了真实装配实例名、中文名、具名 PBR 材质与自定义属性,
+  # 还省掉 01(命名回填)与 02(OCCT 转换 11 分钟)两步.
+  native_glb: "../exports/TLC_full_native.glb"
+
+  # 回退源: 2026-02 导出的整机 STEP(AP203, 无颜色, 缺三个总成).
+  # 原生导出走不通时才用它, 此时必须跑 01 与 02.
+  legacy_full_step: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/TLC设备总装.STEP"
+  fresh_full_step: "../exports/TLC_full_AP214.STEP"
+
+# 模型来源开关: native_glb(首选) | step(回退)
+# 03 步据此决定读哪个输入; 走 step 时才需要先跑 01/02.
+model_source: "native_glb"
+
+# ---------------------------------------------------------------------------
+# 00_export_gltf: 空叶节点门禁
+# ---------------------------------------------------------------------------
+# XR 导出器对部分零件只留空节点不给几何(2026-08-02 上样 EBF41 同步带轮丢失一案).
+# 导出后凡是白名单之外的空叶节点一律报错.
+# 白名单按实例名整串匹配, 只放"确认有意隐藏/压缩"的; 分类确认后再往里填.
+export_gate:
+  expected_empty_nodes: []
+
+# ---------------------------------------------------------------------------
+# 03_clean_model: 空节点补几何
+# ---------------------------------------------------------------------------
+# 有些零件**装配导出**拿不到几何(整机 GLB 里只剩带变换的空节点), 但**单件导出**
+# 完全正常. EBF41 实测: 单件 GLB 有完整轮子(4844 面/28×29×28mm), 而它在
+# 整机与子装配导出里都是空节点; 该零件是 0 实体+3 曲面体, 缝合成实体也未成功
+# (InsertSewRefSurface 三种参数均未形成实体), 所以走"单件素材补回"这条路.
+#
+# 素材由 tools/export_part_assets.py 单件导出生成, 几何在零件原点坐标系;
+# 空节点保留着完整的装配变换, 因此把素材挂上去、局部变换取单位阵即天然对位
+# (已用前后渲染对比核对: 两个轮子精确嵌进同步带两端的带圈里).
+# 补进去的对象**继承空节点的名字并取代它**, 所以下游按名字的规则
+# (materials/rig_map/part_overrides)与零件本来就导出成功时完全一致.
+restore_geometry:
+  - node_prefix: "EBF41-S3M150-25-B-P-d5"
+    part_glb: "exports/parts/EBF41-S3M150-25-B-P-d5.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/旋盖注液机构/EBF41-S3M150-25-B-P-d5.SLDPRT"
+    note: "上样抽液机构两条同步带的惰轮 — 用户 2026-08-02 报缺的那两个'轴承'"
+  - node_prefix: "15EDGKNH-3_5-08P-14-00A_H_-1"
+    part_glb: "exports/parts/15EDGKNH-3_5-08P-14-00A_H.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/电气元件/15EDGKNH-3_5-08P-14-00A_H_.SLDPRT"
+    note: "15EDGKNH-3_5-08P-14-00A_H_.SLDPRT — 1 个实例 / 单件 35066 三角形"
+  - node_prefix: "E-EIM01-L80-003-1"
+    part_glb: "exports/parts/E-EIM01-L80-003.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/玻璃上料机构/燕尾槽滑台/E-EIM01-L80-003.SLDPRT"
+    note: "E-EIM01-L80-003.SLDPRT — 1 个实例 / 单件 2333 三角形"
+  - node_prefix: "MANIFOLD_SOLID_BREP_20035_1-1"
+    part_glb: "exports/parts/MANIFOLD_SOLID_BREP_20035_1.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/风扇/MANIFOLD_SOLID_BREP_20035_1.SLDPRT"
+    note: "MANIFOLD_SOLID_BREP_20035_1.SLDPRT — 2 个实例 / 单件 4806 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.1-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_1.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.1.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.1.SLDPRT — 2 个实例 / 单件 292 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.10-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_10.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.10.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.10.SLDPRT — 2 个实例 / 单件 954 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.11-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_11.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.11.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.11.SLDPRT — 2 个实例 / 单件 1739 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.12-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_12.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.12.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.12.SLDPRT — 2 个实例 / 单件 1739 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.2-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_2.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.2.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.2.SLDPRT — 2 个实例 / 单件 1770 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.3-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_3.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.3.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.3.SLDPRT — 2 个实例 / 单件 230 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.4-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_4.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.4.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.4.SLDPRT — 2 个实例 / 单件 1617 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.5-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_5.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.5.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.5.SLDPRT — 2 个实例 / 单件 230 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.6-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_6.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.6.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.6.SLDPRT — 2 个实例 / 单件 1768 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.7-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_7.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.7.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.7.SLDPRT — 2 个实例 / 单件 230 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.8-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_8.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.8.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.8.SLDPRT — 2 个实例 / 单件 1619 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.1.1.9-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_1_1_9.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.1.1.9.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.1.1.9.SLDPRT — 2 个实例 / 单件 234 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 133.1.6.1.5-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_133_1_6_1_5.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 133.1.6.1.5.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 133.1.6.1.5.SLDPRT — 2 个实例 / 单件 7137 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 2.2.1.1-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_2_2_1_1.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/丝杆模组/Open CASCADE STEP translator 7.6 2.2.1.1.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 2.2.1.1.SLDPRT — 1 个实例 / 单件 2330 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 33.1.1-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_33_1_1.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/同步带模组/Open CASCADE STEP translator 7.6 33.1.1.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 33.1.1.SLDPRT — 1 个实例 / 单件 2040 三角形"
+  - node_prefix: "Open CASCADE STEP translator 7.6 82.1.8-1"
+    part_glb: "exports/parts/Open_CASCADE_STEP_translator_7_6_82_1_8.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/相机/输送模组/Open CASCADE STEP translator 7.6 82.1.8.SLDPRT"
+    note: "Open CASCADE STEP translator 7.6 82.1.8.SLDPRT — 1 个实例 / 单件 6291 三角形"
+  - node_prefix: "PTLC-02-011 平面展缸盖-1"
+    part_glb: "exports/parts/PTLC-02-011_ping_mian_zhan_gang_gai.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/平面展缸/PTLC-02-011 平面展缸盖.SLDPRT"
+    note: "PTLC-02-011 平面展缸盖.SLDPRT — 1 个实例 / 单件 4864 三角形"
+  - node_prefix: "PTLC-02-019 石英玻璃-1"
+    part_glb: "exports/parts/PTLC-02-019_shi_ying_bo_li.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/平面展缸/PTLC-02-019 石英玻璃.SLDPRT"
+    note: "PTLC-02-019 石英玻璃.SLDPRT — 1 个实例 / 单件 108 三角形"
+  - node_prefix: "PTLC-03-023 第一工位末端安装板-1"
+    part_glb: "exports/parts/PTLC-03-023_di_yi_gong_wei_mo_duan_an_zhuang_ban.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/收集平台/PTLC-03-023 第一工位末端安装板.SLDPRT"
+    note: "PTLC-03-023 第一工位末端安装板.SLDPRT — 1 个实例 / 单件 1674 三角形"
+  - node_prefix: "PTLC-06-020 刮板拖链安装板-1"
+    part_glb: "exports/parts/PTLC-06-020_gua_ban_tuo_lian_an_zhuang_ban.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/相机/PTLC-06-020 刮板拖链安装板.SLDPRT"
+    note: "PTLC-06-020 刮板拖链安装板.SLDPRT — 1 个实例 / 单件 584 三角形"
+  - node_prefix: "_4V210-08(By)-"
+    part_glb: "exports/parts/4V210-08_By.glb"
+    source_part: "E:/eit_lab/eit_lab_hardware/eit_ptlc_station/电气元件/_4V210-08(By).SLDPRT"
+    note: "_4V210-08(By).SLDPRT — 3 个实例 / 单件 3348 三角形"
+
+# ---------------------------------------------------------------------------
+# 01_fix_step_names: STEP 名称编码修复
+# ---------------------------------------------------------------------------
+step_names:
+  # SolidWorks 中文版导出的 STEP 把中文名写成裸 GBK 字节(非 ISO-10303-21 的 \X2\ 转义),
+  # OCCT 按 UTF-8 解析会得到乱码. 这里先解码再改写成可移植形式.
+  source_encoding: "cp936"
+  # slug   = 转成拼音 ASCII(工具链最安全, 推荐)
+  # escape = 转成 ISO-10303-21 的 \X2\ Unicode 转义(保留中文, 依赖 OCCT 正确解码)
+  mode: "slug"
+  max_slug_len: 48
+
+# ---------------------------------------------------------------------------
+# 02_convert_step: STEP -> GLB
+# ---------------------------------------------------------------------------
+convert:
+  engine: "cascadio"        # cascadio | freecad
+  # 网格化公差(单位与 STEP 一致, 本项目为 mm). 整机尺度约 3 m,
+  # 0.4 mm 线性公差在屏幕上已看不出棱边, 却能显著降低三角形数量.
+  tol_linear: 0.4
+  tol_angular: 0.5
+  tol_relative: false
+  merge_primitives: true
+  use_parallel: true
+  include_materials: true   # AP214 才有颜色; AP203 源文件此项无效但不报错
+
+# ---------------------------------------------------------------------------
+# 05_report: 性能预算(硬门禁)
+# ---------------------------------------------------------------------------
+budget:
+  max_glb_mb: 25
+  max_draw_calls: 500
+  max_triangles: 3000000
+  target_fps: 45

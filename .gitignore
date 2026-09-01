@@ -1,0 +1,119 @@
+# === Temp analysis scratch (LibreOffice profile, unzipped xlsx, etc.) ===
+.tmp_analysis/
+
+# === IDE / tooling ===
+.claude/
+.idea/
+.vscode/
+.qoder/
+.codegraph/
+.pytest_cache/
+__pycache__/
+*.pyc
+# playwright MCP web 验证转储 (console/page 快照, 每次验证重生)
+.playwright-mcp/
+.unilabos/
+.unilab/
+
+# === archives / installers (usually too large for git) ===
+*.zip
+*.rar
+*.exe
+
+# === Large non-source directories ===
+# Daheng camera SDK installer (>1GB)
+DahengCam/
+# View module: contains pTLC_Viewing.zip + large analysis_output/*.png
+View/
+
+# === UI-Upper: flowcharts & plans are not source ===
+UI-Upper/flowchart/
+UI-Upper/plans/
+
+# === UI-Upper: Queue Tab 临时配方快照目录 ===
+UI-Upper/recipes/.tmp/
+
+# === 液位检测模块: 历史实验中间产物 ===
+液位检测模块/work/beta/
+
+# === Root-level runtime logs (uvicorn/vite/液位 采集, 运行期重生) ===
+/stderr.log
+/stdout.log
+/wl.log
+# 液位单通道原始录制 (回放/离线整定用, 大体积, 非源码)
+/data/water_level_recordings/
+
+# === Root-level debug / scan / test screenshots ===
+/ScreenShot*.png
+/debug_screenshot_*.png
+/scan_*.png
+/scan_verification_*.png
+/step*.png
+/test_step*.png
+
+# === eit_ptlc runtime state (运行记录 SQLite 等运行期产物) ===
+eit_ptlc/var/
+# 根级 var/: pallas_bridge 手工日志 + photoscrape 运行期输出 (与 eit_ptlc/var/ 同性质)
+/var/
+eit_ptlc/web/node_modules/
+eit_ptlc/web/dist/
+# 三维模块本地重建产物与第三方工具, 正式模型/配置仍进入版本控制.
+eit_ptlc/three_d/work/
+eit_ptlc/three_d/exports/
+eit_ptlc/three_d/vendor/
+eit_ptlc/three_d/pipeline/node_modules/
+# 视觉分析产物 (标注图/条带路径/度量, 运行期生成, 非源码)
+vision_output/
+# 机器人工具态持久化 (上次声明值, 运行期写; 启动只读作预填建议)
+eit_ptlc/config/robot_tool_state.json
+
+# === Local PLC/editor generated files ===
+*.opt
+*.autosave
+*.projectbackup
+*.~u
+*.bak
+# InoProShop 编译/启动产物 (非源码; 如 20260622.Device.Application.*.bootinfo 等)
+*.bootinfo
+*.bootinfo_guids
+*.compileinfo
+*.projectarchive
+*.backup
+/DxImageProc.dll
+/AGENTS_2.md
+
+# === UI-Upper runtime state and local hardware dependencies ===
+UI-Upper/data/logs/
+UI-Upper/data/consumable_state.json
+UI-Upper/data/*.sqlite
+UI-Upper/data/samples/*
+!UI-Upper/data/samples/case1/
+!UI-Upper/data/samples/case1/after.jpg
+# UI-Upper/scripts/gxipy/  -- 已纳入版本控制，大恒相机 Python SDK
+UI-Upper/_*.txt
+UI-Upper/test*.txt
+UI-Upper/test*.log
+UI-Upper/test*.jpg
+UI-Upper/scripts/test*.jpg
+UI-Upper/scripts/test*.ini
+
+# === Python 包构建元数据 (pip install -e . 生成, 非源码) ===
+*.egg-info/
+# 从错误 cwd 运行生成的嵌套运行期目录 (var 采集/data 采样误落到同名嵌套路径)
+eit_ptlc/eit_ptlc/
+/pTLC_platformUI/
+# 从错误 cwd 写出的三维产物 (真身在 three_d/pipeline 与 three_d/clips 下)
+/rig_map.yaml
+eit_ptlc/three_d/clips/clips/
+eit_ptlc/three_d/app/
+
+# === 会话临时脚手架 (PPTX/DOCX 渲染中间产物, 与正式交付无关) ===
+/.tmp_ptlc_twin_deck/
+/tmp/
+# Office 锁文件
+~$*
+
+# === 对外交付文档与汇报材料 (走文件共享, 不进版本控制) ===
+/output/
+/*.pptx
+/深孔板规格文件/

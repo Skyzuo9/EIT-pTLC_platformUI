@@ -1,0 +1,34 @@
+{
+  "name": "eit-ptlc-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "pTLC 上位机 Vue3 前端 (流程执行页 + 运维页)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test tests/debug-highlight.test.js tests/runs-reduce.test.js tests/runs-reseed.test.js tests/runs-reconcile.test.js tests/planner-schedule.test.js tests/jog-keeper.test.js tests/axis-jog.test.js tests/confirm-service.test.js tests/async-action.test.js tests/format.test.js tests/runs-replay.test.js tests/runs-multi.test.js tests/nodes-merge.test.js tests/manual-groups.test.js tests/op-groups.test.js tests/run-status.test.js tests/scheduler-utils.test.js tests/dag-layout.test.js tests/section.test.js tests/monitor-prefs.test.js tests/run-inputs.test.js tests/material-audit.test.js tests/three-d/*.test.js"
+  },
+  "dependencies": {
+    "@codemirror/lang-yaml": "^6.0.0",
+    "@codemirror/language": "^6.0.0",
+    "@codemirror/state": "^6.0.0",
+    "@codemirror/view": "^6.0.0",
+    "@lezer/highlight": "^1.0.0",
+    "axios": "^1.7.7",
+    "camera-controls": "^3.1.2",
+    "codemirror": "^6.0.1",
+    "pinia": "^2.2.4",
+    "postprocessing": "^6.39.4",
+    "three": "^0.185.1",
+    "three-mesh-bvh": "^0.9.13",
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "vite": "^5.4.10"
+  }
+}

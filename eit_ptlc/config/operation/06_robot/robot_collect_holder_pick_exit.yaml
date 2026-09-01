@@ -1,0 +1,67 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 collect.holder.pick-exit 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+schema: ptlc.script/v1
+kind: operation
+name: robot_collect_holder_pick_exit
+label: 收集工位取收集器-退出
+note: '2/2 带件退出'
+ui: {subgroup: 收集工位, order: 54}
+vars:
+- {name: station_id, scope: local, type: STRING, io: in, default: default, comment: collect.holder.pick-exit 主选择值, enum: [default]}
+resources: [robot]
+body:
+- op: if
+  cond:
+    binop: ==
+    left: {var: station_id}
+    right: {lit: default}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P74}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collect-holder-pick.near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: collect-holder-pick.far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P70}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  # 出锚点=P70 (收集枢纽, 不回 P1): 由 collect_unload 从 P70 直接交给 collector_return_put, 免 P70→P1→P45 空跑
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P70}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs: []
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'collect.holder.pick-exit: 无效选择值'}

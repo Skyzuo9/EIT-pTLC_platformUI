@@ -1,0 +1,192 @@
+# 拍照刮板工位 PLC L2 原子动作 (与 PLC 50_action/PhotoScrape_L2 动作码对齐)
+# 相机/CNC/机器人握手已从 PLC 删除, 编排全归上位机:
+#   - 拍照: cam_photopos(34) 后由上位机视觉控制器触发相机, 再 cam_photohome(35).
+#   - 刮取: scrape(40) 跑单 pass; 多 pass 由上位机 cnc_path 计算 g_pass_z 后循环调用本动作;
+#           完成后 scrape_finish(41) 收尾翻料.
+#           CNC启动/CNC停止/CNC完成 在 Application/GVL 容器, 符号表里三者均为 T_BOOL access=ReadWrite
+#           —— 即**经 OPCUA 可达**(旧注释称"不经 OPCUA"是错的, 2026-07-26 订正)。只是 plc_nodes.yaml
+#           的 gvl_path 单一路径钉死在 Host_Computer, 够不着 GVL; 中止改走已有的 PhotoScrape_L2_Reset
+#           通道 (PLC_MainPRG 闸门块据它置 CNC_AbortLatch -> CNC停止/CNC启动)。
+# 四段式边界(配置层):
+#   - prepare: photoscrape_prepare -> init, cam_x335。
+#   - load: photoscrape_load -> robot_suction_put, locate_cylinder(true), 并把中转A接粉收集器放入刮板夹具。
+#           仓库到中转A补货不属于 PhotoScrape 工位动作。
+#   - execute: photoscrape_process, 即 press_cylinder(true), 拍照/视觉/CNC, scrape/scrape_finish。
+#   - unload: photoscrape_unload -> photoscrape_pick 取板; 接粉收集器去 Collect 的 handoff 仍由 collect_load 承担。
+#
+# 双态执行件语义:
+#   - locate_cylinder(32) 通过 PhotoScrape_CamLocate_Target 参数控制定位气缸夹紧/松开。
+#   - press_cylinder(33) 通过 PhotoScrape_CamPress_Target 参数控制下压气缸压下/松开。
+#   - scrape_finish(41) 仍是完整刮取收尾复合动作, 不是单气缸目标态动作。
+
+photoscrape.init:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 10
+  label: 拍照工位复位
+  hint: 清输出并把三根轴回停放位
+  desc: |-
+    执行步骤：清除真空、无刷电机、定位、粉末收集器定位、遮光、旋转和下压的手/自动输出；撤销三轴移动命令，依次把10Z移到0、9X移到335，确认遮光气缸上位后把8Y移到0。
+    前置与安全：PLC须处于运行/就绪态，机器人和刀头工作区无干涉；本动作不触发相机、视觉或CNC。遮光输出清零后必须实际到上位，否则流程停在8Y移动前。
+    完成与异常：10Z=0、9X=335、遮光上位且8Y=0后返回DONE；其它被清零执行件不读取反馈，PLC无显式初始化错误分支，未到位由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码10 → A10_init_初始化。
+  modes: []
+photoscrape.cam_x335:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 31
+  label: 让位-刮板X到放板位335
+  desc: |-
+    执行步骤：把刮板9X绝对目标固定写为335毫米，置位xMoveAbs，等待bAbMoveDone后撤销移动命令。
+    前置与安全：PLC须处于运行/就绪态；定位、下压和刀头应处于让位状态，机器人不得在9X运动期间进入工位。PLC动作内不检查这些前置。
+    完成与异常：9X到位位成立后返回DONE；PLC无显式伺服报警分支，未到位由上位机停滞/绝对超时报告TIMEOUT。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码31 → A31_cam_移轴335。
+  modes: []
+photoscrape.locate_cylinder:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 32
+  label: 装夹-定位气缸目标态(夹板)
+  desc: |-
+    执行步骤：把clamped写入PhotoScrape_CamLocate_Target；PLC将“刮板拍照定位气缸自动”直接赋为该值，并在同一扫描周期返回DONE。
+    前置与安全：PLC须处于运行/就绪态；夹紧前板件正确落座且机器人退出，松开后板件不再受定位约束。PLC不检查物料或机器人位置。
+    完成与异常：DONE只表示目标输出已写入，不表示原点/动点反馈成立；PLC不读取定位气缸反馈，也不生成气缸错误。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码32 → A32_cam_定位。
+  modes: []
+  params:
+    - {name: clamped, type: bool, required: true, channel: PhotoScrape_CamLocate_Target, label: 是否夹紧定位}
+photoscrape.press_cylinder:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 33
+  label: 压紧/松开收集器
+  hint: 下压气缸压住或松开粉末收集器
+  desc: |-
+    执行步骤：把pressed写入PhotoScrape_CamPress_Target；TRUE时置下压自动输出并立即DONE，FALSE时清输出并等待“下压气缸上位”后DONE。
+    前置与安全：PLC须处于运行/就绪态；下压前板和接粉收集器已就位且机器人退出。释放不能替代scrape_finish。
+    完成与异常：释放方向确认上位反馈；下压方向的DONE只表示输出已置位，不等待下位反馈。释放不到位由上位机超时，下压方向PLC不提供到位错误。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码33 → A33_cam_下压。
+  modes: []
+  params:
+    - {name: pressed, type: bool, required: true, channel: PhotoScrape_CamPress_Target, label: 是否下压}
+# 拍照-移相机位: 触发前据 ref_8y 取点位值写入 Photo_8Y_Target, 再触发动作 34 (合并自原 push_photo_y;
+# A34 改读 Photo_8Y_Target 替代硬编码 420; 值在 points/plc/photo.yaml, 用哪个点位由调用方显式给定)。
+photoscrape.cam_photopos:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 34
+  label: 拍照-相机就位+遮光下
+  desc: |-
+    执行步骤：上位机先把ref_8y点位写入Photo_8Y_Target；PLC仅在遮光上位输入成立时移动8Y到该目标，到位后置遮光自动输出TRUE并等待遮光下位输入。
+    前置与安全：PLC须处于运行/就绪态；板件应已定位/下压，点位有效且机器人退出相机区域。本动作不触发相机曝光。
+    完成与异常：8Y到位且遮光下位反馈成立后返回DONE；遮光初始不上位、轴或气缸不到位时无独立ErrorCode，由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码34 → A34_cam_相机位。
+  modes: []
+  params:
+    - {name: ref_8y, type: point_ref, required: true, label: 8Y-点位}
+photoscrape.cam_photohome:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 35
+  label: 相机回拍照位
+  hint: 等遮光升起后把拍照轴移回 0 位
+  desc: |-
+    执行步骤：清除遮光自动输出，等待遮光上位输入后把拍照8Y绝对目标设为0，置位xMoveAbs并等待bAbMoveDone。
+    前置与安全：PLC须处于运行/就绪态；相机曝光/保存已结束，机器人不得进入遮光和8Y运动区。
+    完成与异常：遮光上位且8Y绝对到0后返回DONE；PLC无独立气缸/伺服错误分支，不到位由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码35 → A35_cam_回零。
+  modes: []
+# 单 pass 刮取是 PLC 内部 SoftMotion 连续运动 (最多 400 点), 全程不写 L2 Step → 对看门狗呈"静默".
+# stall_timeout 必须 > 单 pass 最坏耗时, 否则动作还在跑就被误判"结果不明确"并整条流程 fail-fast,
+# 连带循环后的 scrape_finish(收尾翻料) 被跳过。
+#
+# 2026-07-26 实测回调 300 → 900: 单 pass 总行程 = 刮取路径 + 收集路径, 而**收集路径 ∝ band 的 y 高度**
+# (拖尾沿 x, 每个 y 层拖一次), 与宽度几乎无关。实测 @feed 800:
+#   band 16×1.0cm  → 收集 4650mm, 全程 6408mm ≈ 8.0 min   ← 连 spec 包1 原设计都超原来的 300s
+#   band  8×0.6cm  → 收集 3960mm, 全程 4518mm ≈ 5.6 min
+#   方块 4×4.0cm   → 收集 13480mm, 全程 15038mm ≈ 18.8 min
+# 900s 给出约 12000mm 行程的余量。**再改 band 尺寸或 feed_rate 后须重新核这个值**
+#
+# action_timeout 必须同步放大: 全局天花板是 app.yaml plc.action_timeout=600s, 不显式抬高的话
+# 绝对超时会先于 900s 停滞预算触发, 停滞预算等于白设 (test_slow_actions_raise_absolute_timeout_together_with_stall
+# 就是钉这件事的)。两者语义不同: stall 是"无进度多久算卡"(每次 PLC 推进都复位),
+# action_timeout 是墙钟总时长。此处让 stall 当有效限制器, 故 action_timeout 取其 1.33 倍。
+# 中止在跑的插补见 PLC_MainPRG 的 CNC_AbortLatch 闸门块 (上位机 terminate 已自动脉冲 L2_Reset)。
+photoscrape.scrape:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 40
+  label: 刮取-单层(刮粉+收粉)
+  desc: |-
+    执行步骤：PLC把刮板拍照真空阀与吸粉无刷电机同时置TRUE并置CNC启动；实际路径、进给和g_pass_z由既有PLC_CNC/SoftMotion逻辑消费，A40只持续等待内部CNC完成信号，成立后撤销CNC启动。
+    前置与安全：PLC须处于运行/就绪态；板/接粉夹具已压紧，接粉桶定位气缸已由staging_a.locator_a定位，路径数组、切深和进给已由前置写动作回读确认，刀具区域安全。非幂等且L2 Step静默，不自动重发。
+    完成与异常：收到CNC完成后返回DONE并保留真空与电机，供后续pass或finish承接；A40没有读取CNC错误码的分支，CNC不完成由900秒停滞预算报告TIMEOUT。中止在跑的插补须脉冲PhotoScrape_L2_Reset（PLC_MainPRG闸门块据此置CNC停止并撤CNC启动），上位机terminate已自动执行。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码40 → A40_scrape_刮取；2026-07-26补回移植时遗漏的无刷电机开启行（真空阀%QX7.2只是通断，吸力源是无刷电机%QX7.3，缺它则刮取无吸力导致粉末飞溅）。
+  modes: []
+  stall_timeout: 900.0
+  action_timeout: 1200.0
+photoscrape.scrape_finish:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 41
+  label: 刮取-收尾(关吸粉+翻料倒粉)
+  desc: |-
+    执行步骤：把刮板拍照真空自动和无刷电机自动清FALSE，把旋转气缸自动置TRUE，并在同一扫描周期返回DONE。
+    前置与安全：PLC须处于运行/就绪态；所有计划pass已完成或由受控异常路径决定收尾。本动作不释放定位/下压，也不检查翻料区是否有机器人。
+    完成与异常：DONE只表示三个输出命令已写入，不等待真空关闭、无刷电机停止或旋转气缸到位反馈；物理收尾须由后续流程/设备信号确认。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码41 → A41_scrape_收尾。
+  modes: []
+photoscrape.retr_stoprot:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 52
+  label: 翻料-旋转气缸复位(取桶后)
+  desc: |-
+    执行步骤：把刮板拍照旋转气缸自动输出置FALSE，并在同一扫描周期返回DONE。
+    前置与安全：PLC须处于运行/就绪态；刮取和翻料已结束。由于PLC不等待旋转气缸反馈，机器人不能仅凭该DONE立即进入，必须另行确认机构已让位。
+    完成与异常：DONE只表示停止/复位命令已写入，不表示原点反馈；该子程序不生成气缸错误。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码52 → A52_取料停旋转。
+  modes: []
+# ── 对位检查 (spec 2026-07-16-photoscrape-align-check §4; 专动作专用, 不碰 g_数组/收集器轴/气缸) ──
+# 守卫全在 PLC 动作内: 42 Z门(一切XY移动只在10Z零位, 与既有互锁 fActPos<6 同哲学) + 板区软限位窗;
+# 44 只在 XY 位于板区窗内才许降; 43 若 Z 不在 0 先升 Z 再 9X/8Y 回零。Target 与 g_sx/g_sy 同帧(帧变换在PLC内)。
+# 现役 20260702.project 已包含 42/43/44；但板区软限位窗仍是 MIN=0/MAX=-1 的空集安全占位，
+# 因此 42 和 44 的下降方向会在 PLC 内拒绝，须现场标定并经受控 PLC 变更后才能投入。
+photoscrape.align_move:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 42
+  label: 对位-移动XY
+  desc: |-
+    执行步骤：把x_mm/y_mm写入对位目标；PLC要求10Z实际位置<6且遮光气缸上位，将目标经K/O帧变换后校验板区窗，再以40毫米/秒移动9X和8Y，完成后恢复原速度并停在目标处。
+    前置与安全：现役工程中ALIGN_X/Y_WIN_MIN=0、MAX=-1，软限位窗为空集，所以当前任何XY目标都会被拒绝，禁止按可用动作编排；现场测量并受控更新窗口/帧变换前不能运动。
+    完成与异常：当前预期结果为ErrorCode 422；此外Z门失败为421、遮光不上位为425。完成条件虽已实现为双轴bAbMoveDone，但只有校准常量后才可能到达。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码42内联align_move；已确认空集常量。
+  modes: []
+  params:
+    - {name: x_mm, type: float, required: true, channel: PhotoScrape_Align_TargetX, label: 目标X(mm)}
+    - {name: y_mm, type: float, required: true, channel: PhotoScrape_Align_TargetY, label: 目标Y(mm)}
+photoscrape.align_home:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 43
+  label: 对位-结束回零
+  desc: |-
+    执行步骤：先要求遮光上位，再用绝对移动把10Z移到0、9X移到335毫米停放位、8Y移到0；各轴按顺序等待bAbMoveDone，不执行MC_Home。
+    前置与安全：PLC须处于运行/就绪态且遮光上位，机器人退出三轴区域；9X的“回零”实际是335毫米工位停放位，不是机床零点。
+    完成与异常：三段绝对移动完成后返回DONE；遮光初始不上位为ErrorCode 425，轴不完成没有显式错误分支，由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码43内联align_home。
+  modes: []
+photoscrape.align_z:
+  kind: plc_l2
+  station: photoscrape
+  action_code: 44
+  label: 对位-Z升降(0~18mm)
+  desc: |-
+    执行步骤：把z_mm写入目标；PLC实际接受连续范围0–18毫米而非“两档”，以5毫米/秒移动10Z并在完成后恢复原速度。z=0可直接抬起，z>0前检查当前9X/8Y位于板区窗。
+    前置与安全：现役工程的XY板区窗为空集，因此任何z>0下降请求都会被拒绝；目前只允许z=0安全抬升。现场标定并受控更新窗口前不得用于下降检查。
+    完成与异常：z<0或z>18为ErrorCode 421，当前z>0因空集窗为424；z=0到位可返回DONE，轴不到位由上位机超时判定。
+    PLC核对：现役 20260702.project，Application/50_action/PhotoScrape_L2 动作码44内联align_z；已确认0–18范围和空集窗口。
+  modes: []
+  params:
+    - {name: z_mm, type: float, required: true, channel: PhotoScrape_Align_TargetZ, label: 目标Z(mm)}

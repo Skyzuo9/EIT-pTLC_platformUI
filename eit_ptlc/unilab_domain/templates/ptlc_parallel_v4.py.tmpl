@@ -1,0 +1,317 @@
+# UniLab-only material/transport projection template for parallel_v1.
+from __future__ import annotations
+
+from typing import TypedDict
+
+from unilabos.registry.placeholder_type import ResourceSlot
+from unilabos.workflow.authoring import (
+    MaterialFlowRole,
+    device,
+    group,
+    material_source,
+    parallel,
+    resource_ref,
+    workflow,
+)
+
+from eit_ptlc.unilab_domain.devices.material import MaterialProxy
+from eit_ptlc.unilab_domain.devices.plc_collect import PLCCollect
+from eit_ptlc.unilab_domain.devices.plc_develop import PLCDevelop
+from eit_ptlc.unilab_domain.devices.plc_photoscrape import PLCPhotoScrape
+from eit_ptlc.unilab_domain.devices.plc_sampling import PLCSampling
+from eit_ptlc.unilab_domain.devices.plc_staginga import PLCStagingA
+from eit_ptlc.unilab_domain.resources.materials import (
+    collection_vial,
+    powder_collector,
+    ptlc_plate,
+    source_sample_vial,
+)
+from eit_ptlc.workflows.transport_resource_v4 import transport_resource_v4
+
+
+class PTLCParallelV4Result(TypedDict):
+    sample: ResourceSlot
+    waste_plate: ResourceSlot
+    powder_collector: ResourceSlot
+
+
+sampling: PLCSampling = device("plc_sampling")
+develop: PLCDevelop = device("plc_develop")
+photoscrape: PLCPhotoScrape = device("plc_photoscrape")
+collect: PLCCollect = device("plc_collect")
+staging: PLCStagingA = device("plc_staginga")
+material: MaterialProxy = device("material")
+
+
+@workflow(
+    workflow_uuid="1a424e61-d0fe-5489-86ae-11ca393d21b8",
+    displayname="pTLC 最长全流程 v4（物料 + 最大并行）",
+    description=(
+        "原样调用 PlatformUI 的成熟工位 operation；所有机器人、地轨、工具与物料转移"
+        "只进入通用转运 v4。依赖图精确保持 parallel_v1：s2∥s3、(s6→s8)∥s7，"
+        "且 s7 的共同前驱为 s5。"
+    ),
+)
+def ptlc_parallel_v4(
+    *,
+    sample_id: str = "DEMO-001",
+    plate_spec: str = "4×6",
+    plate_no: str = "1",
+    well: str = "A1",
+    tank: int = 1,
+    auto_drain: bool = True,
+    dry_duration_s: float = 0.0,
+    save_dir: str = "var/photoscrape/demo",
+    before_path: str = "var/photoscrape/demo/before.jpg",
+    photoscrape_mode: str = "auto",
+    solvent_volume_ml: float = 0.1,
+    liquid_repeat_count: int = 1,
+    tank_site: str = "tank-1",
+    collector_site: str = "collector-item-1",
+    bottle_site: str = "bottle-item-1",
+) -> PTLCParallelV4Result:
+    """Run one sample while preserving PlatformUI's physical and lock authority."""
+
+    # Typed material inputs.  The source sample stays at the sampling rack;
+    # plate and consumables preserve identity through every transport return.
+    # unilab:node_uuid=1ea72134-6541-5cf7-b84c-2bc33e8f50e4
+    sample_vial = material_source(
+        resource_template=source_sample_vial,
+        mode="existing",
+        mount=resource_ref("plc_sampling"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.PRIMARY_SAMPLE,
+    )
+    # unilab:node_uuid=d1e46485-4b16-52c8-b118-040ba0e0f3aa
+    plate = material_source(
+        resource_template=ptlc_plate,
+        mode="existing",
+        mount=resource_ref("plc_feedlift"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.ALIQUOT_SAMPLE,
+    )
+    # unilab:node_uuid=3cb3e724-b762-56f2-beed-2fb278955a68
+    collector_input = material_source(
+        resource_template=powder_collector,
+        mode="existing",
+        mount=resource_ref("staging_a_stack"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.CONSUMABLE,
+    )
+    # unilab:node_uuid=2b25206b-1c2d-5fae-991f-0569ea820262
+    vial_input = material_source(
+        resource_template=collection_vial,
+        mode="existing",
+        mount=resource_ref("staging_b_stack"),
+        material_uuid=None,
+        site=None,
+        slot_range=None,
+        flow_role=MaterialFlowRole.CONSUMABLE,
+    )
+
+    # unilab:node_uuid=6a906715-05b1-5586-beec-f61e4d9bfb5f
+    with group(name="af0 开工预检"):
+        # unilab:node_uuid=182a59bc-eb99-578f-8ce4-ad1ef4973726
+        availability = material.check_availability(  # noqa: F841
+            need_collector=True,
+            need_bottle=True,
+            exclude_sample=sample_id,
+        )
+
+    # unilab:node_uuid=6c1052c5-3039-595a-85c4-d28af8cd6a46
+    with group(name="s1 上样上料"):
+        # Exact PlatformUI station preparation; its root has no robot/rail.
+        # unilab:node_uuid=338199c1-13ca-5588-b502-fce1d6756a45
+        sampling_ready = sampling.sampling_prepare()  # noqa: F841
+        # unilab:node_uuid=af6604c6-bfb7-5090-b95d-0e2df503d520
+        plate_at_spot = transport_resource_v4(
+            resource=plate,
+            target_device="plc_sampling",
+            target_mount=resource_ref("plc_sampling"),
+            target_site="plate",
+        )
+
+    # parallel_v1 first fork: branch A is s2 then s4; branch B is s3.
+    with parallel():
+        # unilab:node_uuid=f8adba77-63c5-5b46-afac-71e908b7ebea
+        with group(name="s2 点样 → s4 展开前拍照"):
+            # unilab:node_uuid=a3b4b72c-a32a-5332-832a-13e6cb908e30
+            spotting = sampling.sampling_execute(  # noqa: F841
+                plate_spec=plate_spec,
+                plate_no=plate_no,
+                well=well,
+            )
+            # unilab:node_uuid=dce51443-96e8-5573-8040-c44c3efe2d14
+            sampled = material.record_spotting_v4(
+                sample_vial=sample_vial,
+                plate=plate_at_spot.resource,
+            )
+            # s4 begins only after s2 in this branch.
+            # unilab:node_uuid=75979140-6056-5a39-a16a-544740232122
+            plate_before_photo = transport_resource_v4(
+                resource=sampled.plate,
+                target_device="plc_photoscrape",
+                target_mount=resource_ref("plc_photoscrape"),
+                target_site="plate",
+            )
+            # unilab:node_uuid=2d7596ba-229c-58c2-b232-3022fe7cb95d
+            before_photo = photoscrape.photoscrape_before_photo_capture(  # noqa: F841
+                sample_id=sample_id,
+                save_dir=save_dir,
+            )
+
+        # unilab:node_uuid=274cb2fe-a6a8-534f-8f9d-8270454e8a22
+        with group(name="s3 展缸预备"):
+            # unilab:node_uuid=ecc6799c-244d-541e-9edc-399dd7f08cd8
+            tank_ready = develop.develop_prepare(  # noqa: F841
+                tank=tank,
+            )
+
+    # Join(s4, s3) -> s5.  The call below cannot start until both branches end.
+    # unilab:node_uuid=d3b58ead-dbe7-5b27-b55a-a54568e36fbf
+    with group(name="s5 取板进缸"):
+        # unilab:node_uuid=7ae98e6e-01ee-50db-89a2-b6f9e6786f10
+        plate_in_tank = transport_resource_v4(
+            resource=plate_before_photo.resource,
+            target_device="plc_develop",
+            target_mount=resource_ref("plc_develop"),
+            target_site=tank_site,
+        )
+
+    # parallel_v1 second fork.  Both branches start after s5.  In particular,
+    # s7 cannot place the collector before the pre-development photo in s4.
+    with parallel():
+        # unilab:node_uuid=29cd8c58-b38e-5f95-9bc7-e05923cddaab
+        with group(name="s6 展开等待 → s8 出缸上刮板台"):
+            # unilab:node_uuid=edc228e6-8f22-59be-87be-aee4bb52ba79
+            developed = develop.pf_s6_develop_wait(  # noqa: F841
+                tank=tank,
+                auto_drain=auto_drain,
+                dry_duration_s=dry_duration_s,
+            )
+            # s8 depends only on s6 within this branch, just like parallel_v1.
+            # unilab:node_uuid=ff039f9d-ac56-5d84-b8af-0d115742e9c8
+            plate_at_scrape = transport_resource_v4(
+                resource=plate_in_tank.resource,
+                target_device="plc_photoscrape",
+                target_mount=resource_ref("plc_photoscrape"),
+                target_site="plate",
+            )
+
+        # unilab:node_uuid=69a43443-7598-5cb2-b391-b0882c65f402
+        with group(name="s7 备耗材（s5 后）"):
+            # These pure planning calls preserve PlatformUI's inventory rules.
+            # unilab:node_uuid=1e1898e8-d982-5aad-b497-40984b6f3874
+            collector_plan = material.plan_staging(  # noqa: F841
+                kind="collector", reserve_for=sample_id
+            )
+            # unilab:node_uuid=4c27c6ea-63e3-5549-97b1-079e9399d23d
+            bottle_plan = material.plan_staging(  # noqa: F841
+                kind="bottle", reserve_for=sample_id
+            )
+            # unilab:node_uuid=47086862-c172-5e4d-8889-b07c00098254
+            locator_a = staging.locator_a(target=True)  # noqa: F841
+            # unilab:node_uuid=5b75e686-c161-5b90-8050-b0a309eb7ef0
+            locator_b = staging.locator_b(target=True)  # noqa: F841
+            # unilab:node_uuid=4c86c845-7061-50a2-aa9e-824bb02bec1c
+            collector_at_scrape = transport_resource_v4(
+                resource=collector_input,
+                target_device="plc_photoscrape",
+                target_mount=resource_ref("plc_photoscrape"),
+                target_site="collector",
+            )
+
+    # Join(s8, s7) -> s9: plate and collector are both ready.
+    # unilab:node_uuid=9371c629-c57a-5148-bcbc-b2f4ba92d828
+    with group(name="s9 拍照刮取"):
+        # unilab:node_uuid=ae450f82-ec40-517b-92fe-c26feacbb0e8
+        scraped = photoscrape.photoscrape_process(  # noqa: F841
+            sample_id=sample_id,
+            save_dir=save_dir,
+            before_path=before_path,
+            mode=photoscrape_mode,
+        )
+
+    # unilab:node_uuid=bfd6df69-220c-58c4-83c2-9920242b22f0
+    with group(name="s10 粉末收集"):
+        # Independent material transfers are released together.  PlatformUI's
+        # unchanged root locks serialize only their shared robot/rail windows.
+        with parallel():
+            # unilab:node_uuid=d0b543b8-6d1d-59b1-b3c0-8aeefd0d177b
+            with group(name="接粉器入收集站"):
+                # unilab:node_uuid=21749737-e54f-55e3-a11b-7d950c03c836
+                collector_at_collect = transport_resource_v4(
+                    resource=collector_at_scrape.resource,
+                    target_device="plc_collect",
+                    target_mount=resource_ref("plc_collect"),
+                    target_site="collector",
+                )
+            # unilab:node_uuid=f77e40a4-cc9b-5c9c-b89f-fa2026801d47
+            with group(name="收集瓶入收集站"):
+                # unilab:node_uuid=36027af7-c4cc-5a6f-b87f-84a09636409d
+                vial_at_collect = transport_resource_v4(
+                    resource=vial_input,
+                    target_device="plc_collect",
+                    target_mount=resource_ref("plc_collect"),
+                    target_site="vial",
+                )
+        # unilab:node_uuid=223ed167-67df-532a-b29e-8c4dfb2f4aaa
+        collection = collect.collect_execute(  # noqa: F841
+            solvent_volume_ml=solvent_volume_ml,
+            liquid_repeat_count=liquid_repeat_count,
+        )
+        # unilab:node_uuid=aa17af8a-045e-5fb1-bab0-ad72c68f165d
+        lineage = material.record_collection_v4(
+            powder_collector=collector_at_collect.resource,
+            vial=vial_at_collect.resource,
+        )
+        with parallel():
+            # unilab:node_uuid=417d5b7f-73cb-5a0d-a0c8-ad36310b0fd9
+            with group(name="接粉器回中转 A"):
+                # unilab:node_uuid=6f389e89-68f8-565a-afd8-dd05b4aa5dcc
+                collector_returned = transport_resource_v4(
+                    resource=lineage.powder_collector,
+                    target_device="plc_staginga",
+                    target_mount=resource_ref("staging_a_stack"),
+                    target_site=collector_site,
+                )
+            # unilab:node_uuid=5b54e7bb-4c31-5b85-aad6-21dc605eeb93
+            with group(name="收集瓶回中转 B"):
+                # unilab:node_uuid=002889a4-e679-5ace-954d-b05e059ae4c2
+                vial_returned = transport_resource_v4(
+                    resource=lineage.vial,
+                    target_device="plc_staginga",
+                    target_mount=resource_ref("staging_b_stack"),
+                    target_site=bottle_site,
+                )
+        with parallel():
+            # unilab:node_uuid=bde51a90-80f1-5136-8217-1a961615daa7
+            with group(name="释放中转 A"):
+                # unilab:node_uuid=347de1c4-4c94-504e-93d7-5d27f96d887b
+                locator_a_released = staging.locator_a(target=False)  # noqa: F841
+            # unilab:node_uuid=f9d5e9de-d480-5dcf-8780-3096569ef6f9
+            with group(name="释放中转 B"):
+                # unilab:node_uuid=f6039ec6-7f8e-524f-aa6d-cd064bb6bba6
+                locator_b_released = staging.locator_b(target=False)  # noqa: F841
+
+    # unilab:node_uuid=cff266ff-2b0c-512e-acb8-55a07a96d9fe
+    with group(name="s11 废板下料"):
+        # unilab:node_uuid=ed593aaa-a60d-58dd-9677-77e36e7531c5
+        waste = transport_resource_v4(
+            resource=plate_at_scrape.resource,
+            target_device="plc_feedlift",
+            target_mount=resource_ref("plc_feedlift"),
+            target_site="waste-stack",
+        )
+
+    return {
+        "sample": vial_returned.resource,
+        "waste_plate": waste.resource,
+        "powder_collector": collector_returned.resource,
+    }

@@ -1,0 +1,2085 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-20T02:01:42.1202334" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站.project" modificationDateTime="2026-06-18T22:35:27.3049867">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="FB_Teach" pouType="functionBlock">
+        <interface>
+          <inOutVars>
+            <variable name="HMI_Servo">
+              <type>
+                <derived name="HMI_Servo" />
+              </type>
+            </variable>
+            <variable name="Servo">
+              <type>
+                <derived name="servo" />
+              </type>
+            </variable>
+          </inOutVars>
+          <localVars>
+            <variable name="i">
+              <type>
+                <INT />
+              </type>
+            </variable>
+          </localVars>
+          <inputVars>
+            <variable name="Mode">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="xEnble">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </inputVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">IF Mode&lt;&gt;1 AND Servo.bEnabled AND SERVO.bHomed THEN    //没有在自动运行模式下，伺服使能
+	//示教点位
+	FOR i:=1 TO 10  DO
+		IF HMI_Servo.write[i] THEN
+		HMI_Servo.position[i]:=Servo.fActPos;
+		END_IF
+		//运动执行
+		IF HMI_Servo.execute[i] THEN
+			Servo.fAbsTarget:= HMI_Servo.position[i];
+			Servo.xMoveAbs:=TRUE;
+		END_IF
+		//执行完毕复位
+		IF Servo.bAbMoveDone OR Servo.bError  THEN
+			Servo.xMoveAbs:=FALSE;
+		END_IF
+	END_FOR
+	
+END_IF
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="25_FB_功能块" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="c97ae70a-f2af-426e-bcf0-14eebd21c7d5">
+                    <pathStructure isFolder="False" name="FB_Teach" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="0e643bc7-11b1-4978-b72d-32bf2313b9ff" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>0e643bc7-11b1-4978-b72d-32bf2313b9ff</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_SERVOAXIS" pouType="functionBlock">
+        <interface>
+          <inOutVars>
+            <variable name="AXIS">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+          </inOutVars>
+          <inputVars>
+            <variable name="xEnable">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴使能</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xHome">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 回原点命令</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xJogPos">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 正方向点动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xJogNeg">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 负方向点动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xStop">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 停止命令</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xMoveAbs">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 绝对运动启动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xMoveRel">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 相对运动启动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="XReset">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">轴复位</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fAbsTarget">
+              <type>
+                <LREAL />
+              </type>
+              <initialValue>
+                <simpleValue value="0.0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 绝对位置目标</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fRelTarget">
+              <type>
+                <LREAL />
+              </type>
+              <initialValue>
+                <simpleValue value="0.0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 相对运动距离</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fVelocity">
+              <type>
+                <LREAL />
+              </type>
+              <initialValue>
+                <simpleValue value="100.0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 运行速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fAcc">
+              <type>
+                <LREAL />
+              </type>
+              <initialValue>
+                <simpleValue value="1000.0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 加速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fDec">
+              <type>
+                <LREAL />
+              </type>
+              <initialValue>
+                <simpleValue value="1000.0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 减速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fJogVel">
+              <type>
+                <LREAL />
+              </type>
+              <initialValue>
+                <simpleValue value="50.0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 点动速度 </xhtml>
+              </documentation>
+            </variable>
+          </inputVars>
+          <outputVars>
+            <variable name="bEnabled">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴使能状态</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bHomed">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 原点完成</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bBusy">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴忙状态</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bError">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴报警</xhtml>
+              </documentation>
+            </variable>
+            <variable name="iErrorCode">
+              <type>
+                <DINT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 错误代码</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fActPos">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 实际位置</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fActVel">
+              <type>
+                <LREAL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 实际速度</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bAbMoveDone">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 运动完成</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bReMoveDone">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴使能</xhtml>
+              </documentation>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="MC_Power">
+              <type>
+                <derived name="MC_Power" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴使能</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_Home">
+              <type>
+                <derived name="MC_Home" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 回原点</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_Homing">
+              <type>
+                <derived name="MC_Home" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 停止</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_Halt">
+              <type>
+                <derived name="MC_Halt" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 停止</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_MoveAbsolute">
+              <type>
+                <derived name="MC_MoveAbsolute" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 绝对定位</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_MoveRelative">
+              <type>
+                <derived name="MC_MoveRelative" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 相对定位</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_Jog">
+              <type>
+                <derived name="MC_Jog" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 点动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_Reset">
+              <type>
+                <derived name="MC_Reset" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">轴复位</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bAxisEnabled">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 轴使能标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bHomeDone">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 回零完成标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bMoving">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 运动中标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bHoming">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 回零中标志 </xhtml>
+              </documentation>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">//轴使能
+MC_Power(
+	Axis:=AXIS   , 
+	Enable:= TRUE  , 
+	bRegulatorOn:= xEnable , 
+	bDriveStart:=TRUE  , 
+	Status=&gt; bEnabled  , 
+	bRegulatorRealState=&gt; , 
+	bDriveStartRealState=&gt; , 
+	Busy=&gt; , 
+	Error=&gt;  , 
+	ErrorID=&gt;  );
+//轴回零
+MC_Home(
+	Axis:= AXIS, 
+	Execute:= xHome , 
+	Position:= , 
+	Done=&gt; bHomed , 
+	Busy=&gt; bHoming , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+
+//轴复位
+MC_Reset(Axis:=AXIS  , 
+	Execute:= XReset , 
+	Done=&gt; , 
+	Busy=&gt; , 
+	Error=&gt; ,
+	ErrorID=&gt;  );
+//轴jog
+MC_Jog(
+	Axis:=AXIS, 
+	JogForward:=xJogPos  , 
+	JogBackward:=xJogNeg  , 
+	Velocity:=fJogVel  , 
+	Acceleration:= fAcc , 
+	Deceleration:=fDec  , 
+	Jerk:= , 
+	Busy=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorId=&gt; );
+//轴停止
+MC_Halt(
+	Axis:=AXIS, 
+	Execute:=xStop  , 
+	Deceleration:= fDec , 
+	Jerk:= , 
+	Done=&gt; , 
+	Busy=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//轴绝对运动
+MC_MoveAbsolute(
+	Axis:=AXIS, 
+	Execute:= xMoveAbs , 
+	Position:= fAbsTarget , 
+	Velocity:=fVelocity  , 
+	Acceleration:= fAcc , 
+	Deceleration:= fDec , 
+	Jerk:= , 
+	Direction:= , 
+	////BufferMode:= , 
+	Done=&gt; bAbMoveDone , 
+	Busy=&gt; bMoving , 
+	////Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//轴相对运动
+MC_MoveRelative(
+	Axis:=AXIS , 
+	Execute:=xMoveRel  , 
+	Distance:=fRelTarget  , 
+	Velocity:= fVelocity , 
+	Acceleration:= fAcc , 
+	Deceleration:= fDec , 
+	Jerk:= , 
+	////BufferMode:= , 
+	Done=&gt; bReMoveDone, 
+	Busy=&gt; , 
+	////Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+	
+fActPos:=AXIS.fActPosition ;  //当前位置
+fActVel:=AXIS.fActVelocity ;  //当前速度
+bError:=MC_Power.Error OR MC_Home.Error OR MC_MoveAbsolute.Error OR MC_MoveAbsolute.Error OR MC_Halt.Error OR MC_Jog.Error OR MC_Reset.Error OR AXIS.nAxisState=1 OR AXIS.nAxisState=2 ;
+iErrorCode:=MC_Power.ErrorID OR MC_Home.ErrorID OR MC_MoveAbsolute.ErrorID  OR MC_MoveAbsolute.ErrorID  OR MC_Halt.ErrorID  OR MC_Jog.ErrorId OR MC_Reset.ErrorID  ;
+
+
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="25_FB_功能块" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="c97ae70a-f2af-426e-bcf0-14eebd21c7d5">
+                    <pathStructure isFolder="False" name="FB_SERVOAXIS" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fa96eb3f-8c04-4be9-8832-cfbd8dd5e47c" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>fa96eb3f-8c04-4be9-8832-cfbd8dd5e47c</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_cylinder" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="xManualAuto">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 手自动模式：FALSE=手动，TRUE=自动</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xManualExtend">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 手动伸出</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xManualRetract">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 手动缩回</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xAutoExtend">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 自动伸出</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xAutoRetract">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 自动缩回</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xReset">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 复位按钮</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xPosExtend">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 伸出到位传感器</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xPosRetract">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 缩回到位传感器</xhtml>
+              </documentation>
+            </variable>
+            <variable name="tTimeout">
+              <type>
+                <TIME />
+              </type>
+              <initialValue>
+                <simpleValue value="TIME#5s0ms" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 动作超时时间</xhtml>
+              </documentation>
+            </variable>
+          </inputVars>
+          <outputVars>
+            <variable name="yValve1">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 电磁阀1输出：TRUE=伸出，FALSE=缩回</xhtml>
+              </documentation>
+            </variable>
+            <variable name="yValve2">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 电磁阀2输出：TRUE=伸出，FALSE=缩回</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bAlarm">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 报警输出</xhtml>
+              </documentation>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="bEnableCmd1">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 有效的命令1</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bEnableCmd2">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 有效的命令1</xhtml>
+              </documentation>
+            </variable>
+            <variable name="tActionTimer">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 动作定时器</xhtml>
+              </documentation>
+            </variable>
+          </localVars>
+          <inputVars>
+            <variable name="cylinder_type">
+              <type>
+                <INT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 气缸类型  0 单控  1双控</xhtml>
+              </documentation>
+            </variable>
+          </inputVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE cylinder_type OF
+	0:     //单控电池阀
+		//命令逻辑选择
+		IF xManualAuto  THEN
+			//自动模式，使用自动命令
+			bEnableCmd1 :=xAutoExtend;
+			ELSE
+			//手动模式，使用手动命令
+			bEnableCmd1 :=xManualExtend  ;
+		END_IF
+		//控制指令
+		IF bEnableCmd1 THEN
+			//开始伸出
+			yValve1:=TRUE;
+			ELSE
+			//开始缩回
+			yValve1 :=FALSE;
+		END_IF
+		
+	
+			tActionTimer(IN := (NOT xPosExtend AND NOT yValve1)  OR   (NOT xPosRetract AND yValve1), PT:=tTimeout );
+			bAlarm :=tActionTimer .Q;
+	
+	1:        //双控电池阀
+		//命令逻辑选择
+		IF xManualAuto  THEN
+			//自动模式，使用自动命令
+			bEnableCmd1 :=xAutoExtend;
+			bEnableCmd2 :=xAutoRetract;
+		ELSE
+			//手动模式，使用手动命令
+			bEnableCmd1 :=xManualExtend;
+			bEnableCmd2 :=xManualRetract;
+		END_IF
+		//伸出控制指令
+		IF bEnableCmd1 THEN
+			//开始伸出
+			yValve1:=TRUE;
+			yValve2:=FALSE;
+		ELSE 
+			yValve1:=FALSE;
+		END_IF
+		
+		IF bEnableCmd2 THEN
+			//开始缩回
+			yValve2:=TRUE;
+			yValve1:=FALSE;
+		ELSE 
+			yValve2:=FALSE;
+		END_IF
+		
+			tActionTimer(IN := (NOT xPosExtend AND NOT yValve1)  OR   (NOT xPosRetract AND yValve2), PT:=tTimeout );
+			bAlarm :=tActionTimer .Q;
+		
+END_CASE
+
+IF xReset THEN
+	bAlarm:=FALSE ;
+END_IF
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="25_FB_功能块" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="c97ae70a-f2af-426e-bcf0-14eebd21c7d5">
+                    <pathStructure isFolder="False" name="FB_cylinder" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="277cc196-ecec-40ef-ad9d-bd3ffebee700" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>277cc196-ecec-40ef-ad9d-bd3ffebee700</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_HandWheel" pouType="functionBlock">
+        <interface>
+          <inOutVars>
+            <variable name="Axis_Spindle">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_1">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_2">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_3">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_4">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_5">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_6">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_7">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_8">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+            <variable name="AXIS_9">
+              <type>
+                <derived name="AXIS_REF_SM3" />
+              </type>
+            </variable>
+          </inOutVars>
+          <inputVars>
+            <variable name="Speed_X1">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Speed_X10">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Speed_X100">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Reset">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_3Y">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_4X">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_5Z">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_6X">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_7Y">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_8Y">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_9X">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_10Z">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="HandWheel_11Y">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </inputVars>
+          <localVars>
+            <variable name="MC_GearIn_1">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_2">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_3">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_4">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_5">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_6">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_7">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_8">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="MC_GearIn_9">
+              <type>
+                <derived name="MC_GearIn" />
+              </type>
+            </variable>
+            <variable name="iDenominator">
+              <type>
+                <UDINT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 齿轮比分母</xhtml>
+              </documentation>
+            </variable>
+            <variable name="iMolecule">
+              <type>
+                <INT />
+              </type>
+              <initialValue>
+                <simpleValue value="1" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 齿轮比分子</xhtml>
+              </documentation>
+            </variable>
+            <variable name="MC_GearOut_1">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="TP_0">
+              <type>
+                <derived name="TP" />
+              </type>
+            </variable>
+          </localVars>
+          <outputVars>
+            <variable name="xStop_1">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_2">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_3">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_4">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_5">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_6">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_7">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_8">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="xStop_9">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="R_TRIG_1">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_2">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_3">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_4">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_5">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_6">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_7">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_8">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_9">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_10">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_11">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_12">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="R_TRIG_13">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_1">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_2">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_3">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_4">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_5">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_6">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_7">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_8">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+            <variable name="F_TRIG_9">
+              <type>
+                <derived name="F_TRIG" />
+              </type>
+            </variable>
+          </localVars>
+          <outputVars>
+            <variable name="Error">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="ErrorID">
+              <type>
+                <WORD />
+              </type>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="MC_GearOut_2">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="MC_GearOut_3">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="MC_GearOut_4">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="MC_GearOut_5">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="MC_GearOut_6">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="MC_GearOut_7">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="MC_GearOut_8">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="MC_GearOut_9">
+              <type>
+                <derived name="MC_GearOut" />
+              </type>
+            </variable>
+            <variable name="newVar">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="newVar1">
+              <type>
+                <INT />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">//倍率指定
+IF Speed_X1  THEN
+	iDenominator:=100;
+ELSIF Speed_X10 THEN
+	iDenominator:=10;
+ELSIF Speed_X100 THEN 
+    iDenominator:=1;
+END_IF
+//上升沿检测
+R_TRIG_1(CLK:=Speed_X1 );
+R_TRIG_2(CLK:=Speed_X10 );
+R_TRIG_3(CLK:=Speed_X100 );
+R_TRIG_4(CLK:=Reset );
+R_TRIG_5(CLK:=HandWheel_3Y  );
+R_TRIG_6(CLK:=HandWheel_4X  );
+R_TRIG_7(CLK:=HandWheel_5Z );
+R_TRIG_8(CLK:=HandWheel_6X );
+R_TRIG_9(CLK:=HandWheel_7Y );
+R_TRIG_10(CLK:=HandWheel_8Y );
+R_TRIG_11(CLK:=HandWheel_9X );
+R_TRIG_12(CLK:=HandWheel_10Z );
+R_TRIG_13(CLK:=HandWheel_11Y );
+
+//下降沿检测
+F_TRIG_1(CLK:=HandWheel_3Y );
+F_TRIG_2(CLK:=HandWheel_4X  );
+F_TRIG_3(CLK:=HandWheel_5Z );
+F_TRIG_4(CLK:=HandWheel_6X );
+F_TRIG_5(CLK:=HandWheel_7Y );
+F_TRIG_6(CLK:=HandWheel_8Y );
+F_TRIG_7(CLK:=HandWheel_9X );
+F_TRIG_8(CLK:=HandWheel_10Z );
+F_TRIG_9(CLK:=HandWheel_11Y );
+//1轴启动啮合
+IF R_TRIG_5.Q THEN
+	newVar:=newVar+1;
+END_IF
+IF F_TRIG_1.Q THEN
+	newVar1:=newVar1+1;
+END_IF
+
+MC_GearIn_1(
+	Master:= Axis_Spindle  , 
+	Slave:=AXIS_1   , 
+	Execute:=R_TRIG_5.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_3Y) , 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; %MX500.5, 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//2轴启动啮合
+MC_GearIn_2(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_2 , 
+	Execute:=R_TRIG_6.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_4X) , 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//3轴启动啮合
+MC_GearIn_3(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_3 , 
+	Execute:= R_TRIG_7.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_5Z), 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//4轴启动啮合
+MC_GearIn_4(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_4 , 
+	Execute:=  R_TRIG_8.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_6X), 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//5轴启动啮合
+MC_GearIn_5(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_5 , 
+	Execute:= R_TRIG_9.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_7Y), 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//6轴启动啮合
+MC_GearIn_6(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_6 , 
+	Execute:= R_TRIG_10.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_8Y), 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//7轴启动啮合
+MC_GearIn_7(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_7 , 
+	Execute:= R_TRIG_11.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_9X), 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//8轴启动啮合
+MC_GearIn_8(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_8 , 
+	Execute:= R_TRIG_12.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_10Z), 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+//9轴启动啮合
+MC_GearIn_9(
+	Master:= Axis_Spindle, 
+	Slave:=AXIS_9 , 
+	Execute:=  R_TRIG_13.Q OR ((R_TRIG_1.Q OR R_TRIG_2.Q OR R_TRIG_3.Q) AND HandWheel_11Y), 
+	RatioNumerator:=iMolecule , 
+	RatioDenominator:= iDenominator, 
+	Acceleration:= 500, 
+	Deceleration:= 800, 
+	Jerk:= , 
+	//BufferMode:= , 
+	InGear=&gt; , 
+	Busy=&gt; , 
+	//Active=&gt; , 
+	CommandAborted=&gt; , 
+	Error=&gt; , 
+	ErrorID=&gt; );
+
+Error :=MC_GearIn_1.Error OR MC_GearIn_2.Error OR MC_GearIn_3.Error OR MC_GearIn_4.Error OR MC_GearIn_5.Error OR MC_GearIn_6.Error OR MC_GearIn_7.Error OR MC_GearIn_8.Error OR MC_GearIn_9.Error ;  
+ErrorID :=MC_GearIn_1.ErrorID OR MC_GearIn_2.ErrorID OR MC_GearIn_3.ErrorID OR MC_GearIn_4.ErrorID OR MC_GearIn_5.ErrorID OR MC_GearIn_6.ErrorID OR MC_GearIn_7.ErrorID OR MC_GearIn_8.ErrorID OR MC_GearIn_9.ErrorID ;  
+
+//1轴断开齿合
+MC_GearOut_1(Slave:=AXIS_1 , Execute:= F_TRIG_1.Q AND MC_GearIn_1.InGear , Done=&gt; xStop_1 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+//2轴断开齿合
+MC_GearOut_2(Slave:=AXIS_2 , Execute:= F_TRIG_2.Q AND MC_GearIn_2.InGear , Done=&gt; xStop_2 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+//3轴断开齿合
+MC_GearOut_3(Slave:=AXIS_3 , Execute:= F_TRIG_3.Q AND MC_GearIn_3.InGear , Done=&gt; xStop_3 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+
+//4轴断开齿合
+MC_GearOut_4(Slave:=AXIS_4 , Execute:= F_TRIG_4.Q AND MC_GearIn_4.InGear , Done=&gt; xStop_4 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+
+//5轴断开齿合
+MC_GearOut_5(Slave:=AXIS_5 , Execute:= F_TRIG_5.Q AND MC_GearIn_5.InGear , Done=&gt; xStop_5 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+
+//6轴断开齿合
+MC_GearOut_6(Slave:=AXIS_6 , Execute:= F_TRIG_6.Q AND MC_GearIn_6.InGear , Done=&gt; xStop_6 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+
+//7轴断开齿合
+MC_GearOut_7(Slave:=AXIS_7 , Execute:= F_TRIG_7.Q AND MC_GearIn_7.InGear , Done=&gt; xStop_7 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+
+//8断开齿合
+MC_GearOut_8(Slave:=AXIS_8 , Execute:= F_TRIG_8.Q AND MC_GearIn_8.InGear , Done=&gt; xStop_8 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+
+//9轴断开齿合
+MC_GearOut_9(Slave:=AXIS_9 , Execute:= F_TRIG_9.Q AND MC_GearIn_9.InGear , Done=&gt; xStop_9 , Busy=&gt; , Error=&gt; , ErrorID=&gt; );
+
+
+
+
+
+
+
+
+
+
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="25_FB_功能块" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="c97ae70a-f2af-426e-bcf0-14eebd21c7d5">
+                    <pathStructure isFolder="False" name="FB_HandWheel" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="3f1f181e-7885-4995-bece-46c08484fbee" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>3f1f181e-7885-4995-bece-46c08484fbee</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_RB_Control" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="StartCmd">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="StopCmd">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="PauseCmd">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Reset">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="RobotRunning">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="RobotStopped">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="RobotPaused">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="RobotAlarm">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="PowerOn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </inputVars>
+          <outputVars>
+            <variable name="StartOut">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="StopOut">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="PauseOut">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="ResetOut">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="StatusRun">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="StatusStop">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="StatusPause">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="StatusAlarm">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="PowerOnOut">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="State">
+              <type>
+                <INT />
+              </type>
+              <initialValue>
+                <simpleValue value="0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 当前状态</xhtml>
+              </documentation>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* ================= 报警优先 ================= *)
+IF RobotAlarm THEN
+    State := 4;
+END_IF
+
+CASE State OF
+
+    (* -------- 0：空闲 -------- *)
+    0:
+        StartOut := FALSE;
+        StopOut  := TRUE;
+        PauseOut := FALSE;
+		ResetOut:=FALSE;
+        IF StartCmd AND NOT RobotAlarm THEN
+            State := 1;
+        END_IF
+
+    (* -------- 1：运行 -------- *)
+    1:
+		IF NOT PowerOn THEN
+			PowerOnOut:=TRUE;
+		ELSE
+			PowerOnOut:=FALSE;
+		END_IF
+		IF PowerOn THEN
+			StartOut := TRUE;
+			StopOut  := FALSE;
+			PauseOut := FALSE;
+		END_IF
+        
+
+        IF StopCmd THEN
+            State := 3;
+        ELSIF PauseCmd THEN
+            State := 2;
+        
+        END_IF
+
+    (* -------- 2：暂停 -------- *)
+    2:
+        PauseOut := TRUE;
+		StartOut := FALSE ;
+        StopOut  := FALSE;
+        IF StopCmd THEN
+            State := 3;
+        ELSIF  StartCmd AND NOT RobotAlarm THEN
+            State := 1;
+        END_IF
+
+    (* -------- 3：停止 -------- *)
+    3:
+        StartOut := FALSE;
+        StopOut  := TRUE;
+        PauseOut := FALSE;
+
+        IF RobotStopped THEN
+            State := 0;
+        END_IF
+
+    (* -------- 4：报警 -------- *)
+    4:
+        StartOut := FALSE;
+        StopOut  := TRUE;
+        PauseOut := FALSE;
+
+        IF  Reset THEN
+			ResetOut:=TRUE;
+            State := 0;
+        END_IF
+
+END_CASE
+
+(* ================= 状态输出 ================= *)
+StatusRun   := (State = 1);
+StatusPause := (State = 2);
+StatusStop  := (State = 0) OR (State = 3);
+StatusAlarm := (State = 4);</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="25_FB_功能块" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="c97ae70a-f2af-426e-bcf0-14eebd21c7d5">
+                    <pathStructure isFolder="False" name="FB_RB_Control" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="eaf8f951-13eb-465a-aa11-04c5fc1a08db" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>eaf8f951-13eb-465a-aa11-04c5fc1a08db</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_Mode" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="xStart">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 启动按钮</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xStop">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 停止按钮</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xReset">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 复位按钮</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xAutoMode">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> TRUE=自动模式，FALSE=手动模式</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xFault">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 故障信号</xhtml>
+              </documentation>
+            </variable>
+            <variable name="xEmergency">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 急停信号（急停按下为FALSE）</xhtml>
+              </documentation>
+            </variable>
+          </inputVars>
+          <outputVars>
+            <variable name="bRed">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 红灯</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bYellow">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 黄灯</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bGreen">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 绿灯</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bBuzzer">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 蜂鸣器</xhtml>
+              </documentation>
+            </variable>
+            <variable name="iState">
+              <type>
+                <INT />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 设备状态: 0=停止, 1=运行, 2=故障, 3=急停</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bAuto">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 自动模式指示</xhtml>
+              </documentation>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="iDeviceState">
+              <type>
+                <INT />
+              </type>
+              <initialValue>
+                <simpleValue value="0" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0=停止, 1=运行, 2=故障, 3=急停</xhtml>
+              </documentation>
+            </variable>
+            <variable name="tBuzzerPulse">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 蜂鸣器脉冲</xhtml>
+              </documentation>
+            </variable>
+            <variable name="tFlashTimer">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 闪烁定时器</xhtml>
+              </documentation>
+            </variable>
+            <variable name="tShortBeep">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 短鸣定时器</xhtml>
+              </documentation>
+            </variable>
+            <variable name="tEmergencyBeep">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 急停蜂鸣器定时器</xhtml>
+              </documentation>
+            </variable>
+            <variable name="tEmergencyBeep1">
+              <type>
+                <derived name="TON" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 蜂鸣器激活</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bBuzzerActive">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 蜂鸣器激活</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bFlashFlag">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 闪烁标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bBeepOnce">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 单次蜂鸣标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bEmergencyBuzzer">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 急停蜂鸣器标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bEmergencyActive">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="FALSE" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> 急停激活标志</xhtml>
+              </documentation>
+            </variable>
+            <variable name="ALT_0">
+              <type>
+                <derived name="ALT" />
+              </type>
+            </variable>
+            <variable name="ALT_1">
+              <type>
+                <derived name="ALT" />
+              </type>
+            </variable>
+            <variable name="TON_0">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="ALT_2">
+              <type>
+                <derived name="ALT" />
+              </type>
+            </variable>
+            <variable name="TON_1">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="TON_2">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+          </localVars>
+          <inputVars>
+            <variable name="bWarning_alarm">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </inputVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">// 模式状态
+bAuto := xAutoMode;
+
+// 状态机
+CASE iDeviceState OF
+    EN_功能块状态.停止:  // 停止状态
+        IF NOT xEmergency THEN
+            iDeviceState := EN_功能块状态.急停;  // 急停
+            bEmergencyActive := TRUE;
+        ELSIF xFault THEN
+            iDeviceState := EN_功能块状态.故障;  // 故障
+            bBuzzerActive := TRUE;
+        ELSIF (bAuto AND xStart)  THEN
+		 bBeepOnce := TRUE;  // 启动短鸣
+		  iDeviceState := EN_功能块状态.初始化;  // 初始化
+
+        END_IF;
+    
+    EN_功能块状态.运行:  // 运行状态
+        IF NOT xEmergency THEN
+            iDeviceState := EN_功能块状态.急停;  // 急停
+            bEmergencyActive := TRUE;
+        ELSIF xFault THEN
+            iDeviceState := EN_功能块状态.故障;  // 故障
+            bBuzzerActive := TRUE;
+        ELSIF xStop THEN
+            iDeviceState := EN_功能块状态.停止;  // 停止
+            bBeepOnce := TRUE;  // 停止短鸣
+        END_IF;
+        
+    EN_功能块状态.故障:  // 故障状态
+        IF NOT xEmergency THEN
+            iDeviceState := EN_功能块状态.急停;  // 急停
+            bEmergencyActive := TRUE;
+        ELSIF xReset AND NOT xFault THEN
+            iDeviceState := EN_功能块状态.停止;  // 停止
+            bBuzzerActive := FALSE;
+			bBuzzer:=FALSE;
+        END_IF;
+        
+    EN_功能块状态.急停:  // 急停状态
+        // 急停复位需要：急停信号解除 + 复位按钮按下
+        IF  xEmergency AND xReset THEN
+            iDeviceState := EN_功能块状态.停止;  // 停止
+            bEmergencyActive := FALSE;
+            bEmergencyBuzzer := FALSE;
+			bBuzzer:=FALSE;
+        END_IF;
+	EN_功能块状态.初始化:  //初始化状态
+	 TON_0(IN:=TRUE , PT:=T#3S );
+		IF TON_0.Q THEN
+		iDeviceState := EN_功能块状态.运行;  // 运行
+		END_IF 
+END_CASE;
+
+// 急停蜂鸣器控制（急停时蜂鸣器以不同频率鸣响）
+IF  bEmergencyActive THEN
+    tEmergencyBeep(IN := NOT tEmergencyBeep.Q, PT := T#2S );
+	ALT_1(xExecute:= tEmergencyBeep.Q, xOut:=bBuzzer );  // 急停时蜂鸣器响2秒，停2秒	
+END_IF;
+
+//三色灯控制
+// 闪烁定时器
+tFlashTimer(IN := NOT tFlashTimer.Q, PT := T#500MS);
+ALT_0(xExecute:=tFlashTimer.Q , xOut:=bFlashFlag );
+
+CASE iDeviceState OF
+    EN_功能块状态.停止:  // 停止状态
+        IF bAuto THEN
+            bYellow := TRUE;           // 自动模式：黄灯常亮
+        ELSE
+            bYellow := bFlashFlag;     // 手动模式：黄灯闪烁
+        END_IF;
+		 bGreen :=FALSE;
+		 bRed :=FALSE;
+        
+    EN_功能块状态.运行:  // 运行状态
+        bGreen := TRUE;
+         bRed :=FALSE;
+		  bYellow := FALSE; 
+    EN_功能块状态.故障:  // 故障状态
+        bRed := TRUE;
+         bGreen :=FALSE;
+		 bYellow := FALSE; 
+    EN_功能块状态.急停:  // 急停状态
+        bRed := bFlashFlag;  // 红灯闪烁
+		bGreen :=FALSE;
+		 bYellow := FALSE; 
+END_CASE;
+tShortBeep(IN := bBeepOnce AND NOT bEmergencyActive, PT := T#500MS);
+// 蜂鸣器控制
+IF bBeepOnce AND NOT bEmergencyActive THEN
+	bBuzzer := TRUE;  // 短鸣
+    IF tShortBeep.Q THEN
+        bBeepOnce := FALSE;
+       bBuzzer := FALSE;
+    END_IF;
+    
+END_IF;
+
+// 故障时蜂鸣器（非急停状态时生效）
+IF NOT bEmergencyActive AND xFault  THEN
+    tBuzzerPulse(IN := NOT tBuzzerPulse.Q, PT := T#500MS);
+ALT_2(xExecute:= tBuzzerPulse.Q, xOut:= bBuzzer);
+END_IF;
+
+
+//蜂鸣器5S后停止
+TON_2(IN:=iDeviceState=2 OR iDeviceState=3 OR bWarning_alarm ,PT:=T#5S);
+IF TON_2.Q THEN
+	bBuzzer:=FALSE;
+END_IF
+
+IF bWarning_alarm AND NOT TON_2.Q THEN
+	bBuzzer:=TRUE;
+	
+END_IF
+IF bWarning_alarm  THEN
+	 bRed := TRUE;
+	  
+END_IF
+
+IF xReset THEN
+	bBuzzer:=FALSE;
+	bRed := FALSE;
+END_IF
+
+
+
+// 输出状态
+iState := iDeviceState;
+
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="25_FB_功能块" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="c97ae70a-f2af-426e-bcf0-14eebd21c7d5">
+                    <pathStructure isFolder="False" name="FB_Mode" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="9cf85d9d-8a62-4662-9fdc-55d2cd630cc1" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>9cf85d9d-8a62-4662-9fdc-55d2cd630cc1</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="25_FB_功能块">
+          <Object Name="FB_Teach" ObjectId="0e643bc7-11b1-4978-b72d-32bf2313b9ff" />
+          <Object Name="FB_SERVOAXIS" ObjectId="fa96eb3f-8c04-4be9-8832-cfbd8dd5e47c" />
+          <Object Name="FB_cylinder" ObjectId="277cc196-ecec-40ef-ad9d-bd3ffebee700" />
+          <Object Name="FB_HandWheel" ObjectId="3f1f181e-7885-4995-bece-46c08484fbee" />
+          <Object Name="FB_RB_Control" ObjectId="eaf8f951-13eb-465a-aa11-04c5fc1a08db" />
+          <Object Name="FB_Mode" ObjectId="9cf85d9d-8a62-4662-9fdc-55d2cd630cc1" />
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

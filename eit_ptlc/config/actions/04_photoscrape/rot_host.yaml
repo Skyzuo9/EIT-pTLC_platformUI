@@ -1,0 +1,24 @@
+# 接粉桶翻料缸到位确认 (host kind, 上位机纯读轮询, 不进 PLC L2 FSM)。
+#
+# 为什么需要这个动作: A41(scrape_finish) 开翻料缸、A52(retr_stoprot) 关翻料缸, 两者都是
+# **开环** —— desc 原文「在同一扫描周期返回 DONE」「不等待旋转气缸到位反馈」。于是:
+#   - 标定流程里 A41 与 A52 之间只隔一行注释, 毫秒级一开一关, 缸走不完行程 → 粉没倒进桶,
+#     后续掉出去 (2026-07-27 真机复盘)。
+#   - 生产流程因 A52 落在 collect_load(机器人取走粉桶之后)才有几十秒行程时间, 翻得成 ——
+#     但同样从不确认到位, 气压不足/机构卡滞导致压根没翻是完全看不见的哑故障。
+#
+# 到位信号本来就读得到, 不必猜驻留时长: 刮板拍照旋转气缸动点 %IX9.7 / 原点 %IX9.6,
+# 而 IX9 已是 plc_nodes.yaml 暴露的字节节点。同型先例 feedlift.preflight(读 IX8 取位)。
+photoscrape.wait_rot:
+  kind: host
+  method: photoscrape_wait_rot
+  label: 翻料-等旋转气缸到位
+  desc: |-
+    执行步骤：按 poll 间隔轮询输入字节 IX9，按位取刮板拍照旋转气缸的两个到位信号（bit7 为动点即已翻倒，bit6 为原点即刮取位），直到 target 指定的那一位成立或超过 timeout_s 为止，返回是否到位、两位现值与实际耗时。
+    前置与安全：纯读动作，不下发任何 PLC 指令、不驱动气缸或轴，任何时刻可调用。IX9 是共享输入字节，bit0/bit1 是上样料架检测，必须按位取不可整字节比较。本动作只确认气缸到位，不确认粉末是否已落入桶内。
+    完成与异常：到位返回 ok 为真并附耗时；超时或 IX9 读回空值返回 ok 为假并记 WARNING，但一律不抛错——翻料未完成既不影响板子也不影响标定数值，而在收尾这一步抛错会把已完成的标定判成中止、生产侧让板卡在压头下。IX9 读回空值按读不到处理而不当作全零，因为全零恰好也是两个到位位都未到的故障态会指错方向。默认超时六秒对齐 PLC 气缸功能块自身的五秒超时，超过该时长 PLC 侧应已置 cyinderAlarm 的第十三位，但该字未暴露成节点故上位机看不到。
+    实现核对：runtime/bootstrap.py::_photoscrape_wait_rot 读 IX9 并调用 controller/photoscrape_rot.py::wait_rot；位号常量 _IX9_ROT_EXTEND_BIT/_IX9_ROT_HOME_BIT 须经真机核对（气缸动作.xml 的 cylinder_14 接线与同文件其它气缸相反）。
+  modes: []
+  params:
+    - {name: target, type: enum, required: false, options: [extend, home], label: "等哪一端 (extend=动点/翻倒, home=原点/刮取位)"}
+    - {name: timeout_s, type: float, required: false, min: 0.5, max: 30.0, label: "等到位上限 (s, 缺省 6.0)"}

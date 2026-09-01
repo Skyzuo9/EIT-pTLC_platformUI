@@ -1,0 +1,19 @@
+schema: ptlc.script/v1
+kind: operation
+name: transfer_collector_scrape_to_collect
+label: 转运-收集器 刮板夹具→收集工位 (上位机)
+# [已退役 R2] 内嵌 collect.clamp 违反 R2 (站动作在 transfer)。已解交错并入 collect_cycle
+#   (clamp 归 cycle), 本文件零引用、保留作参考勿调用。
+# 重规划自路线 consumable.collector-scrape-to-collect. 刮板夹具(位2) -> 收集夹具(位3).
+vars: []
+resources: [robot, "scrape-holder", "collect-holder"]
+body:
+  - {op: comment, text: 地轨到刮板区(位2); 从刮板夹具取收集器 (进-松-退)}
+  - {op: call, action: rail.move, args: {Rail_Target_Position: {lit: 2}}, mode: RUN}
+  - {op: run_script, script: robot_scrape_holder_pick_enter, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: comment, text: 刮板夹具松开占位 (无独立 L2 原子)}
+  - {op: run_script, script: robot_scrape_holder_pick_exit, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: comment, text: 地轨到收集区(位3); 放收集器到收集夹具+夹持}
+  - {op: call, action: rail.move, args: {Rail_Target_Position: {lit: 3}}, mode: RUN}
+  - {op: run_script, script: robot_collect_holder_put_enter, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: run_script, script: robot_collect_holder_put_exit, inputs: {station_id: {lit: default}}, outputs: {}}

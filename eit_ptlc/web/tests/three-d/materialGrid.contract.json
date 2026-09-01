@@ -1,0 +1,65 @@
+{
+  "note": "grid() 的键集金样, Python 与 Node 读同一份字节。重新生成: 见 tests/three-d/materialState.test.js 头注释。",
+  "top": [
+    "bottles",
+    "cells",
+    "magazines",
+    "payload_seats",
+    "presence",
+    "presence_mismatches",
+    "rack",
+    "seats",
+    "staging",
+    "summary",
+    "topology",
+    "transit",
+    "transit_stale"
+  ],
+  "transitRow": [
+    "carrier",
+    "epoch",
+    "from_loc",
+    "hole",
+    "kind",
+    "payload",
+    "plate",
+    "run_id",
+    "script",
+    "since_at",
+    "stale",
+    "to_loc"
+  ],
+  "payloadSeatRow": [
+    "accepts",
+    "epoch",
+    "hole",
+    "kind",
+    "label",
+    "payload",
+    "plate",
+    "run_id",
+    "script",
+    "seat",
+    "since_at",
+    "stale"
+  ],
+  "cellRow": [
+    "eluted",
+    "hole",
+    "kind",
+    "liquid_ml",
+    "plate",
+    "powder_mm3",
+    "run_id",
+    "sample_id",
+    "state",
+    "updated_at"
+  ],
+  "seatRow": [
+    "label",
+    "present",
+    "seat",
+    "stage",
+    "updated_at"
+  ]
+}

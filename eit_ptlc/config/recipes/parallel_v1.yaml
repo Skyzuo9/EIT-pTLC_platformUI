@@ -1,0 +1,113 @@
+schema: ptlc.recipe/v1
+name: parallel_v1
+label: 并行全流程 v1 (12 段, 四段式对齐)
+# 每样品消耗的耗材种类: 批次准入时逐样品 reserve_count, 不足即拒收整批
+consumables: [collector, bottle]
+# 并行配方: 原子流程的 DAG 编排 (加载/校验见 operation/recipe.py, 段规范见 operation/flowspec.py)。
+# 每段 = 一次独立 VM 运行; 资源集来自段脚本根声明; 位置轨迹 feedlift -> spot_seat ->
+# scrape_table -> tank -> scrape_table -> waste 由校验器静态保证连续。
+#
+# 并行来源 (与串行 V2 的差别):
+#   s2 点样 / s6 展开等待 / s9 刮取 是不占机器人的工位执行段;
+#   s3 缸预备与 s2 点样并行 (depends 均为 s1);
+#   s7 备耗材与 s6 展开等待并行 (depends 均为 s5; 保守不提前到 s1 —— 收集器在位
+#     是否干扰 s4 展开前拍照未经实机确认, 确认无干扰后可把 depends 改为 [s1], 纯数据调整);
+#   s6 根资源为空 -> 8 缸可同时展开。
+# 节拍瓶颈 = 刮板台 (s4 起停靠链); 调度器停放位容量账保证台上恒至多一块板。
+#
+# 变量接线: ctx = 样品上下文 (种子键 sample_id/save_dir/tank 由调度器注入; 其余由上游段
+# outputs 回填); batch = 批参数字典按键取值 (缺键则用脚本默认); lit = 字面量。
+# 工艺旋钮 (点样几何/泵速/溶剂配比/auto_drain 等) 不走接线 —— 经 overrides 线程级按名
+# 注入 (批参数 ∪ 每样品覆盖), 每段作业一次独立运行, 天然按样品隔离。
+flows:
+  - id: af0
+    script: pf_af0_batch_startup
+    scope: batch
+    depends_on: []
+
+  - id: s1
+    script: pf_s1_load
+    scope: sample
+    depends_on: [af0]
+
+  - id: s2
+    script: pf_s2_spot
+    scope: sample
+    depends_on: [s1]
+
+  - id: s3
+    script: pf_s3_tank_prep
+    scope: sample
+    depends_on: [s1]
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s4
+    script: pf_s4_photo_before
+    scope: sample
+    depends_on: [s2]
+    inputs:
+      sample_id: {ctx: sample_id}
+      save_dir: {ctx: save_dir}
+    outputs:
+      before_path: before_path
+
+  - id: s5
+    script: pf_s5_to_tank
+    scope: sample
+    depends_on: [s4, s3]
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s6
+    script: pf_s6_develop_wait
+    scope: sample
+    depends_on: [s5]
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s7
+    script: pf_s7_consumables
+    scope: sample
+    depends_on: [s5]
+    inputs:
+      reserve_for: {ctx: sample_id}
+    outputs:
+      collector_hole: collector_hole
+      bottle_hole: bottle_hole
+    # 跨段物理占位: 收集器带粉压在刮板接粉夹具里, 直到 s10 收集段取走;
+    # 调度器保证夹具未清时不派另一个样品的 s7
+    occupy: [scrape-holder]
+
+  - id: s8
+    script: pf_s8_to_scrape
+    scope: sample
+    depends_on: [s6]
+    inputs:
+      tank: {ctx: tank}
+
+  - id: s9
+    script: pf_s9_scrape
+    scope: sample
+    depends_on: [s8, s7]
+    inputs:
+      sample_id: {ctx: sample_id}
+      save_dir: {ctx: save_dir}
+      before_path: {ctx: before_path}
+      mode: {batch: scrape_mode}
+    # 刮取段完成后自动摄取视觉分析结果 (summary + band metrics, 含 Rf) 入 experiments.db
+    ingest_results: true
+
+  - id: s10
+    script: pf_s10_collect
+    scope: sample
+    depends_on: [s9]
+    inputs:
+      collector_hole: {ctx: collector_hole}
+      bottle_hole: {ctx: bottle_hole}
+    release: [scrape-holder]
+
+  - id: s11
+    script: pf_s11_unload
+    scope: sample
+    depends_on: [s10]

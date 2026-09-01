@@ -1,0 +1,87 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_cycle
+label: 拍照刮板-周期 (准备 -> 上料 -> 执行 -> 下料)
+ui:
+  role: station_task
+  station: photo_scrape
+  primary: true
+  order: 30
+# 站内四段式主入口。上料包含两类本站接收动作:
+# - 板: 机器人持板 -> 刮板夹具, 再定位夹紧。
+# - 接粉收集器: 已在中转A的收集器 -> 刮板接粉夹具, 再定位夹紧。
+# 从仓库补货到中转A不属于 PhotoScrape 工位动作, 由上游耗材补给/recipe 负责。
+# 生产 full recipe 仍可能在 execute 后插入 collect handoff 再执行板下料; 本 wrapper 先作为
+# 单站调试/验收入口, 不替代跨站 handoff 调度。
+vars:
+- name: collector_slot
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: 中转A内接粉收集器槽位 1-6
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 拍照图保存目录
+- name: before_path
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: before图路径
+- name: band_id
+  scope: local
+  type: STRING
+  io: in
+  default: band_01
+  comment: 默认条带ID
+resources:
+- robot
+- station:photo_scrape
+- station:rail
+- scrape-holder
+- staging-a
+body:
+- op: comment
+  text: "prepare: 刮板工位初始化并到放板位"
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: "load: 板放入定位夹紧; 接粉收集器从中转A放入刮板夹具"
+- op: run_script
+  script: photoscrape_load
+  inputs:
+    collector_slot:
+      var: collector_slot
+  outputs: {}
+- op: comment
+  text: "execute: 下压、拍照、视觉选带、CNC 刮取"
+- op: run_script
+  script: photoscrape_process
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+    before_path:
+      var: before_path
+    band_id:
+      var: band_id
+  outputs: {}
+- op: comment
+  text: "unload: 板松定位并取走; 接粉收集器去收集站的 handoff 仍由 collect_load 承担"
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}

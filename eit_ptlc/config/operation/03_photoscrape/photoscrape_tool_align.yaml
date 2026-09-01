@@ -1,0 +1,36 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_tool_align
+label: 刮板-对刀(对位检查)
+ui:
+  role: station_task
+  station: photo_scrape
+  order: 38
+vars:
+  - {name: ack, scope: local, type: STRING, default: "", comment: 首门确认选择}
+resources: [station:photo_scrape]
+body:
+  - {op: comment, text: "对刀业务 (spec 0716 §6 D2): 换刀后专跑。首门=唯一防撞板防线; 气缸配对释放, catch 兜底"}
+  - op: human
+    kind: confirm
+    prompt: {lit: "换刀后对刀确认: ① plate_surface_z_mm 已按当前刀更新(未更新则缓降检查高度会撞板!) ② 刮板夹具已人工放入一块板(任意板, 角位置由定位夹具保证)。确认继续?"}
+    assign_choice: {var: ack}
+  - op: if
+    cond: {binop: "!=", left: {var: ack}, right: {lit: ok}}
+    then:
+      - {op: raise, error: TOOL_ALIGN_CANCELLED, message: {lit: "用户取消对刀; 板未夹持, 无需释放"}}
+  - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: true}}}
+  - {op: call, action: photoscrape.press_cylinder,  mode: RUN, args: {pressed: {lit: true}}}
+  - op: try
+    body:
+      - {op: comment, text: "维护场景无路径: start_valid=false, 门内「走路径起点」空转; 自由目标用 微调 累加"}
+      - {op: run_script, script: photoscrape_align_loop, inputs: {start_valid: {lit: false}}, outputs: {}}
+    catch:
+      - error: "*"
+        body:
+          - {op: comment, text: "对位失败(内环已回零): 释放气缸放板后抛干净中止"}
+          - {op: call, action: photoscrape.press_cylinder,  mode: RUN, args: {pressed: {lit: false}}}
+          - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: false}}}
+          - {op: raise, error: TOOL_ALIGN_ABORTED, message: {lit: "对刀中止; 已回零并放板"}}
+  - {op: call, action: photoscrape.press_cylinder,  mode: RUN, args: {pressed: {lit: false}}}
+  - {op: call, action: photoscrape.locate_cylinder, mode: RUN, args: {clamped: {lit: false}}}

@@ -1,0 +1,428 @@
+/**
+ * 功能: 动作工作台与演示页共用的浮层布局 —— 左右栏、传输条、面板、列表、提示.
+ *
+ * 为什么是全局样式而不是 scoped: 外壳与各子页(pane)是不同组件, 但左右栏、传输条这些
+ * 是同一套浮层几何(左 270 / 右 300 / 底部 64px 让位). scoped 样式只作用于组件自身的
+ * 模板节点, 每个 pane 各抄一份必然漂移. 类名统一 `mw-` 前缀, 且全部嵌在 .three-d-app
+ * 下, 不会外溢到宿主的其它页面.
+ */
+
+.three-d-app .mw {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.three-d-app .mw__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* 子页签栏: 与顶部工具栏同高带, 靠左避开居中的 ViewToolbar */
+.three-d-app .mw__subtabs {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 12;
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+}
+
+.three-d-app .mw__subtab {
+  padding: 5px 14px;
+  font-size: 12px;
+  color: var(--text-mid);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-radius: 6px;
+}
+
+.three-d-app .mw__subtab:hover {
+  color: var(--text);
+  background: var(--control-hover);
+}
+
+.three-d-app .mw__subtab--on {
+  color: var(--accent-bright);
+  background: var(--accent-soft);
+}
+
+/* 左右栏: 上缘让开子页签栏, 下缘给传输条让位 */
+.three-d-app .mw__left,
+.three-d-app .mw__right {
+  position: absolute;
+  top: 56px;
+  bottom: 64px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden auto;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
+}
+
+.three-d-app .mw__left { left: 12px; width: 270px; }
+.three-d-app .mw__right { right: 12px; width: 320px; }
+
+/* 没有传输条的子页(运动模式/标定)可以顶到底 */
+.three-d-app .mw__left--tall,
+.three-d-app .mw__right--tall { bottom: 12px; }
+
+/* 动作台: 子页签栏与左栏合成同一块面板 —— 签栏做栏头, 焊在左栏上缘.
+ *
+ * 为什么用 .mw--docked 作用域而不是直接改上面的基类: 演示页(DemoView)复用同一份
+ * workbench.css 的 .mw__left/.mw__right, 但它没有子页签栏 —— 改基类会把它的左栏
+ * 也顶上去 11 px 并撑到 320, 是与本次需求无关的页面回归.
+ * 三条规则都比基类多一个类, 靠特指度盖过上面的 top/width, 与书写顺序无关. */
+.three-d-app .mw--docked .mw__subtabs {
+  width: 320px;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+
+/* 三档均分栏宽, 免得签栏右侧空出一截露出焊缝 */
+.three-d-app .mw--docked .mw__subtab {
+  flex: 1;
+  text-align: center;
+}
+
+/* 焊接: 签栏无下边框、左栏无上边框, 圆角各留外侧一半 */
+.three-d-app .mw--docked .mw__left {
+  top: 45px;
+  width: 320px;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+}
+
+/* 右栏跟着抬平, 否则两栏顶边差 11 px, 看着像没对齐 */
+.three-d-app .mw--docked .mw__right { top: 45px; }
+
+.three-d-app .mw__head {
+  display: flex;
+  flex: none;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.three-d-app .mw__head h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.three-d-app .mw__badge {
+  flex: none;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.three-d-app .mw__panel {
+  flex: none;
+  padding: 10px;
+  background: var(--control);
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+
+.three-d-app .mw__search {
+  flex: none;
+  width: 100%;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--well);
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+}
+
+/* 分组列表: 组标题可折叠, 组内条目单行省略 */
+.three-d-app .mw__group {
+  flex: none;
+}
+
+.three-d-app .mw__groupTitle {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  padding: 5px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-bright);
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.three-d-app .mw__groupCount {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-dim);
+}
+
+.three-d-app .mw__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.three-d-app .mw__item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 5px 8px;
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.three-d-app .mw__item:hover { background: var(--control); }
+.three-d-app .mw__item--on { background: var(--accent-soft); }
+.three-d-app .mw__item--off { color: var(--text-dim); cursor: not-allowed; }
+
+.three-d-app .mw__itemLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 状态徽章: 精编译 / 近似 / 无机械动作 / 无法生成 */
+.three-d-app .mw__tag {
+  flex: none;
+  margin-left: auto;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-style: normal;
+  color: var(--text-dim);
+  background: var(--well);
+  border-radius: 9px;
+}
+
+.three-d-app .mw__tag--exact { color: var(--ok-bright); background: var(--ok-soft, var(--well)); }
+.three-d-app .mw__tag--approx { color: var(--warn); background: var(--warn-soft, var(--well)); }
+.three-d-app .mw__tag--none { color: var(--text-dim); }
+.three-d-app .mw__tag--fail { color: var(--err-bright); background: var(--err-soft); }
+
+.three-d-app .mw__steps {
+  max-height: 34vh;
+  margin: 6px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.three-d-app .mw__step {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.three-d-app .mw__step:hover { background: var(--control); }
+.three-d-app .mw__step--on { background: var(--accent-soft); }
+
+.three-d-app .mw__stepTime {
+  flex: none;
+  width: 42px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.three-d-app .mw__stepLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 传输条 */
+.three-d-app .mw__transport {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
+}
+
+.three-d-app .mw__timeline { flex: 1; accent-color: var(--accent); }
+
+.three-d-app .mw__clock {
+  flex: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.three-d-app .mw__now {
+  flex: none;
+  max-width: 220px;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--ok-bright);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.three-d-app .mw__speed {
+  flex: none;
+  padding: 4px 6px;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--well);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+}
+
+/* 按钮 */
+.three-d-app .mw__btn {
+  flex: none;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--accent-ink);
+  cursor: pointer;
+  background: var(--accent);
+  border: none;
+  border-radius: 5px;
+}
+
+.three-d-app .mw__btn:disabled { cursor: not-allowed; opacity: 0.5; }
+
+.three-d-app .mw__btn--ghost {
+  color: var(--text-mid);
+  background: var(--control);
+  border: 1px solid var(--hair);
+}
+
+.three-d-app .mw__btn--wide { width: 100%; }
+
+/* 提示条与遮罩 */
+.three-d-app .mw__tip {
+  margin: 4px 0 0;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.three-d-app .mw__notice {
+  flex: none;
+  padding: 7px 10px;
+  font-size: 11px;
+  line-height: 1.6;
+  border-radius: 7px;
+}
+
+.three-d-app .mw__notice--warn { color: var(--warn); background: var(--warn-soft); }
+.three-d-app .mw__notice--err { color: var(--err-bright); background: var(--err-soft); }
+.three-d-app .mw__notice--info { color: var(--text-mid); background: var(--control); }
+
+.three-d-app .mw__toast {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  z-index: 13;
+  margin: 0;
+  padding: 7px 14px;
+  font-size: 12px;
+  color: var(--text-bright);
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 18px;
+  transform: translateX(-50%);
+}
+
+.three-d-app .mw__mask {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  font-size: 13px;
+  color: var(--text-mid);
+  background: var(--surface);
+  place-items: center;
+}
+
+.three-d-app .mw__mask--err { color: var(--err-bright); }
+
+/* 顶部模态条: 指认模式 / 模拟接管 */
+.three-d-app .mw__banner {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 13;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 14px;
+  white-space: nowrap;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  transform: translateX(-50%);
+}
+
+.three-d-app .mw__bannerTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-bright);
+}
+
+.three-d-app .mw__bannerHint {
+  font-size: 11px;
+  color: var(--text-mid);
+}
+
+/* 拖拽浮字 */
+.three-d-app .mw__dragHud {
+  position: absolute;
+  top: 58px;
+  left: 50%;
+  z-index: 6;
+  padding: 5px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: var(--accent-bright);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  transform: translateX(-50%);
+}
+
+/* 视角与轴近平行: 拖拽被拒。醒目提示远好过静默不动 —— 后者会被误当成"绑定坏了" */
+.three-d-app .mw__dragHud--blocked {
+  color: var(--warn);
+  border-color: var(--warn);
+}

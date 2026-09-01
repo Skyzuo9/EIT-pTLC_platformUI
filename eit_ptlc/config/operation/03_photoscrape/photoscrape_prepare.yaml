@@ -1,0 +1,24 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_prepare
+label: 拍照刮板-准备
+ui:
+  role: station_phase
+  station: photo_scrape
+  phase: prepare
+  primary: true
+  order: 31
+vars: []
+resources:
+- station:photo_scrape
+body:
+- op: comment
+  text: "prepare: 工位初始化; 每次受板前复位, 真机验收双访 init 是否需去重"
+- op: call
+  action: photoscrape.init
+  mode: RUN
+- op: comment
+  text: "prepare: 刮板X到放板位335, 让位机器人放板"
+- op: call
+  action: photoscrape.cam_x335
+  mode: RUN

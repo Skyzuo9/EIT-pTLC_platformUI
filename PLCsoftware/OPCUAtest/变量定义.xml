@@ -1,0 +1,3671 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-16T17:55:18.1932567" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站_Old_InoProShop(V1.9.1.6).project" modificationDateTime="2026-06-04T10:59:46">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous />
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="HMI_Date">
+        <variable name="HMI_HandWheel_3Y">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 手轮切换</xhtml>
+          </documentation>
+        </variable>
+        <variable name="HMI_HandWheel_4X">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="HMI_HandWheel_5Z">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="HMI_HandWheel_6X">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="HMI_HandWheel_7Y">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="HMI_HandWheel_8Y">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="HMI_HandWheel_9X">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="HMI_HandWheel_10Z">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="HMI_HandWheel_11Y">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="一键回原点">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="伺服上料_Setp">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="伺服下料_Setp">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="HMI_打样瓶上料轴3Y" address="%MB132240">
+          <type>
+            <derived name="HMI_Servo" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;&lt;Sub/&gt;{k:["[[1,10]]","position","write","execute"],s:{1:{t:"0",s:["1行","2行","3行","4行","5行","6行","上料位"]},2:{t:"0",s:["1行","2行","3行","4行","5行","6行","上料位"]},3:{t:"0",s:["1行","2行","3行","4行","5行","6行","上料位"]}}}&lt;/GrpComment_zh-cn&gt;\r\n &lt;GrpComment_1&gt;&lt;Sub/&gt;&lt;/GrpComment_1&gt;\r\n &lt;GrpComment_2&gt;&lt;Sub/&gt;&lt;/GrpComment_2&gt;\r\n &lt;/GrpComment&gt;</xhtml>
+          </documentation>
+        </variable>
+        <variable name="HMI_点样轴6X" address="%MB132344">
+          <type>
+            <derived name="HMI_Servo" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;&lt;Sub/&gt;{k:["[[1,10]]","position","write","execute"],s:{1:{t:"0",s:["清洗位","起始位","终点位"]},2:{t:"0",s:["清洗位","起始位","终点位"]},3:{t:"0",s:["清洗位","起始位","终点位"]}}}&lt;/GrpComment_zh-cn&gt;\r\n &lt;GrpComment_1&gt;&lt;Sub/&gt;&lt;/GrpComment_1&gt;\r\n &lt;GrpComment_2&gt;&lt;Sub/&gt;&lt;/GrpComment_2&gt;\r\n &lt;/GrpComment&gt;</xhtml>
+          </documentation>
+        </variable>
+        <variable name="HMI_点样轴7Y" address="%MB132448">
+          <type>
+            <derived name="HMI_Servo" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;&lt;Sub/&gt;{k:["[[1,10]]","position","write","execute"],s:{1:{t:"0",s:["放板位","起始位"]},2:{t:"0",s:["放板位","起始位"]},3:{t:"0",s:["放板位","起始位"]}}}&lt;/GrpComment_zh-cn&gt;\r\n &lt;GrpComment_1&gt;&lt;Sub/&gt;&lt;/GrpComment_1&gt;\r\n &lt;GrpComment_2&gt;&lt;Sub/&gt;&lt;/GrpComment_2&gt;\r\n &lt;/GrpComment&gt;</xhtml>
+          </documentation>
+        </variable>
+        <variable name="HMI_地轨轴11Y" address="%MB132552">
+          <type>
+            <derived name="HMI_Servo" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;&lt;Sub/&gt;{k:["[[1,10]]","position","write","execute"],s:{1:{t:"0",s:["上样点样位","刮板拍照位","收集位","取工具位","展开位","取收集组位"]},2:{t:"0",s:["上样点样位","刮板拍照位","收集位","取工具位","展开位","取收集组位"]},3:{t:"0",s:["上样点样位","刮板拍照位","收集位","取工具位","展开位","取收集组位"]}}}\r\n &lt;/GrpComment_zh-cn&gt;\r\n &lt;GrpComment_1&gt;&lt;Sub/&gt;&lt;/GrpComment_1&gt;\r\n &lt;GrpComment_2&gt;&lt;Sub/&gt;&lt;/GrpComment_2&gt;\r\n &lt;/GrpComment&gt;</xhtml>
+          </documentation>
+        </variable>
+        <variable name="HMI_上样轴4X轴" address="%MB132656">
+          <type>
+            <derived name="HMI_Servo" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;&lt;Sub/&gt;{k:["[[1,10]]","position","write","execute"],s:{1:{t:"0",s:["1列","2列","3列","4列","5列","6列","7列","8列","清洗位"]},2:{t:"0",s:["1列","2列","3列","4列","5列","6列","7列","8列","清洗位"]},3:{t:"0",s:["1列","2列","3列","4列","5列","6列","7列","8列",\r\n "清洗位"]}}}&lt;/GrpComment_zh-cn&gt;\r\n &lt;GrpComment_1&gt;&lt;Sub/&gt;&lt;/GrpComment_1&gt;\r\n &lt;GrpComment_2&gt;&lt;Sub/&gt;&lt;/GrpComment_2&gt;\r\n &lt;/GrpComment&gt;</xhtml>
+          </documentation>
+        </variable>
+        <variable name="HMI_上样轴5Z轴" address="%MB132760">
+          <type>
+            <derived name="HMI_Servo" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;&lt;Sub/&gt;{k:["[[1,10]]","position","write","execute"],s:{1:{t:"0",s:["清洗位","上液位"]},2:{t:"0",s:["清洗位","上液位"]},3:{t:"0",s:["清洗位","上液位"]}}}&lt;/GrpComment_zh-cn&gt;\r\n &lt;GrpComment_1&gt;&lt;Sub/&gt;&lt;/GrpComment_1&gt;\r\n &lt;GrpComment_2&gt;&lt;Sub/&gt;&lt;/GrpComment_2&gt;\r\n &lt;/GrpComment&gt;</xhtml>
+          </documentation>
+        </variable>
+        <variable name="收集流程">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="收集计数">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="展开流程">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="上样点样流程">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="拍照刮板流程">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="机器人流程">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="升降上料完成" address="%MB132040">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降下料完成" address="%MB132041">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="ECAT掉站报警">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="20_变量Date" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="86d59253-956c-4acb-8c8f-5cd3aaebeb02">
+                    <pathStructure isFolder="False" name="HMI_Date" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoGVLObject.GVLObjectFactory" factoryGuid="{5B8AA524-6574-48c0-B33E-215C0DABB02D}" objectGuid="3d10586f-261e-4333-a98d-a0975b425f14" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>3d10586f-261e-4333-a98d-a0975b425f14</ObjectId>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+            <MixedAttrsVarList>
+              <globalVars name="HMI_Date">
+                <variable name="HMI_HandWheel_3Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> 手轮切换</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="HMI_HandWheel_4X">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="HMI_HandWheel_5Z">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="HMI_HandWheel_6X">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="HMI_HandWheel_7Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="HMI_HandWheel_8Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="HMI_HandWheel_9X">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="HMI_HandWheel_10Z">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="HMI_HandWheel_11Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="一键回原点">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="伺服上料_Setp">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="伺服下料_Setp">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="收集流程">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="收集计数">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="展开流程">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="上样点样流程">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="拍照刮板流程">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="机器人流程">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="ECAT掉站报警">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+              </globalVars>
+              <globalVars name="HMI_Date" retain="true" persistent="true">
+                <variable name="HMI_打样瓶上料轴3Y" address="%MB132240">
+                  <type>
+                    <derived name="HMI_Servo" />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> </xhtml>
+                  </documentation>
+                </variable>
+                <variable name="HMI_点样轴6X" address="%MB132344">
+                  <type>
+                    <derived name="HMI_Servo" />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> </xhtml>
+                  </documentation>
+                </variable>
+                <variable name="HMI_点样轴7Y" address="%MB132448">
+                  <type>
+                    <derived name="HMI_Servo" />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> </xhtml>
+                  </documentation>
+                </variable>
+                <variable name="HMI_地轨轴11Y" address="%MB132552">
+                  <type>
+                    <derived name="HMI_Servo" />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> </xhtml>
+                  </documentation>
+                </variable>
+                <variable name="HMI_上样轴4X轴" address="%MB132656">
+                  <type>
+                    <derived name="HMI_Servo" />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> </xhtml>
+                  </documentation>
+                </variable>
+                <variable name="HMI_上样轴5Z轴" address="%MB132760">
+                  <type>
+                    <derived name="HMI_Servo" />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> </xhtml>
+                  </documentation>
+                </variable>
+                <variable name="升降上料完成" address="%MB132040">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="升降下料完成" address="%MB132041">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+              </globalVars>
+            </MixedAttrsVarList>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="cyinder_date">
+        <variable name="cyinderAlarm">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="cyinderAlarm2">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="展缸1气缸1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集下压气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集下压气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集夹持气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集夹持气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集升降气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集升降气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集伸缩气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集伸缩气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照遮光气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照遮光气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照旋转气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照旋转气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照下压气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照下压气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="大真空泵手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="大真空泵自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀1手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀1自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀2手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀2自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀3手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀3自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀4手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀4自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集进液手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集进液自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集排液手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集排液自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集正压排液手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集正压排液自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="溶液收集瓶定位手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="溶液收集瓶定位自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样定位手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样定位自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样点样三通电池阀手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样点样三通电池阀自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照真空手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照真空自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照无刷电机手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照无刷电机自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照定位气缸手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照定位气缸自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="粉末收集器定位手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="粉末收集器定位自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样吹气手动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样吹气自动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="20_变量Date" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="86d59253-956c-4acb-8c8f-5cd3aaebeb02">
+                    <pathStructure isFolder="False" name="cyinder_date" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoGVLObject.GVLObjectFactory" factoryGuid="{5B8AA524-6574-48c0-B33E-215C0DABB02D}" objectGuid="38087a60-7c40-48c8-8738-cd2bde07ef82" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>38087a60-7c40-48c8-8738-cd2bde07ef82</ObjectId>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="IO">
+        <variable name="A相" address="%IX0.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="B相" address="%IX0.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="急停" address="%IX0.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="复位" address="%IX0.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="启动" address="%IX0.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="停止" address="%IX0.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="手自动" address="%IX0.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="倍率X1" address="%IX1.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="倍率X10" address="%IX1.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="倍率X100" address="%IX1.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="选择轴1" address="%IX1.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="选择轴2" address="%IX1.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="选择轴3" address="%IX1.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="选择轴4" address="%IX1.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="三色灯红" address="%QX0.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="三色灯黄" address="%QX0.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="三色灯绿" address="%QX0.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="蜂鸣器" address="%QX0.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀1" address="%QX1.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀2" address="%QX1.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀3" address="%QX1.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1进液电池阀4" address="%QX1.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀1" address="%QX1.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀2" address="%QX1.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀3" address="%QX1.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液电池阀4" address="%QX1.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀1" address="%QX2.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀2" address="%QX2.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀3" address="%QX2.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1吹气电池阀4" address="%QX2.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="大真空泵" address="%QX2.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀1" address="%QX3.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀2" address="%QX3.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀3" address="%QX3.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2进液电池阀4" address="%QX3.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀1" address="%QX3.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀2" address="%QX3.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀3" address="%QX3.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液电池阀4" address="%QX3.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀1" address="%QX4.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀2" address="%QX4.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀3" address="%QX4.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2吹气电池阀4" address="%QX4.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台进液2通电池阀" address="%QX5.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台排液3通电池阀" address="%QX5.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台正压排液阀" address="%QX5.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="溶液收集瓶工位定位气缸" address="%QX5.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样定位气缸" address="%QX7.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样点样三通电池阀" address="%QX7.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照真空阀" address="%QX7.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照无刷电机" address="%QX7.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照定位气缸" address="%QX7.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="粉末收集器工位定位气缸" address="%QX7.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样吹气二通阀" address="%QX7.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸1原点" address="%IX3.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸1动点" address="%IX3.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸2原点" address="%IX3.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸2动点" address="%IX3.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸3原点" address="%IX3.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸3动点" address="%IX3.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸4原点" address="%IX3.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1气缸4动点" address="%IX3.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1排液气泡传感器" address="%IX4.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸1溶剂废液检测传感器" address="%IX4.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸1原点" address="%IX5.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸1动点" address="%IX5.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸2原点" address="%IX5.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸2动点" address="%IX5.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸3原点" address="%IX5.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸3动点" address="%IX5.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸4原点" address="%IX5.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2气缸4动点" address="%IX5.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2排液气泡传感器" address="%IX6.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展缸2溶剂废液检测传感器" address="%IX6.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台下压气缸原点" address="%IX7.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上料进料传感器" address="%IX7.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台夹持气缸原点" address="%IX7.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台夹持气缸动点" address="%IX7.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台升降气缸原点" address="%IX7.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台升降气缸动点" address="%IX7.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台推出气缸原点" address="%IX7.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台推出气缸动点" address="%IX7.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台气泡传感器" address="%IX8.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台瓶子有无传感器" address="%IX8.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集平台暂存工位传感器" address="%IX8.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="玻璃升降光电开关1" address="%IX8.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="玻璃升降光电开关2" address="%IX8.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="玻璃升降接近开关1" address="%IX8.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="玻璃升降接近开关2" address="%IX8.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="下料出料传感器" address="%IX8.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样料架检测1" address="%IX9.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样料架检测2" address="%IX9.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样气泡传感器" address="%IX9.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="点样气泡传感器" address="%IX9.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照遮光气缸上位" address="%IX9.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照遮光气缸下位" address="%IX9.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照旋转气缸原点" address="%IX9.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照旋转气缸动点" address="%IX9.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照下压气缸上位" address="%IX10.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="刮板拍照暂存工位传感器" address="%IX10.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测1" address="%IX11.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测2" address="%IX11.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测3" address="%IX11.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测4" address="%IX11.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测5" address="%IX11.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测6" address="%IX11.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测7" address="%IX11.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测8" address="%IX11.7">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测9" address="%IX12.0">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测10" address="%IX12.1">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测11" address="%IX12.2">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="料库检测12" address="%IX12.3">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="机器人工具检测1" address="%IX12.4">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="机器人工具检测2" address="%IX12.5">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="机器人工具检测3" address="%IX12.6">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="20_变量Date" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="86d59253-956c-4acb-8c8f-5cd3aaebeb02">
+                    <pathStructure isFolder="False" name="IO" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoGVLObject.GVLObjectFactory" factoryGuid="{5B8AA524-6574-48c0-B33E-215C0DABB02D}" objectGuid="a2115ecf-dca7-4684-9ed8-780e269178a5" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>a2115ecf-dca7-4684-9ed8-780e269178a5</ObjectId>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="servoaxisdate" retain="true" persistent="true">
+        <variable name="玻璃上料轴1ZDATE" address="%MB131072">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="玻璃上料轴2ZDATE" address="%MB131160">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="打样瓶上料轴3YDATE" address="%MB131248">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="点样轴6XDATE" address="%MB131336">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="点样轴7YDATE" address="%MB131424">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="拍照轴8YDATE" address="%MB131512">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="刮板轴9XDATE" address="%MB131600">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="刮板轴10ZDATE" address="%MB131688">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="地轨轴11YDATE" address="%MB131776">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="上样轴4X轴DATE" address="%MB131864">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <variable name="上样轴5Z轴DATE" address="%MB131952">
+          <type>
+            <derived name="servo" />
+          </type>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="20_变量Date" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="86d59253-956c-4acb-8c8f-5cd3aaebeb02">
+                    <pathStructure isFolder="False" name="servoaxisdate" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoGVLObject.GVLObjectFactory" factoryGuid="{5B8AA524-6574-48c0-B33E-215C0DABB02D}" objectGuid="23287c5e-a0bc-43eb-9e89-f48a9bb5538c" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>23287c5e-a0bc-43eb-9e89-f48a9bb5538c</ObjectId>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="GVL">
+        <variable name="MODE_State">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="Alarm">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:停止  1:运行  2:故障  3:急停</xhtml>
+          </documentation>
+        </variable>
+        <variable name="ManualAuto">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="初始化">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="转发转存" address="%MW1301">
+          <type>
+            <string length="128" />
+          </type>
+        </variable>
+        <variable name="接收字符" address="%MW1001">
+          <type>
+            <string length="128" />
+          </type>
+        </variable>
+        <variable name="CNC启动">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="CNC停止">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="CNC完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="伺服报警">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成1Z">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成2Z">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成3Y">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成4X">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成5Z">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成6X">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成7Y">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成8Y">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成9X">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成10Z">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="回零完成11Y">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="伺服未回原点报警">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="collect_prepare_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="collect_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Camera_scraper_initialization_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Photo_preparation_completed_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Scraper_collection_completed">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Robot_completes_material_retrieval">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Sampling_initialization_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Sampling_Cleaning_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Sampling_preparation_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Sampling_Place_materials_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Sampling_liquid_absorption">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Sampling_Spray_sample_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="expand_initialization_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Expand_Group_clean_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Expand_up_liquid_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Expand_silica_gel_plate_OK">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="排液开始">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Collector_coordinates">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="Collect_bottle_coordinates">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="上样清洗位置">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取工具setp">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取工具完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取升降硅胶板step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取升降硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="放点样硅胶板step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="放点样硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取点样硅胶板step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取点样硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="放展缸硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="放展缸硅胶板step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取展缸硅胶板step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取展缸硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="放拍照硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="放拍照硅胶板step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取收集器组放暂存工位step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取收集瓶组放暂存工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取暂存收集器放刮板位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取暂存收集器放刮板位step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取刮板收集器放到收集工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取刮板收集器放到收集工位step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取暂存收集瓶放收集工位step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取暂存收集瓶放收集工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取收集器放暂存工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取收集器放暂存工位step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取刮板硅胶板放废料区step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取刮板硅胶板放废料区完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取暂存收集器组放仓库完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取暂存收集器组放仓库step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取收集器组放暂存工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取收集瓶组放暂存工位step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取暂存收集瓶组放仓库完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="取暂存收集瓶组放仓库step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取收集瓶放暂存工位step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取收集瓶放暂存工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="B1">
+          <type>
+            <array>
+              <dimension lower="1" upper="2000" />
+              <baseType>
+                <derived name="SMC_GEOINFO" />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="泵站位符">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="B2">
+          <type>
+            <array>
+              <dimension lower="1" upper="2000" />
+              <baseType>
+                <derived name="SMC_GEOINFO" />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="DR">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="大真空泵站位">
+          <type>
+            <array>
+              <dimension lower="0" upper="11" />
+              <baseType>
+                <BOOL />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="取拍照硅胶完step">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="取拍照硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样料架报警">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="bParameterList1">
+          <type>
+            <array>
+              <dimension lower="1" upper="8" />
+              <baseType>
+                <BOOL />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="Z1JOG_pos">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Z1JOG_neg">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Z2JOG_POS">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="Z2JOG_NEG">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="20_变量Date" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="86d59253-956c-4acb-8c8f-5cd3aaebeb02">
+                    <pathStructure isFolder="False" name="GVL" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoGVLObject.GVLObjectFactory" factoryGuid="{5B8AA524-6574-48c0-B33E-215C0DABB02D}" objectGuid="1b6f7026-8e1f-489d-af6c-2ccfc470c7a2" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>1b6f7026-8e1f-489d-af6c-2ccfc470c7a2</ObjectId>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+            <MixedAttrsVarList>
+              <globalVars name="GVL">
+                <variable name="MODE_State">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="Alarm">
+                  <type>
+                    <INT />
+                  </type>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:停止  1:运行  2:故障  3:急停</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="ManualAuto">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="初始化">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="CNC启动">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="CNC停止">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="CNC完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="伺服报警">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成1Z">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成2Z">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成3Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成4X">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成5Z">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成6X">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成7Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成8Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成9X">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成10Z">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="回零完成11Y">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="伺服未回原点报警">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="collect_prepare_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="collect_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Camera_scraper_initialization_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Photo_preparation_completed_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Scraper_collection_completed">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Robot_completes_material_retrieval">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Sampling_initialization_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Sampling_Cleaning_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Sampling_preparation_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Sampling_Place_materials_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Sampling_liquid_absorption">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Sampling_Spray_sample_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="expand_initialization_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Expand_Group_clean_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Expand_up_liquid_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Expand_silica_gel_plate_OK">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="排液开始">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Collector_coordinates">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="Collect_bottle_coordinates">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="上样清洗位置">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取工具setp">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取工具完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取升降硅胶板step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取升降硅胶板完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="放点样硅胶板step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="放点样硅胶板完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取点样硅胶板step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取点样硅胶板完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="放展缸硅胶板完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="放展缸硅胶板step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取展缸硅胶板step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取展缸硅胶板完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="放拍照硅胶板完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="放拍照硅胶板step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取收集器组放暂存工位step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取收集瓶组放暂存工位完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取暂存收集器放刮板位完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取暂存收集器放刮板位step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取刮板收集器放到收集工位完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取刮板收集器放到收集工位step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取暂存收集瓶放收集工位step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取暂存收集瓶放收集工位完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取收集器放暂存工位完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取收集器放暂存工位step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取刮板硅胶板放废料区step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取刮板硅胶板放废料区完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取暂存收集器组放仓库完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取暂存收集器组放仓库step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取收集器组放暂存工位完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取收集瓶组放暂存工位step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取暂存收集瓶组放仓库完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="取暂存收集瓶组放仓库step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取收集瓶放暂存工位step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取收集瓶放暂存工位完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="B1">
+                  <type>
+                    <array>
+                      <dimension lower="1" upper="2000" />
+                      <baseType>
+                        <derived name="SMC_GEOINFO" />
+                      </baseType>
+                    </array>
+                  </type>
+                </variable>
+                <variable name="泵站位符">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="B2">
+                  <type>
+                    <array>
+                      <dimension lower="1" upper="2000" />
+                      <baseType>
+                        <derived name="SMC_GEOINFO" />
+                      </baseType>
+                    </array>
+                  </type>
+                </variable>
+                <variable name="DR">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="大真空泵站位">
+                  <type>
+                    <array>
+                      <dimension lower="0" upper="11" />
+                      <baseType>
+                        <BOOL />
+                      </baseType>
+                    </array>
+                  </type>
+                </variable>
+                <variable name="取拍照硅胶完step">
+                  <type>
+                    <INT />
+                  </type>
+                </variable>
+                <variable name="取拍照硅胶板完成">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="上样料架报警">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="bParameterList1">
+                  <type>
+                    <array>
+                      <dimension lower="1" upper="8" />
+                      <baseType>
+                        <BOOL />
+                      </baseType>
+                    </array>
+                  </type>
+                </variable>
+                <variable name="Z1JOG_pos">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Z1JOG_neg">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Z2JOG_POS">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+                <variable name="Z2JOG_NEG">
+                  <type>
+                    <BOOL />
+                  </type>
+                </variable>
+              </globalVars>
+              <globalVars name="GVL" retain="true" persistent="true">
+                <variable name="转发转存" address="%MW1301">
+                  <type>
+                    <string length="128" />
+                  </type>
+                </variable>
+                <variable name="接收字符" address="%MW1001">
+                  <type>
+                    <string length="128" />
+                  </type>
+                </variable>
+              </globalVars>
+            </MixedAttrsVarList>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="Host_Computer">
+        <variable name="bOutput">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="bEnable">
+          <type>
+            <BOOL />
+          </type>
+          <initialValue>
+            <simpleValue value="TRUE" />
+          </initialValue>
+        </variable>
+        <variable name="bErrorReset">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="bStepEnable">
+          <type>
+            <BOOL />
+          </type>
+          <initialValue>
+            <simpleValue value="TRUE" />
+          </initialValue>
+        </variable>
+        <variable name="PLC_Busy">
+          <type>
+            <BOOL />
+          </type>
+          <initialValue>
+            <simpleValue value="FALSE" />
+          </initialValue>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC 正在执行动作&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC 正在执行动作 </xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Done">
+          <type>
+            <BOOL />
+          </type>
+          <initialValue>
+            <simpleValue value="FALSE" />
+          </initialValue>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;修改:动作执行完成&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 修改:动作执行完成 </xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Error">
+          <type>
+            <BOOL />
+          </type>
+          <initialValue>
+            <simpleValue value="FALSE" />
+          </initialValue>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;新增：动作执行错误/急停&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 新增：动作执行错误/急停 </xhtml>
+          </documentation>
+        </variable>
+        <variable name="PLC_EStop">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;新增：急停&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 新增：急停</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Reset">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;新增：收集工位置位&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 新增：收集工位置位</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Step">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;修改：收集工位状态机&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 修改：收集工位状态机</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_forward_instructions">
+          <type>
+            <string length="128" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;收集工位注射泵转发指令&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 收集工位注射泵转发指令</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_count">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;收集次数&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 收集次数</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Enable">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;新增：收集工位启动&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 新增：收集工位启动</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Busy">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;新增：收集工位忙&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 新增：收集工位忙</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Enable">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: TRUE 启动状态机&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: TRUE 启动状态机</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Step">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 子步号 {0,10,20,30,40,90}&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 子步号 {0,10,20,30,40,90}</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Done">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: prep完成锁存（语义变更：prep完成非整流程完成）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: prep完成锁存（语义变更：prep完成非整流程完成）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Error">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 故障锁存（Step=90），Expand_Reset=TRUE 清零&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 故障锁存（Step=90），Expand_Reset=TRUE 清零</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Reset">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: TRUE 清错误&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: TRUE 清错误</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Busy">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 派生 (Step∈[10,80]) AND NOT Done&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 派生 (Step∈[10,80]) AND NOT Done</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Mode_Flag">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;0=缸模式润洗 / 1=管路模式润洗&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 0=缸模式润洗 / 1=管路模式润洗</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Group">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;展开组号 (1 或 2)，由 PLC 自动推导&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 展开组号 (1 或 2)，由 PLC 自动推导</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Number">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;缸号在组内序号（1-4），由 PLC 自动推导&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 缸号在组内序号（1-4），由 PLC 自动推导</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_up_liquid_count">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;注射泵 DT 协议指令（合并后的单一变量）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 上液注射泵重复次数</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_rinse_count">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;注射泵 DT 协议指令（合并后的单一变量）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 润洗重复次数</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_forward_instructions">
+          <type>
+            <string length="128" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;注射泵 DT 协议指令（合并后的单一变量）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 注射泵 DT 协议指令（合并后的单一变量）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Tank_State">
+          <type>
+            <array>
+              <dimension lower="1" upper="8" />
+              <baseType>
+                <INT />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;══════════════════════════════════════════════════════════════\r\n 【新增】展缸状态跟踪\r\n ══════════════════════════════════════════════════════════════&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n ══════════════════════════════════════════════════════════════\r\n 【新增】展缸状态跟踪\r\n ══════════════════════════════════════════════════════════════</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Tank_SampleID">
+          <type>
+            <array>
+              <dimension lower="1" upper="8" />
+              <baseType>
+                <DINT />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 每缸状态\r\n 0  = Idle（空闲，可分配）\r\n 10 = Prepping（准备中：润洗/上液/放板）\r\n 40 = Developing（展开中，等待视觉/延时触发排液）\r\n 50 = Draining（排液中）\r\n 99 = Done（排液完成，等待 PC 释放）\r\n 90 = Error（故障）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 每缸状态\r\n   0  = Idle（空闲，可分配）\r\n   10 = Prepping（准备中：润洗/上液/放板）\r\n   40 = Developing（展开中，等待视觉/延时触发排液）\r\n   50 = Draining（排液中）\r\n   99 = Done（排液完成，等待 PC 释放）\r\n   90 = Error（故障）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Expand_Target_Tank">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 绑定样品 ID（调试/溯源用，PLC 不使用此值做逻辑判断）\r\n ══════════════════════════════════════════════════════════════\r\n 【新增】Prep 目标参数\r\n ══════════════════════════════════════════════════════════════&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 绑定样品 ID（调试/溯源用，PLC 不使用此值做逻辑判断）\r\n ══════════════════════════════════════════════════════════════\r\n 【新增】Prep 目标参数\r\n ══════════════════════════════════════════════════════════════</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Tank_Drain_Enable">
+          <type>
+            <array>
+              <dimension lower="1" upper="8" />
+              <baseType>
+                <BOOL />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 目标缸号(1-8)，Enable 触发前写入\r\n PLC 读取后自动推导：\r\n Expand_Group  = (Target_Tank - 1) / 4 + 1\r\n Expand_Number = (Target_Tank - 1) MOD 4 + 1\r\n ══════════════════════════════════════════════════════════════\r\n 【新增】Per-tank 排液控制\r\n ══════════════════════════════════════════════════════════════&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 目标缸号(1-8)，Enable 触发前写入\r\n PLC 读取后自动推导：\r\n   Expand_Group  = (Target_Tank - 1) / 4 + 1\r\n   Expand_Number = (Target_Tank - 1) MOD 4 + 1\r\n ══════════════════════════════════════════════════════════════\r\n 【新增】Per-tank 排液控制\r\n ══════════════════════════════════════════════════════════════</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Tank_Drain_Done">
+          <type>
+            <array>
+              <dimension lower="1" upper="8" />
+              <baseType>
+                <BOOL />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 触发第 i 缸排液（前置条件：Tank_State[i]=40）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 触发第 i 缸排液（前置条件：Tank_State[i]=40）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="DrainTimer">
+          <type>
+            <array>
+              <dimension lower="1" upper="8" />
+              <baseType>
+                <derived name="TON" />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 第 i 缸排液完成锁存\r\n PC 确认后写 Tank_Drain_Enable[i]=FALSE 进行复位\r\n ══════════════════════════════════════════════════════════════\r\n 【新增】排液子程序内部变量\r\n ══════════════════════════════════════════════════════════════&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 第 i 缸排液完成锁存\r\n PC 确认后写 Tank_Drain_Enable[i]=FALSE 进行复位\r\n ══════════════════════════════════════════════════════════════\r\n 【新增】排液子程序内部变量\r\n ══════════════════════════════════════════════════════════════</xhtml>
+          </documentation>
+        </variable>
+        <variable name="DrainDuration">
+          <type>
+            <TIME />
+          </type>
+          <initialValue>
+            <simpleValue value="TIME#5s0ms" />
+          </initialValue>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;每缸排液定时器（后续可替换为传感器判断）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 每缸排液定时器（后续可替换为传感器判断）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Enable">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: TRUE 启动状态机&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: TRUE 启动状态机</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Step">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 子步号 {0,10,20,30,40,50,90}&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 子步号 {0,10,20,30,40,50,90}</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Done">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 完成锁存（Step 50 结束后置 TRUE）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 完成锁存（Step 50 结束后置 TRUE）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Error">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 故障锁存（Step=90），Sampling_Reset=TRUE 清零&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 故障锁存（Step=90），Sampling_Reset=TRUE 清零</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Reset">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: TRUE 清错误&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: TRUE 清错误</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Busy">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 派生 (Step∈[10,80]) AND NOT Done&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 派生 (Step∈[10,80]) AND NOT Done</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_clean_instructions">
+          <type>
+            <array>
+              <dimension lower="1" upper="2" />
+              <baseType>
+                <string length="128" />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 清洗泵指令（1条DT协议）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 清洗泵指令（1条DT协议）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_clean_count">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 清洗次数（0=跳过清洗）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 清洗次数（0=跳过清洗）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_prep_instructions">
+          <type>
+            <array>
+              <dimension lower="1" upper="2" />
+              <baseType>
+                <string length="128" />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;── Step 20 气泡准备 ──&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 上样准备泵指令</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_bubble_count">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 气泡序列指令数组，按 bubble_count 逐条执行\r\n 上位机 translate_sample_bubble_cmd() 生成，默认 Phase1=6条，上限 16&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 气泡序列指令数组，按 bubble_count 逐条执行\r\n 上位机 translate_sample_bubble_cmd() 生成，默认 Phase1=6条，上限 16</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_BubbleSensor">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 数组有效条目数（0=跳过气泡准备）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 数组有效条目数（0=跳过气泡准备）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_phase2_instructions">
+          <type>
+            <string length="128" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC 物理输入 / OPC UA 可写（调试用）\r\n TRUE = 气泡传感器检测到气-液界面到达上样针位置\r\n TODO【实机集成点】映射为物理输入 AT %IXx.y&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC 物理输入 / OPC UA 可写（调试用）\r\n TRUE = 气泡传感器检测到气-液界面到达上样针位置\r\n TODO【实机集成点】映射为物理输入 AT %IXx.y</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Phase2_MaxCycles">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: Phase 2 单次补液泵指令（循环执行直到传感器触发）\r\n 简化版未使用，实机需按 [pending]plc_spotting.txt Step 20 Phase 2 实现&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: Phase 2 单次补液泵指令（循环执行直到传感器触发）\r\n 简化版未使用，实机需按 [pending]plc_spotting.txt Step 20 Phase 2 实现</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_X_coordinate">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 上样 X 坐标（逻辑索引，PLC内部查表映射物理坐标）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 上样 X 坐标（逻辑索引，PLC内部查表映射物理坐标）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_Y_coordinate">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 上样 Y 坐标&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 上样 Y 坐标</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_sample_instructions">
+          <type>
+            <array>
+              <dimension lower="1" upper="2" />
+              <baseType>
+                <string length="128" />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 吸液泵指令（1条DT协议）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 上样泵指令</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Sampling_dispense_instructions">
+          <type>
+            <array>
+              <dimension lower="1" upper="2" />
+              <baseType>
+                <string length="128" />
+              </baseType>
+            </array>
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 点样泵指令（1条DT协议）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 点样泵指令（1条DT协议）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Enable">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: TRUE 启动状态机；FALSE 清 Done 回 idle&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: TRUE 启动状态机；FALSE 清 Done 回 idle</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Step">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 子步号 {0,10,15,20,30,40,90}&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 子步号 {0,10,15,20,30,40,90}</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Done">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 完成锁存（Step 40 结束后置 TRUE）&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 完成锁存（Step 40 结束后置 TRUE）</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Error">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 故障锁存（Step=90），scrape_Reset=TRUE 清零&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 故障锁存（Step=90），scrape_Reset=TRUE 清零</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Reset">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: TRUE 清错误&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: TRUE 清错误</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Busy">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PLC→PC: 派生 (Step∈[10,80]) AND NOT Done&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PLC→PC: 派生 (Step∈[10,80]) AND NOT Done</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Confirm">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 乒乓确认信号&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 乒乓确认信号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_gcode_instructions">
+          <type>
+            <string length="128" />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: G-code 刮取路径指令&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: G-code 刮取路径指令</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_PhotoMode">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;PC→PLC: 拍照模式选择&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n PC→PLC: 拍照模式选择</xhtml>
+          </documentation>
+        </variable>
+        <variable name="g_sx">
+          <type>
+            <array>
+              <dimension lower="1" upper="400" />
+              <baseType>
+                <REAL />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="g_sy">
+          <type>
+            <array>
+              <dimension lower="1" upper="400" />
+              <baseType>
+                <REAL />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="g_cx">
+          <type>
+            <array>
+              <dimension lower="1" upper="400" />
+              <baseType>
+                <REAL />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="g_cy">
+          <type>
+            <array>
+              <dimension lower="1" upper="400" />
+              <baseType>
+                <REAL />
+              </baseType>
+            </array>
+          </type>
+        </variable>
+        <variable name="g_scrape_feed">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="g_pass_count">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 刮取次数</xhtml>
+          </documentation>
+        </variable>
+        <variable name="g_pass_z">
+          <type>
+            <REAL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> Z高度</xhtml>
+          </documentation>
+        </variable>
+        <variable name="IX0" address="%IB0">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX1" address="%IB1">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX2" address="%IB2">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX3" address="%IB3">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX4" address="%IB4">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX5" address="%IB5">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX6" address="%IB6">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX7" address="%IB7">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX8" address="%IB8">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX9" address="%IB9">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX10" address="%IB10">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX11" address="%IB11">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="IX12" address="%IB12">
+          <type>
+            <BYTE />
+          </type>
+        </variable>
+        <variable name="scrape_WaitConfirm">
+          <type>
+            <BOOL />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 允许拍照信号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Fetch_Rack_Plate">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 收集器取库位号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Fetch_Rack_Plate">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 收集瓶料库号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Consume_Slot">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 取收集器料位号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Powder_Return_Slot">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 放收集器料位号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Consume_Slot">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 收集瓶取放料位号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="collect_Old_Plate_Slot">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 收集器放库位号</xhtml>
+          </documentation>
+        </variable>
+        <variable name="scrape_Old_Plate_Slot">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 收集瓶放库位号</xhtml>
+          </documentation>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="20_变量Date" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="86d59253-956c-4acb-8c8f-5cd3aaebeb02">
+                    <pathStructure isFolder="False" name="Host_Computer" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoGVLObject.GVLObjectFactory" factoryGuid="{5B8AA524-6574-48c0-B33E-215C0DABB02D}" objectGuid="ec678b30-39dd-4b10-b2c7-9ccf0f5d80ca" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>ec678b30-39dd-4b10-b2c7-9ccf0f5d80ca</ObjectId>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="RB_Date">
+        <variable name="Execute">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:FALSE  1:REUE</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Reset">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:FALSE  1:REUE</xhtml>
+          </documentation>
+        </variable>
+        <variable name="FunctionID">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0-255</xhtml>
+          </documentation>
+        </variable>
+        <variable name="ParameterList1">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 展开数据</xhtml>
+          </documentation>
+        </variable>
+        <variable name="ParameterList2">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="ParameterList3">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="ParameterList4">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="ParameterList5">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="ParameterList6">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="ParameterList7">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="ParameterList8">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="ParameterList9">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:Free 1:Busy 2:Complete 255:Error</xhtml>
+          </documentation>
+        </variable>
+        <variable name="ParameterList10">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:Free 1:Busy 2:Complete 255:Error</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Status">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:Free 1:Busy 2:Complete 255:Error</xhtml>
+          </documentation>
+        </variable>
+        <variable name="Point">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> 0:原点初始化 1-255 自定义</xhtml>
+          </documentation>
+        </variable>
+        <variable name="ErrorID">
+          <type>
+            <INT />
+          </type>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml"> &lt;GrpComment&gt;\r\n &lt;GrpComment_zh-cn&gt;0:无错误  255:不允许运行&lt;/GrpComment_zh-cn&gt;\r\n &lt;/GrpComment&gt;\r\n 0:无错误  255:不允许运行  </xhtml>
+          </documentation>
+        </variable>
+        <variable name="RO_ParameterList1">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList2">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList3">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList4">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList5">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList6">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList7">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList8">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList9">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="RO_ParameterList10">
+          <type>
+            <INT />
+          </type>
+        </variable>
+        <variable name="收集工位允许放收集瓶">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位允许放收集器">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位放收集瓶完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位放收集器到工位">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位允许机器人退出工位">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位机器人退出完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位允许机器人取收集瓶放暂存工位">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位机器人放收集瓶到暂存工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位允许取收集器">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位机器人到达收集器位置">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位机器人取收集器放回暂存工位">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="收集工位放收集器完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展开工位允许放硅胶板">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展开工位允许取硅胶板">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展开工位机器人到达准备点">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展开工位机器人放硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="展开工位取硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样点样允许放硅胶板">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样点样允许取硅胶板">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="上样点样放硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位允许放硅胶板">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位放硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位允许放收集器">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位机器人到达夹持位">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位机器人退出工位">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位机器人退出工位完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位允许取收集器">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位机器人到达收集器夹持位">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位机器人退出">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位机器人退出完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位允许取硅胶板放废料区">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位允许取硅胶板去展开">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="拍照工位机器人取硅胶板完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降上料伺服允许取料">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降上料机器人已吸住物料">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降上料伺服下降完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降上料机器人取料完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降上料机器人放料完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降下料伺服允许放料">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <variable name="升降下料机器人放废料完成">
+          <type>
+            <BOOL />
+          </type>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="20_变量Date" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="86d59253-956c-4acb-8c8f-5cd3aaebeb02">
+                    <pathStructure isFolder="False" name="RB_Date" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoGVLObject.GVLObjectFactory" factoryGuid="{5B8AA524-6574-48c0-B33E-215C0DABB02D}" objectGuid="3888157e-dd1a-4958-9b64-27f9230fed05" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>3888157e-dd1a-4958-9b64-27f9230fed05</ObjectId>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="20_变量Date">
+          <Object Name="HMI_Date" ObjectId="3d10586f-261e-4333-a98d-a0975b425f14" />
+          <Object Name="cyinder_date" ObjectId="38087a60-7c40-48c8-8738-cd2bde07ef82" />
+          <Object Name="IO" ObjectId="a2115ecf-dca7-4684-9ed8-780e269178a5" />
+          <Object Name="servoaxisdate" ObjectId="23287c5e-a0bc-43eb-9e89-f48a9bb5538c" />
+          <Object Name="GVL" ObjectId="1b6f7026-8e1f-489d-af6c-2ccfc470c7a2" />
+          <Object Name="Host_Computer" ObjectId="ec678b30-39dd-4b10-b2c7-9ccf0f5d80ca" />
+          <Object Name="RB_Date" ObjectId="3888157e-dd1a-4958-9b64-27f9230fed05" />
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

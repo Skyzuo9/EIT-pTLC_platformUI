@@ -1,0 +1,15 @@
+# 刮后对账叠加 (vision kind, 纯计算落图): scraped.jpg 回放归一化帧 + 同一 preview payload 叠加。
+# 哨兵步非工艺步: 任何失败 result.ok=false 不抛 (流程 YAML 侧另有 try 双保险)。
+photoscrape.scraped_overlay:
+  kind: vision
+  method: scraped_overlay
+  label: 视觉-刮后对账叠加
+  desc: |-
+    执行步骤：读取刮后照片和下发候选 summary，把照片回放到同一归一化板坐标，并叠加实际下发的刮取路径生成 scraped_annotated.png 供“计划与刮后结果”对账。
+    前置与安全：summary_path、scraped_path及其标定上下文必须可读；这是刮后哨兵计算，不驱动 PLC、机器人或相机。
+    完成与异常：成功返回 ok和标注图路径；文件/标定/渲染失败以 ok=false结果返回供流程记录，不应触发物理动作重试。
+    实现核对：eit_ptlc/controller/scrape_reconcile.py::scraped_overlay，经 ActionExecutor._exec_vision 派发。
+  modes: []
+  params:
+    - {name: summary_path, type: string, required: true, label: 下发候选summary路径}
+    - {name: scraped_path, type: string, required: true, label: 刮后照片路径}

@@ -1,0 +1,2619 @@
+# 功能: 装配归属表 —— 把 GLB 里的顶层装配归到"工位"语义分组, 并声明可运动件的枢轴.
+# 由 03_clean_model.py --stage full 使用.
+#
+# 归属依据: 装配名(拼音, 见 work/*_names.csv 可查中文原名) + 世界包围盒位置
+#           (由 dump_hierarchy.py 导出, 见 work/hierarchy_top.json).
+# 工位 id 与上位机 runtime/node_registry.py 的节点 id 一一对应, 这样 device-manifest
+# 才能把遥测直接绑到三维节点上.
+#
+# 坐标系: 原始 GLB 为 Y 轴向上, 单位米. 机器整体范围约
+#   x ∈ [-1.3, 1.3](左右) · y ∈ [-1.0, 1.1](上下) · z ∈ [-0.75, 0.75](前后)
+
+schema: ptlc.rigmap/v2
+
+# v2 的通用可动刚体协议。具体机构必须在其 CAD 归属和真实枢轴核验后再加入，空数组
+# 表示“运行时能力已建立、尚无已验收实体”，不允许用包围盒或截图补猜。
+nodes: []
+
+# ---------------------------------------------------------------------------
+# CR5 末端执行器(2026-08-01 首批入驻, 全部经 Blender 逐顶点实测核验):
+#   统一布尔语义(与机器人 DO 接线对齐; 上位机 robot_controller._TWIN_ACTION_STATE
+#   白纸黑字 GRIPPER_CLOSE=True): effective=1 ↔ DO2 侧激活 —— 夹爪 1=闭合(偏离
+#   GLB 基准位), 0=张开(=GLB 基准位, 位移 0); 吸盘 1=上翻, 0=下翻(用户确认).
+#   (08-02 晨曾把夹爪语义翻成 1=张开 —— 误诊, 当日回滚: "闭合反而张开"的真凶是
+#    sign 在导出父空间里反了, 见下条绊线.)
+#   ⚠ sign 判定绊线: 前端位移加在 ACTUATOR 节点的父空间(node.position+=axis*sign*
+#   output), 而 glTF 导出器共轭全层级旋转, 导出后父空间 x 与 Blender 世界 x 反向 ——
+#   实测导出 GLB JSON 里 L 组平移 x 反而大于 R 组(plate96: +57.95/-1.35mm, vial:
+#   +258.79/+211.29mm)。收拢方向 = 从 x 大侧往 x 小侧, 故 L sign=-1 / R sign=+1。
+#   新增机构的 sign 一律以导出 GLB 的 JSON 节点平移为准, 且必须在前端运行时验收;
+#   Blender 世界系平移仿真会绕过这个坑(08-02 已实翻过一次车)。
+#   三态闭合: 0=张开(基准位) / holdValue=夹持物料(部分闭合) / 1=空爪紧闭。持料由
+#   前端按流程事件包络判定(vm_node_done 的 gripper-close@*_pick → 持料, gripper-
+#   open → 释放)。holdValue 是 linkage 顶层字段随 runtime spec 进浏览器;
+#   controllerTool 在 catalog 里随 realtime.mechanisms 进浏览器(持料状态机按
+#   mounted tool 定位机构 id 用)。
+#   id 必须与上位机 robot_controller._TWIN_GRIPPER_BY_TOOL 逐字一致(rob_grip_plate96
+#   / rob_grip_vial / rob_flip_suction), 前端按 id 直配, 错一个字就静默不动.
+#   build:/catalog: 块分别由 blender_clean / gen_twin_manifest 消费后剥除, 不进浏览器.
+# ---------------------------------------------------------------------------
+actuators:
+  # ---- 刮板拍照工位机构 (2026-08-04 整站收口) ------------------------------
+  # 不写 catalog: 它是给**不在 PLC 目录里**的机构(如机器人侧夹爪)用的;
+  # 本工位这四个都在 manual_points.yaml 的 PLC 机构目录里, 再声明会与目录冲突而硬失败。
+  # 条目留在 actuators/linkages 里即可把既有 PLC 机构标成 rigged。
+  #
+  # ⚠ `build.parent_axis` / `build.parent_node`: 执行器建组(build_end_effector_actuators)
+  #   排在轴建组(build_axis_carriages)**之后**, 默认把 ACTUATOR_* 挂 ST_<station> 下 ——
+  #   那会把已经收进 AXIS_*/CARRIAGE 的成员**抢出来**, 气缸就不跟着轴走了。凡是骑在轴上
+  #   的机构必须显式声明父级。parent_node 引用的执行器须排在本条目**之前**(按书写顺序建)。
+  #
+  # ⚠ `gap_check.axis` 是 **Blender 轴系(Z 向上)**, 不是 translate 那套 glTF 轴系。
+  #   竖直方向在 glTF 是 y、在 Blender 是 **z**。2026-08-04 这里先写成 y 而红过一次。
+
+  # 翻料(反转)缸: 刮完把接粉收集器整摞翻倒倒粉 —— A41 开缸、A52 复位, PLC 互锁要求
+  # 刮板轴9X fActPos>330(刀头先退到板外才允许翻)。用户目检定案: 先按 180°/CAD=未翻。
+  #
+  # 转动副逐顶点实测: 摆台 `_HRQ7_table-1`(x 762.4..774.4, 仅 12mm 薄片, y/z 各 39)
+  # 从缸体 `_HRQ7_body-1`(769.4..796.9) 的 **−X 端**伸出 ⇒ **轴线沿 Blender X**
+  # (与 rob_flip_suction 的 Blender Y 不同, 故 pivot 需 axis: x)。
+  # 静止链: 06-011 硅胶收集器安装板(挂 **9X** 滑车, 见下) → HRQ7 缸体;
+  # 转动链: 摆台 → 06-012 旋转气缸连接板 → 06-013 压紧安装块 → {粉桶 硅胶收集,
+  #         05-041 插紧气缸安装板 → HLH 下压缸整只 → 吸嘴组}。
+  # 即下压缸整只随翻转走, 所以 ps_press 的父级是本节点而不是滑车。
+  #
+  # ⚠ 2026-08-06 订正 parent_axis: axis_10z → axis_9x(用户目检指出"旋转机构带粉桶是固定的,
+  #   不随 Z 升降"), 三条独立证据:
+  #   ① 几何: 06-011(x 796.9..806.9)与 9X 滑车成员 06-007 刮板模组安装板(x 806.9..816.9)
+  #      **面贴面 0.00mm**; 而 10Z 滑块 18.1.42 在 x 755.8..764.8, 中间还隔着 CFG4 导轨体
+  #      18.1.46(x 784.9..806.9) —— 06-011 在结构上够不到 Z 滑块。
+  #   ② 物理: 粉桶(注射器-1.019)底面 z=258.4, 距玻璃面 z=251.5 只有 6.9mm。旧构建下刮取时
+  #      10Z 下探 25mm(g_pass_z=21.0), 而刮取段 9X/8Y 正把桶带到板上方 ⇒ 粉桶扎进板 18mm。
+  #   ③ 功能: bottle_x_offset_mm=90 的让位靠 **9X** 走(clip_compiler.emit_scrape 收集段就是
+  #      emit_axis("axis_9x", …)), 桶必须骑 9X 才扫得过条带。
+  - id: ps_rotate
+    label: "刮板拍照旋转气缸(翻料 HRQ7)"
+    node: ACTUATOR_PS_ROTATE
+    motion: rotate
+    axis: [ 1, 0, 0 ] # Blender X → glTF X
+    sign: 1
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 180 ]
+    transitionS: 0.8
+    build:
+      station: PHOTOSCRAPE
+      parent_axis: axis_9x
+      members:
+        - { equals: PTLC-06-012 旋转气缸连接板-1, expect_count: 1 }
+        - { equals: PTLC-06-013 压紧安装块-1, expect_count: 1 }
+        - { equals: PTLC-05-041 插紧气缸安装板-1, expect_count: 1 }
+        - { equals: HLH6X20S_0_+_DMSH-2_-1, expect_count: 1 } # 整只缸(体+杆+DS1-H)随转
+        - { equals: 硅胶收集-1.008, expect_count: 1 }
+        - { equals: PTLC-06-014 接头安装块-2, expect_count: 1 }
+        - { equals: PTLC-03-035 导向块-2, expect_count: 1 }
+        - { equals: PTLC-06-028 穿板鲁尔接头-1, expect_count: 1 }
+      pivot:
+        axis: x # 摆台端面法向 = 转轴; 缺省 y(rob_flip_suction 那种)
+        # HRQ7 的摆台是**方**的(38.9×39), 端面半径直方图一片平坦、根本没有环带可拟合 ——
+        # 走 bore: 取两端面之间的中心导向孔孔壁。实测 R=11.817mm 残差 0.089mm,
+        # 圆心 (bl y=252.153, z=313.500) 与摆台包围盒中心偏差 0.000mm(独立佐证它就是转轴)。
+        surface: bore
+        mesh: { equals: _HRQ7_table-1, expect_count: 1 }
+        prior_member: { equals: PTLC-06-012 旋转气缸连接板-1 }
+        ring_radius_mm: [ 10, 14 ] # 只认导向孔那一圈, 避开 9mm/13mm 的邻圈
+        ring_band_mm: 0.6 # ±2 会把邻圈一起拟合(残差 1.25mm); 0.4/0.6/0.8 实测同解
+        residual_tol_mm: 0.5
+        # 06-012 比摆台高(z 283.5..334.5 vs 294..333), 包围盒中心先验天然低 4.5mm,
+        # 故放宽到 6mm; 真正的质量门是上面 0.5mm 的圆拟合残差。
+        prior_tol_mm: 6.0
+
+  # 刮板台下压缸: 把吸粉嘴组压到接粉收集器上, 压住之后才允许刮取。
+  #
+  # 2026-08-04 订正驱动件 —— 原来写的 `PTLC-06-013 压紧安装块` 是**气缸自己的安装座**,
+  # 属静止侧, 屏幕上表现为"底座在动、吸嘴不动"。逐顶点实测:
+  #   · 缸杆 `_HLH6X20-S(0)_rod-1` z 349.5..402.0, 缸体 `_body-1` z 322.5..373.5 ⇒ 杆朝上伸出;
+  #   · 06-013 z 277.5..352.5 把缸体 322.5..352.5 **包在里面** ⇒ 它是座; 缸体另由
+  #     05-041 插紧气缸安装板(z 334.5..373.5)固定, 两者都在 ps_rotate 的转子侧;
+  #   · 杆顶 402.0 与 `PTLC-06-014 接头安装块-2`(z 400..409) **咬合 2.0mm** ⇒ 这才是被驱动件,
+  #     其下挂 03-035 导向块(388..404) + 06-028 穿板鲁尔接头(392..425, 真空管路)。
+  # 方向不变(用户目检定案"下压离粉桶更近的方向"): 压下 = 杆走 **−glTF Y**,
+  # **CAD 基准态是抬起**(值0=松开=零位移, 值1=压下=−20mm)。
+  # ⚠ 与 col_clamp 的基准态约定**相反**(那个基准是紧闭), 两个缸不能套同一模板。
+  - id: ps_press
+    label: "刮板拍照下压气缸(HLH6X20)"
+    node: ACTUATOR_PS_PRESS
+    motion: translate
+    axis: [ 0, 1, 0 ]
+    sign: -1
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 20 ]
+    unitScale: 0.001
+    transitionS: 0.35
+    build:
+      station: PHOTOSCRAPE
+      parent_node: ACTUATOR_PS_ROTATE # 随翻料缸转子走
+      groups:
+        - empty: ACTUATOR_PS_PRESS
+          members:
+            - { contains: "_HLH6X20-S(0)_rod", expect_count: 1 }
+            - { equals: PTLC-06-014 接头安装块-2, expect_count: 1 }
+            - { equals: PTLC-03-035 导向块-2, expect_count: 1 }
+            - { equals: PTLC-06-028 穿板鲁尔接头-1, expect_count: 1 }
+      # 断言"CAD = 抬起态"这个前提本身: 吸嘴导向块底面离粉桶口 10.1mm(实测)。
+      # 换 CAD 版本若导出成压下态, 这里立刻红, 而不是上线后气缸动反。
+      gap_check:
+        axis: z
+        between: [ { equals: 硅胶收集-1.008 }, { equals: PTLC-03-035 导向块-2 } ]
+        measure: inner
+        expect_mm: 10.1
+        tol_mm: 1.0
+
+  # 定位缸: A32 夹住玻璃板 —— 与 axis_7y 点样台同款同图纸(TCM6x5 + 推板)。
+  # 缸体 `_TC-M-6x55_b-1.001`(x 728.3..756.8)杆朝 −X, 推 `PTLC-05-023 推板-1.001`
+  # (x 717.3..722.3)靠向玻璃 +X 边(714.8), 净空 2.5mm ⇒ CAD 基准态 = 松开。
+  # 整摞骑在 8Y 板托台上, 故 parent_axis: axis_8y(否则夹板动作会把推板从滑车里抢走)。
+  - id: ps_locator
+    label: "刮板拍照定位气缸(TCM6x5)"
+    node: ACTUATOR_PS_LOCATOR
+    motion: translate
+    axis: [ 1, 0, 0 ]
+    sign: -1 # 夹紧 = 推板往 −X 顶玻璃
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 2.5 ]
+    unitScale: 0.001
+    transitionS: 0.25
+    build:
+      station: PHOTOSCRAPE
+      parent_axis: axis_8y
+      groups:
+        - empty: ACTUATOR_PS_LOCATOR
+          members:
+            - { equals: PTLC-05-023 推板-1.001, expect_count: 1 }
+            - { equals: _TCM-6x5-0_5fp-1.001, expect_count: 1 } # 缸杆/前板
+      gap_check:
+        axis: x
+        between: [ { equals: 玻璃-1.002 }, { equals: PTLC-05-023 推板-1.001 } ]
+        measure: inner
+        expect_mm: 2.5
+        tol_mm: 0.5
+
+  # 遮光缸: 拍照时把暗箱门落下压暗。A34 时序 = 先确认遮光**上位** → 8Y→420 把板送进
+  # 暗箱 → 落遮光并等**下位** → 上位机曝光; A35 抬遮光 → 8Y→0。
+  # 所以"上位"是 8Y 绝对定位的前置互锁, 也是 CAD 基准态。几何佐证: 直线轴承
+  # `_LRM12BK-N-H-A-1/-2` 现在 z 400.2..437.8, 离上限位块 06-010(z 472..482)只 34.2mm、
+  # 离下限位块(z 102..112)288mm; 缸杆 `_16MA250 Rod-1` 也几乎全伸(体顶 38.5 → 杆顶 310.5)。
+  # ⚠ `PTLC-06-029 遮光罩-1`(x 1056..1145, z 527..644)是**相机镜头罩**, 在暗箱里不在门上,
+  #    不要收进来; `_LRM12BK-N-H-A-3` 同理属 9X 滑车。
+  - id: ps_shade
+    label: "刮板拍照遮光气缸(MA16x250)"
+    node: ACTUATOR_PS_SHADE
+    motion: translate
+    axis: [ 0, 1, 0 ]
+    sign: -1 # 遮光 = 门落下
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 250 ]
+    unitScale: 0.001
+    transitionS: 1.2 # 250mm 长行程
+    build:
+      station: PHOTOSCRAPE # 门本身不骑任何轴, 父级保持工位根
+      groups:
+        - empty: ACTUATOR_PS_SHADE
+          members:
+            - { equals: PTLC-06-025 遮光板-1, expect_count: 1 }
+            - { equals: PTLC-06-019 遮光板气缸连接板-1, expect_count: 1 }
+            - { equals: PTLC-06-018 遮光板气缸浮动接头安装板-1, expect_count: 1 }
+            - { equals: WHB02-M6-2, expect_count: 1 } # 浮动接头
+            - { equals: _LRM12BK-N-H-A-1, expect_count: 1 }
+            - { equals: _LRM12BK-N-H-A-2, expect_count: 1 }
+            - { equals: _16MA250 Rod-1, expect_count: 1 }
+      gap_check:
+        axis: z
+        between: [ { equals: _LRM12BK-N-H-A-1 }, { equals: PTLC-06-010 滑块阻挡块-1.001 } ]
+        measure: inner
+        expect_mm: 34.2
+        tol_mm: 1.0
+
+  # ---- 收集工位三缸 (2026-08-05 整站收口) ---------------------------------
+  # PLC 语义(plc_collect.yaml)与几何双证定的归属, 不照名字猜:
+  #   A22 伸缩伸出: "推出原点 且 瓶传感器=FALSE" 才允许 → 把**空瓶座**推到放瓶位给机器人放瓶
+  #   A23 缩回→升降→下压: 瓶子拉回收集器正下方, 收集器落到瓶口, 再把打压塞压下去
+  #   A41 复位伸出: 下压回原点 → 升降回原点 → 伸缩伸出(把带液的瓶送出去给机器人取)
+  # 三条运动链逐顶点实测各自闭合, 零件名自证(推杆气缸安装板/顶升气缸滑轨安装板/
+  # 注液气缸接头连接板 分别贴在 PB10 / MA16 / ACE20 上):
+  #   伸缩 PB10x80SU  → 推杆连接块 → 治具安装板 → 定位治具 → 样品瓶  (骑 LRM9 滑块)
+  #   升降 MA16x70SU  → WHD51 联轴 → 粉末瓶定位板 → 夹爪安装板 → HFD16X15 → 硅胶收集
+  #                    (骑 GVB72 直线轴承走两根 d12 粉末瓶下压导向轴; 轴顶由 03-016 导向连接板对拉)
+  #   下压 ACE20X90S → WHC01 → 接头连接块 → 接头连接板 → 压块连接板 → 注液打压塞
+  #                    → 鲁尔接头 → 导向块 (骑 LRM12 竖直滑轨)
+  #
+  # ⚠ 基准态**逐缸各判**, 不套模板 —— 与 col_clamp(基准=紧闭) / ps_press(基准=抬起) 各不相同。
+  #   判据是"另一个态在几何上不成立": 升降若基准在上位, 落下 70 会让收集器插进瓶身 95mm 里,
+  #   物理不可能; 故 CAD = 落位态(收集器底 309.9 距瓶口 309.7 仅 0.2mm), 即 PLC 的升降=TRUE 态。
+  #   位移 0 一律等于 CAD 位姿, 所以升降写成 outputRange: [70, 0](值1=CAD), 另两个 [0, 行程]。
+  #
+  # 行程取缸型名义值(PB10x80=80 / MA16x70=70 / ACE20X90=90), CAD 里量不到实际行程。
+  # 旁证: 下压行程 90 与"打压塞底 520.5 距收集器口 429.4 = 91.1mm"只差 1.1mm, 自洽。
+  - id: col_extend
+    label: "收集伸缩气缸(PB10x80)"
+    node: ACTUATOR_COL_EXTEND
+    motion: translate
+    axis: [ 0, 0, 1 ] # Blender +Y(推出) = glTF −Z, 故配 sign: -1
+    sign: -1
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 80 ]
+    unitScale: 0.001
+    transitionS: 0.6
+    build:
+      station: COLLECT
+      # ⚠ 直线缸必须走 `groups`, 不能走 `members` —— `members` 是**旋转缸**那条路径,
+      #   会去做环带/孔壁圆拟合(`pivot.mesh`), 直线缸没有 pivot 段, 报"命中 0 个网格"。
+      #   对照: ps_press/col_clamp 都是 groups, ps_rotate/rob_flip_suction 才是 members+pivot。
+      groups:
+        - empty: ACTUATOR_COL_EXTEND
+          members:
+            - { equals: _10PB80URod-1, expect_count: 1 }
+            - { equals: WHB02-M4-001-1, expect_count: 1 }
+            - { equals: WHB02-M4-002-1, expect_count: 1 }
+            - { equals: PTLC-03-005 推杆连接块-1, expect_count: 1 }
+            - { equals: PTLC-03-004 收集瓶治具安装板-1, expect_count: 1 }
+            - { equals: PTLC-03-006 收集瓶定位治具-1, expect_count: 1 }
+            - { equals: _LRM9BK-N-H-A-1.001, expect_count: 1 } # 导轨滑块随座走
+      # ⚠ 瓶子/收集器**不进机构组**: `equals` 比对前会剥掉 `.NNN` 副本后缀(见 _plain_match),
+      #   而耗材类名字(样品瓶-*/硅胶收集-*)在货架与两个中转上都有同基名的实例, 一写就多命中、
+      #   硬失败。它们随缸走属于**载荷托管**(PayloadCustodyStore)的职责, 不是建组的职责。
+      # 断言"CAD = 缩回态(瓶在收集位)": 缸体螺母到推杆连接块 37.0mm。
+      # 若换版导出成伸出态, 这里立刻变 117, 而不是上线后瓶子往反方向跑。
+      gap_check:
+        axis: y
+        between: [ { equals: _PB10nut_1-1 }, { equals: PTLC-03-005 推杆连接块-1 } ]
+        measure: inner
+        expect_mm: 37.0
+        tol_mm: 1.0
+
+  - id: col_lift
+    label: "收集升降气缸(顶升 MA16x70)"
+    node: ACTUATOR_COL_LIFT
+    motion: translate
+    axis: [ 0, 1, 0 ] # Blender +Z = glTF +Y
+    sign: 1
+    inputRange: [ 0, 1 ]
+    outputRange: [ 70, 0 ] # 值1 = 落位 = CAD 零位移; 值0 = 抬起 70mm 让瓶子进出
+    unitScale: 0.001
+    transitionS: 0.5
+    build:
+      station: COLLECT
+      groups:
+        - empty: ACTUATOR_COL_LIFT
+          members:
+            - { equals: _16MA70 Rod-1, expect_count: 1 }
+            - { equals: WHD51-M6-1-001-1, expect_count: 1 }
+            - { equals: WHD51-M6-1-002-1, expect_count: 1 }
+            - { equals: PTLC-03-014 粉末瓶定位板-2, expect_count: 1 }
+            - { equals: Y-J-GVB72-d12-1, expect_count: 1 }
+            - { equals: Y-J-GVB72-d12-2, expect_count: 1 }
+            - { equals: PTLC-03-015 夹爪气缸安装板-1, expect_count: 1 }
+            - { equals: _HFD16X15(CL)_b-1, expect_count: 1 } # 夹持缸整体随升降走
+      # ⚠ `_16 MA Nut-1` 是缸鼻锁紧螺母(把缸固定在 03-019 顶升气缸滑轨安装板上), 属**静止侧**,
+      #   与 ps_press 那次把"气缸自己的安装座"当驱动件是同一个坑, 别收编。
+      #
+      # 断言"CAD = 落位态": 升降台(粉末瓶定位板 底 343.0)距静止的导轨安装板顶 200.0 为 143.0mm。
+      # 若换版导出成抬起态, 这里变 213.0 立刻红。
+      # (原想断言"瓶口到收集器底 0.2mm"更贴物理, 但耗材名多实例、`equals` 剥后缀后必多命中。)
+      gap_check:
+        axis: z
+        between: [ { equals: PTLC-03-003 收集瓶导轨安装板-1 }, { equals: PTLC-03-014 粉末瓶定位板-2 } ]
+        measure: inner
+        expect_mm: 143.0
+        tol_mm: 1.5
+
+  - id: col_press
+    label: "收集下压气缸(注液打压 ACE20X90)"
+    node: ACTUATOR_COL_PRESS
+    motion: translate
+    axis: [ 0, 1, 0 ]
+    sign: -1 # 压下 = Blender −Z = glTF −Y
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 90 ]
+    unitScale: 0.001
+    transitionS: 0.4
+    build:
+      station: COLLECT
+      groups:
+        - empty: ACTUATOR_COL_PRESS
+          members:
+            - { equals: _ACE20X90(0)-ace_rod-1, expect_count: 1 }
+            - { equals: WHC01-M6-1.0-L5-2, expect_count: 1 }
+            - { equals: PTLC-03-025 接头连接块-2, expect_count: 1 }
+            - { equals: PTLC-03-024 注液气缸接头连接板-1, expect_count: 1 }
+            - { equals: PTLC-03-026 压块连接板-2, expect_count: 1 }
+            - { equals: PTLC-03-027 注液打压塞-1, expect_count: 1 }
+            - { equals: PTLC-03-031 鲁尔接头-1, expect_count: 1 }
+            - { equals: PTLC-03-035 导向块-1, expect_count: 1 }
+            - { equals: _LRM12BK-N-H-A_1-1, expect_count: 1 }
+      # 断言"CAD = 抬起态": 打压塞底 520.5 距升降台顶(粉末瓶定位板 353.0)为 167.5mm。
+      # 行程 90 的旁证(不进断言, 因为收集器名多实例无法唯一定位): 打压塞底距收集器口
+      # 429.4 实测 91.1mm, 与名义行程 90 只差 1.1mm, 自洽。
+      # ⚠ 03-016 导向连接板/03-017 导向加强筋 是**两根 d12 导向轴的顶端对拉板**(轴顶 510
+      #   落在 508..516 内), 属静止侧, 不是被压件。
+      gap_check:
+        axis: z
+        between: [ { equals: PTLC-03-014 粉末瓶定位板-2 }, { equals: PTLC-03-027 注液打压塞-1 } ]
+        measure: inner
+        expect_mm: 167.5
+        tol_mm: 1.5
+
+  # ---- 上样点样工位 (2026-08-05 补齐) --------------------------------------
+  # 定位缸: A31 放板后夹住玻璃板 —— 与 axis_8y 的 ps_locator 同款同图纸(TCM6x5S + 05-023 推板)。
+  # PLC 点 上样定位气缸 %QX7.0(manual_points.yaml:249), 动作 sampling.place_locate /
+  # place_release 早已在 clip_compiler.CYLINDER_ACTIONS_FIXED 里映射, 片段也一直在发
+  # actuator 步 —— 缺的只是几何。症状: setActuator 查不到条目→applyMotion 返回 false,
+  # 片段照播、缸不动、**全程零报错**(manifest 标着 rigged:false, 连告警都不触发)。
+  #
+  # 逐顶点实测(exports/TLC_full_native.glb, Blender 世界系 mm):
+  #   缸体 `_TC-M-6x55_b-1`(x 1170.9..1199.4) 杆朝 −X, 缸杆前板 `_TCM-6x5-0_5fp-1`
+  #   (x 1164.9..1193.6) 的 −X 端与 `PTLC-05-023 推板-1`(x 1159.9..1164.9) 的 +X 端
+  #   贴合(0.00mm), 推板再顶向玻璃 +X 边(1156.4) ⇒ 净空 3.5mm。
+  #   (量法先在 PHOTOSCRAPE 侧复现过已知答案: 推板 717.3、玻璃 714.8 ⇒ 2.5, 与 ps_locator
+  #    的注释和 03 报告的 gap_check.value_mm 逐位吻合, 故本站读数可信。)
+  # 基准态 = 松开, 判据不靠间隙而靠**两只同款缸的杆伸出量逐位相同**:
+  #   fp.x_min − body.x_min = −6.00 / body.x_max − fp.x_max = 5.80, 与 ps_locator 的
+  #   .001 副本误差 0.00mm ⇒ 同一杆位, 而那只已核定为松开态。
+  # 行程 3.5 而非 ps_locator 的 2.5: 差值来自玻璃在台面沉台里的落位(台面 +X 端到玻璃
+  # +X 边 上样 6.0mm / 拍照 5.0mm), 不是缸的差别。TCM6x5S 名义 5mm, 3.5 < 5 自洽。
+  # 无父空间翻向: ST_SAMPLING/AXIS_AXIS_7Y/CARRIAGE.007 整条祖先链在 glTF 里全是单位阵,
+  # 故 parent-space X ≡ glTF X ≡ Blender X(与挂在 TOOL_*_GEOMETRY 下的机器人侧机构不同)。
+  # 整摞骑在 7Y 点样座上, 故 parent_axis: axis_7y(否则夹板动作会把推板从滑车里抢走)。
+  # 静止侧(缸体 / 05-039 安装板 / 两只 DS1-H)留在 axis_7y.carriage_members 里不动。
+  - id: smp_locator
+    label: "上样定位气缸(TCM6x5)"
+    node: ACTUATOR_SMP_LOCATOR
+    motion: translate
+    axis: [ 1, 0, 0 ]
+    sign: -1 # 夹紧 = 推板往 −X 顶玻璃
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 3.5 ]
+    unitScale: 0.001
+    transitionS: 0.25
+    build:
+      station: SAMPLING
+      parent_axis: axis_7y
+      groups:
+        - empty: ACTUATOR_SMP_LOCATOR
+          members:
+            - { equals: PTLC-05-023 推板-1, expect_count: 1 }
+            - { equals: _TCM-6x5-0_5fp-1, expect_count: 1 } # 缸杆/前板
+      # 断言"CAD = 松开态"这个前提本身: 玻璃 +X 边到推板 3.5mm。换 CAD 版本若导出成
+      # 夹紧态, 这里立刻红, 而不是上线后气缸动反。
+      # 对手件取**玻璃**而不是平台: 推板落在台面沉台内(与台面 +X 端重叠 2.5mm),
+      # 拿平台当对手件 measure:inner 会得到 −2.5 这种负值, 量的也不是夹持净空。
+      gap_check:
+        axis: x
+        between: [ { equals: 玻璃-1 }, { equals: PTLC-05-023 推板-1 } ]
+        measure: inner
+        expect_mm: 3.5
+        tol_mm: 0.5
+
+  # 吸盘上下翻转。机构拓扑(逐顶点邻接实测): 静止链 = QT快换→006→加强筋-2/-4→008→
+  # HRQ 缸体(-Y 端面贴合); 转动链 = HRQ +Y 端面摆台→009 转接板→010 电爪连接板 +
+  # 加强筋-1/-3 + 两个 SAB22 吸盘。四根加强筋 2/2 分属两侧, 别按零件号整组收编。
+  # 摆台轴 = Blender +Y(停靠姿态) = 节点局部 ±Z(glTF); 轴心由摆台外圈(Ø44.7)环带
+  # 圆拟合实测: bl(x=-0.54639, z=0.17900), 残差 0.14mm, 与 009 包围盒中心先验偏差 0。
+  # 180° 翻转终点与旋向无关, sign 只影响扫掠方向(转动侧整体在摆台面 +Y 侧, 与静止
+  # 侧任意旋向均无碰撞), 如与真机旋向相反只改 sign。
+  - id: rob_flip_suction
+    label: "吸盘上下翻转(HRQ10A)"
+    node: ACTUATOR_FLIP_SUCTION
+    motion: rotate
+    axis: [ 0, 0, 1 ]
+    sign: 1
+    inputRange: [ 0, 1 ]
+    outputRange: [ 0, 180 ]
+    # 标称行程时长(秒)。**只在没有实测样本时用**: 三维在途动画优先按上位机量到的
+    # 上一程真实耗时(mechanism_state 的 expectedS, 见 robot_controller._twin_expected_stroke_s)
+    # 配速, 首程/仿真/老后端才回退到这里。
+    # 2026-08-05 由 0.6 改 5.0: 0.6 是**指数缓动的时间常数**被误当成时长填的, 与实物
+    # 对不上(用户实测一程约 5s)。这只缸挂在机器人工具 I/O 上而不是 PLC, 没有速度寄存器
+    # 可读, 所以真值只能靠量 DO→限位DI 的时间, 这里填的是那个量级的先验。
+    transitionS: 5.0
+    catalog: { station: robot, kind: rotary, label: "吸盘翻转", feedbackAvailable: true }
+    # 持板几何: 板被吸起时相对本节点的刚体位姿, 由**吸盘自己的几何**实测得出。
+    #
+    # 为什么必须是刀具常量而不是从示教点反算: 反算出来的值会把每个站各自的残差
+    # 一并烘进去。2026-08-05 用 verify_plate_seats 量到 rotary-up 两站在法兰系下差
+    # 134.0mm(= 7Y 99 + 8Y 35, 两根没被片段驱动的工位轴) —— clip_compiler 头注释里
+    # "同一副吸盘反算差 155mm 故拒绝下发 mount"记的就是这件事。吸盘对板的关系是纯
+    # 刀具几何, 与站、与机械臂朝向、与示教残差全都无关, 从这里量才是对的。
+    #
+    # gen_twin_manifest.resolve_plate_grip 消费本块, 产出 manifest 的
+    # actuators[rob_flip_suction].plateGrip; 前端 plateGeometry.suctionMountLocal 读它。
+    plate_grip:
+      # 吸盘本体(SAB22 真空吸盘)。轴向/接触面/对中心全部从这两只的实测包围盒解出,
+      # 不写死任何方向 —— 换刀具或改吸盘间距, 重跑 manifest 即自动跟上。
+      cups: { contains: "SAB22-KQ2E06", expect_count: 2 }
+      # 断言(换 CAD 版本立刻红, 而不是上线后板悄悄挪位):
+      cup_diameter_mm: 24.0 # SAB22 标称 22, 实测外缘 23.99
+      cup_diameter_tol_mm: 0.5
+      cup_span_mm: 85.0 # 两只吸盘中心距(实测 y 120.0 / 205.0)
+      cup_span_tol_mm: 1.0
+      # 波纹段可压缩行程(mm)。板顶到硬表面(展缸面/座面)时吸盘让这么多, 而不是把板
+      # 顶进去 —— SAB22 是波纹吸盘, 末端本来就有柔性, 刚性钉死只会把穿模换个地方出现。
+      #
+      # 6.0 有两条互相独立的依据:
+      #   · CAD 波纹段实测(2026-08-05, 逐轴向分层量半径): 橡胶段 35mm 里 z −71.6~−53.5
+      #     约 18mm 是波纹, 半径在 7.9↔11.0↔12.0 振荡, **褶距 6.25mm 两褶** —— 压缩
+      #     三分之一是波纹吸盘常规工况;
+      #   · verify_plate_seats 实测各站在板面法线向的偏置 −132.4~−137.8mm, 即站间需要
+      #     吸收 **0~5.4mm** —— 6.0 刚好盖住。
+      # ⚠ 仍是**样本量级值**, 不是 Schmalz datasheet 读数(件号 10.01.06.01653, 仓里无资料)。
+      # 拿到真值直接改这一行; 超过行程的部分按"露缝 + 报警"处理, 不会被悄悄吸收。
+      #
+      # 语义(2026-08-05 起): 这是板被吸住**之后**还能再让的量, 即在 carry_compression_mm
+      # 的基础上叠加, 不是从自由长度算起。
+      cup_stroke_mm: 6.0
+      # 被吸住时波纹段**已经**压掉的量(mm)。板骑在压缩后的唇口上, 不是自由长度的唇口上。
+      #
+      # 为什么需要它: CAD 里这只杯是**自由态**(逐顶点实测沿轴 +36.57..+71.57, 正好 35.0mm
+      # = free_len, 且 contactLocalM=+71.57 就落在唇口上 —— 量法与建模都没错)。但真机是
+      # 抽真空夹着板的, 波纹早已压瘪, 于是板实际比自由唇口更靠近法兰。不补这一项, 板就被
+      # 画在自由唇口上, 放板时整块板扎进座面 —— 正是用户 2026-08-05 报的穿模。
+      #
+      # 17.82 是**反解**出来的, 不是拍的: diagnose_plate_grip.py 拿 12 个取放示教点
+      # (P19/P65/P21/P22/P11-P18) × 2 个翻转态, 把"CAD 板锚点 − plateGrip 说的持板位姿"
+      # 摊到吸盘局部系里, 沿吸盘轴的**刀具项**(两翻转态的均值)= −17.82mm;
+      # 同一次分解里沿两杯连线 +0.15mm、第三轴 −0.55mm、法线转角 ≤1.28° —— 即这是一笔
+      # **纯沿轴平移**, 与翻转支点/对中心/工位摆位都无关。扣掉后各站残差 ≤2.3mm。
+      #
+      # 与 CAD 的独立互证: rig_map 上面那段实测记着波纹段是 z −71.6~−53.5(约 18mm),
+      # 而 71.57 − 17.82 = 53.75 正落在波纹段的上端 —— 即"波纹基本压平", 与 2 褶波纹杯
+      # 满真空持板的工况相符。
+      #
+      # ⚠ 它是**实机 vs CAD 的标定残差**, 不是 CAD 量出来的。换吸盘型号、改示教基准、
+      #   或走一次示教闭环刷新点表之后, 都要重跑 diagnose_plate_grip.py 复核这一行。
+      carry_compression_mm: 17.82
+    build:
+      tool: TOOL_SUCTION
+      members:
+        - { contains: "PTLC-07-009 旋转气缸安装板", expect_count: 1 }
+        - { contains: "PTLC-07-010 电爪连接板", expect_count: 1 }
+        - { contains: "PTLC-07-007 加强筋-1", expect_count: 1 }
+        - { contains: "PTLC-07-007 加强筋-3", expect_count: 1 }
+        - { contains: "SAB22-KQ2E06", expect_count: 2 }
+      pivot:
+        mesh: { contains: "_HRQ10-A_part", expect_count: 1 }
+        prior_member: { contains: "PTLC-07-009 旋转气缸安装板" }
+        ring_radius_mm: [ 8, 25 ]
+        residual_tol_mm: 0.5
+        prior_tol_mm: 2.0
+
+# 薄层板柔性接触的**排除集**: 这些几何不参与"板顶到硬表面"的求解。
+#
+# 为什么需要它: 接触判据把"板扎进硬表面"如实显示成板与吸盘之间的一条缝(超过 6mm 行程
+# 的部分不被吸收, 见 plateContact.js)。这条设计是对的 —— 它把"示教点太深"显出来。
+# 但下面这几处的"扎进去"是**建模约定或正常工况**, 不是错误, 于是每次经过都闪一下缝。
+# 2026-08-06 在演示页 sampling_load 上逐帧实测到两处, 都在这里排掉。
+#
+# ⚠ 排除是**按件**而不是按包围盒自动推的。实测: 展缸的溶液槽/缸体与板锚点 AABB 也
+#   "重叠 3.00mm", 但那是**空心缸体的包围盒假象**(板在缸腔里), 而且展缸恰恰是柔性接触
+#   唯一确实生效的一处(实测板坐在填充块上压 0.84~2.3mm)。按 AABB 自动排会把它一起废掉。
+plate_contact:
+  ignore:
+    # 点样座 / 刮板台: CAD 把玻璃画成**沉进自己的放置平台 1.5mm**(正好半个板厚)。
+    # 实测(结构清单, 与板锚点同在一个滑车上 ⇒ 相对位置固定, 重叠是永久的):
+    #   点样座 玻璃-1 Y∈[571.5, 574.5]  vs  点胶滑块连接板 Y∈[563.0, 573.0] ⇒ 重叠 1.50mm
+    #   刮板台 同款同值 1.50mm
+    # 这是建模约定不是碰撞。不排掉 ⇒ 每次放板下降都报穿透 7.8mm、露缝 1.8mm(闪烁)。
+    # ⚠ 若将来 CAD 把玻璃改成"坐在平台上"(重叠归零), 这两条就该删掉 —— 留着会让
+    #   真正的落点过深无法被发现。
+    - { contains: "PTLC-05-022 点胶滑块连接板" }
+    - { contains: "PTLC-06-004 刮板玻璃放置平台" }
+    # ⚠ 2026-08-06 撤销: 这里原有一条 `{ subtree: "ST_FEEDLIFT" }`(上下料仓**整站**)。
+    #
+    # 它的理由写的是"实测 1Z=512 时板升到 Y≈+70, 落在 ST_FEEDLIFT 静态框架
+    # Y∈[−56.6,+112.6] 之内, 穿透 25.7mm"。那是**包围盒推理**, 逐三角形一测就散:
+    # 在 machine.full.glb 上按 axisMm 扫, 290~550(含取板高度 512)全程 **0 个相交三角形**;
+    # 真正有交叠的只有 axisMm∈[0, 7.5] 那一档(固定托边 25.0mm), 而那一段板根本不在
+    # 吸盘手上(接触求解只作用于**持板中**的那一块, 见 PlateStage.update), 排它没有意义。
+    # 这正是本文件上方"不能按 AABB 自动排"那条纪律的又一例 —— 只不过这次是手写的。
+    #
+    # 代价是实打实的: 整站排掉之后, `玻璃放置板-1`(板就坐在它上面, CAD 净空 **0.01mm**)
+    # 对接触求解**不可见**。于是取板瞬间那 1.66mm 的沿轴示教残差没有被吸盘压缩吸收,
+    # 而是把板直接按进了放置板里 —— 板中面越过放置板顶面(余量只有 1.51mm = 半板厚 − 0.01),
+    # slice_intrusion 量到 **92.93mm** 的交线内侵, 画面上就是"板整个陷进上料机构",
+    # 持续 0.5s 直到 1Z 降 5mm 让位。用户 2026-08-06 连报两轮的就是它。
+    #
+    # 撤销后由 plateContact 正常工作: 板顶到放置板 ⇒ 压吸盘, 而不是把板顶进去。
+    # 若将来真出现"仓体该让板"的一段, 按**逐三角形实测**加具名窄条目, 不要再整站排。
+
+linkages:
+  # 96孔板夹爪: 张开(GLB 基准)=夹具板 020/021 内隙 88.49mm / 电爪端金属块 018/019
+  # 内隙 10.5mm(逐顶点实测)。空爪紧闭=每指内移 5.2mm: 金属块贴合剩 0.1mm(用户要求
+  # "两金属件完全闭合"; 总行程 10.4 比缸指名义 10.1 微穿 0.3mm, 藏在缸体内不可见)。
+  # 夹托盘=内移 1.495mm/侧, 夹具板正好贴住托盘宽 85.5mm → holdValue=1.495/5.2≈0.288。
+  # 父空间 L 在 x 大侧(见头部绊线) → L sign=-1 / R sign=+1。
+  - id: rob_grip_plate96
+    label: "96孔板夹爪开合(HFD12X10)"
+    inputRange: [ 0, 1 ]
+    transitionS: 0.15
+    holdValue: 0.288
+    catalog: { station: robot, kind: gripper, label: "96孔板夹爪", feedbackAvailable: true, controllerTool: 2 }
+    members:
+      - node: ACTUATOR_GRIP_PLATE96_L
+        motion: translate
+        axis: [ 1, 0, 0 ]
+        sign: -1
+        inputRange: [ 0, 1 ]
+        outputRange: [ 0, 5.2 ]
+        unitScale: 0.001
+      - node: ACTUATOR_GRIP_PLATE96_R
+        motion: translate
+        axis: [ 1, 0, 0 ]
+        sign: 1
+        inputRange: [ 0, 1 ]
+        outputRange: [ 0, 5.2 ]
+        unitScale: 0.001
+    build:
+      tool: TOOL_PLATE96
+      groups:
+        - empty: ACTUATOR_GRIP_PLATE96_L
+          members:
+            - { contains: "_HFD12X10(CL)_t-2", expect_count: 1 }
+            - { contains: "PTLC-07-019", expect_count: 1 }
+            - { contains: "PTLC-07-021", expect_count: 1 }
+        - empty: ACTUATOR_GRIP_PLATE96_R
+          members:
+            - { contains: "_HFD12X10(CL)_t-3", expect_count: 1 }
+            - { contains: "PTLC-07-018", expect_count: 1 }
+            - { contains: "PTLC-07-020", expect_count: 1 }
+      gap_check:
+        axis: x
+        between: [ { contains: "PTLC-07-020" }, { contains: "PTLC-07-021" } ]
+        measure: outer
+        expect_mm: 110
+        tol_mm: 2.5
+
+  # 样品瓶电爪: 张开(GLB 基准)=短柱销对内隙 30.0 / 齿条 1-1/1-2 内隙 27.0 / 缸指
+  # 25.1mm(逐顶点实测)。空爪紧闭=每块内移 12.5mm(名义行程): 销剩 5.0 / 齿条剩 2.0 /
+  # 缸指剩 0.1mm。夹样品瓶=内移 1.265mm/侧, 销对正好贴瓶 Ø27.48 → holdValue=
+  # 1.265/12.5≈0.101。(08-02 曾按齿条 27mm 标过 13.45 行程 —— 标错了对象, 已回正。)
+  # ⚠ 2026-08-07 起 0.101 只剩两个角色: ①实时/近似链的载荷无关兜底(布尔持料语义拿
+  #   不到载荷身份); ②整板等无逐件值载荷的回落。编译片段的取件闭合已**逐件化**
+  #   (fit_item_grips 产出 payload.closeValue): 瓶颈=销面贴颈 0.2543(颈 Ø23.6, 用户
+  #   按实机指认夹瓶口), 粉桶=**指臂弧口袋摇篮同心 0.817**(口袋弧半径 13.95≈桶半径,
+  #   两弧心并到桶轴的行程; 0.101 用在粉桶上弧臂只动 1.26mm 离桶 ~9mm —— 2026-08-07
+  #   用户报障"闭合离外径差很多"的病根之一, 另一半是锚点在销笼不在口袋)。
+  # 四根短柱 1-1..1-4 是真正夹瓶的支爪销(顶面正贴臂脚底 z=145), 必须随组运动:
+  # L={短柱1-1, 短柱1-2}(x≈-267..-259), R={短柱1-3, 短柱1-4}(x≈-229..-221)。
+  # 左组 = {_t-3, 夹爪1-2, 017}, 右组 = {_t-2, 夹爪1-1, 016}(x 区间对齐实测配对);
+  # 父空间 L 在 x 大侧(见头部绊线) → L sign=-1 / R sign=+1。
+  - id: rob_grip_vial
+    label: "样品瓶电爪开合(HFD12X25)"
+    inputRange: [ 0, 1 ]
+    transitionS: 0.15
+    holdValue: 0.101
+    catalog: { station: robot, kind: gripper, label: "样品瓶电爪", feedbackAvailable: true, controllerTool: 3 }
+    members:
+      - node: ACTUATOR_GRIP_VIAL_L
+        motion: translate
+        axis: [ 1, 0, 0 ]
+        sign: -1
+        inputRange: [ 0, 1 ]
+        outputRange: [ 0, 12.5 ]
+        unitScale: 0.001
+      - node: ACTUATOR_GRIP_VIAL_R
+        motion: translate
+        axis: [ 1, 0, 0 ]
+        sign: 1
+        inputRange: [ 0, 1 ]
+        outputRange: [ 0, 12.5 ]
+        unitScale: 0.001
+    build:
+      tool: TOOL_VIAL
+      groups:
+        - empty: ACTUATOR_GRIP_VIAL_L
+          members:
+            - { contains: "_HFD12X25(CL)_t-3", expect_count: 1 }
+            - { contains: "样品瓶夹爪1-2", expect_count: 1 }
+            - { contains: "PTLC-07-017", expect_count: 1 }
+            - { contains: "短柱1-1", expect_count: 1 }
+            - { contains: "短柱1-2", expect_count: 1 }
+        - empty: ACTUATOR_GRIP_VIAL_R
+          members:
+            - { contains: "_HFD12X25(CL)_t-2", expect_count: 1 }
+            - { contains: "样品瓶夹爪1-1", expect_count: 1 }
+            - { contains: "PTLC-07-016", expect_count: 1 }
+            - { contains: "短柱1-3", expect_count: 1 }
+            - { contains: "短柱1-4", expect_count: 1 }
+      gap_check:
+        axis: x
+        between: [ { contains: "样品瓶夹爪1-1" }, { contains: "样品瓶夹爪1-2" } ]
+        measure: inner
+        expect_mm: 27
+        tol_mm: 1.5
+
+  # 收集站夹持缸: 夹的是**粉桶(接粉收集器), 不是瓶**。
+  #
+  # CAD 零件名 `PTLC-03-028/029 收集**瓶**左/右夹爪` 里的"收集瓶"是**工位名**(收集瓶装置),
+  # 不是被夹对象。双证据: (a) `collect_load` 编排是 `放粉桶 → collect.clamp → 退出 →
+  # extend → 这才放瓶`, 夹紧时瓶还没来; 动作码 A21 原文写"**收集器**必须正确落座""本动作
+  # 不驱动伸缩、升降或瓶定位气缸"。(b) 几何: 夹爪在 Y=391, 落在粉桶(Y 309.9~429.4)的高度带
+  # 内, 而瓶(Y 214.7~309.7)整个在其下方。照零件名装配 = 夹爪去夹错东西, 且不报任何错。
+  #
+  # **CAD 基准态是空爪紧闭**(两爪内面沿全高逐层实测间隙 0.10 mm; 图里那个 Ø27.99 粉桶是画上去
+  # 示意的, 与闭合的爪穿模)。所以值1=夹紧=零位移、值0=张开, 需**递减** outputRange ——
+  # `MachineStateDriver.mapRange` 是 `from + (to-from)*normalized` 的直白线性映射, 支持递减。
+  # ⚠ 与 ps_press 的基准态约定相反(那个基准是抬起)。
+  #
+  # 行程取名义 15/2 = 7.5 mm/指(HFD16X15); 张开态 CAD 里没画, 量不到, 故 gap_check 断言的是
+  # **闭合态**(基准态)而不是张开态 —— 与 rob_grip_plate96 断言"GLB=张开态"正好互补。
+  # ST_COLLECT 是无旋转无缩放的根节点, 局部轴 = 世界轴: t-2 在低 X 侧(183.6) → sign −1 张开,
+  # t-3 在高 X 侧(211.2) → sign +1。
+  - id: col_clamp
+    label: "收集夹持气缸(HFD16X15)"
+    inputRange: [ 0, 1 ]
+    transitionS: 0.3
+    # 不写 catalog: 它是给**不在 PLC 目录里**的机构(如机器人侧夹爪)用的;
+    # ps_press/col_clamp 本就在 PLC 机构目录里, 再声明会与目录冲突而硬失败。
+    # 条目留在 actuators/linkages 里即可把既有 PLC 机构标成 rigged。
+    members:
+      - node: ACTUATOR_COL_CLAMP_L
+        motion: translate
+        axis: [ 1, 0, 0 ]
+        sign: -1
+        inputRange: [ 0, 1 ]
+        outputRange: [ 7.5, 0 ]
+        unitScale: 0.001
+      - node: ACTUATOR_COL_CLAMP_R
+        motion: translate
+        axis: [ 1, 0, 0 ]
+        sign: 1
+        inputRange: [ 0, 1 ]
+        outputRange: [ 7.5, 0 ]
+        unitScale: 0.001
+    build:
+      station: COLLECT
+      # 2026-08-05: 两爪连同夹持缸整体骑在升降台(粉末瓶定位板)上。不声明父级的话,
+      # 本步会把已收进 ACTUATOR_COL_LIFT 的爪片**重新挂回 ST_COLLECT**, 升降一动爪子掉队。
+      # linkage 排在全部 actuator 之后建, 故此处引用 ACTUATOR_COL_LIFT 是合法的。
+      parent_node: ACTUATOR_COL_LIFT
+      groups:
+        - empty: ACTUATOR_COL_CLAMP_L
+          members:
+            - { contains: "_HFD16X15(CL)_t-2", expect_count: 1 }
+            - { contains: "PTLC-03-029", expect_count: 1 }
+        - empty: ACTUATOR_COL_CLAMP_R
+          members:
+            - { contains: "_HFD16X15(CL)_t-3", expect_count: 1 }
+            - { contains: "PTLC-03-028", expect_count: 1 }
+      gap_check:
+        axis: x
+        between: [ { contains: "PTLC-03-028" }, { contains: "PTLC-03-029" } ]
+        expect_mm: 0.1
+        tol_mm: 0.5
+
+attachments: []
+states: []
+sockets: []
+
+# 可被夹爪携带的载荷。
+# ---------------------------------------------------------------------------
+# 只声明"哪一类 inventory 条目参与转移", 节点路径由 gen_twin_manifest 从下面的
+# inventory 段解析 —— **不在这里重写一遍路径**, 否则就成了第二份真源。
+#
+# 编译产物有两样(都进 device-manifest, 供 MachineStateDriver 直接消费):
+#   attachments[] —— 载荷所有权(attach/detach 保世界变换换父), 与三把刀共用同一套机制
+#   states[]      —— property: visible, initial: false。与 TwinBindings._bindMaterials
+#                    的"先全部隐藏"一致; 离线片段自己点亮它要用的那几件。
+#
+# 为什么货架的 72 个孔件不在这里: 单件转移只发生在中转 A/B(取件点 P46-51 就在中转位),
+# 货架侧只整板搬。而 attachments 会被 MachineStateDriver._bind() 全量解析、被 home()
+# 全量 restoreLocal —— home() 是每次向后 seek 的热路径, 不放不必要的条目。
+#
+# grip 决定片段在 gripper-close 处把哪条夹爪 linkage 驱到哪个 holdValue
+# (rob_grip_plate96=0.288 夹托盘 / rob_grip_vial=0.101 夹瓶; 0=张开=GLB 基准)。
+
+payloads:
+  - { ref: rack, kind: tray, grip: rob_grip_plate96 } # 12 张货架托盘
+  - { ref: staging, kind: tray, grip: rob_grip_plate96 } # 2 个中转托盘
+  - { ref: staging.items, kind: item, grip: rob_grip_vial } # 中转 A/B 各 6 个孔件
+
+# ---------------------------------------------------------------------------
+# 站侧交接座位: 工位夹具上的那一份"目的实例"。
+# ---------------------------------------------------------------------------
+# 与上面 payloads 的区别: 那些是 inventory 展开出来的可搬运耗材(节点路径由 inventory 段
+# 唯一给出, 且带 INV_* 稳定名); 这三条是**工位固定夹具上的那一份 CAD 实例** —— 不属于
+# 任何托盘, 在 GLB 里就是正式 CAD 的原生零件, 03 步没有为它们造稳定名(造名要重跑 Blender)。
+#
+# 为什么必须有它: 单件转运的三条路线(中转B→收集工位 / 收集工位→中转B / 中转A→刮板夹具)
+# 各有一端落在工位夹具上, 而账本里没有这个座位 -> PayloadLedger.require 抛错 -> 载荷交接
+# 整段做不了。2026-08-06 之前的表现是演示页那三条流程"虚空转运": 机械臂走位、夹爪开合
+# 都对, 爪子里什么都没有。
+#
+# seat 与三处逐字一致, 对不上即硬失败:
+#   上位机 config/material_topology.yaml 的 payload_seats[].id
+#   clip_compiler.SEAT_TEMPLATES 的定值座名
+#   本段
+#
+# ⚠ node 引用 **CAD 原名**(带 Blender 副本后缀 .008), 不是 INV_* 稳定名。四条对策缺一不可:
+#   1. 解析不到 -> gen_twin_manifest **硬失败**(不像 runtime_specs 那样静默保留叶名 ——
+#      那条路到了浏览器只会推进 this.missing、setState 直接短路, 全程零报错);
+#   2. 同名多实例 -> 命中数必须恰好 1, 否则硬失败;
+#   3. parent 是**断言**而不是记录: 解析出的直接父级必须逐字相等。这条正是"瓶子该跟着
+#      伸缩缸走"这类事实的看门人 —— 装配被重新分组时它立刻红;
+#   4. 长期修法: 下次跑 03 时给这三个节点起 INV_* 稳定名, 再把 node 换成稳定名。
+station_seats:
+  - seat: scrape-holder
+    id: STA_SCRAPE_HOLDER # 稳定载荷 id: 片段里 attach/detach/state 引用的就是它
+    node: "硅胶收集-1.008" # GLB 叶名
+    parent: ACTUATOR_PS_ROTATE
+    kind: item
+    grip: rob_grip_vial
+    initial: false
+    # 实测: 4 个子件(吹气头/注射器/注射器1/滤芯)与 INV_STAGING_A_ITEM_N 逐个同名同尺寸。
+    # 已正确挂在翻料缸转子侧 —— actuators[ps_rotate].build.members 也点名了它(带
+    # expect_count: 1), 所以名字变了 03 步会先红, 这一条有双重看门。
+    #
+    # 桶内粉柱(刮下来的硅胶粉可视化)。与瓶内液柱(下方 collect-bottle 的 liquid 段)
+    # 同一套建造/契约/写入路径, 三处**有意的不同**:
+    #   1. 单位是 mm³ 不是 mL —— 量的来源是"轮廓面积 × 切深 × 松散系数", 天生立方毫米。
+    #      契约键因此叫 capacity_mm3/mm3_per_mm, 误喂进 levelFromMl 会立刻 NaN。
+    #   2. 腔段是**区间**不是"底厚+可用深" —— 粉被滤纸内衬拦在吹气头那一端(c1),
+    #      桶翻不翻都不动, 故必须知道腔的两端而不只是深度。
+    #   3. 内径按**内衬孔**而不是针筒外形: 粉是装在滤纸内衬里的。
+    #
+    # ⚠ 腔段 chamber 与内径都是**实测**(2026-08-13 订正, 按 item 局部系, 单位米)。
+    #   量法(可复现, **不要再取轴向 min/max**): 以座位节点为参考帧取逆矩阵, 逐毫米从
+    #   筒轴向外打径向射线, 首个命中距离即该处的自由孔半径。实测剖面:
+    #     z = −19 … −5   自由半径 1.83~2.07   ← 针筒**吸嘴**内孔(不是筒身!)
+    #     z =  −4 … +4   自由半径 2.95→8.45   ← 内锥 + 针筒自身内孔 Ø16.9
+    #     z =  +5 … +78  自由半径 **9.44**    ← 滤纸内衬孔 Ø18.88, **唯一的等径通道**
+    #     z = +79 … +83  被吹气头芯轴封住
+    #     z = +84 … +99  自由半径 1.94        ← 另一端的出气嘴
+    #   ⇒ 粉腔 = [+5.0, +78.0] 共 73mm, 内径取 18.4(留 0.24mm 单边间隙防 z-fighting)。
+    #
+    #   订正前这里写的是 chamber [−20.0, +2.0] / 内径 26.0, 两个数都是 bbox 猜的, 且错
+    #   在同一个方向: 把 `注射器-1` 的整个轴向包围范围 [−20, +80.5] 当成了"筒身全长"
+    #   (而 −20…0 是吸嘴), 又把 `滤芯-2` 读成"从 +2.0 起整段封堵"(而它是**空心管**,
+    #   外 Ø23 / 孔 Ø18.88, 它的孔恰恰**就是**粉腔)。两错叠加, 于是一根 Ø26 的粉柱
+    #   整根套在一根 Ø4~6 的细吸嘴外面 —— 用户截图逮到的"粉显示在桶外面"就是这个。
+    #
+    # ⚠ 观感放大系数**有意不写在这里**(与瓶的 exaggeration: 1.0 不同): 粉的 ×6 是
+    #   演示口径, 由 gen_twin_manifest 的内容物契约表统一发放 —— 真机参考带 8×0.6cm
+    #   = 480mm²(plc_photoscrape.yaml:103), ×6 时典型带占腔深 23.7%、饱和点抬到 20.2cm²。
+    powder:
+      enabled: true
+      node: POWDER_SCRAPE_HOLDER
+      inner_diameter_mm: 18.4
+      chamber_m: [0.005, 0.078]
+    note: "刮板夹具上的接粉收集器; 翻料倒粉时随 ps_rotate 转 180°(粉恒定贴 c1 端, 不随之滑动)"
+
+  # ⚠ adopt_into: 03 步在 regroup 之后按**精确名**把该节点保世界变换过继进指定机构组,
+  #   于是它随机构走(与 scrape-holder 天生挂在 ACTUATOR_PS_ROTATE 下同款)。
+  #   不走 actuators[*].build.groups —— `equals` 匹配剥 .NNN 后缀, 耗材类名字在货架/中转
+  #   有同基名实例, 一写就多命中(见 col_extend 组内 :251 的警告); 精确名过继没有这个问题。
+  #   过继后 parent 断言随之指向机构组, gen_twin_manifest 的逐字比对继续看门。
+  - seat: collect-bottle
+    id: STA_COLLECT_BOTTLE
+    node: "样品瓶-2"
+    parent: ACTUATOR_COL_EXTEND
+    adopt_into: ACTUATOR_COL_EXTEND
+    kind: item
+    grip: rob_grip_vial
+    initial: false
+    # 瓶内液面(收集-执行的洗脱液滴入可视化)。液柱几何由 03 的 build_station_bottle_liquid
+    # 生成, 名字必须 LIQUID_ 开头(materials.yaml ^LIQUID 配 MAT_LIQUID 不透明 + join 保护前缀)。
+    #
+    # ⚠ 高度方向**实测**, 不要再按外形 bbox 估 —— 2026-08-07 订正前这里写的是"颈肩留 5",
+    #   而实测颈高 12, 于是液柱顶到 90mm 直接伸进了瓶颈里(用户截图逮到的就是这个)。
+    #   量法: 瓶体网格 Mesh_260 是旋成面, 把 762 个顶点按 (z, r) 分环即得剖面(相对瓶底 mm):
+    #       0    → 13.75  半径 0 → 13.76      瓶底圆角
+    #       13.75 → 83.0  半径 13.76 恒定     **瓶身直筒**(外径 27.5, 与外形声明一致)
+    #       83.0          三个半径同时出现     **肩部**: 一个陡台阶, 无过渡环
+    #       83.0 → 95.0   外 11.81 / 内 8.76  **瓶颈**, 高 12.0, 内径 17.5
+    #   ⇒ 可用深 = 肩高 83.0 − floor 5.0 = **78.0**; 容积 = π·11²·78 = **29.65 mL**
+    #     (与 material_topology.yaml / material_store._CELL_CAPACITY 的 29.65 互为镜像, 改一处改三处)。
+    # 径向仍按外形声明(与 pumps 段针筒"厂家额定值不实测"同理): 光壁玻璃内腔无可测特征,
+    # 外径 27.5 − 壁厚约 2×2 → 内径 22; floor 5.0 是瓶底玻璃厚的估值, 那一段被
+    # PTLC-03-006 收集瓶定位治具(45×31×60 铝块)整个遮住, 画面上看不到, 故不追实测。
+    liquid:
+      enabled: true
+      node: LIQUID_COLLECT_BOTTLE
+      inner_diameter_mm: 22.0
+      floor_mm: 5.0
+      usable_depth_mm: 78.0
+      # 观感放大 = 1.0(不放大): 用户实注 10–30mL, 在 78mm 腔里就是 26.3/52.6/78.9mm,
+      # 真实高度本就一目了然, 面板 mL 与几何完全一致。旧值 40 是当年按配方默认
+      # solvent_volume_ml=0.1(物理仅 0.26mm)调的, 对 10–30mL 的实际用法第一轮就顶满。
+      # 大体积仍被 levelFromMl clamp 在腔口, 几何上不可能溢出。
+      exaggeration: 1.0
+    note: >-
+      坐在 PTLC-03-006 收集瓶定位治具 正上方 17.2mm、X/Y 逐位对齐; 2026-08-06 起由
+      adopt_into 过继进伸缩缸组, 实机运动链(伸缩→治具→样品瓶)成立, 缸动瓶随。
+
+  - seat: collect-holder
+    id: STA_COLLECT_HOLDER
+    node: "硅胶收集-1"
+    parent: ACTUATOR_COL_LIFT
+    adopt_into: ACTUATOR_COL_LIFT
+    kind: item
+    grip: rob_grip_vial
+    initial: false
+    # 它不在用户点名的三条路线里, 但 robot_collect_holder_pick_enter/put_exit 与
+    # collect_cycle 都会撞到 ledger.require("collect-holder"), 必须一起声明。
+    #
+    # 桶内粉柱: 与 scrape-holder 同款(同一个零件的另一只实例, 尺寸逐位相同, 见上方
+    # 那段实测)。收集工位这只**不翻转**(挂 col_lift 只升降), 腔段与内径逐字照抄 ——
+    # 粉恒定贴 c1 端, 翻不翻都是同一份声明, 不需要为此分两套。
+    # 本工位是粉的"使用后"终态: 淋洗液冲过之后 tint 相位置 1(账本 cells.eluted), 粉换色。
+    powder:
+      enabled: true
+      node: POWDER_COLLECT_HOLDER
+      inner_diameter_mm: 18.4
+      chamber_m: [0.005, 0.078]
+    note: >-
+      4 个子件(吹气头/注射器/注射器1/滤芯)由 join_static_per_station 的 station_seats
+      精确名保护免于静态合并(2026-08-06 前曾被并进 STATIC_MAT_POWDER_BUCKET, 显隐无效);
+      过继进升降缸组后随 col_lift 落到瓶口/抬起(实机链: 升降→夹爪安装板→HFD16→硅胶收集),
+      机器人取放教点也是抬起态, 与 CAD 落位态差的 70mm 由过继后的机构位移自然补齐。
+
+#: 允许存在的已知欠账代号。station_seats 里出现表外代号即硬失败 —— 欠账可以有, 但必须是
+#: 这里点过名的那几条, 不许随手编个新词把新问题混过去。条目数由单测锁死: 修好一条就必须
+#: 改那个数字, 于是欠账不会静静地长期存在。
+#: 2026-08-06 清账: not-under-col_extend 与 empty-node-no-geometry 两条分别由
+#: adopt_into 过继与 join 免合并保护修复, 表清零(单测 EXPECTED_KNOWN_DEBTS=0)。
+station_seats_known_debt: []
+
+# ---------------------------------------------------------------------------
+# 纯目录机构: 有实时状态、但没有(也不需要)几何的机构。
+# gen_twin_manifest 只把它们收进 realtime.mechanisms 目录, **不**收进 rigged 集合,
+# 因此它们天然是 rigged:false 的 data-only 条目, 只出现在 HUD 只读诊断里。
+# ⚠ 不要为了"看起来完整"把它们挪进 actuators —— 那会被标成 rigged:true,
+#   然后 MachineStateDriver 把它计入 missing、TwinBindings 每帧告警, 变成幽灵条目。
+# ---------------------------------------------------------------------------
+mechanisms_catalog:
+  # 吸盘真空(机器人 DO3)。与翻转气缸 rob_flip_suction 同属 1 号刀。
+  # 没有真空 DI(driver 的 _TOOL_DI_TARGET 无 SUCTION 条目), 所以 feedbackAvailable:false,
+  # 上位机如实发 confirmed:null / source:commanded, 前端按既有 estimated 语义呈现。
+  # 它的用途: 让三维在**页面刷新后**仍知道吸盘是否带电 —— 流程事件包络刷新即丢,
+  # 只有这一位能跨刷新恢复"手上还吸着板"。
+  - id: rob_suction
+    label: "玻璃吸盘真空(DO3)"
+    catalog:
+      station: robot
+      kind: vacuum
+      label: "吸盘真空"
+      feedbackAvailable: false
+      fallbackSource: commanded
+      controllerTool: 1
+
+# 物料账本的三维实体。source 是正式 CAD 里的原生装配/零件名；03 步会把它们改成
+# 稳定的 INV_* 节点并阻止静态合并，浏览器只按 MaterialStore.grid 的只读快照显隐。
+# 工位摆位校正: 把 CAD 摆位对齐到机器人示教系。
+# ---------------------------------------------------------------------------
+# 为什么要挪: 机械臂按实机示教点走到取料位, 托盘按 CAD 摆位待着, 两者不一致时孔板的边沿
+# 就插不进夹爪的凹槽。示教点是真机的位置真源(机器人链已由 scene_kinematics 对已标定的
+# 快换变换自校到 0.0001 mm), 所以动的是货架/中转的 CAD 摆位, 不是机器人。
+#
+# 本项目已有同款先例: blender_clean._quick_change_lateral_correction 处理 TOOL_MOUNT(示教点
+# 拟合)与机器人侧快换组(CAD/ICP 配准)两条链互差, 做法也是"机器人侧不动, 工位整体平移"。
+#
+# 数值不手填: 跑 `python fit_station_alignment.py --fit` 从示教点解出(输出的已是可直接回填
+# 的绝对值), 人工核对后回填。现场重新示教后重解即可, 不留魔法数字。
+#
+# ⚠ **整站只吃水平, 竖直一律 0** —— 三个工位的安装底板底面在 CAD 里全部 Y=10.00, 正好坐在
+#   `PTLC-08-009 大面板`(顶面 10.00)上、间隙 0.00: 它们是拧在台面上的, 整体升高在物理上
+#   不成立。竖直残差交给下面的 shelf_alignment。2026-08-03 之前这里带过 8.5~12.1 mm 的竖直
+#   量, 后果是三个工位集体离开台面、且中转B 沿 Z 滑出去 76.9 mm 压进了机器人模组固定板 ——
+#   而当时的门禁(只判夹爪与孔板)48/48 全绿。现由 `--check` 的**支承面门禁**兜住。
+#
+# ⚠ translate_mm 是 **glTF/场景轴系**(与 manifest、前端一致)。Blender 是 Z 轴向上,
+#   blender_clean 会按 (x,y,z)_gltf -> (x,-z,y)_blender 换算后再平移(见 CLAUDE.md 第 10 条)。
+#   轴换错的现象是"挪了但没对齐", 由 fit_station_alignment.py --check 兜住。
+# ⚠ 2026-08-05 订正: 只按**硬约束轴**解算, 长度轴放开。
+#   托盘只在两根轴上被真正卡住(钳口闭合轴的榫槽、槽高的高度轴); 夹爪沿托盘长边咬在哪
+#   几何上不约束, 由示教时人手停在哪决定。此前三个分量一视同仁地拟合, 于是拿整站平移去
+#   追那个自由量 —— 三站被多挪了 18~28 mm(货架 40.5→12.7, 中转A 23.1→4.1, 中转B 35.7→8.1),
+#   而门禁照样 48/48 全绿(逐站 3 个自由度足以吸收任何来源的误差)。
+#   现场复核定案: 真机夹爪只咬住托盘靠机械臂那一半、最前端离托盘中心还差约 2 cm, 而当时
+#   模型把它画到越过中心 25.4 mm —— 方向都反了。详见 docs/工位摆位偏差溯源_20260805.md。
+station_alignment:
+  - node: "上料架-1"
+    translate_mm: [ 2.8, 0, 12.4 ]
+    note: "货架 12 个库位与搁板一起动; 24 个取放点只按硬约束轴拟合, 硬轴残差最大 1.4 mm"
+  - node: "收集瓶支架总装-1"
+    translate_mm: [ 0.0, 0, -4.1 ]
+    note: "中转A(含 INV_STAGING_A 与固定工位); 12 个取放点, 硬轴残差最大 0.5 mm"
+  - node: "样品瓶支架总装-1"
+    translate_mm: [ 8.1, 0, 0.0 ]
+    note: "中转B; 12 个取放点, 硬轴残差最大 0.0 mm"
+
+# 竖直向的逐层校正: 只动搁板/台面这一层, 工位本体仍坐在大面板上。
+# ---------------------------------------------------------------------------
+# 为什么分开: 工位是拧在台面上的(见上), 但托盘与搁板之间的叠层公差完全可能差几毫米。
+# 把竖直放在这一层, 既对得上示教点, 又不会把工位抬离台面。
+#
+# 货架实测是 4 层 × 3 库位(搁板顶 560/400/240/80, 间距 160 mm), 层内一致到 0.02~0.81 mm、
+# 层间差 0.8~1.0 mm —— 层间差是系统性的, 所以逐层给值而不是整站一个值。
+#
+# ⚠ 中转必须带上 `样品架支撑轴`: 层级是 安装板(10~20) → 支撑轴(18~158) → 台面(156~166)
+#   → 托盘, 只抬台面会让它浮在轴顶上。托盘自己的 `瓶子料架支撑柱` 已在 INV_STAGING_* 组里,
+#   随托盘走, 不要单列。抬完之后轴脚与安装板之间会留 0.9~2.8 mm 的缝 —— 按"只改位置不改
+#   尺寸"的原则, 这条缝就留着, 不许拉长零件去填。
+shelf_alignment:
+  - label: "货架第1层(搁板顶 Y560)"
+    nodes: [ "PTLC-01-004 料盘放置板-1", "PTLC-01-005 样品放置板-1.001", "PTLC-01-005 样品放置板-1.002", "PTLC-01-005 样品放置板-1.003", "INV_RACK_COLLECTOR_1", "INV_RACK_COLLECTOR_2", "INV_RACK_COLLECTOR_3" ]
+    translate_mm: [ 0, 4.45, 0 ]
+  - label: "货架第2层(搁板顶 Y400)"
+    nodes: [ "PTLC-01-004 料盘放置板-2", "PTLC-01-005 样品放置板-1.005", "PTLC-01-005 样品放置板-1.007", "PTLC-01-005 样品放置板-1.010", "INV_RACK_COLLECTOR_4", "INV_RACK_COLLECTOR_5", "INV_RACK_COLLECTOR_6" ]
+    translate_mm: [ 0, 5.22, 0 ]
+  - label: "货架第3层(搁板顶 Y240)"
+    nodes: [ "PTLC-01-004 料盘放置板-3", "PTLC-01-005 样品放置板-1.004", "PTLC-01-005 样品放置板-1.006", "PTLC-01-005 样品放置板-1.008", "INV_RACK_BOTTLE_1", "INV_RACK_BOTTLE_2", "INV_RACK_BOTTLE_3" ]
+    translate_mm: [ 0, 4.22, 0 ]
+  - label: "货架第4层(搁板顶 Y80)"
+    nodes: [ "PTLC-01-004 料盘放置板-4", "PTLC-01-005 样品放置板-1", "PTLC-01-005 样品放置板-1.009", "PTLC-01-005 样品放置板-1.011", "INV_RACK_BOTTLE_4", "INV_RACK_BOTTLE_5", "INV_RACK_BOTTLE_6" ]
+    translate_mm: [ 0, 5.07, 0 ]
+  - label: "中转A台面"
+    nodes: [ "PTLC-07-030 孔板缓存工位-1", "样品架支撑轴-1", "样品架支撑轴-2", "样品架支撑轴-3", "样品架支撑轴-4", "INV_STAGING_A" ]
+    translate_mm: [ 0, 2.83, 0 ]
+  - label: "中转B台面"
+    nodes: [ "PTLC-07-030 孔板缓存工位-1.001", "样品架支撑轴-1.001", "样品架支撑轴-2.001", "样品架支撑轴-3.001", "样品架支撑轴-4.001", "INV_STAGING_B" ]
+    translate_mm: [ 0, 0.90, 0 ]
+
+inventory:
+  # 货架托盘要**排除**的货架侧结构。
+  # rack 条目与 staging 条目的建组方式不同: staging 是"新建空节点 + 只把 members 搬进去"
+  # (故固定工位天然留在原地), 而 rack 是"把整棵 CAD 装配改名成 INV_*" —— 装配里混着的
+  # 货架件会一并被当成托盘搬走。
+  # 实证: `PTLC-01-005 样品放置板` 在原始模型里有 **12 个实例**(正好对应 12 个货架库位),
+  # 且**两个中转托盘装配里都没有它** —— 中转位的板是坐在中转工位上的, 不带这块板。
+  # 可搬运的托盘 = 底板 + 96 孔板 + 4 根支撑柱 + 耗材; 这块"样品放置板"是库位的搁板,
+  # 必须永久留在货架上。不排除的现象: 机械臂一抬托盘, 货架的一块金属搁板跟着飞走。
+  rackExclude:
+    - "PTLC-01-005 样品放置板"
+  rack:
+    collector:
+      - { plate: 1, source: "收集瓶料架-1", node: INV_RACK_COLLECTOR_1 }
+      - { plate: 2, source: "收集瓶料架-2", node: INV_RACK_COLLECTOR_2 }
+      - { plate: 3, source: "收集瓶料架-7", node: INV_RACK_COLLECTOR_3 }
+      - { plate: 4, source: "收集瓶料架-8", node: INV_RACK_COLLECTOR_4 }
+      - { plate: 5, source: "收集瓶料架-9", node: INV_RACK_COLLECTOR_5 }
+      - { plate: 6, source: "收集瓶料架-10", node: INV_RACK_COLLECTOR_6 }
+    bottle:
+      - { plate: 1, source: "瓶子料架-1", node: INV_RACK_BOTTLE_1 }
+      - { plate: 2, source: "瓶子料架-6", node: INV_RACK_BOTTLE_2 }
+      - { plate: 3, source: "瓶子料架-7", node: INV_RACK_BOTTLE_3 }
+      - { plate: 4, source: "瓶子料架-8", node: INV_RACK_BOTTLE_4 }
+      - { plate: 5, source: "瓶子料架-9", node: INV_RACK_BOTTLE_5 }
+      - { plate: 6, source: "瓶子料架-10", node: INV_RACK_BOTTLE_6 }
+  staging:
+    # 收集瓶中转装配同时包含固定工位与可搬运托盘；只抽出托盘载荷，固定工位必须永久留在场景中。
+    - area: staging-a
+      kind: collector
+      node: INV_STAGING_A
+      ancestor: "收集瓶支架总装-1"
+      members:
+        - "PTLC-01-008 粉末收集瓶架底板-2.006"
+        - "PTLC-01-009 粉末收集瓶96孔板-1"
+        - "瓶子料架支撑柱-1.012"
+        - "瓶子料架支撑柱-2.012"
+        - "瓶子料架支撑柱-3.012"
+        - "瓶子料架支撑柱-4.012"
+        - "硅胶收集-1.007"
+        - "硅胶收集-2.006"
+        - "硅胶收集-3"
+        - "硅胶收集-4"
+        - "硅胶收集-5"
+        - "硅胶收集-6"
+    # bottle 中转装配还包含定位机构，只抽出真正属于托盘的 PTLC-01 零件与样品瓶。
+    - area: staging-b
+      kind: bottle
+      node: INV_STAGING_B
+      ancestor: "样品瓶支架总装-1"
+      members:
+        - "PTLC-01-006 收集瓶子料架底板-1.006"
+        - "PTLC-01-007 收集瓶子96孔板-2.006"
+        - "瓶子料架支撑柱-1.013"
+        - "瓶子料架支撑柱-2.013"
+        - "瓶子料架支撑柱-3.013"
+        - "瓶子料架支撑柱-4.013"
+        - "样品瓶-1.006"
+  magazines:
+    - { id: feed, source: "玻璃-1.001", node: INV_MAGAZINE_FEED_TEMPLATE, stackAxis: [ 0, 1, 0 ], stackSign: 1 }
+    - { id: waste, source: "玻璃-1.007", node: INV_MAGAZINE_WASTE_TEMPLATE, stackAxis: [ 0, 1, 0 ], stackSign: 1 }
+  consumables:
+    holesPerTray: 6
+    visibleStates: [ FRESH ]
+    visibleWhenSampleId: true
+    collectorPrefix: "硅胶收集-"
+    bottlePrefix: "样品瓶-"
+    collectorPlatePrefix: "PTLC-01-009"
+    bottlePlatePrefix: "PTLC-01-007"
+    # 真实中转 A CAD 自带 1..6 六个收集器，用它的 1→2、1→3 世界位移求两条孔距向量；
+    # 货架和中转 B 的缺省耗材只做刚体复制，不手填/猜测网格间距。
+    gridReference: INV_STAGING_A
+    # 孔号行进方向(2026-08-06 由 P46..P51/P53..P58 正解拟合定案, 用户按实物截图确认 1 号角):
+    # 机器人点表沿**长边世界坐标升序**编 1..3, 第二排 4..6 在长边正方向**逆时针(+Z 俯视)**
+    # 一侧(row_dir = Z x d_long)。同一条规则同时复现两张实测置换表(机器人槽 -> 旧 3D 孔):
+    #   中转A 1→2,2→4,3→6,4→1,5→3,6→5 · 中转B 1→6,2→4,3→2,4→5,5→3,6→1 —— 零反例。
+    # 旧行为 pair_first(短边两孔一对先走, 锚在 CAD 模板角)与点表转置, 仅个别孔凑巧重合,
+    # 观感 = 机器人在正确的位置"夹空气", 耗材站在旁边的孔里。验收看门狗:
+    # verify_staging_numbering.py(sync_ptlc_robot 生成片段前硬门禁)。
+    holeOrder: long_asc_ccw   # 只认 long_asc_ccw | pair_first(旧行为, 一键回退)
+  rackLayout:
+    tiers: 4
+    slotsPerTier: 3
+    upperKind: collector
+    lowerKind: bottle
+
+# ---------------------------------------------------------------------------
+# 工位分组: patterns 匹配顶层装配名(不区分大小写的正则)
+# ---------------------------------------------------------------------------
+stations:
+  - id: FRAME
+    node_id: null # 机架不是上位机节点, 无遥测
+    label: 机架与外罩
+    patterns:
+      - "^ji_jia_zong_zhuang" # 机架总装
+      - "^wai_zhao" # 外罩
+      - "^PTLC-08-" # 大面板/盖板玻璃/立柱等外围件
+      - "^dian_nao|xian_shi_qi" # 电脑显示器支架
+      - "^3D_Model_upload_ZHD24-1-A-02-B-RYG" # 三色灯(整机总状态指示)
+
+  - id: RAIL
+    node_id: plc.rail
+    label: 地轨
+    patterns:
+      - "^ji_qi_ren_di_gui" # 机器人地轨
+      - "^CFF10-L10-900" # 地轨直线模组(行程 900 mm; 1168 mm 是**本体长**, 别当行程用)
+
+  - id: ROBOT
+    node_id: robot
+    label: 机械臂
+    patterns:
+      - "^DOBOT" # DOBOT CR5Model
+
+  - id: DEVELOP
+    node_id: plc.develop
+    label: 展开工位
+    patterns:
+      - "^zhan_gang_jia_zong_zhuang" # 展缸架总装(左右各一组, 每组 4 缸)
+
+  - id: SAMPLING
+    node_id: plc.sampling
+    label: 上样工位
+    patterns:
+      - "^chou_ye_ji_gou_zong_zhuang" # 抽液机构总装
+      - "^3D_Model_upload_ZKN43" # 触摸屏支臂(供应商模型, 已在 prune explicit_delete 整件删除)
+      - "^IT7100E" # 触摸屏
+      - "^CFG4-L5-300|^CFG4-L10-100" # 上样/点样直线模组
+      - "^1001080001_ZSB_SY08" # 5mL 塑料套筒
+
+  - id: PHOTOSCRAPE
+    node_id: plc.photoscrape
+    label: 拍照刮板工位
+    patterns:
+      - "^gua_ban_ji_gou_zong_zhuang" # 刮板机构总装
+      - "^xiang_ji_jing_tou" # 相机镜头(刮板台自己的拍照相机)
+      - "^CFC30B-1H03-S400" # 拍照轴模组
+      - "^CFG5-L10-550" # 刮板轴模组
+      - "^CFG4-L5-50" # 刮板 Z 轴模组
+
+  # 机器人视觉定位系统(2026-08-06 自 PHOTOSCRAPE 拆出): 下相机埋在台面窗口下朝上拍,
+  # 服务机器人视觉纠偏(vision_fill 闪光灯由机器人 DO7 触发), 与刮板/紫外灯无工艺关系.
+  # 用户定夺: 独立成组, 不并入拍照刮板也不并入机械臂.
+  - id: VISION
+    node_id: null # 无独立遥测节点(闪光灯经 robot DO7, 灯本身走 lights 通道)
+    label: 视觉定位
+    patterns:
+      - "^xia_xiang_ji" # 下相机
+      - "^shi_jue_xiang_ji" # 视觉相机与光源
+
+  - id: COLLECT
+    node_id: plc.collect
+    label: 收集工位
+    patterns:
+      - "^shou_ji_ping_tai_zong_zhuang" # 收集平台总装
+      # ^shou_ji_ping_zhi_jia(收集瓶支架总装 = 中转托盘座 A)2026-08-06 移交 STAGINGA:
+      # 名字里带"收集瓶"但它是转运中转座(rig_map inventory.staging 自己就登记它为 staging-a)
+      # ^PTLC-03- 已删(2026-08-06): 该前缀在装配级只命中根下散件"瓶子检测光电传感器安装板-3",
+      # 几何上它骑在玻璃上料 1Z 轴旁(台面下), 移交 FEEDLIFT; 收集平台内的同款 -1 跟父装配走, 不受影响.
+
+  - id: FEEDLIFT
+    node_id: plc.feedlift
+    label: 上下料位
+    patterns:
+      - "^bo_li_shang_liao" # 玻璃上料机构 / 抽拉机构
+      - "^bo_li_xia_liao" # 玻璃下料机构
+      - "^CFG12-L5-600" # 上下料 Z 轴模组(两套, 行程 600 mm; 880.5 mm 是**本体长**)
+      - "^PTLC-04-" # 上料模组周边件
+      - "^3D_Model_upload_ZJF70-D-N-3" # 上料位光电/接近开关
+      - "^3D_Model_upload_GTB6-N1212" # 上料位缓冲器
+      # 精确单件(勿当前缀族改): 装配根直挂散件"PTLC-03-033 瓶子检测光电传感器安装板-3",
+      # 与玻璃下料机构里的孪生件同排等高、骑上料 1Z 轴旁, 2026-08-06 自 COLLECT 移入.
+      # 拼音别名 48 字符截断会丢实例后缀(-1/-3 同 slug), 故只能写中文原名正则.
+      - "^PTLC-03-033[ _].*-3$"
+
+  - id: STAGINGA
+    node_id: plc.staginga
+    label: 中转托盘位
+    patterns:
+      - "^yang_pin_ping_zhi_jia_zong_zhuang" # 样品瓶支架总装(中转座 B)
+      - "^shou_ji_ping_zhi_jia" # 收集瓶支架总装(中转座 A, 2026-08-06 自 COLLECT 移入)
+
+  - id: PUMP
+    node_id: plc.pump
+    label: 泵站
+    patterns:
+      - "^02_L14_K14-16" # 柜内真空泵组
+      # 两台展缸注射泵. 它们在 2026-02 那版 STEP 里根本不存在(总装体后来才加的),
+      # 所以此前 ST_PUMP 一直是空节点; 换用 SolidWorks 原生 glTF 导出后才随整机带回来.
+      - "^展缸注射泵总装"
+      - "^zhan_gang_zhu_she_beng_zong_zhuang"
+
+  - id: RACK
+    node_id: null
+    label: 料架
+    patterns:
+      - "^shang_liao_jia" # 上料架
+      - "^shou_ji_ping_liao_jia" # 收集瓶料架
+
+  - id: TOOLING
+    node_id: null
+    label: 工具站
+    patterns:
+      - "^jia_ju_zong_zhuang" # 夹具总装
+      - "^96_kong_ban_jia_ju|^yang_pin_ping_jia_ju"
+      - "^gong_ju_ce_zhuang_pei"
+
+# ---------------------------------------------------------------------------
+# 展缸: 8 个 ping_mian_zhan_gang_zong_zhuang 实例, 按空间位置定序.
+# 上位机 Tank_State 是长度 8 的数组, 这里的 index 就是数组下标.
+#
+# 编号必须"**按架分组连续**": 1~4 是一个架自上而下, 5~8 是另一个架 —— 这与上位机
+# 一致(plc_nodes.yaml 的 Expand_Waste_Empty_G1 注释写明"展缸1 = 组1(缸1-4)",
+# manual_points 也是 dev_t{架}_cyl{层} 的分组命名). 2026-08-02 之前用的是"层优先"
+# (z_desc, y_desc), 两架被编成 1/3/5/7 与 2/4/6/8 交错, Tank_State 的状态码于是
+# 显示到了错的缸上 —— 用户对照实物指认后修正.
+# ---------------------------------------------------------------------------
+tanks:
+  pattern: "^ping_mian_zhan_gang_zong_zhuang"
+  expect_count: 8
+  # 缸号顺序: 先分架(见 first_rack), 架内按高度(Blender 的 Z)。
+  # z_asc = 自下而上, 即**架内最下面那个是 1 号** —— 2026-08-03 用户按实物确认。
+  # 此前写的是 z_desc(自上而下), 与机器人点表 P11..P18 首尾颠倒: 实测判据是"同一架 4 个
+  # 缸的法兰→锚点竖直偏置必须相同", z_desc 下它按 360mm(=2×层距)一级级跳, 改 z_asc 后
+  # 8 个缸齐平在 +135.8~136.4mm(法兰在板上方, 与展缸取放 rotary-down 持板朝下吻合)。
+  # 这条现由 clip_compiler.verify_tank_pairing 守着, 不过就整批拒发展缸片段。
+  order_by: [ "rack", "z_asc" ]
+  # 哪个架拿 1~4(另一个拿 5~8). 值是该架在 Blender 世界系的 Y 符号:
+  # y_negative = glTF 的 +Z 侧 = 靠近观察者/机器人取放侧的那个架(2026-08-02 用户
+  # 按实物指认: 这个架是 1234). 同时决定 tank_lids 的 dev_t1_*/dev_t2_* 配对,
+  # 两处共用这一个真源, 不会漂移.
+  first_rack: y_negative
+  # ── 液面 ────────────────────────────────────────────────────────────────
+  # 液体积在**溶液槽**(PTLC-02-014, 210×40×25mm)里, 不在缸底摊开 —— TLC 板的下沿
+  # 正泡在这个槽里, 过滤芯再把溶剂引到板沿.
+  #
+  # 2026-08-03 重做. 上一版(2026-07-31 因"太丑"停用)把液面盒建在整缸包围盒
+  # (388×250)上、四周还内缩 12%, 于是液体成了一块四周悬空 15~23mm 的板 —— 观感
+  # 崩坏的几何成因就在这. 另外液体与槽壁两层 transmission 叠加会发浑, 故 MAT_LIQUID
+  # 已去掉 transmission(见 blender_clean.build_tanks).
+  #
+  # 内腔尺寸不写死: build_tanks 在槽的包围盒内做体素扫描实测自由空间(已扣掉过滤芯/
+  # 气管接头/硅胶垫/玻璃板占位), 把 腔底/槽口/自由截面积/容积 写进 03 报告, 再由
+  # gen_twin_manifest 搬进 manifest 供前端反算液面高度. CAD 改了跟着变, 不会漂.
+  # 2026-08-03 实测(单缸): 可用深度 21.5mm, 自由截面积 ~4.9e3 mm², 满槽 105.4 mL,
+  #   斜率约 0.204 mm/mL; 50 mL(操作上限)只到槽深的 47%.
+  liquid:
+    enabled: true
+    # 液体积在哪个零件的腔里. 8 个缸是同一零件的实例, 故只量 1 次复用到 8 个.
+    trough: { contains: "PTLC-02-014" }
+    # 液面盒距腔壁的留量(米), 只为避免与槽壁 z-fighting
+    clearance: 0.0003
+    # 观感放大: 视觉高度 = 物理高度 × 本系数, 到槽口封顶. 1.0 = 物理真值.
+    # 整机远景下溶液槽只有 210×40mm, 物理真值的涨落幅度只有几个像素, 故默认放大一倍;
+    # 面板上显示的 mL 数值**不受本系数影响**, 永远是真实体积.
+    exaggeration: 2.0
+    # 管路残留(mL): 注入量里到不了槽的那部分. 显示体积 = max(0, 注入量 - 本值).
+    # 2026-08-03 尚未现场标定, 先取 0; 量出来直接改这一个数, 不必动代码.
+    pipe_holdup_ml: 0.0
+
+# ---------------------------------------------------------------------------
+# 注射泵(润泽 SY-03B, 2026-08-05 入驻)
+#
+# 几何不在这里配: blender_clean.build_pump_visuals 照官方"产品尺寸mm"图重建外形, 并按
+# **世界包围盒中心**这个几何键给出稳定编号(骑在 CARRIAGE 上的那台 = SMP, 其余按世界 Y
+# 升序 = DEV1/DEV2), 把最终节点真名写进 03 报告. 本段只负责给这些 id 挂上**语义**:
+# DT 地址、阀头型号、归属工位、缸组. 之所以不用 obj.name 编号, 是因为那是 Blender 的
+# 去重后缀(注射泵-1/.001/.002), 顺序取决于导入次序, CAD 重导后可能翻, 而可动件名字是
+# manifest 的绑定契约.
+#
+# 规格是厂家额定值, **不是实测**: 针筒是一根光管, 内腔无可测特征, 体素扫描给不出腔体
+# (与展缸溶液槽的 measure_trough_cavity 体素实测是刻意的不同). 三台同型号:
+#   25 mL / 6000 步 / 行程 60 mm  ⇒ 1 mL = 240 步 = 2.4 mm
+# 这三个数与上位机 tools/pump/*.py 的 SYRINGE_ML / SYRINGE_STEPS 必须一致, 改硬件要
+# 两处一起动.
+#
+# 柱塞位置全程**无反馈**: config/plc_nodes.yaml 里没有任何柱塞位置回读通道
+# (Sampling_band_end_position 是下发的目标步数, 不是反馈; PLC 内部用 /4? 查真位但不
+# 镜像给上位机). 故前端只能按动作参数做包络估算, HUD 恒标 estimated.
+# ---------------------------------------------------------------------------
+pumps:
+  enabled: true # false = 一键回退(不建可动件, manifest 不出条目)
+  syringe_ml: 25.0
+  stroke_mm: 60.0
+  steps_per_stroke: 6000
+  # output_port = 该泵 DT 指令里"打液出口"的通道号. 三维只拿它驱动阀指针盘的角度,
+  # 值全部取自已被离线单测钉死的真实指令串(tests/test_pump_contract_offline.py):
+  #   展缸 1 号  /1V100I2A240...I5A960M500V100**I6**A0M500R   → 出口 6
+  #   展缸 2 号  /2V100I2A240...I5A960M500V100**I1**A0M500R   → 出口 1
+  #   上样泵     /4V9**I3**A48M1500R(prep) 与 /4V100**I3**P1200M1500R(aspirate) → 出口 3
+  # 收集泵没有被单测覆盖的指令串, 故不给 output_port —— 宁可阀指针不转, 也不编一个.
+  # 摆位订正(placement, 2026-08-07 按用户三维页截图红圈定稿, 用户指认: 三台全在下柜
+  # **中间仓**(电板-2 的东侧, 即 X > -758mm 那侧)落地, 左二右一, 针筒朝仓内, 屁股贴板;
+  # 上样泵骑 6X 滑车不动。此前一版错放到了电板-2 西侧的小仓, 方向整个反了):
+  #   translate_mm —— glTF/场景轴系增量(与 station_alignment 同约定同换算), 03 期作用在
+  #     泵所在**装配**的世界矩阵上, CAD 玻璃件/饰件/可动组全部随动;
+  #   yaw_deg —— 绕泵体包围盒中心竖直轴的偏航(度, 俯视逆时针为正, 0 = CAD 原朝向)。
+  #     立式模块只有这一个旋转自由度; 本机前脸建模朝 -Y(场景系 -Z 深度向), yaw+90 =
+  #     前脸转向 +X(右), yaw-90 = 转向 -X(左);
+  #   world_mm —— 仅无 CAD 泵体的合成泵(收集泵)用: 绝对落位(glTF 系毫米), 03 期按
+  #     名义尺寸合成占位体挂到 ST_<station> 下再走同一条风格化路径。
+  # 数值不是实测: 本项无示教点可拟合, 由整机包围盒 + 照片布局目测折算, 渲染对比图
+  # 收敛后回填定稿。DEV 编号不变量(DEV1 = 世界 Y 小侧)由 build_pump_visuals 摆位后硬校验。
+  items:
+    # 缸 1~4 归 DT 1 号泵、5~8 归 2 号(权威推导在 tools/pump/develop_translator.py 的
+    # (target_tank-1)//4+1). 哪台实物是 1 号: DEV1 是世界 Y 更小的那台, 而 tanks.first_rack
+    # = y_negative 表示 Y 负侧的架拿 1~4 —— 两者同侧, 故 DEV1 配 1~4. 与 first_rack 共用
+    # 同一个"Y 负侧 = 1 号"的约定, 改一处两处一起改.
+    - id: DEV1
+      label: "展开泵 1(缸 1-4)"
+      station: PUMP
+      dt_addr: 1
+      valve: T-06
+      output_port: 6
+      tank_group: [ 1, 2, 3, 4 ]
+      rigged: true
+      placement:
+        # 落位: 泵体中心 [-683, -581, +400](中间仓前圈)。背面(-683-72.4=-755.4)距
+        # 电板-2 东面(-758) 3mm; 支架随动落地; 避开 Z(-29,11) 的底板拼缝。
+        translate_mm: [ -83, 0, -128 ]
+        yaw_deg: 90 # 屁股贴电板-2, 针筒朝仓内(+X); 此装配 CAD 前脸朝 -Z, +90 转 +X
+    - id: DEV2
+      label: "展开泵 2(缸 5-8)"
+      station: PUMP
+      dt_addr: 2
+      valve: T-06
+      output_port: 1
+      tank_group: [ 5, 6, 7, 8 ]
+      rigged: true
+      placement:
+        # 落位: 泵体中心 [-683, -581, -300](中间仓后圈)。DEV 编号不变量仍成立:
+        # DEV1 glTF Z(+400) > DEV2(-300) 即 Blender Y 序 DEV1 < DEV2。
+        translate_mm: [ -232, 0, 170 ]
+        # 此装配 CAD 前脸朝 +Z(与总装-2 相反), 要 -90 才针筒朝 +X —— 之前照抄 +90
+        # 导致针筒怼墙。翻转后支架/阀的相对布局与 DEV1 完全镜像同构(已按 bbox 验算)。
+        yaw_deg: -90
+    - id: SMP
+      label: 上样泵
+      station: SAMPLING
+      dt_addr: 4
+      valve: T-04
+      output_port: 3
+      rigged: true
+    # 收集泵: 实机在(config/actions/03_collect/plc_collect.yaml 的 init 会发 /3Z0,2,2R),
+    # CAD 里 ST_COLLECT 只有注射器/滤芯/吹气头, 没有泵模块本体 —— 2026-08-06 起由
+    # build_pump_visuals 按名义尺寸**合成**泵体(同款模块克隆), 挂 ST_COLLECT, 落位见
+    # placement.world_mm(收集工位正下方, 下柜带内)。output_port=1: 2026-08-08 起由
+    # collect_translator.plan_collect 证实(金测试 test_pump_dt_golden_offline 冻结的
+    # 真实指令串 /3V..I2A..M..V..I1A0M..R —— 吸=2 溶剂口, 打=1 输出口), 不再留空。
+    - id: COL
+      label: 收集泵
+      station: COLLECT
+      dt_addr: 3
+      valve: T-04
+      output_port: 1
+      rigged: true
+      placement:
+        # x=233: 背面(233+72.25=305.25)距内部封板1-1 西面(307) 1.75mm —— 旧值 240 会
+        # 嵌进封板 5mm。y=-581: 泵身骑安装板离地 90mm, 与两台展缸泵同高 —— 支架由
+        # blender_clean 从 DEV1 装配克隆(用户指认: 与左边一模一样, 只少 4 个电磁阀),
+        # 板底 -798.5 贴柜底, 克隆处有贴地硬校验, 改这个高度要连着支架一起想。
+        # z=502: 支架对转后骑在泵身 +Z 侧, 脚印 [449,699] 收在柜底板前缘(701)之内。
+        world_mm: [ 233, -581, 502 ] # 收集工位正下方, 下柜中间仓右圈
+        yaw_deg: -90 # 背贴右侧隔板, 针筒朝仓内(-X)
+
+# ---------------------------------------------------------------------------
+# 展缸盖开合机构(2026-08-02 入驻, 曲柄滑块式竖直提盖, 逐顶点实测后建组):
+#   一、水平滑车: 缸口上方 ~113~139mm 处, 两根倒装 LRM9 导轨(固定)下挂 4 滑块 +
+#       拉板横梁(009) + 4 连杆连接板(008) + 4 转轴(016), MA16x90 气缸(缸体经
+#       F-MA16LB 脚座固定)推拉这套滑车沿 Y 平移.
+#   二、摆臂: 4 根连杆(007)上端铰在滑车转轴, 下端经旋转环(015)铰在盖沿.
+#       铰点相对枢轴实测 (水平 60.9mm 朝机器中心, 竖直 109.2mm 向下), 模长
+#       125.03mm == 摆臂 R —— 这条自洽是整套解算的立足点.
+#   三、盖: 盖(011)+压板(010)+石英玻璃(019)+两根气缸拉板端梁(006), 端梁四角各一个
+#       Y-J-GVB72-d12 直线轴承套在**竖直**气缸导向轴(Ø12×750mm 四角立柱)上 ——
+#       **盖被这四个轴承锁死为纯竖直升降, 不能水平移动**(2026-08-02 修正: 早前误
+#       把 006 判为固定托沿、让盖随滑车水平外移 50mm, 与导向轴约束直接矛盾).
+#   运动学(曲柄滑块): 滑车沿远离机器中心方向平移 s ⇒ 铰点水平偏距 d0→d0+s, 摆臂
+#       竖直分量 √(R²-(d0+s)²) 变短 ⇒ 盖被提起 h = √(R²-d0²) − √(R²-(d0+s)²).
+#       s=40mm ⇒ 摆角 θ=24.7°、抬升 h=35.4mm. 几何上限 s < R−d0 = 64.1mm(摆臂
+#       转平的奇异点), 故 carriage_travel_mm 与气缸标称 90mm 无关, 取观感值.
+#   刚体三级: CARRIAGE(沿 Y 平移) → ROCKER_F/R(嵌套其下, 绕世界 X 转 θ);
+#       LID 独立挂工位根(沿世界 Z 平移 h) —— 盖不随滑车, 所以不嵌套.
+#   运行时各成员对同一个值线性混合, 端点严格正确, 中程 θ(s)/h(s) 的非线性用平滑
+#   混合近似(setLinkage 的双重映射会抵消 member.inputRange, 表达不了分段相位).
+#   GLB 建模态=关盖(盖底-缸口实测 0.84mm). 信号语义: PLC DO=1(动点)=关盖=GLB
+#   基准态, 0(原点)=开盖; 值 1 落在基准态是 CAD 建模态决定的事实, 只能用
+#   outputRange 反向 [行程, 0] 表达, inputRange 恒为升序 [0,1](见文件头绊线).
+#   id 直接复用上位机 manual_points 的 dev_t{架}_cyl{层}(不写 catalog, PLC 目录已有
+#   条目); blender_clean.build_tank_lids 消费本段建 LINKAGE_TANK<n>_* 四刚体组并把
+#   实测写进 03 报告, gen_twin_manifest 从报告展开 8 条 linkages 并翻 rigged.
+# ---------------------------------------------------------------------------
+tank_lids:
+  enabled: true # false = 一键回退(不建组, manifest 不出条目, rigged 回 false)
+  racks: { pattern: "^(zhan_gang_jia_zong_zhuang|展缸架总装)", expect_count: 2 }
+  # dev_t1 落在哪个架由 tanks.first_rack 决定(缸号 1~4 与 PLC 组 1 是同一件事,
+  # 真源只此一处)。架内层序**不在这里配**: 气缸号直接取自 TANK_n 的编号
+  # (cyl = (n-1)%4+1), 所以层序的唯一真源是 tanks.order_by。
+  # 曾经这里有个独立的 cyl_order 旋钮, 与 order_by 各自为政 —— 已退役, 再写会硬失败。
+  pairing: {}
+  # ── 唯一可调的运动学主参数 ──────────────────────────────────────────
+  # 盖的抬升量(mm). 摆角 θ 与滑车行程 s 都是它的函数, **不可分别调** ——
+  #   s = √(R²−(v0−h)²) − d0,  θ = asin((d0+s)/R) − asin(d0/R)
+  # 动作页只暴露这一个数(改完秒级重跑 manifest 即固化, 不必动 Blender: 几何量
+  # d0/v0/R 由 03 实测写报告, 运动参数由 gen_twin_manifest 现算).
+  # 理论上限 = v0 = 109.2mm(摆臂转平的奇异位), 扣 singular_margin 后约 81.8mm;
+  # 80mm 时摆臂转 47.5°、盖顶距上方转轴仍余 ~17mm.
+  lift_mm: 80
+  # 备用写法: 直接声明滑车行程(仅在 lift_mm 缺省时生效)
+  carriage_travel_mm: 40
+  singular_margin_mm: 3 # d0+s 必须比 R 小至少这么多, 否则摆臂逼近奇异位(数值不稳)
+  open_deg: auto # auto=解算 θ=asin((d0+s)/R)−asin(d0/R)≈24.7°; 现场核对后可冻结成数字
+  open_tol_deg: 8 # 声明数字与解算值差超此值硬失败
+  open_band_deg: [ 15, 60 ] # auto 解算值的合理带, 越界硬失败
+  transition_s: 1.0 # 前端两态缓动时长(秒), 目测 40mm 行程气缸的节奏
+  label: "展缸{tank}盖({plc})"
+  # 盖类网格按 master plan"全部重建一致"从捐赠缸实例化(8 缸里有一台的盖/石英玻璃
+  # 在原生 GLB 里就是无网格空节点); mode: missing_only 可降级为只补缺.
+  # auto = 自动挑该架内网格齐全的第一台 —— 别写死缸号: 缸号规则一变(08-02 改成按架
+  # 分组), 写死的 donor 就可能正好落到那台缺网格的缸上.
+  donor: { y_positive: auto, y_negative: auto }
+  instancing: { mode: all, residual_tol_mm: 3.0 }
+  body: { contains: "PTLC-02-012 平面展缸" } # 缸体(工位面 z 基准与同架落位变换的锚)
+  guide_rod: { contains: "气缸导向轴" } # 竖直立柱: 盖的直线轴承必须与它同轴(门禁)
+  geometry:
+    row_spacing_tol_mm: 2.0 # 枢轴排距 vs 铰点排距(平行四边形前提)
+    parallel_tol_mm: 1.0 # 前/后枢轴→铰点偏移向量一致性
+    closed_gap_mm: [ -0.5, 3.0 ] # 盖底-缸口间隙, 锁死"GLB 建模态=关盖"前提
+    min_lift_mm: 5.0 # 解算抬升下限
+    row_gap_min_mm: 40.0 # 前/后排聚类的最小 y 间隙
+    bushing_coax_tol_mm: 2.0 # 盖侧直线轴承与竖直导向轴的轴线偏差上限
+    arm_length_tol_mm: 1.5 # |铰点−枢轴| 与摆臂 CAD 长度的一致性(自洽校验)
+  # z_window 是零件中心相对本缸缸口(缸体 012 顶面)的窗口(米), 数值为逐顶点实测:
+  # 滑车层在缸口**上方** 0.10~0.16(滑块+0.139/拉板+0.125/活塞杆+0.124/连接板+0.119/
+  # 转轴+0.113), 摆臂中心+0.058, 盖系全部 ±0.010(盖/环/垫片+0.004、密封圈+0.0036、
+  # 压板+0.008、石英玻璃+0.006、端梁-0.003、直线轴承-0.008). 同名零件靠窗口分类(626
+  # 与垫片各有枢轴排/盖排两批, 硅胶垫有盖排/缸内两件);
+  # 每缸每类命中数 ≠ per_tank 硬失败, 一件二属硬失败.
+  # 本缸滑车层离上一层缸口仅 ~40-67mm, 靠就近归缸必错 —— 窗口就是防串层的依据.
+  classes:
+    rocker_arm: { match: { contains: "PTLC-02-007 连杆" }, per_tank: 4, z_window: [ 0.000, 0.100 ], role: rocker }
+    pivot_shaft: { match: { contains: "PTLC-02-016 转轴" }, per_tank: 4, z_window: [ 0.100, 0.160 ], role: carriage }
+    pivot_bracket: { match: { contains: "PTLC-02-008 连杆连接板" }, per_tank: 4, z_window: [ 0.100, 0.160 ], role: carriage }
+    pivot_bearing: { match: { contains: "626-2Z" }, per_tank: 4, z_window: [ 0.100, 0.160 ], role: rocker }
+    pivot_washer: { match: { contains: "垫片" }, per_tank: 4, z_window: [ 0.100, 0.160 ], role: carriage }
+    pull_plate: { match: { contains: "PTLC-02-009 拉板" }, per_tank: 1, z_window: [ 0.100, 0.160 ], role: carriage }
+    slider: { match: { contains: "_LRM9BK-N-H-A" }, per_tank: 4, z_window: [ 0.100, 0.160 ], role: carriage }
+    piston_rod: { match: { contains: "_16MA90 Rod" }, per_tank: 1, z_window: [ 0.100, 0.160 ], role: carriage }
+    lid_ring: { match: { contains: "PTLC-02-015 旋转环" }, per_tank: 4, z_window: [ -0.001, 0.010 ], role: lid }
+    ring_bearing: { match: { contains: "626-2Z" }, per_tank: 4, z_window: [ -0.001, 0.010 ], role: lid }
+    lid_washer: { match: { contains: "垫片" }, per_tank: 4, z_window: [ -0.001, 0.010 ], role: lid }
+    lid_plate: { match: { contains: "PTLC-02-011 平面展缸盖" }, per_tank: 1, z_window: [ -0.001, 0.010 ], role: lid, instanced: true }
+    lid_press: { match: { contains: "PTLC-02-010 石英玻璃压板" }, per_tank: 1, z_window: [ -0.001, 0.010 ], role: lid, instanced: true }
+    lid_quartz: { match: { contains: "PTLC-02-019 石英玻璃" }, per_tank: 1, z_window: [ -0.001, 0.010 ], role: lid, instanced: true }
+    # 石英玻璃窗密封圈(179×200×3.5mm 扁平方环). 名字同时命中缸内那件 PTLC-02-022 硅胶垫,
+    # 靠 z 窗口分开: 本件环心 +0.0036(压在石英玻璃底面下, 底面离缸口还悬空 1.8mm),
+    # 那件在 -0.0095(缸口之下, 属缸体, 见下方留静清单) —— 别把 match 改窄, 窗口就是分类器.
+    lid_seal: { match: { contains: "硅胶垫" }, per_tank: 1, z_window: [ -0.001, 0.010 ], role: lid }
+    lid_beam: { match: { contains: "PTLC-02-006 气缸拉板" }, per_tank: 2, z_window: [ -0.008, -0.001 ], role: lid }
+    lid_bushing: { match: { contains: "Y-J-GVB72-d12" }, per_tank: 4, z_window: [ -0.015, -0.004 ], role: lid, coaxial_guide: true }
+  # 明确留静(不认领): 玻璃-1(缸内 TLC 工件板, 在缸口之下), PTLC-02-022 硅胶垫(缸内
+  # 1×24×10mm 小件, 环心 -0.0095; 2026-08-03 前曾误把盖里的密封圈也一并算进这条留静,
+  # 表现为一开盖白色方环留在缸口不动), _LRM9RLX375 导轨与 GCJ18-D12-H23(导向轴夹持座,
+  # 固定在层板上), 气缸缸体/脚座/磁性开关/螺母, 气缸导向轴本身(四角立柱, 盖沿其滑动).
+
+  # ---------------------------------------------------------------------------
+  # 状态灯: 每个工位放一个自发光小条, 位置取该工位包围盒的顶部中心.
+  # 三色灯是真实存在的零件, 单独作为整机总状态灯.
+  # ---------------------------------------------------------------------------
+status_lights:
+  # 2026-07-31 停用: 灯条是纯示意几何, 观感差(用户反馈"太丑, 先不要").
+  # 真实三色灯零件(下面的 tower_pattern)走 MAT_STATUS_LIGHT 自发光, 与实机照片一致,
+  # 状态视觉已经够用; N2 需要逐工位状态显示时再打开或另想表达.
+  enabled: false
+  tower_pattern: "^3D_Model_upload_ZHD24-1-A-02-B-RYG" # 三色灯(红黄绿)
+  # 为每个有 node_id 的工位生成一个状态灯条
+  bar_size: [ 0.10, 0.012, 0.012 ] # 条的尺寸(米), 长边沿 X
+  # 悬在工位包围盒顶部上方多少米. 旧名 y_offset 已废弃 —— Blender 里向上是 Z 不是 Y,
+  # 用错轴会把灯条塞进机器内部的后侧面, 表现为散落一地的不明发光方块.
+  lift: 0.06
+
+# ---------------------------------------------------------------------------
+# 三色灯拆分: 厂商模型整灯(顶盖+灯罩+外壳+底座)是单网格, MAT_STATUS_LIGHT 功能覆盖会把
+# 整根点亮, 而实机**只有中间那段灯罩筒身发光**, 顶盖与底座外壳都是金属件. 按高度切两刀
+# 分成三组: 顶盖(抛光钢) / 灯罩(保留自发光) / 外壳+底座(抛光钢). 两个切面都落在天然接缝上,
+# 按壳体重心分类, 零新增三角形. 出问题时 enabled: false 一键回退(去掉 cap_ratio 则退回两段).
+# ---------------------------------------------------------------------------
+tower_split:
+  enabled: true
+  pattern: "^3D_Model_upload_ZHD24-1-A-02-B-RYG"
+  height_ratio: 0.5 # 切分面 = 包围盒底 + ratio × 高(世界 Z, Blender Z-up); 0.5 恰在灯罩/外壳接缝(实测 166.3/332.5 mm)
+  lower_suffix: "_HOUSING" # 下半段 = 原名 + 后缀, 保留前缀使 FRAME 工位归组正则继续命中
+  lower_material: MAT_NAT_POLISHED_STEEL # 从 materials.yaml 按名解析配方(用户选定抛光钢)
+  # 顶盖切面: 顶盖组壳体重心全部 ≥ 世界 Z 0.9306, 灯罩筒身壳体重心只有 ~0.856/0.859,
+  # 中间是很宽的空档 —— ratio 落在 0.74~0.95 之间结果完全相同, 取中值避开接缝浮点边界.
+  cap_ratio: 0.93
+  cap_suffix: "_CAP" # 顶盖 = 原名 + 后缀, 同样保留前缀
+  cap_material: MAT_NAT_POLISHED_STEEL # 与外壳同款抛光钢, 共享材质实例, 不多一次 draw call
+
+# ---------------------------------------------------------------------------
+# 整机三色塔灯实时驱动: 灯罩(上半段)按上位机 signal_light 事件(PLC 三色灯输出位
+# %QX0.0-0.2)整罩换色, 红>黄>绿, 全灭熄灯, 断流转灰; 脱机演示保持烘焙静态色.
+# 与上面已停用的 status_lights(逐工位示意灯条)是两回事, 不要合并/复活它.
+# gen_twin_manifest 据此生成 manifest.signalLight; enabled: false 一键回退成纯静态灯.
+# ---------------------------------------------------------------------------
+signal_light:
+  enabled: true
+  pattern: "^3D_Model_upload_ZHD24-1-A-02-B-RYG" # 与 tower_split.pattern 同源
+  # 只点亮灯罩; 顶盖与外壳都要排除, 漏一个会让 resolve_signal_light 命中数 ≠ 1 直接报错.
+  # tower_split 回退时两个后缀都不存在, 自然命中整灯单节点.
+  exclude_suffix: [ "_HOUSING", "_CAP" ]
+  stale_ms: 3000 # 3 个 1s 心跳丢失转灰(上位机变化即发 + 1s 心跳)
+
+# ---------------------------------------------------------------------------
+# 工艺灯: 拍照用的补光/面光源。与 signal_light(整机三色塔灯)是两回事 ——
+# 那个报的是机器状态, 这些是**工艺动作的一部分**(拍照要打光), 由片段的 `light`
+# 连续通道(0..1 亮度)驱动, 实时页可再接事件。
+#
+# 节点名是 03 步按材质合并出来的静态块 `STATIC_<材质名>` —— 所以**灯的可驱动性是由
+# material_semantics 的分组决定的**: 两盏灯必须材质不同, 否则会被并进同一个块,
+# 驱动一盏另一盏跟着亮。2026-08-04 就踩过: 原 MAT_UV_LAMP 的 "光源" pattern 过宽,
+# 把下相机补光与刮板台紫外面光源并成了一个 1.12m 的块(详见 material_semantics 那两条注释)。
+#
+# default_level 是**不被接管时的观感**, 取 0..1 的亮度系数(峰值亮度是 peak_intensity):
+# 补光默认 0(真机只在拍照那 ~1.3s 亮), 紫外面光源默认 1(暗箱里一直开着, PC 侧根本
+# 没有它的开关信号 —— 不编造一个不存在的 DO)。
+lights:
+  - id: vision_fill
+    label: "视觉纠偏补光(机器人 DO7)"
+    # ⚠ 这里写的是 **CAD 零件原名**而不是 STATIC_MAT_VISION_FILL: 按材质合并时
+    # `len(objects) < 2` 的组会被跳过("单件保持原名", blender_clean:5590),
+    # 而 MAT_VISION_FILL 全场只有这一件, 所以它根本不会被并成块。
+    # 哪天这个材质多出第二件, 名字就会变成 STATIC_MAT_VISION_FILL —— 那时
+    # resolve_lights 会以"命中 0 个"硬失败, 不会静默变成一盏永远不亮的灯。
+    node: "PTLC-08-004 下相机环形光源安装块-2"
+    color: "#ffffff"
+    peak_intensity: 4.0
+    default_level: 0.0
+    bloom: true
+    # 这盏灯**本体几乎看不见**: 它在机台盖板玻璃下方 44.5mm(下相机朝上拍), 从任何正常
+    # 机位看过去都被台面挡着, 实测开/关两态画面几乎无差。所以"闪光"这件事看得见的形态
+    # 是**光打在板上** —— 板面在补光期间短暂提亮。illuminates 就是声明这个受照对象。
+    # (原三维计划 §5.3 写过: "板面响应…这是'闪光打在板上'的真实观感来源"。)
+    illuminates: plate
+    # 但**板不是唯一的受照对象**: 板只在放板那一段才在场, 而灯每次拍照都要亮; 且实时页
+    # (TwinBindings + PlateBinding)根本没有 illuminates:plate 那条支路。所以再声明一个
+    # 节点级受照对象 —— 灯正上方那扇盖板玻璃。
+    #
+    # 为什么是它: 实测几何(machine.glb 逐顶点)光源块 z ∈ [-0.042, -0.030], 盖板玻璃
+    # PTLC-08-010 是 137.9×137.9×3mm 的 z ∈ [+0.007, +0.010] —— 灯埋在窗口下 37mm,
+    # 隔着一块 transmission 0.92 / roughness 0.55 的半透玻璃, 整机机位下开关两态几乎无差。
+    # 而**真机上人眼看见的"闪"就是这扇窗亮起来**, 所以让窗发光不是演示夸张, 是补上
+    # 正确的可见形态。
+    #
+    # 受照节点由 MachineStateDriver 统一驱动(不在 MachineRig 里), 于是离线 Studio 链与
+    # 实时 Twin 链共用同一份实现 —— 后者正是本条 2026-08-05 新增的起因: 用户在实时页
+    # 跑上样-上料时"闪光灯不闪", 病根是实时链从来没人调 setLight。
+    illuminates_nodes:
+        # 峰值低于灯本体的 4.0: 这是块半透玻璃不是灯罩, 4.0 会顶到 Neutral 色调映射的
+        # 削波, 读起来像一块白色亚克力而不是"下面有灯亮着"。
+      - node: "PTLC-08-010 下相机盖板玻璃-1"
+        peak_intensity: 1.8
+  - id: uv_scrape
+    label: "刮板台紫外面光源"
+    node: STATIC_MAT_UV_LAMP
+    color: "#8b6cff"
+    peak_intensity: 2.5
+    default_level: 1.0
+    bloom: true
+
+# ---------------------------------------------------------------------------
+# 运动轴: 声明哪些节点会被实时数据驱动.
+#
+# 说明: 供应商直线模组的"滑块"是模组内部的子零件, 从名称无法可靠区分, 因此这里
+# 采用"整组平移"的近似 —— 把该工位中随轴移动的装配整体作为 CARRIAGE.
+# 地轨是唯一确定无疑的一条(机器人整体随之移动), 因此先把它做实.
+# 其余轴的 carriage 归属用 AxisDebugPanel 逐轴核对后补全(入口 /3d/calib,
+# 离线 jog 核对随动组; live 下微调 zero_offset_mm/sign 并导出回填片段), 未填的轴在
+# device-manifest 里会被标记为 rigged: false, 前端跳过绑定而不报错.
+# 零点标定规程(参考位/七步法/逐轴工作表)见 docs/AXIS_ZERO_CALIBRATION.md;
+# 标定三参数(sign/zero_offset_mm/range_mm)的唯一固化点就是本文件.
+#
+# `stroke_mm`(2026-08-04 新增): 该轴所骑直线模组/导轨的**物理行程**, 是 range_mm 的
+# 硬上界 —— gen_twin_manifest 会拿它做双向校验:
+#   · range_mm 跨度 > stroke_mm  → 警告"超模组行程"(--strict-limits 下失败);
+#   · 控制侧某条 limits 跨度 > stroke_mm → 判为**名义软界**(如 ±500、0~3000), 降级为
+#     提示而不是"range 覆盖不了"的警告; 示教 value 无论如何都硬校验必须被覆盖.
+# 取值依据一律写进相邻注释, 优先级: 模组型号里的行程数字(已逐个用 GLB 逐顶点实测本体长
+# 交叉验证, 同族端块厚度恒定) > 裸导轨条净长 − 滑块长. 定 range_mm 的做法:
+#   跨度取 stroke_mm; 位置优先按"滑块在模组里的实测落点"直接解, 解不出或与控制侧矛盾时
+#   以控制侧 limits/示教值为锚最小平移(差值记进注释, 供现场标零参考, 不写进 zero_offset).
+# ---------------------------------------------------------------------------
+axes:
+  - id: axis_11y
+    station: RAIL
+    label: 地轨轴11Y
+    # 地轨小车带着机械臂走。原生 CAD 把物理托盘保存在建模位置，而点表场景
+    # 注册固定在 4 号槽(500 mm)，因此必须把真实托盘刚体和 ROBOT 一起纳入
+    # CARRIAGE，并将 PTLC-07-025 的安装基准对齐 CR5_BASE_FRAME。
+    carriage_groups: [ "ROBOT" ]
+    carriage_members:
+      - { contains: "PTLC-07-023", expect_count: 1 }
+      - { contains: "PTLC-07-024", expect_count: 2 }
+      - { contains: "PTLC-07-025", expect_count: 1 }
+      # 托盘侧面的气动组件同样安装在移动小车上。前两项必须选装配根节点，
+      # 这样其子零件随组整体运动；使用 equals 避免把 WEF50 的两个子件重复重挂。
+      - { equals: "4V21008B-1", expect_count: 1 }
+      - { equals: "WEF50-N-KL-1", expect_count: 1 }
+      - { equals: "PTLC-07-027 压力表安装板-1", expect_count: 1 }
+      - { contains: "Open CASCADE STEP translator 7.6 19.1.14-1", expect_count: 1 }
+      - { contains: "Open CASCADE STEP translator 7.6 19.1.6-1", expect_count: 1 }
+      - { contains: "Open CASCADE STEP translator 7.6 19.1.16-1", expect_count: 1 }
+      - { contains: "Open CASCADE STEP translator 7.6 19.1.15-1", expect_count: 1 }
+    mount_alignment:
+      role: robot-base-support
+      support_member: { contains: "PTLC-07-025" }
+      support_node: ROBOT_CARRIAGE_SUPPORT
+      socket_node: SOCKET_ROBOT_BASE
+    axis: [ 1, 0, 0 ] # 沿 X 方向(地轨长 1.33 m, 沿 x 展开)
+    # 实机点位以 4 号工具位 500 mm 为中心；CAD 的 +X 与伺服正方向相反。
+    # 若写成 +1，4 号位仍因偏移为 0 而看似正确，但 1/6 两端会镜像对调。
+    sign: -1
+    # CAD/实机统一以 4 号工具工位为参考：反馈 500 mm 时模型偏移为 0。
+    zero_offset_mm: 500.0
+    # 轨道范围 = CFF10-L10-900 的 900 行程。旧 [0, 3000] 照抄了 rail.yaml 的 limits,
+    # 那是"PULL 时越界拒绝"用的名义软界(见 rail.yaml sync 段), 不是物理可达 —— 3000 mm
+    # 会把机械臂沿轨甩出 2.5 m, 而整机总长才 2.64 m。病根还有一条: 本文件 RAIL 工位的
+    # patterns 注释曾把**本体长 1.17 m** 写成"行程"(已订正)。
+    # 实测(machine.full.glb, 即前端加载的那份, 零位就是它的加载态):
+    #   导轨/防尘钢带 19.1.7/9/11/12 在 X 上跨 [-701.58, 448.42](净长 1150.0),
+    #   滑台板 19.1.14 停在 x[-316.43, -146.43](长 170.0)
+    #   ⇒ 端块 (1150−170−900)/2 = 40.0/端, δ ∈ [-345.2, +554.9]
+    #   ⇒ mm = 500 − δ ∈ [-54.9, 845.1]。
+    # 交叉佐证: 两只同型 26.1 mm 侧槽件 19.1.5/19.1.6 同侧面间距 899.8 ≈ 900(差 0.2)。
+    # 覆盖六槽位 168/168/350/500/600/600 与零点 500, 也覆盖全部片段目标值。
+    stroke_mm: 900
+    range_mm: [ -54.9, 845.1 ]
+    telemetry: { node: plc.rail, key: Rail_ActPos }
+    # 场景与实机统一米制 1:1；默认 1 mm = 0.001 m，禁止全局压缩行程。
+    rigged: true
+
+  - id: axis_1z
+    station: FEEDLIFT
+    label: 玻璃上料轴1Z
+    carriage_groups: []
+    axis: [ 0, 1, 0 ]
+    # sign=+1 经几何佐证: 滑台可上行 547 / 下行 52, 与控制侧 [−50, 550] 同向同幅;
+    # 取 −1 则上界只剩 52, 覆盖不了 SearchHigh=512。
+    sign: 1
+    # 轨道范围 = CFG12-L5-600 的 600 行程。两条互不相干的证据吻合到 2.4 mm:
+    #   几何 —— 导轨 133.1.7 在 Y(向上)跨 [-726.0, 85.0](长 811), 滑台 133.1.5.1.4 停在
+    #           [-668.77, -467.28](长 201.5) ⇒ 端块 (811−201.5−600)/2 = 4.9/端,
+    #           可动窗口 δ ∈ [-52.4, +547.4];
+    #   控制侧 —— feedlift.yaml 的 limits [-50, 550](跨度正好 600)。
+    # 故直接取控制侧整值。旧值 [0, 700] 既超模组行程 100, 又丢掉整个负段(实机回零下探
+    # 到 −50 会被静默钳死在 0)。
+    stroke_mm: 600
+    range_mm:
+      - -50
+      - 550
+    telemetry: { node: plc.feedlift, key: FeedLift_1Z_ActPos }
+    rigged: true
+    # 玻璃上料机构-1 与玻璃下料机构-1 是同图纸孪生, 内部零件连实例号都同名 ——
+    # equals 会命中两份, 必须用 within 锁定上料机构那套(2026-08-02 定位).
+    # 注意: 动作页重新指认会整段覆盖 carriage_members, 前端尚不感知 within, 覆盖后需手工补回.
+    carriage_members:
+      - equals: PTLC-04-013 顶升模组滑块连接板-1
+        within: 玻璃上料机构
+        expect_count: 1
+      - equals: PTLC-04-014 顶升加强筋-1
+        within: 玻璃上料机构
+        expect_count: 1
+      - equals: PTLC-04-014 顶升加强筋-2
+        within: 玻璃上料机构
+        expect_count: 1
+      - equals: PTLC-04-015 玻璃放置板-1
+        within: 玻璃上料机构
+        expect_count: 1
+      # 板堆锚点本身也必须随轴走 —— 托板在滑车里而锚点不在, 结果就是"板堆升、板不动",
+      # 实测机器人取板点比锚点高 669mm, 板被画在仓底、悬在吸盘下方(2026-08-03 定位)。
+      # ⚠ 这里必须写 **CAD 源名**: build_axis_carriages(5683 行)跑在
+      #   build_inventory_nodes(5690 行)之前, 那时它还没被改名成 INV_MAGAZINE_FEED_TEMPLATE。
+      #   改名是原地的(只动 obj.name), 改完仍留在本滑车下。写 INV_* 会 0 命中 → 全链硬失败。
+      - equals: 玻璃-1.001
+        expect_count: 1
+    assigned_by: workbench-assign
+    zero_offset_mm: -22
+
+  - id: axis_2z
+    station: FEEDLIFT
+    label: 玻璃上料轴2Z
+    carriage_groups: []
+    axis: [ 0, 1, 0 ]
+    sign: 1
+    # 与 axis_1z 同图纸同模组(CFG12-L5-600), 取值一致。本套滑台 133.1.5.1.4-1.001 停在
+    # [-663.14, -461.64], 比 1Z 高 5.6 mm ⇒ 几何窗口 δ ∈ [-58.0, +541.8]; 上界比控制侧
+    # 的 550 短 8.2 mm, 按"控制侧必须被覆盖"最小平移后与 1Z 重合于 [-50, 550]。
+    stroke_mm: 600
+    range_mm:
+      - -50
+      - 550
+    telemetry: { node: plc.feedlift, key: FeedLift_2Z_ActPos }
+    rigged: true
+    carriage_members:
+      - equals: PTLC-04-013 顶升模组滑块连接板-1.001
+        expect_count: 1
+      - equals: PTLC-04-014 顶升加强筋-1.001
+        expect_count: 1
+      - equals: PTLC-04-014 顶升加强筋-2.001
+        expect_count: 1
+      - equals: PTLC-04-015 玻璃放置板-1.001
+        expect_count: 1
+      # 废板仓侧的板堆锚点(理由同 axis_1z; 同样必须写 CAD 源名, 不能写 INV_*)
+      - equals: 玻璃-1.007
+        expect_count: 1
+    assigned_by: workbench-assign
+    zero_offset_mm: -22
+
+  - id: axis_4x
+    station: SAMPLING
+    label: 上样轴4X
+    # ⚠ 2026-08-05 身份订正: 本条目此前叫 `axis_3y`, 与下面那条(CFC30B 带物料盘)**认反了**。
+    # 三条互不相干的证据:
+    #   1. **方向惯例**: 全机 X 族轴(6X/9X)长轴恒为 glTF Z、Y 族(7Y/8Y/11Y)恒为 glTF X。
+    #      十一根轴里只有本轴与下条违例, 且恰好互为对方 —— 见 verify_axis_travel.GEOMETRY
+    #      的 Blender 轴索引列(本轴索引 1 = X 族, 物料盘那根索引 0 = Y 族)。
+    #   2. **动作时序**(config/actions/01_sampling/plc_sampling.yaml, A20 `sampling.clean`):
+    #      "先把5Z升到0, 再把**4X**移到 Sampling_4X_WashTarget、6X移到清洗位并下降5Z"
+    #      —— 把针送去清洗池只动 4X + 5Z, 全程不动 3Y。只有 5Z 骑在**本轴**上这条时序
+    #      才成立。A10 init 同样是"先 5Z 再 4X/6X/7Y", 且明写"只把3Y目标写为0,
+    #      **并未命令3Y移动**"。按订正前的绑定, PLC 报 Sampling_4X_ActPos 时三维挪的是
+    #      物料盘而针纹丝不动, 且两轴幅度都不越界所以从不报错。
+    #   3. **几何**: 针管清洗池 `PTLC-05-028` 在 Blender y=+28.9, 针尖 `针-2` 在 y=-127.95,
+    #      相距 +156.85 —— 正落在本轴 +Y 向 186.85 的可动窗口内(见下); 而物料盘那根轴
+    #      沿 Blender X 走, 根本够不着清洗池。
+    # 自制同步带轴(抽液机构总装-1 内): _LRM9RLX350 导轨 + 42CM08-1 步进 + 同步带-1.
+    # 滑车 = 本轴滑块及其连接板/皮带压板/遮光板 + 整个 5Z 升降模组的定子(5Z 骑在
+    # 本轴滑块上; 5Z 自己的滑车经 parent_axis 嵌套, 见 axis_5z 条目).
+    # 归属依据 work/previews/axis_pilot_{overview,3y_jog}.png, 用户 2026-08-01 确认;
+    # 存疑件(05-034 光电遮光板)按确认结论纳入, 重建后用 /3d/calib 面板 jog 复核.
+    carriage_groups: []
+    carriage_members:
+      - { equals: "_LRM9BK-N-H-A_1-1", expect_count: 1 } # 本轴导轨滑块
+      - { equals: "PTLC-05-008 导轨连接板-1", expect_count: 1 }
+      - { equals: "PTLC-05-009 同步带连接板-1", expect_count: 1 }
+      - { equals: "ECY51-S3M-150-1", expect_count: 1 } # 皮带压板(随滑车)
+      - { equals: "PTLC-05-034 光电遮光板-1", expect_count: 1 }
+      # ---- 以下为 5Z 模组定子, 整体骑在本轴滑块上 ----
+      - { equals: "PTLC-05-010 注液模组安装板-1", expect_count: 1 }
+      - { equals: "_LRM9RLX180-S10-H-D-1", expect_count: 1 } # 5Z 竖直导轨条
+      - { equals: "同步带1-1", expect_count: 1 }
+      - { equals: "42CM08-2", expect_count: 1 } # 5Z 步进电机
+      - { equals: "EVD21-25-S3M150-2", expect_count: 1 } # 5Z 张紧轮
+      - { equals: "PTLC-05-029 惰轮轴-3", expect_count: 1 }
+      - { equals: "ADG01-609-L150-1", expect_count: 1 } # 5Z 侧感应杆
+      # ---- 2026-08-05 补绑: 用户报"4X 至少少绑 4 个零件", 逐顶点审计出的定子侧遗漏 ----
+      # 复现图 work/previews/audit_mod_{base,jog}_iso.png(候选件染橙): jog 后它们浮在原地。
+      # 5Z 驱动带轮: 套在 42CM08-2 电机轴上(与电机三轴全重叠), 又咬着 5Z 皮带 同步带1-1。
+      # 同型的 `-1` 在 y=+91.9(3Y 轨末端)是本轴自己的驱动轮, 属静止侧, 别一起收。
+      - { equals: "EBF41-S3M150-25-B-P-d5-2", expect_count: 1 }
+      # 5Z 上下限位光电: 卡在 ADG01-609-L150 感应杆上(y 向贴合 0.00mm), 遮光板
+      # PTLC-05-033 在 5Z 滑车上从槽里穿过 —— 传感器属定子侧。
+      # ⚠ 同型的 -1/-2/-3/-4 已在 prune_list.explicit_delete 里删掉, 只剩 -5 可绑。
+      - { equals: "ZJF45-SX672-N-5-5", expect_count: 1 }
+      # 扶针器: 顶面 z=158.50 与"注液模组安装板"底面 z=158.50 **贴合 0.00mm**, x/y 全重叠;
+      # 而它离每一个 5Z 滑车成员都有 22.5~53.5mm 空隙, 一个都不挨。针从它的孔里穿过
+      # (针 z 跨 76.5~201.0, 包住孔的 148.5~158.5)—— 正是"扶针"该有的滑配合。
+      # ⚠ 这推翻了 2026-08-01 记在 axis_5z 注释里的"扶针器归 5Z"(那条只写了注释、从未
+      #   写成规则, 所以一直没生效)。2026-08-05 用户按实测复核后改判归本轴。
+      - { equals: "PTLC-05-015 扶针器-1", expect_count: 1 }
+    axis:
+      - 0
+      - 0
+      - 1
+    # ⚠ 2026-08-05: 原注释写"2026-08-02 用户在动作界面实拖判定与真机反向, 由 +1 取反"——
+    # 该判定作废。动作页的拖拽在**近距相机 + 俯视**下会整体翻向(实测俯视 12° 时 22.2/4.23/
+    # 1.0/0.5 m 给 +20mm, 0.3/0.222 m 变 −27.1/−26.1mm; 病根见 AxisDragController 顶部注释),
+    # 靠它定出来的 sign 不可信。本轮不臆断方向, 保留 +1 作**占位**, 一律以现场七步法第 2 步
+    # (实机向正方向 jog 看虚拟动向)为准。回归测已锁: web/tests/three-d/axisDrag.test.js。
+    sign: 1
+    # ⚠ 2026-08-06 定案: 本轴"控制侧 1mm = 物理 2mm", 故加增益 scale_mm。
+    # 换算全式: δ物理 = (mm − zero_offset_mm) × sign × scale_mm。
+    #
+    # 证据链(四条互不相干, 最后一条是现场卡尺):
+    #   · 标定行距 9.0 → SBS 孔距 18.00                        = 2.00
+    #   · 标定两盘位间距 55.5 → CAD 实测巢心距 112.0            = 2.02
+    #   · 48 孔最小二乘(标定 vs CAD 孔位)                      = 2.016(残差 0.274mm)
+    #   · **现场实测: 轴读 11.28mm, 卡尺量得实走 ≈22.6mm**      = 2.004
+    # PLC 侧两点法实读 Δdi/Δf = 933.33 增量/mm, 而各伺服轴是 838,860 / 1,677,722
+    # (2²³/导程, 与 L5/L10 型号逐项吻合)—— 本轴粗约 1800 倍, 因为它**不是 SV660N 伺服**
+    # (整机 8 台驱动器却有 11 根轴), 是「自制同步带轴 + 42CM08 步进」, 标度另配且配错了。
+    #
+    # 推论(重要): 在 2× 口径下控制侧数字**逐项对上物理几何** —— 所以
+    # config/calibration.yaml、HMI 示教表、PLC 代码**全都没错**, 它们是在真机上按真机的
+    # 单位教出来的; 错的只是这根轴的标度。此前几轮"标定值可疑"的说法已撤销。
+    #
+    # ⚠⚠ **这是临时补偿, 不是终态**: 4X 与 5Z 后续都要由步进换成伺服, 届时标度重配,
+    #    本字段必须改回 1.0 并重走标定。退役清单见
+    #    docs/上样4X_5Z临时标度增益_换伺服后作废_20260806.md —— **别把它当成永久标定**。
+    scale_mm: 2.0
+    # 2026-08-06 在 scale_mm=2.0 下按 48 孔重解(最小二乘, 最大残差 0.501mm)。
+    # 残差是均匀的 0.5mm: 标定表里两盘位间距 55.5 若按精确 2× 应为 56.0, 自身差 1.0mm,
+    # 最小二乘把它在两块板之间平分了。
+    #
+    # ⚠ 原值 156.85 是**与本条目自己的注释矛盾**的: 那段注释推导出 zero = 79.85, 并且
+    # 明写"差值只写注释, **不写进 zero_offset**", 而 156.85 恰恰就是那个"未解释的差"。
+    # 属 CLAUDE.md 第 37 条同一家族(axis_5z 刚栽过一次)。顺带: 那处"清洗池离针 156.85mm
+    # 而限位跨度只有 115mm、走不到清洗位"之谜, 在 2× 口径下自动消解 —— 156.85 物理
+    # = 78.4 控制 mm, 稳稳落在 [-5, 110] 内。
+    zero_offset_mm: 77.68
+    # 轨道范围: 自制同步带轴, 无模组型号, 行程由导轨条定 ——
+    #   _LRM9RLX350-S15-H-D-1 实测净长 350.0(型号数字即毫米长度, 0.0 误差),
+    #   滑块 _LRM9BK-N-H-A_1-1 长 31.0 ⇒ 行程 350 − 31 = 319(裸导轨无端块, 取满)。
+    #   滑块现停在 glTF z[82.95, 113.95]、导轨 z[-103.9, 246.1] ⇒ δ ∈ [-186.85, +132.15]。
+    # ⚠ stroke_mm 与 δ 都是**物理 mm**, 而 range_mm 是**控制侧 mm** —— 两者差一个 scale_mm。
+    #   控制侧窗口 = zero + δ/scale = 77.68 + [-93.4, +66.1] = [-15.75, 143.75],
+    #   整段包住控制侧 limits [-5, 110](下留 10.8、上留 33.8)。
+    #   gen_twin_manifest.check_axis_limits 也按同一口径乘回增益后再比。
+    stroke_mm: 319
+    range_mm:
+      - -15.75
+      - 143.75
+    telemetry: { node: plc.sampling, key: Sampling_4X_ActPos }
+    rigged: true
+
+  - id: axis_3y
+    station: SAMPLING
+    label: 打样瓶上料轴3Y
+    # ⚠ 2026-08-05 身份订正: 本条目此前叫 `axis_4x`, 与上面那条(同步带轴带 5Z/上样针)
+    # **认反了**, 判据见上条顶部三条证据。名字语义也自洽: 「打样瓶上料轴3Y」运的正是
+    # 装打样瓶的**物料盘**, 而「上样轴4X」带的是上样针。
+    # 本轴 = CFC30B-1H03-S300 皮带模组带着的**物料盘**(台面高度 y≈74)。
+    # 这一组正是 2026-08-03 从 axis_7y 摘下来后无人认领的那两件 —— 当时 axis_6x 的注释
+    # 猜它是 6X 的滑车, **猜反了**(6X 在 480mm 之上的点胶头, 见 axis_6x 条目)。
+    # 归本轴的证据:
+    #   1. 贴合: 皮带滑块顶板 181.2.1.5 顶面 y=69.0 = 物料盘底面 y=69.0, 差 0.00mm;
+    #   2. 针扎进盘: 5Z 滑车上的 `针-2` 下端 y=76.5 落在盘的板厚 y[69,79] 之内 ——
+    #      针就是往盘里的瓶子扎, 盘必须能在针下面换列;
+    #   3. 三轴正交: 4X 长轴 = glTF Z, 5Z = glTF Y(骑 4X 上), 本轴模组长轴 = glTF X,
+    #      补齐第三个方向, 与 sampling.aspirate 用 3Y/4X/5Z + 孔板 吻合。
+    #   4. 方向惯例(2026-08-05 补): 本轴沿 glTF X, 与 7Y/8Y/11Y 这些 Y 族轴同向 ——
+    #      订正前它叫 4X, 是全机唯一一个"X 名字走 Y 族方向"的轴。
+    carriage_groups: []
+    carriage_members:
+      - equals: PTLC-05-030 物料盘-1
+        expect_count: 1
+      # 气动接头 ×4: 两两一组分居板厚上下(y[64.9,68.2] 与 y[72.4,75.7]), 后者**嵌在**
+      # 板厚 y[69,79] 里。逐三角面投影实测其 XZ 足迹有 90.5% 压在盘的实体上、剩 9.5%
+      # 是个 ≈Ø8.5mm 的过孔 —— 即穿板安装的隔板接头。静止件不可能嵌在移动板里, 故随盘走。
+      - contains: CQ05-10NCF-T-
+        expect_count: 4
+      # ---- CFC30B-S300 模组自身的滑块块(判据同 axis_7y/axis_9x 那三条) ----
+      # 收: 181.2.1.5(滑块顶板 106×32.5×52.2, 贴合见上) + 181.2.1.1/2(块) +
+      #     181.2.1.3/4(钢带压块一对, 正好落在滑块两端 x=1012 / x=906)。
+      # 反例(别收): 181.8/9/10 同为 1702 面的 49mm 族, 分居 x=859/898/1164 **三处**
+      #   —— 定子件必在多个 X 上重复, 那是三只感应开关; 另 181.7(16038 面)是电机,
+      #   181.1.1.1/2 是全长导轨与防尘钢带, 181.3.1 是底脚。
+      - equals: Open CASCADE STEP translator 7.6 181.2.1.5-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 181.2.1.1-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 181.2.1.2-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 181.2.1.3-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 181.2.1.4-1
+        expect_count: 1
+    # 模组世界长轴 = glTF X(导轨 181.1.1.1 x[822.4,1238.4] 长 416, 滑块 106 ⇒ 可走 ≈310)
+    axis: [ 1, 0, 0 ]
+    # 占位 +1, 待现场七步法第 2 步核定。**不要**再用动作页拖拽判向 ——
+    # 那条路 2026-08-05 已证实会随缩放翻向(见上条 axis_4x 的 sign 注释)。
+    sign: 1
+    # ⚠ 2026-08-06 由**实测**取代原先的居中占位: 41.1 → 20.70。
+    # 依据: 拿 config/calibration.yaml 的 48 个孔目标与 CAD 实测孔心做最小二乘,
+    # 本轴增益解得 **1.0000(残差 0.000mm)** —— 3Y 是干净的 1:1, 与 4X 的 2× 无关;
+    # 零点解得 **20.70**。这比"几何窗口居中"强得多: 后者只保证不撞导轨, 不保证对准孔。
+    #
+    # 被取代的旧推导(留档以免有人照着改回去):
+    #   δ ∈ [-78.6, +221.4] 且 mm = zero + δ 要含控制侧 [-20, 245]
+    #   ⇒ zero ∈ [23.6, 58.6] ⇒ 取中点 41.1。
+    #
+    # ⚠ **已知张力**: 20.70 低于上式下界 23.6 约 2.9mm, 即 3Y 若被命令到极端的 245,
+    # 模型滑车会冲出导轨 2.9mm(见下 range_mm)。取 20.70 是权衡后的选择 ——
+    # 245 已超过示教的上料位 200(HMI 实读 position[7]=200.0), 几乎不用;
+    # 而孔位是每次演示都要看的。**若 check_axis_limits 因此报警, 那条警告是对的, 别压掉。**
+    zero_offset_mm: 20.70
+    # 轨道范围 = CFC30B-1H03-S300 的 300 行程, 由几何直接定位(不必猜):
+    #   导轨 181.1.1.1/.2 在 X 上跨 [822.42, 1238.42](长 416), 滑块 181.2.1.5 停在
+    #   x[906.04, 1012.04](长 106) ⇒ 端块 (416−106−300)/2 = 5.0/端(与同族 9X 的
+    #   CFC30B-S400 逐项一致), 可动窗口 δ ∈ [-78.6, +221.4]。
+    # 2026-08-06 随 zero 20.70 重算: mm = zero + δ ⇒ [-57.90, 242.10](本轴 scale=1.0)。
+    # ⚠ 上界 242.10 比控制侧 limits 的 245 少 **2.9mm** —— 这是上面那处已知张力的落点,
+    #   不是笔误。命令到 245 时模型滑车会越界 2.9mm; 真机侧不受影响(三维不下发)。
+    stroke_mm: 300
+    range_mm: [ -57.90, 242.10 ]
+    telemetry: { node: plc.sampling, key: Sampling_3Y_ActPos }
+    rigged: true
+
+  - id: axis_5z
+    station: SAMPLING
+    label: 上样轴5Z
+    # 垂直升降同步带轴, 整个模组骑在 **4X** 滑块上 —— 叠轴首例: AXIS 节点经 parent_axis
+    # 挂进 axis_4x 的 CARRIAGE(父轴必须排在前面且 rigged). 滑车 = 5Z 滑块 + 注液头/
+    # 注液塞/针. 存疑件 05-033 升降遮光板按用户确认结论纳入.
+    # ⚠ 2026-08-05 两处订正:
+    #   (a) parent_axis 由 axis_3y 改为 axis_4x —— 身份互换, 判据见 axis_4x 条目顶部;
+    #       PLC 侧的 A20 清洗时序("只动 4X+5Z 把针送去清洗池")就是这条父子关系的直证。
+    #   (b) 原注释把 `05-015 扶针器` 列进本滑车, 但全文件从未写成规则(所以一直没生效);
+    #       2026-08-05 逐顶点实测它贴在注液模组安装板底面(定子侧), 已改绑 axis_4x。
+    parent_axis: axis_4x
+    carriage_groups: []
+    carriage_members:
+      - equals: 针-2
+        expect_count: 1
+      - equals: PTLC-05-011 导轨连接板1-1
+        expect_count: 1
+      - equals: PTLC-05-012 同步带连接板1-1
+        expect_count: 1
+      - equals: PTLC-05-013 注液头安装板-2
+        expect_count: 1
+      - equals: PTLC-05-014 注液塞-1
+        expect_count: 1
+      - equals: PTLC-05-033 升降光电遮光板-1
+        expect_count: 1
+      # ---- 2026-08-05 补绑(同一轮审计, 复现图 work/previews/audit_mod_jog_iso.png) ----
+      # 5Z 导轨滑块: 它的 x 上界 1117.44 = `05-011 导轨连接板1` 的 x 下界 1117.44,
+      # **贴合 0.00mm**, 且两者 z 区间逐字相同 [181.01, 212.01]; 它骑在 5Z 的
+      # _LRM9RLX180 竖直导轨条上。本轴唯一漏掉的承力件。
+      # ⚠ 用 within 锁住本装配: 收集站的 `_LRM9BK-N-H-A-1.001` 剥掉 .NNN 后与本名同形,
+      #   万一候选池不按工位收窄就会多命中(参照 axis_1z 用 within 消孪生的先例)。
+      - equals: _LRM9BK-N-H-A-1
+        within: 抽液机构总装
+        expect_count: 1
+      # 5Z 皮带压板: 与 `05-012 同步带连接板1` 在 y 上贴合 0.36mm, x/z 全重叠, 并咬住
+      # 5Z 皮带 同步带1-1(y 向 −4.36 = 压进带里)。同型 `-1` 是 4X 那根的压板, 已在上条。
+      - equals: ECY51-S3M-150-2
+        expect_count: 1
+    axis: [ 0, 1, 0 ]
+    # ⚠ 2026-08-06 订正: sign 由 +1 改回 −1, zero_offset 同步由 −48.5 改成 +48.5(幅值不动)。
+    #
+    # 方向有 PLC 源码的**铁证**, 不需要靠观感或拖拽判:
+    #   · Sampling_L2/A50_absorb_吸收液体 step 0 与 40: `上样轴5Z轴DATE.fAbsTarget:=0` = **抬针**;
+    #   · 同 POU step 10: `fAbsTarget := HMI_上样轴5Z轴.position[2]`(实读 46.5) = **下探吸样**;
+    #   · PLC_Servo_伺服/伺服调用: 4X 的移动门禁 `上样轴5Z轴DATE.fActPos<3`, 注释"仅5Z**抬起**<3时放开4X"。
+    #   ⇒ 控制侧 mm 越大越低。本轴模型轴向 [0,1,0] 朝上, 故 sign 必须是 −1。
+    #
+    # 原 +1 来自"2026-08-02 用户在动作界面实拖判定" —— 那条路已被 docs/CLAUDE.md 第 35 条判死
+    # (动作页拖拽在近距/俯视下会整体翻向), 且第 35 条**点名 axis_3y 与 axis_5z**。
+    # 2026-08-05 那轮清理改了 axis_4x / axis_3y 的注释, 唯独漏了本条, 现补上。
+    #
+    # zero_offset 的符号必须跟着翻(第 37 条: 改标定三元组里任何一个都要整段复核)。
+    # 取 +48.5 后三个已知位置同时落在合理处(针尖 Blender Z; 10mL 板落板 74.5 / 孔底 78.20 / 顶面 118.50):
+    #   mm=46.5(下探) → δ=+2.0  → 78.51, 孔底上方 0.31mm
+    #   mm=45.0(升降, 真机现值) → δ=+3.5 → 80.01, 孔底上方 1.8mm
+    #   mm=0 (抬起)   → δ=+48.5 → 125.01, 板顶上方 6.5mm(刚够横移)
+    # 三个互不相干的位置同时成立, 是这组值正确的强佐证。**现场仍须按
+    # docs/AXIS_ZERO_CALIBRATION.md 七步法复核后定稿** —— 幅值 48.5 是沿用原值, 未经实测。
+    sign: -1
+    zero_offset_mm: 48.5 # 幅值沿用原值, 只订正符号; 现场七步法复核后定稿
+    # 轨道范围: 与 3Y 同为自制同步带轴, 行程由导轨条定 ——
+    #   _LRM9RLX180-S10-H-D-1 实测净长 180.0, 滑块(PTLC-05-011 导轨连接板所贴的
+    #   _LRM9BK 块)长 31.0 ⇒ 行程 149。滑块现停在 Y(向上)[181.01, 212.01]、导轨
+    #   [158.5, 338.5] ⇒ δ ∈ [-22.5, +126.5]。
+    # ⚠ 旧注释在这里写过一句"取 −1 则上界只剩 22.5, 覆盖不了 50, 故反证 sign=+1 是对的" ——
+    # 那是第 37 条的典型陷阱: 它**把 zero_offset 按住不动只翻 sign**。两个一起翻之后,
+    # mm = zero − δ ⇒ mm ∈ [48.5−126.5, 48.5+22.5] = [−78.0, 71.0], 整段包住控制侧
+    # limits [−5, 50](下留 73、上留 21)。旧值 [-5, 200] 跨度 205 是导轨行程的 1.4 倍。
+    stroke_mm: 149
+    range_mm:
+      - -22.5
+      - 126.5
+    telemetry: { node: plc.sampling, key: Sampling_5Z_ActPos }
+    rigged: true
+    assigned_by: workbench-assign
+
+  - id: axis_6x
+    station: SAMPLING
+    label: 点样轴6X
+    # 2026-08-04 指认: 6X = CFG4-L5-300 模组带着的**点胶/点样头整摞**(y 580~1010)。
+    # **推翻本条此前那句猜测**(猜"物料盘 + CFC30B-S300 那组是 6X"): 那组在台面高度
+    # y≈74, 跟点样无关, 已按实测归入 axis_4x。照旧注释接下去的后果是遥测一来料盘乱跑
+    # 而喷射头纹丝不动, 且不报任何错。改判的七条证据:
+    #   1. 贴合: 模组承载块 2.1.11 顶面 y=660.0 = `PTLC-05-024 点样模组连接板` 底面
+    #      y=660.0, 差 0.00mm;
+    #   2. 零件名点名: 05-024 就叫「**点样**模组连接板」;
+    #   3. 拖链槽 `PTLC-05-038 点胶机构**X轴**拖链安装板` z[-148.9,151.1] 长 300mm,
+    #      与 CFG4-L5-**300** 行程一致 —— CAD 管这根叫 X 轴, 走向 = glTF Z;
+    #   4. 喷射头悬在板面上: `喷射头-1` 底面 y=580.0, `玻璃-1`(TLC 板)顶面 y=574.5,
+    #      悬空 5.5mm;
+    #   5. 行程覆盖整块板: 板 z[-29.1,170.9], 喷射头停在 z[225.1,247.1](板 +Z 侧外),
+    #      沿 -Z 走 170mm 正好扫完 —— 已在 work/previews/ax64_{base,jog}_head_* 目检;
+    #   6. 零位 = 润洗位: 喷射头正对 `PTLC-05-042 润洗收集瓶放置板` z[191.1,271.1],
+    #      与 sampling.clean/flush 用 4X/5Z/**6X**+泵 吻合;
+    #   7. 与 7Y 正交: 7Y 的 CFG4-L10-100 长轴 = glTF X, 本轴 = glTF Z。两根正交才构成
+    #      点样光栅; 若照旧注释接 CFC30B-S300(长轴也是 X), 两轴平行, 条带无法排行。
+    carriage_groups: []
+    carriage_members:
+      # ---- 点样/点胶头本体 ----
+      - equals: PTLC-05-024 点样模组连接板-1
+        expect_count: 1
+      # 点胶支撑板 ×2(.001 副本在 PHOTOSCRAPE, 不在本工位候选池内, 故不写副本后缀)
+      - contains: PTLC-05-025
+        expect_count: 2
+      # 355mm 高立板 —— 它同时是注射泵的桅杆, 不收泵会悬在半空
+      - equals: PTLC-05-026 玻璃点胶连接板-1
+        expect_count: 1
+      - equals: PTLC-05-027 点胶阀安装板-1
+        expect_count: 1
+      # 不收 `PTLC-05-037 点胶拖链安装板-1`: prune_list 的 `tuo_lian`(拖链) 规则把它整件删了
+      # (规则本意是删拖链内节, 波及了安装板), full 阶段命中 0 会硬失败 —— 与 axis_9x 的
+      # `PTLC-06-020 刮板拖链安装板` 同一个坑, 2026-08-04 两处一并踩到。
+      - equals: PTLC-05-040 注液电磁阀安装板-1
+        expect_count: 1
+      # 2026-08-05 补绑(同一轮上样工位审计): 装在上面那块「注液电磁阀安装板」上的阀本体 ——
+      # 它的 x[1097.8,1121.4] / z[734.2,745.7] 足迹整个落在该板的 x[1098.9,1148.9] /
+      # z[720,760] 轮廓内, 只在 y 上退后 23.3mm(挂在板背面)。板已随 6X 走而阀不走。
+      - equals: V14T24-50-1-V__3272-00-0100-Z1_装配-1
+        expect_count: 1
+      - equals: 喷射头-1
+        expect_count: 1
+      # 喷射头↔立板 之间的连接链(E-EIM01 电缸三件): 002 的 +X 面 x=1138.87
+      # = 立板 05-026 的 -X 面 x=1138.88, 0.01mm 贴合; 001 再往 -X 接到点胶阀安装板。
+      - contains: E-EIM01-L80-00
+        expect_count: 3
+      # 注射泵整摞骑在立板上(泵 x[1118.9,1263.4] 跨着立板 x[1138.9,1148.9])。
+      # 注意: `注射泵-1` 的基础名全场景有 3 个同名实例, 但 ST_SAMPLING 内唯一,
+      # 故沿用不带副本后缀的写法(同 axis_7y 夹紧气缸那段的理由)。
+      - equals: 注射泵-1
+        expect_count: 1
+      # `注射泵视窗-1` / `注射泵针筒-1` **不要写进来**, 两个理由缺一不可:
+      #   (a) 它们在 build_axis_carriages 的时刻还不存在 —— full 分支里
+      #       build_pump_visuals 排在 build_axis_carriages **之后**(blender_clean.main
+      #       第 5803 行 vs 5791 行), 写 expect_count 必然命中 0 而硬失败;
+      #   (b) 也不需要写 —— _attach_pump_visual 把它们 `parent = pump`, 泵已经在本轴
+      #       CARRIAGE 里, 两件天生随泵走(build_pump_visuals 的文档串原话:
+      #       "视窗/针筒 parent 到泵本体, full 阶段随泵落进所属工位")。
+      # 同理不收拖链动端 `PTLC-05-037`(见上, 被 tuo_lian 规则删了)。
+      # 教训: 这两处都是在**未删减/未建视窗**的 raw.glb 上验证时看不出来的, 滑车成员
+      # 必须在 full 链真正跑到 build_axis_carriages 的那个时刻的场景状态上验证。
+      # ---- CFG4-L5-300 模组自身的滑块块(判据同 axis_7y 的 CFG4-L10-100 那段) ----
+      # 与 7Y 的 138 家族逐件同构, 只是轴向置换: 2.1.11 ↔ 138.1.37, 2.1.15 ↔ 138.1.41。
+      # 反例(别收): 52.5mm 的 2.1.24/39/45 分居 z≈-58 / 183~236 / 236~289 **三处**
+      #   (含盖板 2.1.35/38/42) —— 定子件必在多处重复, 那是三只感应开关, 与 CFG5 那次
+      #   判成开关的签名逐项一致; 钢带压块 2.1.10/13 在导轨**两端** z=-130 / +302,
+      #   是钢带锚点不是滑车件; 2.2.1.* 是电机(且 2.2.1.2/4 已进 explicit_delete)。
+      # 不收 ≤6mm 的黄油嘴 2.1.19.1.*/2.1.16.1.*(最长边 5.5/1.6mm): 已被
+      # prune_list.min_dimension_mm=6.0 删掉, 写 expect_count 会让 03 步硬失败。
+      - equals: Open CASCADE STEP translator 7.6 2.1.11-1 # 承载块 40×12×50
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 2.1.15-1 # 滑块本体 42.6×9×90
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 2.1.28-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 2.1.4-1 # 块四角螺钉 2×2(y 带 650.8~656.2, 在顶盖之上)
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 2.1.29-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 2.1.30-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 2.1.33-1
+        expect_count: 1
+    # 模组世界长轴 = glTF Z(本体 2.1.7 z[-133.9,306.1] 长 440, 行程 300) —— 原 [1,0,0]
+    # 是未指认时的占位值, 与 7Y 平行, 是错的。
+    axis: [ 0, 0, 1 ]
+    # 2026-08-04 几何反证 sign = −1。此前的 +1 是"照 3Y/5Z/7Y 先例"的占位(从未核过),
+    # 与模组几何直接矛盾: 导轨 2.1.7/9/12/26 在 glTF Z 上跨 [-133.9, 306.1](长 440),
+    # 滑块 2.1.15 现停在 z[191.1, 281.1] —— 已顶到 +Z 端(余 25 = 端块厚), 只能往 −Z 走 300,
+    # 即 δ ∈ [-300, 0]。sign=+1 时示教点 70/240 要求 δ=+70/+240, 模组没有那段行程,
+    # 驱到示教位滑块会飞出导轨 45~215 mm; sign=−1 时 70/240 落在导轨中段, 且 mm∈[0,300]
+    # 正好等于整条行程。同族的 7Y(CFG4-L10-100)滑块停在**另一端**, 故 7Y 仍是 +1, 不矛盾。
+    sign: -1
+    zero_offset_mm: -4.001 # 待现场标定(参考位: 点样 x 起点 70 / 终点 240, 两点互为复核)
+    # 轨道范围: CFG4-L5-300 行程 300 就是本轴全部可达范围(导轨 440 − 滑块 90 − 端块 25×2
+    # = 300, 与型号数字自洽)。滑块在 CAD 停在 +Z 端 ⇒ mm 窗口正好是 [0, 300]。
+    # 覆盖回零 0 与示教 x_start=70 / x_end=240; 控制侧 ±500 是名义软界, 不照抄。
+    stroke_mm: 300
+    range_mm:
+      - -0.001
+      - 300
+    telemetry: { node: plc.sampling, key: Spot_6X_ActPos }
+    rigged: true
+    # 拖链 TWD15-C15-R28 不进滑车: 柔性件一半动一半不动, 本项目所有已装配轴均不 rig 拖链。
+
+  - id: axis_7y
+    station: SAMPLING
+    label: 点样轴7Y
+    carriage_groups: []
+    # 2026-08-02 实测定向: 所在模组世界长轴 = X(raw.glb 顶点级包围盒), 与用户"实机左右
+    # 运动"证词一致 —— 原 [0,0,1] 是错的。轴向没有争议, 有争议的是下面的 sign。
+    # (定向结论在 2026-08-03 换滑车后仍成立: 新滑车所骑的 CFG4-L10-100 长轴同样是 X。)
+    axis: [ 1, 0, 0 ]
+    # 2026-08-05 订正: sign 由 +1 改为 −1(用户在三维里目视"点样 7Y 动反了"引出的复核)。
+    #
+    # 作废的旧论证, 原文抄在这里以免有人照着再推一遍: "sign=+1 由几何佐证: 滑块只能往
+    # −X 走, 而唯一示教点 y_height=−20 是负值 —— 取 −1 会要求 δ=+20 的正向行程, 模组没有"。
+    # 病根: 那一步**隐含 zero_offset=0**(当时确实是占位 0), 而零点后来先改成 40、再改成 56,
+    # 论证却没跟着复核。"滑块只能往 −X 走"本身只推得出 **δ ≤ 0**, 推不出 sign ——
+    # sign=−1 时 δ ≤ 0 等价于 mm ≥ zero_offset, 一样成立, 只是 zero_offset 从"本轴能到的
+    # 最大毫米值"变成**最小**毫米值。放开 zero_offset 后 −1 完全可行。
+    #
+    # 改为 −1 的两条独立证据(都不依赖目视):
+    #   1. **可行性**: verify_plate_seats 的 1-DOF 反解要求放板位落在 δ=−80.85(推导见
+    #      zero_offset_mm)。sign=+1 要满足它需 zero_offset=136.85, 那样点样位 −20 落到
+    #      δ=−156.85, 出 100mm 行程 57mm —— **无解**; sign=−1 只需 zero_offset=−24.85,
+    #      两个示教点都稳稳在行程内。两个实读示教点 + 反解, 只有 −1 同时容得下。
+    #   2. **判据**: 现网 sign=+1 让 verify_plate_seats **退出 1** —— spot_seat 在法兰系下
+    #      dX=+319.0, 而同翻转态的刮板台 P65 是 +238.1, 偏 40.8mm(超 40mm 容差)。
+    #      翻符号并配 zero_offset=−24.85 后 dX 回到 +238.2, 偏离 5.4mm, 判据转绿。
+    #
+    # 连带作废: AXIS_ZERO_CALIBRATION §5 那条"同族 6X 的滑块停在另一端, 故 7Y 仍是 +1"
+    # 已不成立 —— 两根同族轴现在**都是 −1**, 滑块停哪一端只影响 zero_offset 落在行程的
+    # 哪一头, 与 sign 无关。
+    sign: -1
+    # 轨道范围: CFG4-L10-100 行程 100 —— 旧值 [0,400] 是 4 倍于模组本身。实测: 导轨
+    # 138.1.3/38/39/42 在 X 上跨 [922.42, 1162.42](长 240), 滑块 138.1.41 停在
+    # x[1047.42, 1137.42] —— 顶到 +X 端(余 25 = 端块厚, 与 6X 同族同厚), 只能往 −X 走 100
+    # ⇒ **δ ∈ [-100, 0]**。自洽校验: 240 − 90(滑块) − 25×2 = 100 = 型号数字。
+    #
+    # δ→毫米的换算。驱动是 `δ = (mm − zero_offset) × sign`(见 MachineStateDriver.setAxisMm),
+    # sign=−1 ⇒ δ ∈ [-100, 0] 等价于 **mm ∈ [zero_offset, zero_offset+100]**。
+    # 实机两个位置(2026-08-05 OPC 实读 `HMI_点样轴7Y.position = [56.0, -20.0, …]`):
+    #   position[1] = 56.0  放板位 (PLC Sampling_L2/A31_放板移轴 原文读它)
+    #   position[2] = -20.0 点样位 (= Spot_7Y_Target = 点表 spot_pose.y_height, 逐字对上)
+    # ⇒ range_mm = [-24.85, 75.15](跨度 100 = stroke_mm)。
+    # 复核: 放板位 56 ⇒ δ=−80.85(= 反解要求 ✓); 点样位 −20 ⇒ δ=−4.85(在 [-100,0] 内 ✓);
+    #       两端 ⇒ δ=0 / −100, 滑块分毫不差卡在端块余量 25 上(verify_axis_travel 残差 0);
+    #       两个示教点都留有余量(−20 下方 4.85, 56 上方 19.15), 不会被 clamp 咬住。
+    # ⚠ 2026-08-05 上午这里曾写 [-44, 56] 配 zero_offset=56/sign=+1, 结论"**CAD 建模位 =
+    #   放板位**" —— 反了。实为 **CAD 建模位 ≈ 点样位**(差 4.85mm), 放板位在 −80.85 处。
+    # 控制侧 ±500 是名义软界, 不照抄。
+    stroke_mm: 100
+    range_mm:
+      - -24.85
+      - 75.15
+    telemetry: { node: plc.sampling, key: Spot_7Y_ActPos }
+    rigged: true
+    # 2026-08-03 订正滑车归属。此前收的是 `PTLC-05-030 物料盘-1` 那一组(骑在
+    # CFC30B-1H03-S300 上), 但**点样座根本不在那条模组上** —— 两者竖直相距 499mm。
+    # 后果: 7Y 动了板座也不动, 机器人到 P19 取放时板与吸盘水平错开 99mm, 肉眼穿模。
+    # 判定 7Y = 点样座那一摞(CFG4-L10-100)的三条独立证据:
+    #   1. sampling_unload.yaml:23 明写"先把 **7Y 带板** 从喷涂位退回放板位…否则会在
+    #      7Y 行程中移/丢板" —— 7Y 载的是板;
+    #   2. 承板链的连接件自己就叫 `PTLC-05-020 **Y轴模组**连接板`;
+    #   3. 实测所需修正量 **99.0mm**, 而 CFG4-L10-100 的标称行程正好 **100mm** —— 1% 吻合。
+    # 滑块链: 模组连接板 → 玻璃吸盘支撑板 ×2 → 点胶滑块连接板 → 板锚点 玻璃-1。
+    # 模组本体(CFG4-L10-100)的导轨/电机端块/侧槽感应开关是定子, 但它自己的**滑块块**
+    # 随滑车走, 见下面第二段追加。
+    carriage_members:
+      - equals: PTLC-05-020 Y轴模组连接板-1
+        expect_count: 1
+      - contains: PTLC-05-021
+        expect_count: 2
+      - equals: PTLC-05-022 点胶滑块连接板-1
+        expect_count: 1
+      - equals: 玻璃-1
+        expect_count: 1
+      # ---- 2026-08-04 追加(一): 夹紧气缸整摞 ----
+      # 用户反馈"7Y 走的时候后面的夹紧气缸是一起走的"。实测: TCM6x5S 微型缸经 05-039
+      # 吊在平台底面(平台底 y=563, 安装板 y=561..563, 其下整机无任何机架结构支撑),
+      # 缸杆推 05-023 压住玻璃 —— 推板与平台 +X 端面间隙 0.0mm。整摞随滑车走。
+      # ST_SAMPLING 内这些基础名各唯一(副本 .001/.002 在 PHOTOSCRAPE、.003 在 TOOLING),
+      # 故用不带副本后缀的写法。
+      - equals: PTLC-05-023 推板-1
+        expect_count: 1
+      - equals: PTLC-05-039 定位气缸安装板-1
+        expect_count: 1
+      - equals: _TCM-6x5-0_5fp-1
+        expect_count: 1
+      - equals: _TC-M-6x55_b-1
+        expect_count: 1
+      - equals: _(DS1-H)-1
+        expect_count: 1
+      - equals: _(DS1-H)-2
+        expect_count: 1
+      # 注(2026-08-05): 其中推板与缸杆前板同时也是 smp_locator 的驱动件 —— 执行器建组
+      # 晚于本步, 会把它们收进 ACTUATOR_SMP_LOCATOR(该空对象经 build.parent_axis 挂回
+      # 本滑车), 净效果不变。六件一件都别删。写法与 axis_8y/ps_locator 那侧一致。
+      # ⚠ 别拿上面那句"推板与平台 +X 端面间隙 0.0mm"当**基准态**依据 —— 那说的是安装
+      #   贴合(实测推板还落在台面沉台内、重叠 2.5mm), 不是夹持净空。基准态 = 松开、
+      #   夹紧行程 3.5mm 的实测判据见 actuators.smp_locator 的注释。
+      # ---- 2026-08-04 追加(二): CFG4-L10-100 模组自身的滑块块 ----
+      # OCC 名字无语义, 滑块/定子按三条独立几何判据定案(三条一致才收):
+      #   1) 贴合: 滑块顶板 138.1.37 顶面 y=475.0 = 承载板 05-020 底面 y=475.0;
+      #   2) 形状族不重复: 按(包围盒尺寸, 三角形数)归族后, 该族成员只出现在滑车
+      #      X=1092.4 上, 整根模组没有其它 X 副本(定子件必在多个 X 上重复);
+      #      3) 高度带: 落在滑块本体 y 带内, 而非导轨侧槽感应开关的 y 带内。
+      # 反例(判据 2+3 的交叉验证, 别收): 同为 7.1×7.2×9.0 的螺钉族共 10 件 ——
+      #   y[464.9,472.1] 的 138.1.6/47/7/2 在 x=1089.4/1095.4 排成 2×2, 是块四角螺钉;
+      #   y[454.2,461.4] 的 138.1.17/22(x 976.7/1020.7)、138.1.18/21(1044.2/1088.2)、
+      #   138.1.1/48(1096.7/1140.7) 三对间距均 44mm, 中点 998.7/1066.2/1118.7 与感应
+      #   开关族(52.5×16×18 的 138.1.9/12/25)的三个 X 逐一吻合 —— 那是定子, 不收。
+      - equals: Open CASCADE STEP translator 7.6 138.1.37-1 # 滑块顶板 50×12×40
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 138.1.41-1 # 滑块本体 90×9×42.6
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 138.1.10-1 # 钢带压块(+z)
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 138.1.33-1 # 钢带压块(-z)
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 138.1.6-1 # 块四角螺钉 ×4
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 138.1.47-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 138.1.7-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 138.1.2-1
+        expect_count: 1
+      # 不收 ≤7mm 的黄油嘴/堵头(138.1.43.1.*/138.1.44.1.*): 多数落在 prune_list 的
+      # min_dimension_mm: 6.0 之下已被删, 写 expect_count 会让 03 步硬失败。
+
+      # ===========================================================================
+      # 2026-08-04 归属订正: **8Y 与 9X 此前认反了**。
+      #
+      # 旧写法把 CFG5-L10-550 上的玻璃板托台标成 9X、把 CFC30B-S400(刀具侧)标成 8Y。
+      # 三条互不相干的证据链一致否定它, 且彼此吻合到 2.2~2.5mm:
+      #
+      # (A) 行程反证(与零点无关, 最硬): PLC A34 硬编码 `拍照轴8YDATE.fAbsTarget := 420`
+      #     (points/plc/photo.yaml: photo_8y=420.0)。型号后缀 S### 就是行程 —— 同族件
+      #     交叉验证: CFC30B-1H03-S300 体长 548.5 / S400 体长 648.6, 差 100.1mm 对应标称
+      #     差 100mm。故 CFC30B-S400 只有 400 行程, **到不了 420**; 本工位只有
+      #     CFG5-L10-550(550) 够。再收紧: 刮取时板要把 200mm 幅面逐列送到固定刀位
+      #     (刀尖 Blender X≈692.95), 板心需扫 592.9..792.9, 拍照还要到 1085.4 ——
+      #     8Y 总跨度 ≥492.5mm, 400 行程无解。
+      # (B) 相机固定, 板必须走到它下面: 相机镜头/195×195 紫外面光源中心 (1085.4, 403.9),
+      #     玻璃-1.002 中心 (614.8, **403.8**) —— Y 完全对齐, 只差 X 470.6mm。只有沿
+      #     Blender X 的 CFG5 能送过去。外罩面板(X 975.4..980.4)+ 遮光门(X 961.9..973.4)
+      #     存在的理由就是板要滑进暗箱。
+      # (C) 两个独立标定锚点自洽(app.yaml gcode 段, read_scrape_axes 定义 x=9X / y=8Y):
+      #     plate_origin_x=93.234(注释: 旧右上角 291.02 −一板宽 → 197.79 ≈ 板宽)、
+      #     plate_origin_y=-74.982。由此解出 zero_offset_8y=-53.13, 代回拍照位 420 得
+      #     板心 X=1087.9, 与紫外光源中心 1085.4 只差 2.5mm; 解出 zero_offset_9x=-48.67,
+      #     代回 291.02 得刀尖 Y=501.6, 与板远边 503.8 差 2.2mm。
+      #     app.yaml `collector_x_positive: true`("收集器在铣刀机床 +X 侧") 与模型一致
+      #     (收集器 Y=252.2 / 钻头 Y=161.9) ⇒ 9X 增大 = Blender +Y, sign 由此定。
+      #
+      # 顺带解释了两条一直没解释的互锁:
+      #   · 8Y 需"遮光气缸上位": 板要穿过 X≈967 的遮光门进暗箱, 门必须先抬起; A34 时序
+      #     也印证 —— 先 8Y→420 把板送进去, 再落遮光把门关在板后面。
+      #   · ps_rotate 需 9X>330: 翻料时整摞绕 Blender X 翻转, 刀头必须先退到板外
+      #     (9X=335 ⇒ 刀尖 Y=545.6, 板远边 503.8, 让出 41.8mm)。
+      # ===========================================================================
+      # 2026-08-05 二次订正: 40(收编前估值) → 56(误) → **−24.85**。
+      # sign=−1 ⇒ 本值是该轴能到的**最小**毫米值(不是最大, 见 sign 那段的作废论证)。
+      #
+      # 出处: `verify_plate_seats.py --solve` 的一维反解 = −24.85mm。它解的是"7Y 取何值时,
+      # 点样座的板锚点相对法兰的偏置与同翻转态基准(刮板台 8Y=0, 该值有 PLC 出处)一致" ——
+      # 即让板正好落在机器人 P19 示教点的吸盘下。反解出的**位移** δ = −80.85mm 与三次不同
+      # zero_offset 下的求解逐次吻合(z=40 时报 −40.85mm、z=56 时报 −24.85mm, δ 恒为 −80.85),
+      # 是个与标定无关的几何量。配实读放板位 56.0 ⇒ zero_offset = 56 − 80.85 = −24.85。
+      #
+      # 为什么不算循环论证: 反解只有 1 个自由度(沿 X 平移), 却要同时对上法兰系三个分量 ——
+      # dY(−8.0 vs 基准 +2.8)与 dZ(−26.1 vs −26.1)是白送的独立校验, 都吻合, 残差 5.4mm
+      # 落在各站 13~19mm 的整站摆位底噪里。
+      #
+      # ⚠ 反解 ≠ 标定。现场仍须按 AXIS_ZERO_CALIBRATION §3 七步法第 2 步(实机正向 jog 看
+      #   虚拟动向)与第 5 步(两个参考位目视重合)复核, 届时可能微调几毫米。
+    zero_offset_mm: -42.85
+  - id: axis_8y
+    station: PHOTOSCRAPE
+    label: 拍照轴8Y
+    carriage_groups: []
+    axis: [ 1, 0, 0 ] # glTF X = Blender X (_to_gl 恒等映射 x)
+    sign: 1 # mm 增大 = 板往 +X 走向相机
+    zero_offset_mm: -53.13 # 由板原点角 plate_origin_y=-74.982 解出; 拍照位 420 ⇒ 板心 X=1087.9
+    # 轨道范围: CFG5-L10-550 行程 550, 现值跨度 520 ≤ 550, 且已覆盖全部真实工况 ——
+    # 本轮按轨道行程复核后**维持不变**(唯一无需订正的一根)。
+    # 几何复核: 导轨 82.1.4/19 在 X 上跨 [532.42, 1222.42](长 690), 滑块 82.1.5.1.5 停在
+    # x[556.77, 672.77](长 116) ⇒ 端块 (690−116−550)/2 = 12.0/端, δ ∈ [-12.4, +537.7]
+    # ⇒ mm ∈ [-65.5, +484.5]。与现值的下界差 14.5 mm 落在端块余量的不确定度内, 且现值
+    # 那 14.5 mm 正是为了容纳 gcode 反解出的 -74.982(见下), 故不动。
+    stroke_mm: 550
+    range_mm: [ -80, 440 ] # **必须含负段**: 刮取全程 8Y 在 -74.982..+122.8, 旧 [0,600] 会把板静默钳死在 0
+    telemetry: { node: plc.photoscrape, key: Photo_8Y_ActPos }
+    rigged: true
+    # 板托台骑在 CFG5-L10-550 上(体 x 483.4..1232.4, 行程 550, 长轴 = glTF X)。
+    # 滑车成员由 raw.glb 逐顶点实测圈定 —— 这几件的世界 X 全部是 **614.8**(同一滑块上的
+    # 一摞), 而模组导轨/电机端块/侧槽感应开关(本体中心 857.9)是定子, 不进滑车;
+    # 但模组自己的**滑块块**随滑车走, 见下面第二段:
+    #   滑块连接板(z=85) → 玻璃吸盘支撑板 ×2(z=165) → 刮板玻璃放置平台(z=245) → 板锚点(z=250)
+    # 注: 推板/TCM 缸杆同时也是 ps_locator 的驱动件 —— 执行器建组晚于本步, 会把它们
+    # 收进 ACTUATOR_PS_LOCATOR(该空对象经 build.parent_axis 挂回本滑车), 净效果不变。
+    carriage_members:
+      - equals: PTLC-06-002 滑块连接板-1
+        expect_count: 1
+      - contains: PTLC-06-003
+        expect_count: 2
+      - equals: PTLC-06-004 刮板玻璃放置平台-1
+        expect_count: 1
+      - equals: 玻璃-1.002
+        expect_count: 1
+      # ---- 2026-08-04 追加(一): 夹紧气缸整摞(与 axis_7y 同款同图纸) ----
+      # 05-039 吊在平台底面 y=238..240(其下无机架结构), 05-023 推板贴平台 +X 端面
+      # x=719.8, 间隙 0.0mm。
+      # ⚠ 这里必须写副本后缀: ST_PHOTOSCRAPE 里 `_(DS1-H)-*` 的基础名会同时命中刮板
+      # 下压缸 HLH6X20S 那一对(.001), 不带后缀会撞成 2 命中而硬失败。写法与上面的
+      # `玻璃-1.002` 一致(_plain_match 对带 .NNN 的 equals 走精确名比对)。
+      - equals: PTLC-05-023 推板-1.001
+        expect_count: 1
+      - equals: PTLC-05-039 定位气缸安装板-5
+        expect_count: 1
+      - equals: _TCM-6x5-0_5fp-1.001
+        expect_count: 1
+      - equals: _TC-M-6x55_b-1.001
+        expect_count: 1
+      - equals: _(DS1-H)-1.002
+        expect_count: 1
+      - equals: _(DS1-H)-2.002
+        expect_count: 1
+      # ---- 2026-08-04 追加(二): CFG5-L10-550 模组自身的滑块块 ----
+      # 判据同 axis_7y 那段(贴合 / 形状族不重复 / 高度带), 三条一致才收:
+      #   顶板 82.1.5.1.5 顶面 y=80.0 = 承载板 06-002 底面 y=80.0, 且它在 CAD 里本就
+      #   自成子装配(82.1.5 → 82.1.5.1) —— 供应商把滑车建成了独立节点;
+      #   82.1.15/16/28/29(y[69.3,74.7] 落在块带 y[69,80] 内, x 600.4/606.4 排成 2×2)
+      #   与 82.1.22/26(钢带压块, x=603.4)两族在整根模组里只出现在滑车 X 上。
+      # 反例(别收): 52.5mm 的 82.1.2/3/18/27/1/9 分布在 X=577.2/629.7/1147.6 三处、
+      # y[49.3,65.7] 落在导轨侧槽带 —— 那是三只感应开关, 属定子。
+      - equals: Open CASCADE STEP translator 7.6 82.1.5.1.5-1 # 滑块顶板 116×11×52.5
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 82.1.15-1 # 块四角 ×4
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 82.1.16-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 82.1.28-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 82.1.29-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 82.1.22-1 # 钢带压块(+z)
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 82.1.26-1 # 钢带压块(-z)
+        expect_count: 1
+      # 不收 82.1.5.1.1~.4(1.6~6.0mm 黄油嘴/堵头): 落在 prune_list 的
+      # min_dimension_mm: 6.0 之下已被删, 写 expect_count 会让 03 步硬失败。
+
+  - id: axis_9x
+    station: PHOTOSCRAPE
+    label: 刮板轴9X
+    carriage_groups: []
+    axis: [ 0, 0, 1 ] # Blender +Y → glTF −Z (_to_gl = (x, z, −y), 见 blender_clean.py:1377)
+    sign: -1 # 故 mm 增大(Blender +Y, 收集器侧)= axis 反向
+    zero_offset_mm: -48.67 # 由板原点角 plate_origin_x=93.234 解出(刀尖落板近边 Y=303.8)
+    # 轨道范围: 跨度仍是 CFC30B-S400 的 400 行程, 但按几何把窗口订正到位(旧 [-60, 340]
+    # 整体偏了 11.3 mm, 即让刀头能越过导轨下端 11.3 mm、上端反而少走 11.3 mm)。
+    # 实测: 导轨 178.1.1.1/.2 在 Y 上跨 [107.9, 623.9](长 516), 滑块 178.2.1.5 停在
+    # y[112.9, 218.9](长 106) ⇒ 端块 (516−106−400)/2 = 5.0/端(与同族 4X 一致), 且下端
+    # 余量正好 5.0 = 端块厚 ⇒ CAD 位恰在行程端点, 故 mm 窗口 = [zero, zero+400]。
+    # 仍含 板 93.2~291.0 与 PLC 硬编码停放位 335(拍照刮板.xml: 刮板轴9XDATE.fAbsTarget:=335)。
+    stroke_mm: 400
+    range_mm: [ -48.67, 351.33 ]
+    telemetry: { node: plc.photoscrape, key: PhotoScrape_9X_ActPos }
+    rigged: true
+    # 刀具侧整摞骑在 CFC30B-1H03-S400 上(体 y 75.9..724.5, 行程 400, 长轴 = Blender Y)。
+    # 滑车判据(raw.glb 实测): 模组内 10 个 OCC 实体里只有 `178.2-1`(y 112.9..218.9,
+    # 顶面 z=351.0)是滑块 —— 06-006 模组连接板底面正好 z=351.0 贴在它上面, y 跨度也对齐;
+    # `178.1-1`(y 107.9..623.9 长导轨)、两端块 178.7/178.4、电机 178.5/178.6、中段盖板
+    # 178.3 都是定子; 178.8/178.9/178.10 三只同形同尺寸(49mm)块分布在 y≈157/523/563,
+    # 是侧槽感应开关(与 CFG5 那三只同一反例族), 属定子。
+    # 刀头链: 06-006(平板, 卧在滑块上) → 06-007(立板, -X 端垂下, CFG4 模组以 +X 面 806.9
+    # 贴在它上面) → CFG4-L5-50 整模组; 05-025 点胶支撑板 ×2 立在 06-006 顶面 z=361;
+    # _LRM12BK-N-H-A-3 是骑 _LRM12RLX520 辅助光轴的直线轴承(**必须带 -3**, -1/-2 是遮光门的)。
+    carriage_members:
+      - equals: PTLC-06-006 模组连接板1-1
+        expect_count: 1
+      - equals: PTLC-06-007 刮板模组安装板-3
+        expect_count: 1
+      - equals: PTLC-05-025 点胶支撑板-1.001
+        expect_count: 1
+      - equals: PTLC-05-025 点胶支撑板-2.001
+        expect_count: 1
+      # 不收 `PTLC-06-020 刮板拖链安装板-1`: prune_list 的 `tuo_lian`(拖链) 规则连它一起删了
+      # (规则本意是删拖链内节, 波及了安装板), full 阶段命中 0 会硬失败。
+      - equals: _LRM12BK-N-H-A-3
+        expect_count: 1
+      - equals: CFG4-L5-50-BC-T100W-C4_3D模型-1 # 10Z 模组本体(子轴的定子)
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 178.2-1 # CFC30B 自身的滑块块
+        expect_count: 1
+      # ---- 2026-08-06: 收集器/翻料整摞由 axis_10z 迁来(用户目检"它不随 Z 升降") ----
+      # 判据三条写在 ps_rotate 头注释里(面贴面 0.00mm / 桶底离板 6.9mm / 让位靠 9X)。
+      # 06-011 贴 06-007 的 −X 面(806.92), 与 CFG4 模组同挂一块立板 —— 这才是它的真实父级。
+      # 下面 10 条 = 原 axis_10z.carriage_members 里除 `钻头夹具支架装配-1` 外的全部。
+      # 其中 06-012/013/014、05-041、HLH、硅胶收集、03-035、06-028 随后会被 ps_rotate /
+      # ps_press 收进执行器组(它们声明了 parent_axis: axis_9x / parent_node), 净效果不变。
+      - equals: PTLC-06-011 硅胶收集器安装板-1
+        expect_count: 1
+      - equals: HRQ7_DMSH-2_-1
+        expect_count: 1
+      - equals: PTLC-06-012 旋转气缸连接板-1
+        expect_count: 1
+      - equals: PTLC-06-013 压紧安装块-1
+        expect_count: 1
+      - equals: PTLC-05-041 插紧气缸安装板-1
+        expect_count: 1
+      - equals: HLH6X20S_0_+_DMSH-2_-1
+        expect_count: 1
+      - equals: 硅胶收集-1.008
+        expect_count: 1
+      - equals: PTLC-06-014 接头安装块-2
+        expect_count: 1
+      - equals: PTLC-03-035 导向块-2
+        expect_count: 1
+      - equals: PTLC-06-028 穿板鲁尔接头-1
+        expect_count: 1
+
+  - id: axis_10z
+    station: PHOTOSCRAPE
+    label: 刮板轴10Z
+    parent_axis: axis_9x # 10Z 模组整个骑在 9X 滑车上(照 axis_5z 骑 axis_3y 的写法)
+    carriage_groups: []
+    axis: [ 0, 1, 0 ]
+    sign: -1 # 上位机约定 Z+ 为向下
+    # 由 gcode.plate_surface_z_mm=20.5 反解: 10Z=20.5 时刀尖落玻璃面 Blender z=251.5。
+    # ⚠ 这个数与 spindles.ps_spindle.protrusion_mm **强耦合**: zero_offset_mm = protrusion_mm − 14
+    # (主轴鼻端实测 z=286, 玻璃面 z=251.5, 位移 = mm − zero_offset)。2026-08-06 之前数模里
+    # 根本没有那段刀刃, 本行却已按"刀伸出 10mm"算好 —— 现在几何补上了, 两者对齐。
+    zero_offset_mm: -4.0
+    # 轨道范围: 跨度仍是 CFG4-L5-50 的 50 行程(旧 [0,200] 远超模组本身, 上一轮已收),
+    # 本轮按几何把窗口平移 14 mm 到位 —— 旧 [0, 50] **不含 CAD 位 -14**, 意味着模型永远
+    # 回不到加载态, 且 mm=0 时刀头已下探了 14 mm。
+    # 实测: 导轨 18.1.13/41/45/46 在 Y 上跨 [281.0, 471.0](长 190), 滑块 18.1.42 停在
+    # y[356.0, 446.0](长 90) ⇒ 端块 (190−90−50)/2 = 25.0/端(与同族 6X/7Y 一致), 上端
+    # 余量正好 25.0 ⇒ CAD 位恰在行程顶端, mm 窗口 = [zero, zero+50]。
+    # 覆盖 gcode.plate_surface_z_mm=20.5(刀尖落玻璃面)与"抬起判据 <6"。
+    stroke_mm: 50
+    range_mm:
+      - -14
+      - 36
+    telemetry: { node: plc.photoscrape, key: PhotoScrape_10Z_ActPos }
+    rigged: true
+    # 刀头一簇。判据: `钻头夹具支架装配-1` 内含 `PTLC-06-009 滑块连接板` +
+    # `PTLC-06-010 滑块阻挡块-1/-2`(z 356..366 与 421..431, 净空 55mm ≈ 模组行程),
+    # 命名与 8Y 托台的 `PTLC-06-002 滑块连接板` 同一套路 ⇒ 骑在 10Z 滑块上。
+    #
+    # ⚠ 2026-08-06 两处订正(用户目检):
+    # (a) **收集器/翻料整摞已迁往 axis_9x** —— 旧注释"与刀同步升降才能保证吸粉口与板面距离
+    #     恒定"是错的: 06-011 与 9X 滑车成员 06-007 面贴面 0.00mm, 结构上够不到 Z 滑块; 且粉桶
+    #     底离板面只有 6.9mm, 随 Z 下探 25mm 会扎进板 18mm。判据全文见 ps_rotate 头注释。
+    # (b) 旧注释"CFG4-L5-50 只有 2 个 OCC 实体, **拆不出模组滑块块**"也是错的 ——
+    #     `CFG4-…模组-1` 的 `18.1-1` 是 EMPTY, 下挂 **50 个独立网格**, 滑块 `18.1.42` 就在里面
+    #     (上面 range_mm 那段注释自己就认出过它)。于是滑车件一直留在 9X 定子里, 10Z 一动就与
+    #     刀头脱节。下面按 8Y/9X 同一套判据把它们收进来。
+    #
+    # CFG4 滑车件判定(逐顶点实测, 滑块窗口 = 06-008 钻头安装板的 z[356.0, 446.0]):
+    #   · 导轨件一律跨全程 z[281.0, 471.0](18.1.13/41/45/46), 与滑车件天然可分;
+    #   · **滑车质心 z=401.0** —— 收下的每一件不是自身居中于 401, 就是成对跨 401 对称。
+    #   收: 18.1.42(9×42.6×90, 形状族唯一, 长度=行程窗口, 06-008 贴其 −X 面 0.9mm) /
+    #       18.1.39(12×40×50, 形状族唯一, 居中 401, x 754.9..766.9 同时压住滑块与安装板
+    #               —— 用户说的"Z 轴后面那个连接块"就是它) /
+    #       18.1.8+18.1.27(15×6.5×11 成对, 均居中 401, 关于刀轴 y=161.9 对称;
+    #               与 8Y 已收的 CFG5 钢带压块 82.1.22/26 同族同形) /
+    #       18.1.9+12 与 18.1.15+16(Ø7.2 螺钉四只, x 757.8..765.0 落在滑块体内,
+    #               两两跨 401 ±3, y 贴滑块两端 —— 穿滑块的紧固螺钉)。
+    #   **不收(必须写明, 不做静默截断)**:
+    #   · 伸缩防尘罩 18.1.10/31(40mm)、18.1.11/40(52.5mm)在 **z=401 处一分为二**,
+    #     对侧单件 18.1.14/24 —— 它们要伸缩不是平移, 收走任一半都会把这对撕开;
+    #   · 上述罩子的端头螺钉 18.1.1/2/19/23(x=772.1,y=177.3)、18.1.47/51(x=772.1,y=146.5)、
+    #     18.1.17/18/48/50/49/52(x=781.5) —— 逐只都能对上所属罩子的端面 z, 跟罩子走;
+    #     其中 18.1.1/23/47/17/18/48/50 虽落在 [356,446] 窗口内, 归属仍是定子侧。
+    #   · 钢带本体 18.1.45(0.1mm 薄片, 跨全程)—— 两端固定, 滑车从它下面过。
+    # 注: 06-012~014 等转子件已随收集器整摞迁走, 本轴不再涉及 ps_rotate。
+    carriage_members:
+      - equals: 钻头夹具支架装配-1 # 整个子装配: 钻头/夹具/IAJ41 缓冲/06-008/06-009/06-010×2
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.42-1 # CFG4 滑块体 9×42.6×90
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.39-1 # 连接块 12×40×50
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.8-1 # 钢带压块(+y)
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.27-1 # 钢带压块(−y)
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.9-1 # 滑块紧固螺钉 ×4
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.12-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.15-1
+        expect_count: 1
+      - equals: Open CASCADE STEP translator 7.6 18.1.16-1
+        expect_count: 1
+
+# ---------------------------------------------------------------------------
+# 主轴(持续自转的切削刀具). 与 actuators 的 `motion: rotate` 是两回事:
+#   · 执行器旋转是**有限角、绝对值写入**(0..1 → 0..180°), 值是时间的纯函数;
+#   · 主轴是**无限角、按转速积分**, 相位不可能是 t 的纯函数。
+# 因此本段只声明"开/关 + 转速", 相位由前端逐帧累加(与补光 setFlash 同属渲染层装饰,
+# home() 时清零), 片段/实时链只驱动那个布尔 —— seek 幂等契约不破。
+#
+# 三个消费方:
+#   1) blender_clean.build_spindle_cutters —— 按本段补出缺失的刀刃几何(见该函数 docstring);
+#   2) gen_twin_manifest —— 透传成 manifest.spindles, 前端据此绑定节点;
+#   3) clip_compiler / TwinBindings —— 按 trigger.action 决定何时置 on。
+# ---------------------------------------------------------------------------
+spindles:
+  # 刮板铣刀主轴。PLC 里**没有**主轴的独立信号(manual_points.photoscrape 只有
+  # ps_shade/rotate/press/vacuum/motor/locator 六个, 其中 ps_motor 按 A40 动作注释是
+  # 吸粉无刷电机 %QX7.3 —— 是吸力源不是主轴, 拿它驱主轴会在"停吸不停刀"时显示反)。
+  # 故触发源取 photoscrape.scrape(A40) 这条动作本身: 它在跑 = CNC 在切削 = 刀在转。
+  - id: ps_spindle
+    label: "刮板铣刀主轴"
+    station: PHOTOSCRAPE
+    node: TOOL_CUTTER_BIT
+    parent: 钻头夹具支架装配-1 # 与 axis_10z 同一刚体, 随 Z 升降
+    source_mesh: 钻头-3 # 鼻端位置由它逐顶点实测, 不写死坐标
+    nose_radius_mm: 5.0 # 实测 Ø10 平口; 对不上即 CAD 换过主轴, 硬失败
+    diameter_mm: 2.0 # = app.yaml gcode.tool.cutter_diameter_mm(刀补/步距都按它算)
+    protrusion_mm: 10.0 # 见 build_spindle_cutters: zero_offset_mm = protrusion_mm − 14
+    axis: [ 0, 1, 0 ] # glTF +Y(竖直), 与 axis_10z 同向
+    rpm: 9000 # 演示转速。真机无转速反馈, 这是观感值 —— 屏幕上只需"看得出在转"
+    trigger: { action: photoscrape.scrape }
+
+# ---------------------------------------------------------------------------
+# 机器人: DOBOT CR5, 6 个关节.
+#
+# 原始 CAD 机械臂本体不再参与枢轴/轴向推算。Blender 严格按固定提交的 xacro 建立
+# ORIGIN -> ROTOR(local-Z) 六轴刚体链并导入官方连杆；这里只声明整机定位与自制末端件。
+# ---------------------------------------------------------------------------
+robot:
+  pattern: "^DOBOT"
+  joints_rigged: true
+  telemetry: { node: robot, joint_key: joint, tool_key: tool_state.mounted_tool }
+  # 固定提交的官方 xacro + 七个米制 STL。数值映射来自版本化标定文件。
+  kinematics:
+    repository: "https://github.com/Dobot-Arm/DOBOT_6Axis_ROS2_V4"
+    commit: "37730d08b08c74061ae10d4fa5565b4c4c914885"
+    xacro: "../vendor/dobot-cr5-37730d08-full/cra_description/urdf/cr5_robot.xacro"
+    mesh_dir: "../vendor/dobot-cr5-37730d08-full/cra_description/meshes/cr5"
+    calibration: "calibration/cr5_ptlc_v1.yaml"
+  base_transform:
+    translation_m: [ 0, 0, 0 ]
+    rpy_deg: [ 0, 0, 0 ]
+  # 仅保留 PTLC 自制末端结构；旧 CR5 CAD 本体会被官方连杆替换。
+  custom_mount_members:
+    - { contains: "PTLC-07-028" }
+    - { contains: "QT2191876" }
+  tool_mount: { node: "TOOL_MOUNT" }
+
+# ---------------------------------------------------------------------------
+# 可更换工具(工件系统): 这些子树**永不并入 STATIC 静态合并**, 各自保持为独立
+# 可重挂节点 —— 换夹爪动画的 attach 语义(夹爪被法兰"带走")依赖它.
+# ---------------------------------------------------------------------------
+tools:
+  - id: TOOL_PLATE96
+    controller_tool: 2
+    connector: { contains: "QT2091392" }
+    root: { contains: "96孔板夹具总装" }
+    label: "96孔板夹爪"
+    # 从正式 robot.tool_pickup 在 2 号工具目标点执行 lock 后读取的
+    # TOOL_MOUNT -> TOOL_PLATE96 局部刚体变换。实时 mounted_tool 恢复必须
+    # 使用同一变换，不能退回单位四元数，否则大夹爪会绕安装轴错转约 90°。
+    mount_transform:
+      position_m: [ 0.000420864, -0.000465401, -0.000431585 ]
+      quaternion_xyzw: [ -0.707592304, 0.000684711, 0.000743800, 0.706620202 ]
+      source: "robot.tool_pickup/tool-2 lock pose"
+  - id: TOOL_VIAL
+    controller_tool: 3
+    connector: { contains: "QT2091392" }
+    root: { contains: "样品瓶夹具总装" }
+    label: "样品瓶电爪"
+    # 快换耦合是纯机械量：三个工具侧 QT2091392 在 CAD 工具站里共用同一坐标朝向
+    # (calibration/cr5_ptlc_v1.yaml 的 dock_frame_rotation)，锁紧后
+    # TOOL_MOUNT -> TOOL_* 的局部变换与槽位无关，因此三把刀共用 2 号刀标定出的那组值。
+    # shared_coupling 让 blender_clean._check_dock_frames 把这个前提变成会失败的断言。
+    # 缺这段时实时挂载会退回单位四元数，小夹爪绕安装轴错转约 90°（与大夹爪当年同因）。
+    mount_transform:
+      position_m: [ 0.000420864, -0.000465401, -0.000431585 ]
+      quaternion_xyzw: [ -0.707592304, 0.000684711, 0.000743800, 0.706620202 ]
+      shared_coupling: true
+      source: "shared QT2091392 coupling (= robot.tool_pickup/tool-2 lock pose)"
+
+  # 1 号玻璃吸盘。CAD 侧 `吸盘夹具支架/` 只有一个把工具与料架混在一起的
+  # `玻璃夹具支架装配.SLDASM`，没有像另外两把刀那样拆成「XX夹具总装(工具) +
+  # XX夹具支架总装(料架)」，所以 root 抓不到它 —— 这曾被误判成"CAD 缺少完整工具几何"，
+  # 实际零件一直都在，只是散落在 `夹具总装-1` 下、还被静态合并吃掉了安装板。
+  # 必须排在最后：members 只收"尚未被前序工具认领"的对象，靠这一点把三把刀共用的
+  # QT2091392 零件号收敛到 slot-1 那一个实例。
+  - id: TOOL_SUCTION
+    controller_tool: 1
+    connector: { contains: "QT2091392" }
+    label: "玻璃吸盘"
+    members:
+      - { contains: "QT2091392" } # 工具侧快换(slot-1 实例)
+      - { contains: "PTLC-07-008 快换安装板" }
+      - { contains: "PTLC-07-006 快换安装板1" }
+      - { contains: "PTLC-07-007 加强筋" } # 4 件
+      - { contains: "PTLC-07-009 旋转气缸安装板" }
+      - { contains: "HRQ10A+_DMSH-2_" } # 旋转气缸(工具号语义里的"旋转吸附")
+      - { contains: "PTLC-07-010 电爪连接板" }
+      - { contains: "SAB22-KQ2E06" } # 2 个真空吸盘
+    # 不含料架侧：吸盘治具架支撑柱-1..4、PTLC-07-001/002/004(夹具固定板/定位板/治具支撑柱)，
+    # 以及 PSL4M5A（M5-4厘）气路接头 —— slot-2/3 的同型接头当年也留在料架侧，按对称排除。
+    mount_transform:
+      position_m: [ 0.000420864, -0.000465401, -0.000431585 ]
+      quaternion_xyzw: [ -0.707592304, 0.000684711, 0.000743800, 0.706620202 ]
+      shared_coupling: true
+      source: "shared QT2091392 coupling (= robot.tool_pickup/tool-2 lock pose)"
+
+# ---------------------------------------------------------------------------
+# 上样孔板: 样品液体的储存容器, 坐在「打样瓶上料轴3Y」的物料盘上
+# ---------------------------------------------------------------------------
+# 控制侧对这套东西**早就**建好了模型, 缺的只是三维里的板本身:
+#   config/actions/01_sampling/plc_sampling.yaml 的 sampling.aspirate / rinse_mix 参数是
+#     plate_spec(默认 "4×6" = 24 孔) + plate_no(1/2 两个盘位) + well(如 A1);
+#   config/calibration.yaml 给两块 4×6 板各存了 3 点仿射标定;
+#   controller/plate_affine.py 按 (col,row) → (4X, 3Y) mm 实时算孔位.
+# 三维只负责把板画出来并摆对, **不参与孔位下发** —— 真机走的是标定, 不是这里的几何.
+#
+# 尺寸规格全在 pipeline/labware_geom.py 的 PLATE_SPECS —— 来源是**实际采购件的厂商技术
+# 参数表**(A-GEN, 原件在仓库根的 `深孔板规格文件/`), 型号 P-10-SQV-24 / P-15-SQV-24。
+# 本段只决定"装哪一种、装在哪块托盘上、验收放多松".
+#
+# ⚠ 两个规格**不是同一个外形只换高度**(2026-08-06 按厂商表订正; 此前照网上的通用 SBS 值
+#   建模并写过"footprint 完全相同", 是错的):
+#     10mL  127.50 × 85.50 × 44.00, 裙边 2.50, 孔深 41.90
+#     15mL  127.20 × 85.30 × 63.20, 裙边 2.90, 孔深 60.30
+#   孔距都是 18.00、方孔边长都是 17.10、孔底都是 Ø14.00(内)/Ø15.50(外)。
+# 换规格 = 改下面 installed 一行 + 重跑 clean 链, 不必动几何代码.
+#
+# ⚠ 选 15mL 前先核净空, **这不是"紧", 是直接撞**:
+#   15mL 板顶面在 z≈137.7, 而 5Z 抬到头(mm=0)针尖只到 z≈125.0 —— 针**低于板顶 12.7mm**,
+#   横移必撞。10mL 板顶 118.5, 抬起位高出 6.5mm 才走得了。
+#   另外板顶与 4X 滑车上的扶针器 `PTLC-05-015 扶针器-1`(底面 z=148.5, XY 有约 7mm 重叠)
+#   也只剩 10.8mm(10mL 是 30.0mm)。两条 verify_sample_plates.py 都会算出来。
+#
+# ⚠ 读本段前先知道一件事: **上样 4X 的"控制侧 1mm" = "物理 2mm"**(2026-08-06 卡尺定案),
+#   三维靠 `axes` 里 axis_4x 的 `scale_mm: 2.0` 补偿。所以本段涉及 4X 的任何 mm 数字,
+#   都要先分清是控制侧还是物理。这是**临时措施**, 4X/5Z 换伺服后作废 ——
+#   见 docs/上样4X_5Z临时标度增益_换伺服后作废_20260806.md。
+sample_plates:
+  enabled: true
+  # 装哪一种(labware_geom.PLATE_SPECS 的键). 默认 10mL: 针的行程余量大, 且与
+  # sampling.aspirate 的 sample_volume_ml 上限(12mL)相称.
+  installed: deepwell_24_10ml
+  # 载具: axis_3y 滑车上的物料盘. 巢的位置**全部实测**(见 blender_clean.measure_plate_nests),
+  # 这里只给零件名 —— 声明了却匹配不到会硬失败, 不会静默跳过.
+  tray: "PTLC-05-030 物料盘-1"
+  nests: 2                    # 实测巢数必须恰好等于它, 对不上就硬失败并打印实测清单
+  material: MAT_LABWARE_PP    # 配方在 material_semantics.yaml 的 functional_overrides
+  # 板与巢的总间隙允许区间(mm). 本机实测开口 131.9 × 90.0, 对 127.76 × 85.48 的板
+  # 是 4.2 / 4.5mm 总间隙 —— 标准的 SBS 巢配合. 超出区间即判为"认错了巢或规格选错了".
+  clearance_mm: { min: 0.5, max: 8.0 }
+  # 落板台肩的最小接触面积(cm²): 用来在若干候选高度层里选出真正的台肩.
+  # 本机台面 79.0 之下依次是 78.0(1mm 窄沿, 面积不够)、74.5(四条 32×90 台肩, 命中)、
+  # 70.99(深槽, 给孔底让位).
+  min_seat_area_cm2: 40.0
+  probe_step_mm: 2.0          # 高度图栅格; 2mm 对 132mm 的巢足够, 再密只是变慢
+  # 盘位编号 —— **必须与控制侧的 plate_no 对齐**, 不许按坐标随手排。
+  # 2026-08-06 事故: 原实现按 Blender (y,x) 升序自动编号, 与 config/calibration.yaml 的
+  # plate_4x6_1 / plate_4x6_2 毫无关联, 结果编反了; 48 孔拟合一配对就露馅(残差 0.27 → 60.9mm)。
+  # 推导(可复核): 控制侧 4X 的 mm 越大 → 沿 glTF +Z 走得越远 → Blender Y 越**负**。
+  #   plate_no 1 的 4X 是 23.0~50.0(小) ⇒ 落在 Blender Y 较大(较不负, −45.1)那个巢;
+  #   plate_no 2 的 4X 是 78.5~105.5(大) ⇒ 落在 Blender Y 更负(−157.1)那个巢。
+  # ⇒ 按 Blender Y **降序**编号, slot 1 = Y=−45.1 那个。
+  # 缺这一段会硬失败(不再提供隐式缺省), 就是为了逼后来人重新推一遍而不是照抄。
+  slot_order:
+    axis: y
+    descending: true
+  # 净空参考件: 03 步顺手量下它们的世界包围盒写进报告, 判据由 verify_sample_plates.py
+  # 做纯算术 —— 测量与判断分开, 改判据不必重跑二十多分钟的管线.
+  clearance_refs:
+    needle: "针-2"                      # 上样针: 判"够得着孔底"与"抬得过板顶"
+    guide: "PTLC-05-015 扶针器-1"       # 扶针器(骑 4X 定子侧): 判板顶与它的净空

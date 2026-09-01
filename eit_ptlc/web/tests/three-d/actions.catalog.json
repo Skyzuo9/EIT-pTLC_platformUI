@@ -1,0 +1,862 @@
+{
+  "_why": "config/actions/**/*.yaml 的动作清单金样; 由 eit_ptlc/tools/gen_action_catalog_fixture.py 生成, 勿手改",
+  "actions": [
+    {
+      "name": "collect.bottle_locator",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "staging_a",
+      "action_code": 25,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "collect.clamp",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 21,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "collect.collect",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 30,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "collect.extend",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 22,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "collect.init",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 10,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "collect.lift_press",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 23,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "collect.release_clamp",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 43,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "collect.retract",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 42,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "collect.transport_extend",
+      "kind": "plc_l2",
+      "group": "03_collect",
+      "station": "collect",
+      "action_code": 41,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "develop.capture_reference",
+      "kind": "host",
+      "group": "02_develop",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "develop.clean_line",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 20,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "develop.drain",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 50,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "develop.fill",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 22,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "develop.init",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 10,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "develop.plate_extend",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 32,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "develop.plate_retract",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 31,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "develop.release_tank",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 51,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "develop.rinse_fill",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 21,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "develop.rinse_suction",
+      "kind": "plc_l2",
+      "group": "02_develop",
+      "station": "develop",
+      "action_code": 26,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "develop.wait_level",
+      "kind": "host",
+      "group": "02_develop",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.calib_record",
+      "kind": "host",
+      "group": "05_feedlift",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.debug_check_photoelectric_edge",
+      "kind": "plc_l2",
+      "group": "05_feedlift",
+      "station": "feedlift",
+      "action_code": 91,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.feed_clear",
+      "kind": "plc_l2",
+      "group": "05_feedlift",
+      "station": "feedlift",
+      "action_code": 13,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.feed_lower",
+      "kind": "plc_l2",
+      "group": "05_feedlift",
+      "station": "feedlift",
+      "action_code": 12,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.feed_raise",
+      "kind": "plc_l2",
+      "group": "05_feedlift",
+      "station": "feedlift",
+      "action_code": 11,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.init",
+      "kind": "plc_l2",
+      "group": "05_feedlift",
+      "station": "feedlift",
+      "action_code": 10,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "feedlift.preflight",
+      "kind": "host",
+      "group": "05_feedlift",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.probe_stack",
+      "kind": "host",
+      "group": "05_feedlift",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.read_pos",
+      "kind": "host",
+      "group": "05_feedlift",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.unload_bury",
+      "kind": "plc_l2",
+      "group": "05_feedlift",
+      "station": "feedlift",
+      "action_code": 22,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "feedlift.unload_ready",
+      "kind": "plc_l2",
+      "group": "05_feedlift",
+      "station": "feedlift",
+      "action_code": 21,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "material.check_availability",
+      "kind": "host",
+      "group": "12_material",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "material.plan_staging",
+      "kind": "host",
+      "group": "12_material",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.align_home",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 43,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.align_move",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 42,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.align_readout",
+      "kind": "host",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.align_z",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 44,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.analyze",
+      "kind": "vision",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.cam_photohome",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 35,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "photoscrape.cam_photopos",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 34,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.cam_x335",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 31,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.capture",
+      "kind": "camera",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.cnc_path",
+      "kind": "vision",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.init",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 10,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "photoscrape.locate_cylinder",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 32,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.press_cylinder",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 33,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "photoscrape.retr_stoprot",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 52,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.scrape",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 40,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.scrape_finish",
+      "kind": "plc_l2",
+      "group": "04_photoscrape",
+      "station": "photoscrape",
+      "action_code": 41,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.scraped_overlay",
+      "kind": "vision",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.wait_rot",
+      "kind": "host",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.write_cnc_path",
+      "kind": "plc_write",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "photoscrape.write_pass_z",
+      "kind": "plc_write",
+      "group": "04_photoscrape",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "pump.vacuum_off",
+      "kind": "plc_l2",
+      "group": "08_pump",
+      "station": "pump",
+      "action_code": 20,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "pump.vacuum_on",
+      "kind": "plc_l2",
+      "group": "08_pump",
+      "station": "pump",
+      "action_code": 10,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "rail.ensure",
+      "kind": "rail_ensure",
+      "group": "06_rail",
+      "station": "rail",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "rail.move",
+      "kind": "plc_l2",
+      "group": "06_rail",
+      "station": "rail",
+      "action_code": 10,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "robot.clear_error",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.connect",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "robot.disable",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.dwell",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "robot.emergency_stop",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "robot.enable",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.home",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": true
+    },
+    {
+      "name": "robot.home_ensure",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "robot.jog_start",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.jog_stop",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.move_to_point",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "robot.pause",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "robot.query",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "robot.require_anchor",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "robot.resume",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "robot.set_do",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.set_mounted_tool",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "robot.set_speed_factor",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.step",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [
+        "DEBUG"
+      ],
+      "has_hint": false
+    },
+    {
+      "name": "robot.stop",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "robot.tool_action",
+      "kind": "robot",
+      "group": "07_robot",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.aspirate",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 50,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.clean",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 20,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.flush",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 20,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.init",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 10,
+      "modes": [],
+      "has_hint": true
+    },
+    {
+      "name": "sampling.place_axis",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 31,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.place_locate",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 32,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.place_release",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 33,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.prep",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 40,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.rinse_mix",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 55,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.spot",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 60,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.spot_band_layer",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 62,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "sampling.spray_axis",
+      "kind": "plc_l2",
+      "group": "01_sampling",
+      "station": "sampling",
+      "action_code": 61,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "staging_a.locator_a",
+      "kind": "plc_l2",
+      "group": "11_staging_a",
+      "station": "staging_a",
+      "action_code": 24,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "staging_a.locator_b",
+      "kind": "plc_l2",
+      "group": "11_staging_a",
+      "station": "staging_a",
+      "action_code": 25,
+      "modes": [],
+      "has_hint": false
+    },
+    {
+      "name": "vision.capture_plate_offset",
+      "kind": "vision",
+      "group": "10_vision",
+      "station": "",
+      "action_code": 0,
+      "modes": [],
+      "has_hint": false
+    }
+  ]
+}

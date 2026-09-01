@@ -1,0 +1,245 @@
+/**
+ * 功能: 效果预览沙盒全部样式 —— 页面骨架 / 白色悬浮卡(realvirtual 风格) /
+ * 状态圆点 / 控制面板.
+ *
+ * 第三轮(用户定夺): 卡片不再常显, 改鼠标悬停触发的**白色**信息卡(两主题一致);
+ * 双风格(全息蓝/玻璃拟态)与引线/四角括号/扫描线全部退役.
+ * 健康度色与 manifest.healthStyles 逐字一致(唯一语义源).
+ */
+
+/* ===== 健康度/强调色令牌 ===== */
+html {
+  --fx-c-ok: #39d98a;
+  --fx-c-busy: #f4b740;
+  --fx-c-error: #ff5c5c;
+  --fx-c-offline: #5a6472;
+  --fx-c-unknown: #7b8aa5;
+  --fx-accent: #36d1ff; /* 描边主题色(dark), 与正式页 OUTLINE_COLORS 一致 */
+}
+html[data-theme='light'] {
+  --fx-accent: #0899cc;
+}
+
+/* ===== 页面骨架(第四轮: 仿正式应用外壳) =====
+   外壳栅格/侧栏/顶栏的类(.console/.rail/.statusbar/.chip/.health-dot/.estop 等)
+   全部零成本吃 src/style.css 全局样式; 本段只补 ① body 的 flex 列(沙盒没有 #app
+   容器, 照 style.css 的 #app 规则), ② Vue scoped 抄不到的片段(页签条/顶栏三颗按钮). */
+html, body { height: 100%; margin: 0; overflow: hidden; }
+body { background: var(--bg); display: flex; flex-direction: column; }
+a.rail-tab { text-decoration: none; } /* RailNav scoped 里的一行, 抄过来去链接缺省装饰 */
+
+/* -- 页签条 + 工作区(照 three-d/App.vue scoped 样式逐字抄, 类名前缀换 fxsh 防撞) -- */
+.fxsh-workspace { display: grid; grid-template-rows: 38px 1fr; width: 100%; height: 100%; background: var(--bg); }
+.app__nav {
+  display: flex; align-items: center; gap: 4px; padding: 0 14px;
+  background: var(--surface); border-bottom: 1px solid var(--border); user-select: none;
+}
+.app__brand { margin-right: 14px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-bright); }
+.app__tab {
+  padding: 4px 12px; border-radius: 6px; font-size: 12px; color: var(--text-mid);
+  text-decoration: none; transition: background 0.15s ease, color 0.15s ease;
+}
+.app__tab:hover { background: var(--control-hover); color: var(--text); }
+.app__tab--active { background: var(--accent-soft); color: var(--accent-bright); }
+.app__hint { margin-left: 12px; font-size: 11px; color: var(--text-dim); }
+.app__body { position: relative; overflow: hidden; }
+
+/* -- 顶栏三颗按钮 + 计数标签(照 StatusBar.vue scoped 样式逐字抄) -- */
+.chip-lbl { font-size: var(--fs-11); color: var(--muted); font-weight: 600; }
+.sb-val { font-size: var(--fs-13); font-weight: 600; color: var(--accent); white-space: nowrap; }
+.run-ind { cursor: default; }
+.btn-theme { padding: 7px 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 6px; cursor: pointer; font-size: var(--fs-14); line-height: 1; white-space: nowrap; }
+.btn-theme:hover { background: var(--hover); border-color: var(--accent); color: var(--accent); }
+.btn-monitor { padding: 7px 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 6px; cursor: pointer; line-height: 1; white-space: nowrap; }
+.btn-monitor:hover { background: var(--hover); border-color: var(--accent); color: var(--accent); }
+.mon-ic { width: 16px; height: 16px; display: block; fill: none; stroke: currentColor;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.btn-reset-layout { padding: 7px 14px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 6px; cursor: pointer; font-size: var(--fs-13); white-space: nowrap; }
+.btn-reset-layout:hover { background: var(--hover); border-color: var(--accent); color: var(--accent); }
+
+/* -- 3D 画布容器(在 .app__body 内, 不再满页 fixed) -- */
+#fx-app { position: relative; width: 100%; height: 100%; overflow: hidden; }
+#fx-app canvas { display: block; }
+/* 卡片层贴 3D 画布容器: transform 值 = screenOf 的画布局部像素, 天然同系 */
+#fx-cards { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
+/* 开场扫场期间悬浮卡不冒头(输入门控的样式侧) */
+#fx-cards.fx-pre-intro .fxwcard { opacity: 0 !important; }
+
+#fx-msg {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; text-align: center; white-space: pre-line;
+  background: rgba(4, 8, 14, 0.55); color: #dfe9f5;
+  font-size: 14px; line-height: 1.8;
+}
+#fx-msg[hidden] { display: none; }
+
+/* 冻结定格: CSS 动画一起停(transition 不受影响) */
+html.fx-frozen * { animation-play-state: paused !important; }
+
+/* ===== 白色信息卡(悬浮 hover / 固定详情 pinned 共用) ===== */
+.fxwcard {
+  position: absolute; left: 0; top: 0;
+  width: 216px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1d2a3a;
+  box-shadow: 0 6px 24px rgba(15, 30, 50, 0.22), 0 1px 3px rgba(15, 30, 50, 0.12);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.14s ease;
+  --fx-state: var(--fx-c-unknown);
+}
+.fxwcard[data-visible='1'] { opacity: 1; }
+.fxwcard[data-health='ok'] { --fx-state: var(--fx-c-ok); }
+.fxwcard[data-health='busy'] { --fx-state: var(--fx-c-busy); }
+.fxwcard[data-health='error'] { --fx-state: var(--fx-c-error); }
+.fxwcard[data-health='offline'] { --fx-state: var(--fx-c-offline); }
+
+/* 固定详情卡: 底边中点对齐锚点投影 */
+.fxwcard[data-mode='pinned'] {
+  width: 232px;
+  translate: -50% -100%;
+}
+
+.fxwcard__bar {
+  position: absolute; left: 0; top: 8px; bottom: 8px; width: 4px;
+  border-radius: 0 3px 3px 0;
+  background: var(--fx-state);
+}
+.fxwcard__head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.fxwcard__name {
+  flex: 1; min-width: 0;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fxwcard__chip {
+  flex: none;
+  font-size: 11px; line-height: 1.6; padding: 0 8px; border-radius: 999px;
+  color: #fff;
+  background: var(--fx-state);
+}
+.fxwcard[data-health='offline'] .fxwcard__chip,
+.fxwcard[data-health='unknown'] .fxwcard__chip { color: #f2f5f9; }
+
+.fxwcard__action {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px; color: #4a5b70;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fxwcard__rows { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px solid #e3e9f0; }
+.fxwcard[data-mode='pinned'] .fxwcard__rows { display: block; }
+.fxwcard__row {
+  display: flex; justify-content: space-between; gap: 8px;
+  font-size: 11px; line-height: 1.8; color: #4a5b70;
+}
+.fxwcard__row > span { color: #8592a3; flex: none; }
+.fxwcard__row > b {
+  font-family: var(--font-mono); font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ===== 控制面板(第四轮: 正式页面板卡片皮, 可折叠可最小化的"缩放卡片") =====
+   外框 = StationPanel 的玻璃厚卡范式(surface-soft + blur14 + 16px 锚距);
+   分组 = DisplayPanel/.mcp 的薄卡范式(details 原生折叠, summary 作卡头). */
+#fx-panel {
+  position: absolute; right: 16px; top: 16px; bottom: 16px; z-index: 30;
+  width: 268px; padding: 12px 14px;
+  overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 8px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  color: var(--text-bright);
+  font-size: 12px;
+}
+#fx-panel[hidden] { display: none; }
+.fxp-head { display: flex; align-items: center; gap: 8px; }
+#fx-panel h1 {
+  margin: 0; flex: 1; font-size: 13px; font-weight: 600; letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+}
+#fx-panel h1::before {
+  content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--fx-accent); box-shadow: 0 0 8px var(--fx-accent);
+}
+.fxp-min {
+  flex: none; width: 22px; height: 22px; padding: 0; line-height: 1;
+  border: 1px solid var(--hair); border-radius: 6px;
+  background: var(--control); color: var(--text-dim); cursor: pointer; font-size: 13px;
+}
+.fxp-min:hover { color: var(--accent-bright); border-color: var(--accent-border); }
+/* 最小化态: 整卡收成一枚小胶囊(用户要的"缩放卡片") */
+#fx-panel.is-min {
+  width: auto; height: auto; bottom: auto; padding: 0; overflow: visible;
+  background: transparent; border: none; box-shadow: none; backdrop-filter: none;
+}
+#fx-panel.is-min > :not(.fxp-pill) { display: none; }
+.fxp-pill {
+  display: none; padding: 7px 14px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface-soft);
+  backdrop-filter: blur(14px); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  color: var(--text-bright); font-size: 12px; font-weight: 600; cursor: pointer;
+  white-space: nowrap;
+}
+#fx-panel.is-min .fxp-pill { display: inline-flex; align-items: center; gap: 6px; }
+.fxp-pill::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--fx-accent); box-shadow: 0 0 6px var(--fx-accent);
+}
+/* 分组卡: details 原生折叠 + 卡壳(照 .mcp/.dp__group 的薄卡范式) */
+#fx-panel details {
+  background: var(--control); border: 1px solid var(--hair); border-radius: 8px;
+  padding: 7px 10px 8px;
+}
+#fx-panel summary {
+  cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text-bright);
+  letter-spacing: 0.04em; user-select: none; margin: 0 0 6px;
+  display: flex; align-items: center; gap: 6px; list-style: none;
+}
+#fx-panel summary::-webkit-details-marker { display: none; }
+#fx-panel summary::before { content: '▸'; font-size: 10px; color: var(--text-dim); transition: transform 0.12s ease; }
+#fx-panel details[open] > summary::before { transform: rotate(90deg); }
+#fx-panel details:not([open]) > summary { margin-bottom: 0; }
+.fxp-group { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+.fxp-btn {
+  padding: 3px 9px; border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--control); color: var(--text);
+  font-size: 12px; cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.fxp-btn:hover { background: var(--control-hover); border-color: var(--accent-border); }
+.fxp-btn.is-active {
+  background: var(--accent-soft, #123a64);
+  border-color: var(--accent-border);
+  color: var(--accent-bright);
+}
+.fxp-check { display: flex; align-items: center; gap: 6px; width: 46%; cursor: pointer; }
+.fxp-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.fxp-row > label { flex: none; width: 62px; color: var(--text-dim); }
+.fxp-reset {
+  flex: none; width: 20px; padding: 0; border: 0; background: none;
+  color: var(--text-dim); cursor: pointer; font-size: 12px;
+}
+.fxp-reset:hover { color: var(--accent-bright); }
+.fxp-row select, .fxp-row input[type='range'] { flex: 1; min-width: 0; }
+.fxp-row output { flex: none; width: 38px; text-align: right; font-family: var(--font-mono); font-size: 11px; }
+#fx-panel select {
+  background: var(--control); color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: 6px; padding: 2px 4px;
+}
+.fxp-stats {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);
+  padding-top: 6px; border-top: 1px solid var(--border);
+}
+.fxp-hint { font-size: 11px; color: var(--text-dim); line-height: 1.7; }
+

@@ -1,0 +1,19 @@
+{
+  "name": "inoproshop-codesys-mcp",
+  "version": "0.1.0",
+  "description": "常驻热实例 MCP server: 通过 InoProShop(CODESYS SP11) 脚本引擎读/写/编译 PLC 工程的 POU (UI 模式 + 文件 IPC)",
+  "type": "module",
+  "bin": {
+    "inoproshop-codesys-mcp": "./server.mjs"
+  },
+  "scripts": {
+    "start": "node ./server.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "zod": "^3.23.8"
+  }
+}

@@ -1,0 +1,7470 @@
+{
+  "schema": "ptlc.robot-points/v1",
+  "referencePointHash": "4b62a7049b8df0c5e0e8d34920f8cb64695f6dafe73eb04960c3301f9991c673",
+  "kinematicsCommit": "37730d08b08c74061ae10d4fa5565b4c4c914885",
+  "calibrationVersion": "cr5-ptlc-2026-08-01-rail-carriage-center",
+  "points": {
+    "robot-main.home": {
+      "robotName": "P1",
+      "alias": "Home",
+      "label": "原点 (Home)",
+      "pose": [
+        -4.641538,
+        107.462898,
+        425.176208,
+        179.414932,
+        -0.65393,
+        170.603546
+      ],
+      "joint": [
+        -154.523621,
+        -47.783794,
+        93.294029,
+        44.639656,
+        -89.062752,
+        124.999908
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.tool-change.ready": {
+      "robotName": "P2",
+      "alias": "Area_1_Ready",
+      "label": "工具更换准备点",
+      "pose": [
+        291.094238,
+        133.439331,
+        482.407745,
+        -179.914597,
+        0.095478,
+        -125.766418
+      ],
+      "joint": [
+        -179.4422,
+        -23.007397,
+        79.014305,
+        33.817516,
+        -89.953079,
+        36.496479
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-ready": {
+      "robotName": "P3",
+      "alias": "Area_2_Ready",
+      "label": "展开缸准备点",
+      "pose": [
+        -179.219467,
+        -112.504784,
+        331.272797,
+        -179.195724,
+        0.369689,
+        -16.577307
+      ],
+      "joint": [
+        6.936252,
+        -38.146904,
+        110.971436,
+        17.109512,
+        -90.8209,
+        113.666862
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-3-ready": {
+      "robotName": "P4",
+      "alias": "Area_3_Ready",
+      "label": "上样点样准备点",
+      "pose": [
+        357.176086,
+        -63.563736,
+        465.379517,
+        -179.219711,
+        0.694222,
+        -110.410286
+      ],
+      "joint": [
+        -219.612595,
+        -20.62277,
+        81.384628,
+        28.676596,
+        -89.074722,
+        -19.016653
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-4-ready": {
+      "robotName": "P5",
+      "alias": "Area_4_Ready",
+      "label": "升降上料准备点",
+      "pose": [
+        483.494751,
+        -113.498795,
+        273.972015,
+        179.29744,
+        0.772781,
+        158.969635
+      ],
+      "joint": [
+        -205.126587,
+        -1.162395,
+        98.205246,
+        -7.816063,
+        -89.290527,
+        86.10041
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-5-ready": {
+      "robotName": "P6",
+      "alias": "Area_5_Ready",
+      "label": "待定区准备点",
+      "pose": [
+        0.0,
+        -246.0,
+        1047.0,
+        -90.0,
+        0.0,
+        180.0
+      ],
+      "joint": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 0,
+      "user": 0,
+      "rail": null,
+      "status": "placeholder",
+      "allowedMotion": [],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-ready": {
+      "robotName": "P7",
+      "alias": "Area_6_Ready",
+      "label": "收集组准备点",
+      "pose": [
+        -239.935593,
+        34.308949,
+        405.82132,
+        -179.659576,
+        -0.021324,
+        139.320099
+      ],
+      "joint": [
+        -56.97529983520508,
+        -34.56019973754883,
+        97.07330322265625,
+        27.510799407958984,
+        -89.61309814453125,
+        -106.13960266113281
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-ready": {
+      "robotName": "P45",
+      "alias": "Area_7_Ready",
+      "label": "中转A准备点",
+      "pose": [
+        434.587708,
+        -27.964693,
+        220.115509,
+        179.362793,
+        -1.056494,
+        -112.205025
+      ],
+      "joint": [
+        -204.9936065673828,
+        -13.373000144958496,
+        116.79190063476562,
+        -12.88010025024414,
+        -91.09040069580078,
+        -2.5848000049591064
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-8-ready": {
+      "robotName": "P52",
+      "alias": "Area_8_Ready",
+      "label": "中转B准备点",
+      "pose": [
+        316.187714,
+        -27.964693,
+        220.115509,
+        179.362793,
+        -1.056494,
+        163.786713
+      ],
+      "joint": [
+        -203.91310119628906,
+        -26.05389976501465,
+        124.07350158691406,
+        -6.938899993896484,
+        -89.47470092773438,
+        82.47930145263672
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.tool-change.slot-1.target": {
+      "robotName": "P8",
+      "alias": "Area_1_tool1",
+      "label": "1号工具位·吸盘",
+      "pose": [
+        -315.385223,
+        420.250977,
+        -61.996704,
+        -179.803116,
+        0.232015,
+        -21.152111
+      ],
+      "joint": [
+        -66.826875,
+        28.710202,
+        127.691609,
+        -66.754713,
+        -90.116626,
+        44.510721
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.tool-change.slot-2.target": {
+      "robotName": "P9",
+      "alias": "Area_1_tool2",
+      "label": "2号工具位·大夹爪",
+      "pose": [
+        -172.387375,
+        423.450134,
+        -61.908375,
+        -179.355499,
+        0.396423,
+        -21.473894
+      ],
+      "joint": [
+        -85.662674,
+        23.891474,
+        140.776215,
+        -75.470596,
+        -90.058517,
+        26.005516
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.tool-change.slot-3.target": {
+      "robotName": "P10",
+      "alias": "Area_1_tool3",
+      "label": "3号工具位·小夹爪",
+      "pose": [
+        -11.099961,
+        425.968597,
+        -62.366295,
+        -179.490494,
+        0.153416,
+        -21.784216
+      ],
+      "joint": [
+        -110.661171,
+        21.922211,
+        146.533875,
+        -79.018852,
+        -89.985809,
+        1.31927
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-1": {
+      "robotName": "P11",
+      "alias": "Area_2_1",
+      "label": "1号展开缸",
+      "pose": [
+        -582.941329,
+        -215.473809,
+        -56.330429,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": [
+        -0.060476,
+        36.167404,
+        109.232079,
+        -56.599258,
+        -89.450279,
+        -68.022652
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-2": {
+      "robotName": "P12",
+      "alias": "Area_2_2",
+      "label": "2号展开缸",
+      "pose": [
+        -581.941329,
+        -214.673806,
+        125.391556,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": [
+        -0.130216,
+        19.168266,
+        99.396614,
+        -29.764101,
+        -89.397018,
+        -68.071358
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-3": {
+      "robotName": "P13",
+      "alias": "Area_2_3",
+      "label": "3号展开缸",
+      "pose": [
+        -581.341353,
+        -213.673806,
+        304.791565,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": [
+        -0.210031,
+        12.996855,
+        77.645706,
+        -1.840813,
+        -89.374756,
+        -68.152161
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-4": {
+      "robotName": "P14",
+      "alias": "Area_2_4",
+      "label": "4号展开缸",
+      "pose": [
+        -579.741133,
+        -213.073601,
+        484.791748,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": [
+        -0.204763,
+        20.657196,
+        36.718727,
+        31.425964,
+        -89.400177,
+        -68.162575
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-5": {
+      "robotName": "P15",
+      "alias": "Area_2_5",
+      "label": "5号展开缸",
+      "pose": [
+        -586.132232,
+        212.167007,
+        -55.533272,
+        -179.139679,
+        0.208261,
+        -21.747854
+      ],
+      "joint": [
+        -26.730766,
+        37.65065,
+        105.25219,
+        -53.232433,
+        -91.004654,
+        85.183502
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-6": {
+      "robotName": "P16",
+      "alias": "Area_2_6",
+      "label": "6号展开缸",
+      "pose": [
+        -584.632112,
+        211.866928,
+        124.466713,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": [
+        -26.758524,
+        21.640877,
+        95.623169,
+        -27.593834,
+        -90.956284,
+        85.176132
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-7": {
+      "robotName": "P17",
+      "alias": "Area_2_7",
+      "label": "7号展开缸",
+      "pose": [
+        -584.132112,
+        211.367111,
+        303.466675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": [
+        -26.71406,
+        15.945797,
+        73.762253,
+        -0.037231,
+        -90.937729,
+        85.219727
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-8": {
+      "robotName": "P18",
+      "alias": "Area_2_8",
+      "label": "8号展开缸",
+      "pose": [
+        -582.632112,
+        210.667114,
+        484.966675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": [
+        -26.643509,
+        25.281509,
+        29.133047,
+        35.257027,
+        -90.968483,
+        85.271179
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-3-2": {
+      "robotName": "P20",
+      "alias": "Area_3_2",
+      "label": "点样取板位",
+      "pose": [
+        622.186707,
+        -66.553314,
+        274.738312,
+        -179.707306,
+        0.838709,
+        -111.167786
+      ],
+      "joint": [
+        -201.396126,
+        11.613556,
+        83.909682,
+        -5.865373,
+        -89.245569,
+        -0.031348
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-3-1": {
+      "robotName": "P19",
+      "alias": "Area_3_1",
+      "label": "点样放板位",
+      "pose": [
+        643.086731,
+        -59.453312,
+        274.902863,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": [
+        -199.531894,
+        14.321057,
+        80.553766,
+        -5.550906,
+        -90.125795,
+        2.620416
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-4-1": {
+      "robotName": "P21",
+      "alias": "Area_4_1",
+      "label": "升降上料取料位",
+      "pose": [
+        476.478302,
+        -210.54538,
+        -96.534752,
+        -179.923447,
+        -0.434386,
+        159.305771
+      ],
+      "joint": [
+        -215.252568,
+        34.984255,
+        124.937031,
+        -69.56936,
+        -90.344038,
+        75.618534
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-4-2": {
+      "robotName": "P22",
+      "alias": "Area_4_2",
+      "label": "废料放板位",
+      "pose": [
+        585.885037,
+        -430.257933,
+        -92.365082,
+        -179.219147,
+        0.693584,
+        -111.547516
+      ],
+      "joint": [
+        -232.150452,
+        46.444885,
+        94.675766,
+        -51.492153,
+        -89.191589,
+        -30.446154
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-4-3": {
+      "robotName": "P23",
+      "alias": "Area_4_3",
+      "label": "升降上料备用点1",
+      "pose": [
+        805.594788,
+        -214.634903,
+        -64.430244,
+        179.828598,
+        -0.195689,
+        157.554214
+      ],
+      "joint": [
+        -201.6876983642578,
+        61.35300064086914,
+        54.9650993347168,
+        -26.174999237060547,
+        -90.03489685058594,
+        90.86530303955078
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-4-4": {
+      "robotName": "P24",
+      "alias": "Area_4_4",
+      "label": "升降上料备用点2",
+      "pose": [
+        0.0,
+        -246.0,
+        1047.0,
+        -90.0,
+        0.0,
+        180.0
+      ],
+      "joint": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 0,
+      "user": 0,
+      "rail": null,
+      "status": "placeholder",
+      "allowedMotion": [],
+      "derivedFrom": null
+    },
+    "robot-main.fang-banxialiao-gd": {
+      "robotName": "P66",
+      "alias": "fang_banxialiao_gd",
+      "label": "放板下料过渡点",
+      "pose": [
+        586.451111,
+        -113.498795,
+        273.972015,
+        179.29744,
+        0.772781,
+        158.969635
+      ],
+      "joint": [
+        -200.6627960205078,
+        13.003899574279785,
+        82.31919860839844,
+        -6.152599811553955,
+        -89.3936996459961,
+        90.55829620361328
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-13": {
+      "robotName": "P37",
+      "alias": "Area_6_13",
+      "label": "收集器组暂放位",
+      "pose": [
+        566.225037,
+        -48.989025,
+        38.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": [
+        -202.00814,
+        18.410547,
+        117.613196,
+        -45.997887,
+        -88.968547,
+        -0.350239
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-14": {
+      "robotName": "P38",
+      "alias": "Area_6_14",
+      "label": "收集瓶组暂放位",
+      "pose": [
+        302.24118,
+        -63.754578,
+        37.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": [
+        -211.096973,
+        -11.024655,
+        150.782513,
+        -50.17036,
+        -89.938347,
+        80.461367
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-15": {
+      "robotName": "P39",
+      "alias": "Area_6_15",
+      "label": "收集器组取暂放位",
+      "pose": [
+        564.125061,
+        -48.989025,
+        37.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": [
+        -202.098663,
+        18.291492,
+        118.027809,
+        -46.291649,
+        -88.968361,
+        -0.440599
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-16": {
+      "robotName": "P40",
+      "alias": "Area_6_16",
+      "label": "收集瓶组取暂放位",
+      "pose": [
+        302.24118,
+        -63.254578,
+        37.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": [
+        -211.004196,
+        -11.02939,
+        150.785629,
+        -50.168865,
+        -89.938919,
+        80.554146
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-17": {
+      "robotName": "P41",
+      "alias": "Area_6_17",
+      "label": "组中转备用点1",
+      "pose": [
+        0.0,
+        -246.0,
+        1047.0,
+        -90.0,
+        0.0,
+        180.0
+      ],
+      "joint": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 0,
+      "user": 0,
+      "rail": null,
+      "status": "placeholder",
+      "allowedMotion": [],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-18": {
+      "robotName": "P42",
+      "alias": "Area_6_18",
+      "label": "收集器暂存过渡点",
+      "pose": [
+        0.0,
+        -246.0,
+        1047.0,
+        -90.0,
+        0.0,
+        180.0
+      ],
+      "joint": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 0,
+      "user": 0,
+      "rail": null,
+      "status": "placeholder",
+      "allowedMotion": [],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-19": {
+      "robotName": "P43",
+      "alias": "Area_6_19",
+      "label": "收集瓶暂存过渡点",
+      "pose": [
+        303.141144,
+        23.253519,
+        270.605896,
+        179.981461,
+        0.370639,
+        158.444458
+      ],
+      "joint": [
+        -193.90359497070312,
+        -27.545400619506836,
+        117.25830078125,
+        -0.13269999623298645,
+        -89.99549865722656,
+        97.82610321044922
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-20": {
+      "robotName": "P44",
+      "alias": "Area_6_20",
+      "label": "组中转备用点2",
+      "pose": [
+        422.748535,
+        -15.753025,
+        241.29512,
+        -179.62973,
+        0.024908,
+        -111.157768
+      ],
+      "joint": [
+        -204.96780395507812,
+        -16.80940055847168,
+        116.15840148925781,
+        -9.767000198364258,
+        -89.9468994140625,
+        -3.620300054550171
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-1": {
+      "robotName": "P46",
+      "alias": "Area_7_1",
+      "label": "中转A收集器1号位",
+      "pose": [
+        476.754913,
+        -139.894058,
+        11.87761,
+        179.716415,
+        -0.84658,
+        -20.243717
+      ],
+      "joint": [
+        -217.674012,
+        20.668148,
+        120.66879,
+        -52.279405,
+        -90.137407,
+        -107.23575
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-2": {
+      "robotName": "P47",
+      "alias": "Area_7_2",
+      "label": "中转A收集器2号位",
+      "pose": [
+        524.754883,
+        -138.394058,
+        11.877628,
+        -179.439148,
+        -0.535087,
+        -20.253899
+      ],
+      "joint": [
+        -214.746216,
+        25.256937,
+        112.707352,
+        -48.394077,
+        -89.45462,
+        -104.304779
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-3": {
+      "robotName": "P48",
+      "alias": "Area_7_3",
+      "label": "中转A收集器3号位",
+      "pose": [
+        570.703613,
+        -138.3022,
+        11.812102,
+        -179.99379,
+        -0.504997,
+        -22.028391
+      ],
+      "joint": [
+        -211.979126,
+        29.508547,
+        105.042175,
+        -45.097198,
+        -90.04982,
+        -99.770164
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-4": {
+      "robotName": "P49",
+      "alias": "Area_7_4",
+      "label": "中转A收集器4号位",
+      "pose": [
+        468.347534,
+        43.342899,
+        10.596384,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": [
+        -186.169342,
+        17.069326,
+        127.168602,
+        -55.243244,
+        -90.408379,
+        104.032242
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-5": {
+      "robotName": "P50",
+      "alias": "Area_7_5",
+      "label": "中转A收集器5号位",
+      "pose": [
+        515.799683,
+        44.142952,
+        10.987446,
+        -179.734192,
+        0.436151,
+        159.995575
+      ],
+      "joint": [
+        -185.470428,
+        21.881542,
+        118.776802,
+        -51.062477,
+        -90.48893,
+        104.725739
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-6": {
+      "robotName": "P51",
+      "alias": "Area_7_6",
+      "label": "中转A收集器6号位",
+      "pose": [
+        564.796143,
+        44.242912,
+        11.177755,
+        -179.528931,
+        -0.12765,
+        159.996124
+      ],
+      "joint": [
+        -184.956214,
+        26.852389,
+        109.751346,
+        -46.40665,
+        -90.555705,
+        105.233978
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-8-1": {
+      "robotName": "P53",
+      "alias": "Area_8_1",
+      "label": "中转B收集瓶1号位",
+      "pose": [
+        325.56665,
+        -214.909851,
+        69.677399,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": [
+        -230.000496,
+        -5.142186,
+        138.346172,
+        -42.916232,
+        -90.217907,
+        61.156094
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-8-2": {
+      "robotName": "P54",
+      "alias": "Area_8_2",
+      "label": "中转B收集瓶2号位",
+      "pose": [
+        325.902649,
+        -173.825851,
+        69.659149,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": [
+        -225.115952,
+        -7.853783,
+        140.548645,
+        -42.392818,
+        -90.17984,
+        66.03949
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-8-3": {
+      "robotName": "P55",
+      "alias": "Area_8_3",
+      "label": "中转B收集瓶3号位",
+      "pose": [
+        325.245758,
+        -130.817856,
+        69.481316,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": [
+        -219.343689,
+        -10.222486,
+        142.342422,
+        -41.804306,
+        -90.136124,
+        71.810356
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-8-4": {
+      "robotName": "P56",
+      "alias": "Area_8_4",
+      "label": "中转B收集瓶4号位",
+      "pose": [
+        285.856964,
+        -217.965408,
+        69.279671,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": [
+        -236.009796,
+        -10.750068,
+        142.779083,
+        -41.762257,
+        -90.234413,
+        55.144039
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-8-5": {
+      "robotName": "P57",
+      "alias": "Area_8_5",
+      "label": "中转B收集瓶5号位",
+      "pose": [
+        285.28775,
+        -175.398285,
+        69.295341,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": [
+        -231.09259,
+        -14.592112,
+        145.25943,
+        -40.383179,
+        -90.194336,
+        60.05822
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-8-6": {
+      "robotName": "P58",
+      "alias": "Area_8_6",
+      "label": "中转B收集瓶6号位",
+      "pose": [
+        284.164185,
+        -133.240723,
+        69.750397,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": [
+        -225.294281,
+        -17.953539,
+        147.042984,
+        -38.787968,
+        -90.149109,
+        65.853127
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-9-2": {
+      "robotName": "P65",
+      "alias": "Area_9_2",
+      "label": "刮板台取板位",
+      "pose": [
+        354.849456,
+        410.635024,
+        -45.739536,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": [
+        -142.444208,
+        26.704121,
+        126.576521,
+        -64.057968,
+        -89.597256,
+        58.798042
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-9-1": {
+      "robotName": "P64",
+      "alias": "Area_9_1",
+      "label": "刮板台放板位",
+      "pose": [
+        333.949432,
+        403.535022,
+        -45.904087,
+        179.914719,
+        0.902161,
+        -111.052383
+      ],
+      "joint": [
+        -142.444208,
+        26.704121,
+        126.576521,
+        -64.057968,
+        -89.597256,
+        58.798042
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-9-ready": {
+      "robotName": "P63",
+      "alias": "Area_9_ready",
+      "label": "刮板台准备点",
+      "pose": [
+        122.665512,
+        296.295105,
+        251.56427,
+        179.914719,
+        0.902161,
+        -110.652382
+      ],
+      "joint": [
+        -132.43060302734375,
+        -29.160999298095703,
+        121.17510223388672,
+        -2.8715999126434326,
+        -89.54730224609375,
+        68.39720153808594
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-10-ready": {
+      "robotName": "P67",
+      "alias": "Area_10_ready",
+      "label": "刮板收集器准备点",
+      "pose": [
+        305.763306,
+        265.578888,
+        263.738434,
+        -179.10527,
+        1.331449,
+        -111.667633
+      ],
+      "joint": [
+        -157.0657958984375,
+        -18.822500228881836,
+        114.33670043945312,
+        -7.13730001449585,
+        -89.67430114746094,
+        44.8036003112793
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-10-1": {
+      "robotName": "P68",
+      "alias": "Area_10_1",
+      "label": "刮板收集器放置位",
+      "pose": [
+        520.288574,
+        643.794067,
+        102.187897,
+        -179.743683,
+        0.475554,
+        -111.873482
+      ],
+      "joint": [
+        -136.51836,
+        48.005603,
+        54.07766,
+        -12.672181,
+        -90.219352,
+        65.491671
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-10-2": {
+      "robotName": "P69",
+      "alias": "Area_10_2",
+      "label": "刮板收集器取出位",
+      "pose": [
+        518.162964,
+        644.712219,
+        103.005096,
+        -179.10527,
+        1.331449,
+        -111.667633
+      ],
+      "joint": [
+        -136.299733,
+        47.264383,
+        55.84569,
+        -14.742502,
+        -90.443885,
+        65.508835
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-11-ready": {
+      "robotName": "P70",
+      "alias": "Area_11_ready",
+      "label": "收集工位准备点",
+      "pose": [
+        316.187592,
+        -27.965111,
+        261.955536,
+        179.362839,
+        -1.05653,
+        163.786636
+      ],
+      "joint": [
+        -203.91619873046875,
+        -26.569700241088867,
+        117.57379913330078,
+        0.07660000026226044,
+        -89.47319793701172,
+        82.47370147705078
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-11-1": {
+      "robotName": "P71",
+      "alias": "Area_11_1",
+      "label": "收集瓶放入位",
+      "pose": [
+        291.01651,
+        -347.923584,
+        133.45546,
+        179.416183,
+        -1.045475,
+        159.180557
+      ],
+      "joint": [
+        -245.722595,
+        -3.646917,
+        123.779579,
+        -29.028896,
+        -90.358772,
+        45.307663
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-11-2": {
+      "robotName": "P72",
+      "alias": "Area_11_2",
+      "label": "收集瓶取出位",
+      "pose": [
+        291.51651,
+        -344.423584,
+        119.655426,
+        179.416183,
+        -1.045475,
+        159.180557
+      ],
+      "joint": [
+        -245.446945,
+        -2.791162,
+        125.588959,
+        -31.692488,
+        -90.356277,
+        45.584072
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-11-3": {
+      "robotName": "P73",
+      "alias": "Area_11_3",
+      "label": "收集器放入位",
+      "pose": [
+        285.907501,
+        -381.491608,
+        227.558533,
+        -179.884613,
+        -0.421101,
+        163.780075
+      ],
+      "joint": [
+        -248.721512,
+        -6.604568,
+        110.513718,
+        -13.793001,
+        -90.431038,
+        37.695396
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-11-4": {
+      "robotName": "P74",
+      "alias": "Area_11_4",
+      "label": "收集器取出位",
+      "pose": [
+        285.907501,
+        -381.491608,
+        227.558533,
+        -179.884613,
+        -0.421101,
+        163.780075
+      ],
+      "joint": [
+        -248.721512,
+        -6.604568,
+        110.513718,
+        -13.793001,
+        -90.431038,
+        37.695396
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.shijue-gd1": {
+      "robotName": "P62",
+      "alias": "shijue_gd1",
+      "label": "视觉相机区过渡点",
+      "pose": [
+        213.946014,
+        151.66272,
+        285.105804,
+        179.353241,
+        0.59303,
+        -116.943726
+      ],
+      "joint": [
+        183.21490478515625,
+        -42.40340042114258,
+        119.21749877929688,
+        13.39490032196045,
+        -89.08699798583984,
+        30.29759979248047
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.shijue-yangdian-pz": {
+      "robotName": "P61",
+      "alias": "shijue_yangdian_pz",
+      "label": "视觉拍照位",
+      "pose": [
+        274.264526,
+        258.445404,
+        285.917267,
+        -179.712662,
+        0.829097,
+        -26.261368
+      ],
+      "joint": [
+        192.5395050048828,
+        -22.119600296020508,
+        111.90509796142578,
+        0.6280999779701233,
+        -89.23429870605469,
+        -51.0182991027832
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-2ready": {
+      "robotName": "P59",
+      "alias": "Area_2_2ready",
+      "label": "展开缸过渡点·近",
+      "pose": [
+        -265.968597,
+        95.430435,
+        393.066925,
+        -179.519745,
+        0.734396,
+        143.54277
+      ],
+      "joint": [
+        -58.86940002441406,
+        -26.90290069580078,
+        96.57679748535156,
+        21.137500762939453,
+        -89.79989624023438,
+        -112.2406997680664
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2": {
+      "robotName": "P60",
+      "alias": "Area_2_",
+      "label": "展开缸备用点",
+      "pose": [
+        -211.856384,
+        -95.183853,
+        343.493927,
+        -179.139313,
+        0.159106,
+        -19.918726
+      ],
+      "joint": [
+        1.3535000085830688,
+        -34.70429992675781,
+        107.97540283203125,
+        16.844999313354492,
+        -90.80400085449219,
+        111.43190002441406
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-3ready": {
+      "robotName": "P75",
+      "alias": "Area_2_3ready",
+      "label": "展开缸过渡点·远",
+      "pose": [
+        133.974899,
+        197.583176,
+        400.003021,
+        -179.519745,
+        0.73442,
+        37.763584
+      ],
+      "joint": [
+        -170.915009,
+        -33.012058,
+        97.498688,
+        26.337778,
+        -89.878792,
+        -118.517677
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-9-3": {
+      "robotName": "P76",
+      "alias": "Area_9_3",
+      "label": "刮板台备用点",
+      "pose": [
+        365.050415,
+        403.035034,
+        -44.527443,
+        179.914719,
+        0.902161,
+        -110.852386
+      ],
+      "joint": [
+        -144.727707,
+        27.938368,
+        123.392685,
+        -62.084259,
+        -89.569267,
+        56.312634
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-10-3": {
+      "robotName": "P77",
+      "alias": "Area_10_3",
+      "label": "刮板收集器取出过渡点",
+      "pose": [
+        519.528442,
+        640.49408,
+        101.087921,
+        -179.372452,
+        0.624566,
+        -110.869919
+      ],
+      "joint": [
+        -136.617447,
+        47.285664,
+        55.788124,
+        -13.958127,
+        -90.477798,
+        64.39019
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-7": {
+      "robotName": "P78",
+      "alias": "Area_7_7",
+      "label": "中转A返还1号位",
+      "pose": [
+        656.565308,
+        -136.320084,
+        23.858173,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": [
+        -207.957549,
+        37.359215,
+        87.737068,
+        -34.973136,
+        -89.894503,
+        -95.790229
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-8": {
+      "robotName": "P79",
+      "alias": "Area_7_8",
+      "label": "中转A返还2号位",
+      "pose": [
+        703.76532,
+        -134.319946,
+        23.671589,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": [
+        -206.027542,
+        42.599735,
+        77.748032,
+        -30.233641,
+        -89.900963,
+        -93.871941
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-9": {
+      "robotName": "P80",
+      "alias": "Area_7_9",
+      "label": "中转A返还3号位",
+      "pose": [
+        751.76532,
+        -134.319839,
+        23.732935,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": [
+        -204.429214,
+        48.525375,
+        66.107201,
+        -24.526056,
+        -89.90905,
+        -92.288353
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-10": {
+      "robotName": "P81",
+      "alias": "Area_7_10",
+      "label": "中转A返还4号位",
+      "pose": [
+        651.44574,
+        47.118221,
+        24.095545,
+        178.651016,
+        0.486494,
+        159.974716
+      ],
+      "joint": [
+        -184.67421,
+        34.059071,
+        94.046333,
+        -38.985035,
+        -88.983192,
+        105.525116
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-11": {
+      "robotName": "P82",
+      "alias": "Area_7_11",
+      "label": "中转A返还5号位",
+      "pose": [
+        698.511902,
+        48.683285,
+        24.03771,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": [
+        -183.655258,
+        39.489063,
+        84.118553,
+        -34.598999,
+        -90.50811,
+        106.507637
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-7-12": {
+      "robotName": "P83",
+      "alias": "Area_7_12",
+      "label": "中转A返还6号位",
+      "pose": [
+        746.637146,
+        48.642899,
+        24.203407,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": [
+        -183.413162,
+        45.182159,
+        73.047081,
+        -29.219261,
+        -90.524536,
+        106.736115
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-2-4ready": {
+      "robotName": "P84",
+      "alias": "Area_2_4ready",
+      "label": "展开缸过渡点·中",
+      "pose": [
+        -4.096268,
+        221.846344,
+        409.40271,
+        -179.520554,
+        0.733468,
+        73.350761
+      ],
+      "joint": [
+        -139.337311,
+        -34.835484,
+        96.256699,
+        29.404808,
+        -89.935883,
+        -122.530746
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.biaoding": {
+      "robotName": "P85",
+      "alias": "biaoding",
+      "label": "标定点",
+      "pose": [
+        -133.030838,
+        457.6763,
+        409.094849,
+        -178.533005,
+        -1.97408,
+        -110.226341
+      ],
+      "joint": [
+        -84.912605,
+        2.980894,
+        71.231361,
+        18.150938,
+        -90.532631,
+        115.490974
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.biaodingfanzhuan": {
+      "robotName": "P86",
+      "alias": "biaodingfanzhuan",
+      "label": "放板纠偏翻转点",
+      "pose": [
+        -133.030807,
+        457.6763,
+        298.094849,
+        -178.533005,
+        -1.97408,
+        -110.226341
+      ],
+      "joint": [
+        -84.935267,
+        1.20768,
+        91.093744,
+        0.061613,
+        -90.527206,
+        115.472872
+      ],
+      "jointSolved": null,
+      "jointSolvedFrom": null,
+      "tool": 1,
+      "user": 0,
+      "rail": null,
+      "status": "validated",
+      "allowedMotion": [
+        "move_j",
+        "move_l"
+      ],
+      "derivedFrom": null
+    },
+    "robot-main.area-6-1": {
+      "robotName": "P25",
+      "alias": "Area_6_1",
+      "label": "收集器组1号位",
+      "pose": [
+        -706.004822,
+        138.183212,
+        438.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.243247,
+        34.531065,
+        22.092332,
+        33.129619,
+        -90.171137,
+        -3.393912
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-2": {
+      "robotName": "P26",
+      "alias": "Area_6_2",
+      "label": "收集器组2号位",
+      "pose": [
+        -706.004761,
+        -0.899999,
+        438.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.543066,
+        30.597311,
+        29.007749,
+        30.143401,
+        -90.236823,
+        8.306086
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-3": {
+      "robotName": "P27",
+      "alias": "Area_6_3",
+      "label": "收集器组3号位",
+      "pose": [
+        -701.504761,
+        -139.814102,
+        438.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.311904,
+        33.261185,
+        24.368157,
+        32.128694,
+        -90.304975,
+        20.537063
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-4": {
+      "robotName": "P28",
+      "alias": "Area_6_4",
+      "label": "收集器组4号位",
+      "pose": [
+        -709.0047,
+        138.152817,
+        279.450562,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.134228,
+        25.808482,
+        63.471605,
+        0.472826,
+        -90.171743,
+        -3.284894
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-5": {
+      "robotName": "P29",
+      "alias": "Area_6_5",
+      "label": "收集器组5号位",
+      "pose": [
+        -706.004761,
+        -0.509638,
+        279.474365,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.577168,
+        23.170192,
+        67.412099,
+        -0.833837,
+        -90.236631,
+        8.271985
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-6": {
+      "robotName": "P30",
+      "alias": "Area_6_6",
+      "label": "收集器组6号位",
+      "pose": [
+        -703.0047,
+        -139.981369,
+        279.450623,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.296836,
+        24.927103,
+        64.801838,
+        0.029115,
+        -90.305057,
+        20.55213
+      ],
+      "jointSolvedFrom": "robot-main.area-2-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-7": {
+      "robotName": "P31",
+      "alias": "Area_6_7",
+      "label": "收集瓶组1号位",
+      "pose": [
+        -710.0047,
+        136.450226,
+        118.365082,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -23.92198,
+        30.257875,
+        83.006571,
+        -23.512273,
+        -90.176262,
+        -2.472661
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-8": {
+      "robotName": "P32",
+      "alias": "Area_6_8",
+      "label": "收集瓶组2号位",
+      "pose": [
+        -707.004639,
+        -1.834902,
+        118.112038,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.39659,
+        28.129386,
+        86.535671,
+        -24.916431,
+        -90.241028,
+        9.052548
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-9": {
+      "robotName": "P33",
+      "alias": "Area_6_9",
+      "label": "收集瓶组3号位",
+      "pose": [
+        -704.5047,
+        -141.241379,
+        119.111984,
+        -179.874054,
+        0.26584,
+        68.714996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.297801,
+        29.643995,
+        83.836141,
+        -23.620179,
+        -89.908593,
+        21.152631
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-10": {
+      "robotName": "P34",
+      "alias": "Area_6_10",
+      "label": "收集瓶组4号位",
+      "pose": [
+        -712.004761,
+        137.337341,
+        -40.292572,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -23.922457,
+        42.25942,
+        91.481046,
+        -43.988293,
+        -90.176259,
+        -2.473138
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-11": {
+      "robotName": "P35",
+      "alias": "Area_6_11",
+      "label": "收集瓶组5号位",
+      "pose": [
+        -709.0047,
+        -2.574367,
+        -40.792374,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.29446,
+        40.630407,
+        95.033296,
+        -45.91505,
+        -90.241603,
+        9.154677
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.area-6-12": {
+      "robotName": "P36",
+      "alias": "Area_6_12",
+      "label": "收集瓶组6号位",
+      "pose": [
+        -706.004761,
+        -142.09964,
+        -40.975506,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.065196,
+        41.832368,
+        92.531728,
+        -44.604863,
+        -90.309595,
+        21.383757
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "group-rack"
+    },
+    "robot-main.tool-change.slot-1.approach-high": {
+      "robotName": "FLOW_TOOL_1_HIGH",
+      "alias": "Area_1_tool1_high",
+      "label": "1号工具位·吸盘·高位接近",
+      "pose": [
+        -315.385223,
+        420.250977,
+        138.003296,
+        -179.803116,
+        0.232015,
+        -21.152111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -66.783711,
+        5.211777,
+        114.613254,
+        -30.100636,
+        -90.092394,
+        44.5337
+      ],
+      "jointSolvedFrom": "robot-main.tool-change.slot-1.target",
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P8"
+    },
+    "robot-main.tool-change.slot-1.approach-near": {
+      "robotName": "FLOW_TOOL_1_NEAR",
+      "alias": "Area_1_tool1_near",
+      "label": "1号工具位·吸盘·近接近",
+      "pose": [
+        -315.385223,
+        420.250977,
+        -41.996704,
+        -179.803116,
+        0.232015,
+        -21.152111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -66.783711,
+        25.611546,
+        127.106759,
+        -62.99391,
+        -90.092394,
+        44.5337
+      ],
+      "jointSolvedFrom": "robot-main.tool-change.slot-1.target",
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P8"
+    },
+    "robot-main.tool-change.slot-2.approach-high": {
+      "robotName": "FLOW_TOOL_2_HIGH",
+      "alias": "Area_1_tool2_high",
+      "label": "2号工具位·大夹爪·高位接近",
+      "pose": [
+        -172.387375,
+        423.450134,
+        138.091625,
+        -179.355499,
+        0.396423,
+        -21.473894
+      ],
+      "joint": null,
+      "jointSolved": [
+        -85.61239,
+        -5.55198,
+        125.532538,
+        -30.670129,
+        -90.037744,
+        26.029003
+      ],
+      "jointSolvedFrom": "robot-main.tool-change.slot-2.target",
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P9"
+    },
+    "robot-main.tool-change.slot-2.approach-near": {
+      "robotName": "FLOW_TOOL_2_NEAR",
+      "alias": "Area_1_tool2_near",
+      "label": "2号工具位·大夹爪·近接近",
+      "pose": [
+        -172.387375,
+        423.450134,
+        -41.908375,
+        -179.355499,
+        0.396423,
+        -21.473894
+      ],
+      "joint": null,
+      "jointSolved": [
+        -85.61239,
+        19.781955,
+        140.045838,
+        -70.517364,
+        -90.037744,
+        26.029003
+      ],
+      "jointSolvedFrom": "robot-main.tool-change.slot-2.target",
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P9"
+    },
+    "robot-main.tool-change.slot-3.approach-high": {
+      "robotName": "FLOW_TOOL_3_HIGH",
+      "alias": "Area_1_tool3_high",
+      "label": "3号工具位·小夹爪·高位接近",
+      "pose": [
+        -11.099961,
+        425.968597,
+        137.633705,
+        -179.490494,
+        0.153416,
+        -21.784216
+      ],
+      "joint": null,
+      "jointSolved": [
+        -110.601603,
+        -10.934357,
+        129.788466,
+        -29.254888,
+        -89.977075,
+        1.348557
+      ],
+      "jointSolvedFrom": "robot-main.tool-change.slot-3.target",
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P10"
+    },
+    "robot-main.tool-change.slot-3.approach-near": {
+      "robotName": "FLOW_TOOL_3_NEAR",
+      "alias": "Area_1_tool3_near",
+      "label": "3号工具位·小夹爪·近接近",
+      "pose": [
+        -11.099961,
+        425.968597,
+        -42.366295,
+        -179.490494,
+        0.153416,
+        -21.784216
+      ],
+      "joint": null,
+      "jointSolved": [
+        -110.601603,
+        17.121293,
+        145.660837,
+        -73.182909,
+        -89.977075,
+        1.348557
+      ],
+      "jointSolvedFrom": "robot-main.tool-change.slot-3.target",
+      "tool": 1,
+      "user": 0,
+      "rail": 4,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P10"
+    },
+    "tank.1.approach_far": {
+      "robotName": "DERIVED__tank.1.approach_far",
+      "alias": "tank.1.approach_far",
+      "label": "1号展开缸·远接近",
+      "pose": [
+        -582.941329,
+        51.52619100000001,
+        273.669571,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.176685,
+        13.452963,
+        81.87381,
+        -5.909149,
+        -89.154348,
+        -92.144859
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P11"
+    },
+    "tank.1.approach_mid": {
+      "robotName": "DERIVED__tank.1.approach_mid",
+      "alias": "tank.1.approach_mid",
+      "label": "1号展开缸·中接近",
+      "pose": [
+        -582.941329,
+        51.52619100000001,
+        -41.330429,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.176685,
+        34.246377,
+        108.924684,
+        -53.753437,
+        -89.154348,
+        -92.144859
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P11"
+    },
+    "tank.1.approach_near": {
+      "robotName": "DERIVED__tank.1.approach_near",
+      "alias": "tank.1.approach_near",
+      "label": "1号展开缸·近接近",
+      "pose": [
+        -582.941329,
+        -215.473809,
+        -41.330429,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        2.073072,
+        35.530638,
+        106.417722,
+        -52.937389,
+        -89.553975,
+        -65.894998
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P11"
+    },
+    "tank.2.approach_far": {
+      "robotName": "DERIVED__tank.2.approach_far",
+      "alias": "tank.2.approach_far",
+      "label": "2号展开缸·远接近",
+      "pose": [
+        -581.941329,
+        52.32619399999999,
+        276.391556,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.291139,
+        13.303291,
+        81.625609,
+        -5.509134,
+        -89.153044,
+        -92.259325
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P12"
+    },
+    "tank.2.approach_mid": {
+      "robotName": "DERIVED__tank.2.approach_mid",
+      "alias": "tank.2.approach_mid",
+      "label": "2号展开缸·中接近",
+      "pose": [
+        -581.941329,
+        52.32619399999999,
+        140.39155599999998,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.291139,
+        18.150555,
+        97.915082,
+        -26.645871,
+        -89.153044,
+        -92.259325
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P12"
+    },
+    "tank.2.approach_near": {
+      "robotName": "DERIVED__tank.2.approach_near",
+      "alias": "tank.2.approach_near",
+      "label": "2号展开缸·近接近",
+      "pose": [
+        -581.941329,
+        -214.673806,
+        140.39155599999998,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        1.99833,
+        19.849323,
+        95.631948,
+        -26.469422,
+        -89.552593,
+        -65.969732
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P12"
+    },
+    "tank.3.approach_far": {
+      "robotName": "DERIVED__tank.3.approach_far",
+      "alias": "tank.3.approach_far",
+      "label": "3号展开缸·远接近",
+      "pose": [
+        -581.341353,
+        53.32619399999999,
+        364.791565,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.407695,
+        13.749802,
+        66.816947,
+        8.855202,
+        -89.151721,
+        -92.375895
+      ],
+      "jointSolvedFrom": "robot-main.area-2-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P13"
+    },
+    "tank.3.approach_mid": {
+      "robotName": "DERIVED__tank.3.approach_mid",
+      "alias": "tank.3.approach_mid",
+      "label": "3号展开缸·中接近",
+      "pose": [
+        -581.341353,
+        53.32619399999999,
+        319.791565,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.407695,
+        13.102755,
+        74.908392,
+        1.410804,
+        -89.151721,
+        -92.375895
+      ],
+      "jointSolvedFrom": "robot-main.area-2-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P13"
+    },
+    "tank.3.approach_near": {
+      "robotName": "DERIVED__tank.3.approach_near",
+      "alias": "tank.3.approach_near",
+      "label": "3号展开缸·近接近",
+      "pose": [
+        -581.341353,
+        -213.673806,
+        319.791565,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        1.902208,
+        14.928061,
+        72.68945,
+        1.395469,
+        -89.550816,
+        -66.065844
+      ],
+      "jointSolvedFrom": "robot-main.area-2-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P13"
+    },
+    "tank.4.approach_far": {
+      "robotName": "DERIVED__tank.4.approach_far",
+      "alias": "tank.4.approach_far",
+      "label": "4号展开缸·远接近",
+      "pose": [
+        -579.741133,
+        53.926399,
+        504.791748,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.529282,
+        24.030933,
+        27.244665,
+        38.148635,
+        -89.150346,
+        -92.497496
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P14"
+    },
+    "tank.4.approach_mid": {
+      "robotName": "DERIVED__tank.4.approach_mid",
+      "alias": "tank.4.approach_mid",
+      "label": "4号展开缸·中接近",
+      "pose": [
+        -579.741133,
+        53.926399,
+        499.791748,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.529282,
+        23.162128,
+        29.659334,
+        36.602771,
+        -89.150346,
+        -92.497496
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P14"
+    },
+    "tank.4.approach_near": {
+      "robotName": "DERIVED__tank.4.approach_near",
+      "alias": "tank.4.approach_near",
+      "label": "4号展开缸·近接近",
+      "pose": [
+        -579.741133,
+        -213.073601,
+        499.791748,
+        -178.910187,
+        -0.800248,
+        158.130737
+      ],
+      "joint": null,
+      "jointSolved": [
+        1.848649,
+        25.962122,
+        25.265129,
+        37.78636,
+        -89.549827,
+        -66.119397
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P14"
+    },
+    "tank.5.approach_far": {
+      "robotName": "DERIVED__tank.5.approach_far",
+      "alias": "tank.5.approach_far",
+      "label": "5号展开缸·远接近",
+      "pose": [
+        -586.132232,
+        -74.83299299999999,
+        274.466728,
+        -179.139679,
+        0.208261,
+        -21.747854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.468563,
+        15.134347,
+        79.375495,
+        -4.448505,
+        -91.101707,
+        110.444663
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P15"
+    },
+    "tank.5.approach_mid": {
+      "robotName": "DERIVED__tank.5.approach_mid",
+      "alias": "tank.5.approach_mid",
+      "label": "5号展开缸·中接近",
+      "pose": [
+        -586.132232,
+        -74.83299299999999,
+        -40.533272,
+        -179.139679,
+        0.208261,
+        -21.747854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.468563,
+        35.106507,
+        106.584884,
+        -51.630054,
+        -91.101707,
+        110.444663
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P15"
+    },
+    "tank.5.approach_near": {
+      "robotName": "DERIVED__tank.5.approach_near",
+      "alias": "tank.5.approach_near",
+      "label": "5号展开缸·近接近",
+      "pose": [
+        -586.132232,
+        212.167007,
+        -40.533272,
+        -179.139679,
+        0.208261,
+        -21.747854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -28.794806,
+        35.877305,
+        105.168142,
+        -51.384924,
+        -90.999436,
+        83.115724
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P15"
+    },
+    "tank.6.approach_far": {
+      "robotName": "DERIVED__tank.6.approach_far",
+      "alias": "tank.6.approach_far",
+      "label": "6号展开缸·远接近",
+      "pose": [
+        -584.632112,
+        -75.133072,
+        275.466713,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.442412,
+        14.92762,
+        79.485176,
+        -4.3511,
+        -91.101711,
+        110.470822
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P16"
+    },
+    "tank.6.approach_mid": {
+      "robotName": "DERIVED__tank.6.approach_mid",
+      "alias": "tank.6.approach_mid",
+      "label": "6号展开缸·中接近",
+      "pose": [
+        -584.632112,
+        -75.133072,
+        139.466713,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.442412,
+        19.596959,
+        95.802532,
+        -25.337795,
+        -91.101711,
+        110.470822
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P16"
+    },
+    "tank.6.approach_near": {
+      "robotName": "DERIVED__tank.6.approach_near",
+      "alias": "tank.6.approach_near",
+      "label": "6号展开缸·近接近",
+      "pose": [
+        -584.632112,
+        211.866928,
+        139.466713,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -28.839141,
+        20.581793,
+        94.516408,
+        -25.438312,
+        -90.999099,
+        83.071393
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P16"
+    },
+    "tank.7.approach_far": {
+      "robotName": "DERIVED__tank.7.approach_far",
+      "alias": "tank.7.approach_far",
+      "label": "7号展开缸·远接近",
+      "pose": [
+        -584.132112,
+        -75.632889,
+        363.466675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.394254,
+        15.492525,
+        64.56483,
+        10.005077,
+        -91.101719,
+        110.518987
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P17"
+    },
+    "tank.7.approach_mid": {
+      "robotName": "DERIVED__tank.7.approach_mid",
+      "alias": "tank.7.approach_mid",
+      "label": "7号展开缸·中接近",
+      "pose": [
+        -584.132112,
+        -75.632889,
+        318.466675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.394254,
+        14.781706,
+        72.769314,
+        2.511412,
+        -91.101719,
+        110.518987
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P17"
+    },
+    "tank.7.approach_near": {
+      "robotName": "DERIVED__tank.7.approach_near",
+      "alias": "tank.7.approach_near",
+      "label": "7号展开缸·近接近",
+      "pose": [
+        -584.132112,
+        211.367111,
+        318.466675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -28.819827,
+        15.826428,
+        71.526718,
+        2.307003,
+        -90.999237,
+        83.090708
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P17"
+    },
+    "tank.8.approach_far": {
+      "robotName": "DERIVED__tank.8.approach_far",
+      "alias": "tank.8.approach_far",
+      "label": "8号展开缸·远接近",
+      "pose": [
+        -582.632112,
+        -76.332886,
+        504.966675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.328309,
+        27.360294,
+        21.378371,
+        41.324774,
+        -91.101728,
+        110.58494
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P18"
+    },
+    "tank.8.approach_mid": {
+      "robotName": "DERIVED__tank.8.approach_mid",
+      "alias": "tank.8.approach_mid",
+      "label": "8号展开缸·中接近",
+      "pose": [
+        -582.632112,
+        -76.332886,
+        499.966675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -1.328309,
+        26.238861,
+        24.346863,
+        39.477716,
+        -91.101728,
+        110.58494
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P18"
+    },
+    "tank.8.approach_near": {
+      "robotName": "DERIVED__tank.8.approach_near",
+      "alias": "tank.8.approach_near",
+      "label": "8号展开缸·近接近",
+      "pose": [
+        -582.632112,
+        210.667114,
+        499.966675,
+        -179.139694,
+        0.208299,
+        -21.74786
+      ],
+      "joint": null,
+      "jointSolved": [
+        -28.830132,
+        27.936856,
+        21.615139,
+        40.108015,
+        -90.999163,
+        83.080402
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 5,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P18"
+    },
+    "feed-lift.approach_far": {
+      "robotName": "DERIVED__feed-lift.approach_far",
+      "alias": "feed-lift.approach_far",
+      "label": "升降上料取料位·远接近",
+      "pose": [
+        476.478302,
+        -210.54538,
+        103.465248,
+        -179.923447,
+        -0.434386,
+        159.305771
+      ],
+      "joint": null,
+      "jointSolved": [
+        -215.187137,
+        10.219858,
+        114.916248,
+        -34.755496,
+        -90.339598,
+        75.671967
+      ],
+      "jointSolvedFrom": "robot-main.area-4-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P21"
+    },
+    "feed-lift.approach_near": {
+      "robotName": "DERIVED__feed-lift.approach_near",
+      "alias": "feed-lift.approach_near",
+      "label": "升降上料取料位·近接近",
+      "pose": [
+        476.478302,
+        -210.54538,
+        -76.534752,
+        -179.923447,
+        -0.434386,
+        159.305771
+      ],
+      "joint": null,
+      "jointSolved": [
+        -215.187137,
+        31.904829,
+        124.699181,
+        -66.223399,
+        -90.339598,
+        75.671967
+      ],
+      "jointSolvedFrom": "robot-main.area-4-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P21"
+    },
+    "waste.approach_far": {
+      "robotName": "DERIVED__waste.approach_far",
+      "alias": "waste.approach_far",
+      "label": "废料放板位·远接近",
+      "pose": [
+        435.885037,
+        -430.257933,
+        -52.365082,
+        -179.219147,
+        0.693584,
+        -111.547516
+      ],
+      "joint": null,
+      "jointSolved": [
+        -242.780467,
+        34.557288,
+        110.999344,
+        -55.515371,
+        -89.138419,
+        -41.064157
+      ],
+      "jointSolvedFrom": "robot-main.area-4-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P22"
+    },
+    "waste.approach_near": {
+      "robotName": "DERIVED__waste.approach_near",
+      "alias": "waste.approach_near",
+      "label": "废料放板位·近接近",
+      "pose": [
+        585.885037,
+        -430.257933,
+        -62.365082,
+        -179.219147,
+        0.693584,
+        -111.547516
+      ],
+      "joint": null,
+      "jointSolved": [
+        -231.086468,
+        45.38806,
+        89.794332,
+        -45.361013,
+        -89.167086,
+        -29.368134
+      ],
+      "jointSolvedFrom": "robot-main.area-4-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P22"
+    },
+    "spotting.put.approach_far": {
+      "robotName": "DERIVED__spotting.put.approach_far",
+      "alias": "spotting.put.approach_far",
+      "label": "点样放板·远接近",
+      "pose": [
+        463.086731,
+        -59.453312,
+        294.902863,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -208.098792,
+        -10.921344,
+        103.385528,
+        -2.962708,
+        -90.063636,
+        -5.970565
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "spotting.put.approach_near": {
+      "robotName": "DERIVED__spotting.put.approach_near",
+      "alias": "spotting.put.approach_near",
+      "label": "点样放板·近接近",
+      "pose": [
+        643.086731,
+        -59.453312,
+        294.902863,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -199.543444,
+        14.279741,
+        77.349115,
+        -2.145225,
+        -90.150211,
+        2.584364
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "spotting.put.retreat_near": {
+      "robotName": "DERIVED__spotting.put.retreat_near",
+      "alias": "spotting.put.retreat_near",
+      "label": "点样放板·近退离",
+      "pose": [
+        643.086731,
+        -59.453312,
+        244.90286300000002,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -199.543444,
+        14.926998,
+        84.574145,
+        -10.017512,
+        -90.150211,
+        2.584364
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "spotting.put.retreat_far": {
+      "robotName": "DERIVED__spotting.put.retreat_far",
+      "alias": "spotting.put.retreat_far",
+      "label": "点样放板·远退离",
+      "pose": [
+        463.086731,
+        -59.453312,
+        244.90286300000002,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -208.098792,
+        -10.127306,
+        110.850809,
+        -11.222027,
+        -90.063636,
+        -5.970565
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "spotting.pick.approach_far": {
+      "robotName": "DERIVED__spotting.pick.approach_far",
+      "alias": "spotting.pick.approach_far",
+      "label": "点样取板·远接近",
+      "pose": [
+        463.086731,
+        -59.453312,
+        244.90286300000002,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -208.098792,
+        -10.127306,
+        110.850809,
+        -11.222027,
+        -90.063636,
+        -5.970565
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "spotting.pick.approach_near": {
+      "robotName": "DERIVED__spotting.pick.approach_near",
+      "alias": "spotting.pick.approach_near",
+      "label": "点样取板·近接近",
+      "pose": [
+        643.086731,
+        -59.453312,
+        244.90286300000002,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -199.543444,
+        14.926998,
+        84.574145,
+        -10.017512,
+        -90.150211,
+        2.584364
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "spotting.pick.retreat_near": {
+      "robotName": "DERIVED__spotting.pick.retreat_near",
+      "alias": "spotting.pick.retreat_near",
+      "label": "点样取板·近退离",
+      "pose": [
+        643.086731,
+        -59.453312,
+        294.902863,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -199.543444,
+        14.279741,
+        77.349115,
+        -2.145225,
+        -90.150211,
+        2.584364
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "spotting.pick.retreat_far": {
+      "robotName": "DERIVED__spotting.pick.retreat_far",
+      "alias": "spotting.pick.retreat_far",
+      "label": "点样取板·远退离",
+      "pose": [
+        463.086731,
+        -59.453312,
+        294.902863,
+        -179.372986,
+        -0.004372,
+        -111.963257
+      ],
+      "joint": null,
+      "jointSolved": [
+        -208.098792,
+        -10.921344,
+        103.385528,
+        -2.962708,
+        -90.063636,
+        -5.970565
+      ],
+      "jointSolvedFrom": "robot-main.area-3-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 1,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P19"
+    },
+    "scrape.plate-put.approach_far": {
+      "robotName": "DERIVED__scrape.plate-put.approach_far",
+      "alias": "scrape.plate-put.approach_far",
+      "label": "刮板台放板·远接近",
+      "pose": [
+        174.84945599999998,
+        410.635024,
+        -15.739536000000001,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -126.284912,
+        16.477436,
+        135.48105,
+        -62.098538,
+        -90.38464,
+        75.727291
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "scrape.plate-put.approach_near": {
+      "robotName": "DERIVED__scrape.plate-put.approach_near",
+      "alias": "scrape.plate-put.approach_near",
+      "label": "刮板台放板·近接近",
+      "pose": [
+        354.849456,
+        410.635024,
+        -15.739536000000001,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -142.786495,
+        24.167526,
+        121.668751,
+        -56.012624,
+        -90.318086,
+        59.225801
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "scrape.plate-put.retreat_near": {
+      "robotName": "DERIVED__scrape.plate-put.retreat_near",
+      "alias": "scrape.plate-put.retreat_near",
+      "label": "刮板台放板·近退离",
+      "pose": [
+        354.849456,
+        410.635024,
+        -65.739536,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -142.786495,
+        31.051262,
+        123.221133,
+        -64.448741,
+        -90.318086,
+        59.225801
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "scrape.plate-put.retreat_far": {
+      "robotName": "DERIVED__scrape.plate-put.retreat_far",
+      "alias": "scrape.plate-put.retreat_far",
+      "label": "刮板台放板·远退离",
+      "pose": [
+        174.84945599999998,
+        410.635024,
+        -65.739536,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -126.284912,
+        25.462348,
+        137.383485,
+        -72.985885,
+        -90.38464,
+        75.727291
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "scrape.plate-pick.approach_far": {
+      "robotName": "DERIVED__scrape.plate-pick.approach_far",
+      "alias": "scrape.plate-pick.approach_far",
+      "label": "刮板台取板·远接近",
+      "pose": [
+        174.84945599999998,
+        410.635024,
+        -75.739536,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -126.284912,
+        27.368523,
+        137.604785,
+        -75.113361,
+        -90.38464,
+        75.727291
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "scrape.plate-pick.approach_near": {
+      "robotName": "DERIVED__scrape.plate-pick.approach_near",
+      "alias": "scrape.plate-pick.approach_near",
+      "label": "刮板台取板·近接近",
+      "pose": [
+        354.849456,
+        410.635024,
+        -75.739536,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -142.786495,
+        32.505867,
+        123.399764,
+        -66.081978,
+        -90.318086,
+        59.225801
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "scrape.plate-pick.retreat_near": {
+      "robotName": "DERIVED__scrape.plate-pick.retreat_near",
+      "alias": "scrape.plate-pick.retreat_near",
+      "label": "刮板台取板·近退离",
+      "pose": [
+        354.849456,
+        410.635024,
+        -15.739536000000001,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -142.786495,
+        24.167526,
+        121.668751,
+        -56.012624,
+        -90.318086,
+        59.225801
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "scrape.plate-pick.retreat_far": {
+      "robotName": "DERIVED__scrape.plate-pick.retreat_far",
+      "alias": "scrape.plate-pick.retreat_far",
+      "label": "刮板台取板·远退离",
+      "pose": [
+        174.84945599999998,
+        410.635024,
+        -15.739536000000001,
+        -179.750961,
+        0.05908,
+        -111.847854
+      ],
+      "joint": null,
+      "jointSolved": [
+        -126.284912,
+        16.477436,
+        135.48105,
+        -62.098538,
+        -90.38464,
+        75.727291
+      ],
+      "jointSolvedFrom": "robot-main.area-9-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P65"
+    },
+    "group-rack.p25.far": {
+      "robotName": "DERIVED__group-rack.p25.far",
+      "alias": "group-rack.p25.far",
+      "label": "收集器组1号位·远接近",
+      "pose": [
+        -506.004822,
+        138.183212,
+        450.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -34.299776,
+        1.188259,
+        66.850177,
+        21.72909,
+        -90.116408,
+        -13.450303
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P25"
+    },
+    "group-rack.p25.mid": {
+      "robotName": "DERIVED__group-rack.p25.mid",
+      "alias": "group-rack.p25.mid",
+      "label": "收集器组1号位·中接近",
+      "pose": [
+        -506.004822,
+        138.183212,
+        448.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -34.299776,
+        1.079625,
+        67.30733,
+        21.38057,
+        -90.116408,
+        -13.450303
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P25"
+    },
+    "group-rack.p25.near": {
+      "robotName": "DERIVED__group-rack.p25.near",
+      "alias": "group-rack.p25.near",
+      "label": "收集器组1号位·近接近",
+      "pose": [
+        -706.004822,
+        138.183212,
+        448.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.243247,
+        36.944347,
+        15.639839,
+        37.168831,
+        -90.171137,
+        -3.393912
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P25"
+    },
+    "group-rack.p26.far": {
+      "robotName": "DERIVED__group-rack.p26.far",
+      "alias": "group-rack.p26.far",
+      "label": "收集器组2号位·远接近",
+      "pose": [
+        -506.00476100000003,
+        -0.899999,
+        450.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -18.137746,
+        -1.71917,
+        69.742268,
+        21.725866,
+        -90.2053,
+        2.711495
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P26"
+    },
+    "group-rack.p26.mid": {
+      "robotName": "DERIVED__group-rack.p26.mid",
+      "alias": "group-rack.p26.mid",
+      "label": "收集器组2号位·中接近",
+      "pose": [
+        -506.00476100000003,
+        -0.899999,
+        448.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -18.137746,
+        -1.825754,
+        70.1904,
+        21.384318,
+        -90.2053,
+        2.711495
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P26"
+    },
+    "group-rack.p26.near": {
+      "robotName": "DERIVED__group-rack.p26.near",
+      "alias": "group-rack.p26.near",
+      "label": "收集器组2号位·近接近",
+      "pose": [
+        -706.004761,
+        -0.899999,
+        448.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.543066,
+        32.18322,
+        24.365541,
+        33.1997,
+        -90.236823,
+        8.306086
+      ],
+      "jointSolvedFrom": "robot-main.area-2-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P26"
+    },
+    "group-rack.p27.far": {
+      "robotName": "DERIVED__group-rack.p27.far",
+      "alias": "group-rack.p27.far",
+      "label": "收集器组3号位·远接近",
+      "pose": [
+        -501.50476100000003,
+        -139.814102,
+        450.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.385196,
+        0.5892,
+        67.463669,
+        21.705066,
+        -90.304574,
+        20.463771
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P27"
+    },
+    "group-rack.p27.mid": {
+      "robotName": "DERIVED__group-rack.p27.mid",
+      "alias": "group-rack.p27.mid",
+      "label": "收集器组3号位·中接近",
+      "pose": [
+        -501.50476100000003,
+        -139.814102,
+        448.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.385196,
+        0.481114,
+        67.918772,
+        21.358048,
+        -90.304574,
+        20.463771
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P27"
+    },
+    "group-rack.p27.near": {
+      "robotName": "DERIVED__group-rack.p27.near",
+      "alias": "group-rack.p27.near",
+      "label": "收集器组3号位·近接近",
+      "pose": [
+        -701.504761,
+        -139.814102,
+        448.692474,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.311904,
+        35.323793,
+        18.683483,
+        35.75076,
+        -90.304975,
+        20.537063
+      ],
+      "jointSolvedFrom": "robot-main.area-2-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P27"
+    },
+    "group-rack.p28.far": {
+      "robotName": "DERIVED__group-rack.p28.far",
+      "alias": "group-rack.p28.far",
+      "label": "收集器组4号位·远接近",
+      "pose": [
+        -509.00469999999996,
+        138.152817,
+        291.450562,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -34.085915,
+        -1.799385,
+        95.916034,
+        -4.349533,
+        -90.117542,
+        -13.236445
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P28"
+    },
+    "group-rack.p28.mid": {
+      "robotName": "DERIVED__group-rack.p28.mid",
+      "alias": "group-rack.p28.mid",
+      "label": "收集器组4号位·中接近",
+      "pose": [
+        -509.00469999999996,
+        138.152817,
+        289.450562,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -34.085915,
+        -1.779716,
+        96.218971,
+        -4.672138,
+        -90.117542,
+        -13.236445
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P28"
+    },
+    "group-rack.p28.near": {
+      "robotName": "DERIVED__group-rack.p28.near",
+      "alias": "group-rack.p28.near",
+      "label": "收集器组4号位·近接近",
+      "pose": [
+        -709.0047,
+        138.152817,
+        289.450562,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -24.134228,
+        25.851529,
+        61.800543,
+        2.100842,
+        -90.171743,
+        -3.284894
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P28"
+    },
+    "group-rack.p29.far": {
+      "robotName": "DERIVED__group-rack.p29.far",
+      "alias": "group-rack.p29.far",
+      "label": "收集器组5号位·远接近",
+      "pose": [
+        -506.00476100000003,
+        -0.509638,
+        291.474365,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -18.18681,
+        -5.133833,
+        99.006134,
+        -4.123319,
+        -90.205024,
+        2.662432
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P29"
+    },
+    "group-rack.p29.mid": {
+      "robotName": "DERIVED__group-rack.p29.mid",
+      "alias": "group-rack.p29.mid",
+      "label": "收集器组5号位·中接近",
+      "pose": [
+        -506.00476100000003,
+        -0.509638,
+        289.474365,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -18.18681,
+        -5.115176,
+        99.311246,
+        -4.447087,
+        -90.205024,
+        2.662432
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P29"
+    },
+    "group-rack.p29.near": {
+      "robotName": "DERIVED__group-rack.p29.near",
+      "alias": "group-rack.p29.near",
+      "label": "收集器组5号位·近接近",
+      "pose": [
+        -706.004761,
+        -0.509638,
+        289.474365,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.577168,
+        23.178369,
+        65.795083,
+        0.775003,
+        -90.236631,
+        8.271985
+      ],
+      "jointSolvedFrom": "robot-main.area-2-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P29"
+    },
+    "group-rack.p30.far": {
+      "robotName": "DERIVED__group-rack.p30.far",
+      "alias": "group-rack.p30.far",
+      "label": "收集器组6号位·远接近",
+      "pose": [
+        -503.00469999999996,
+        -139.981369,
+        291.450623,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.363217,
+        -2.589916,
+        96.672114,
+        -4.324233,
+        -90.304694,
+        20.48575
+      ],
+      "jointSolvedFrom": "robot-main.area-2-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P30"
+    },
+    "group-rack.p30.mid": {
+      "robotName": "DERIVED__group-rack.p30.mid",
+      "alias": "group-rack.p30.mid",
+      "label": "收集器组6号位·中接近",
+      "pose": [
+        -503.00469999999996,
+        -139.981369,
+        289.450623,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.363217,
+        -2.57038,
+        96.975487,
+        -4.647142,
+        -90.304694,
+        20.48575
+      ],
+      "jointSolvedFrom": "robot-main.area-2-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P30"
+    },
+    "group-rack.p30.near": {
+      "robotName": "DERIVED__group-rack.p30.near",
+      "alias": "group-rack.p30.near",
+      "label": "收集器组6号位·近接近",
+      "pose": [
+        -703.0047,
+        -139.981369,
+        289.450623,
+        -179.635666,
+        -0.070574,
+        69.315048
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.296836,
+        24.957854,
+        63.150296,
+        1.649906,
+        -90.305057,
+        20.55213
+      ],
+      "jointSolvedFrom": "robot-main.area-2-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P30"
+    },
+    "group-rack.p31.far": {
+      "robotName": "DERIVED__group-rack.p31.far",
+      "alias": "group-rack.p31.far",
+      "label": "收集瓶组1号位·远接近",
+      "pose": [
+        -510.00469999999996,
+        136.450226,
+        130.365082,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -33.785286,
+        5.044735,
+        116.213681,
+        -31.49297,
+        -90.122337,
+        -12.335828
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P31"
+    },
+    "group-rack.p31.mid": {
+      "robotName": "DERIVED__group-rack.p31.mid",
+      "alias": "group-rack.p31.mid",
+      "label": "收集瓶组1号位·中接近",
+      "pose": [
+        -510.00469999999996,
+        136.450226,
+        128.365082,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -33.785286,
+        5.200404,
+        116.414619,
+        -31.849576,
+        -90.122337,
+        -12.335828
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P31"
+    },
+    "group-rack.p31.near": {
+      "robotName": "DERIVED__group-rack.p31.near",
+      "alias": "group-rack.p31.near",
+      "label": "收集瓶组1号位·近接近",
+      "pose": [
+        -710.0047,
+        136.450226,
+        128.365082,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -23.92198,
+        29.740758,
+        82.120893,
+        -22.109478,
+        -90.176262,
+        -2.472661
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P31"
+    },
+    "group-rack.p32.far": {
+      "robotName": "DERIVED__group-rack.p32.far",
+      "alias": "group-rack.p32.far",
+      "label": "收集瓶组2号位·远接近",
+      "pose": [
+        -507.004639,
+        -1.834902,
+        130.11203799999998,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -17.913982,
+        1.957756,
+        119.61335,
+        -31.822408,
+        -90.209937,
+        3.535244
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P32"
+    },
+    "group-rack.p32.mid": {
+      "robotName": "DERIVED__group-rack.p32.mid",
+      "alias": "group-rack.p32.mid",
+      "label": "收集瓶组2号位·中接近",
+      "pose": [
+        -507.004639,
+        -1.834902,
+        128.11203799999998,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -17.913982,
+        2.119884,
+        119.820484,
+        -32.191671,
+        -90.209937,
+        3.535244
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P32"
+    },
+    "group-rack.p32.near": {
+      "robotName": "DERIVED__group-rack.p32.near",
+      "alias": "group-rack.p32.near",
+      "label": "收集瓶组2号位·近接近",
+      "pose": [
+        -707.004639,
+        -1.834902,
+        128.11203799999998,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.39659,
+        27.585435,
+        85.656409,
+        -23.493217,
+        -90.241028,
+        9.052548
+      ],
+      "jointSolvedFrom": "robot-main.area-2-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P32"
+    },
+    "group-rack.p33.far": {
+      "robotName": "DERIVED__group-rack.p33.far",
+      "alias": "group-rack.p33.far",
+      "label": "收集瓶组3号位·远接近",
+      "pose": [
+        -504.50469999999996,
+        -141.241379,
+        131.111984,
+        -179.874054,
+        0.26584,
+        68.714996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.364323,
+        4.419523,
+        116.718973,
+        -31.278169,
+        -89.908348,
+        21.086109
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P33"
+    },
+    "group-rack.p33.mid": {
+      "robotName": "DERIVED__group-rack.p33.mid",
+      "alias": "group-rack.p33.mid",
+      "label": "收集瓶组3号位·中接近",
+      "pose": [
+        -504.50469999999996,
+        -141.241379,
+        129.111984,
+        -179.874054,
+        0.26584,
+        68.714996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.364323,
+        4.575346,
+        116.921657,
+        -31.636677,
+        -89.908348,
+        21.086109
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P33"
+    },
+    "group-rack.p33.near": {
+      "robotName": "DERIVED__group-rack.p33.near",
+      "alias": "group-rack.p33.near",
+      "label": "收集瓶组3号位·近接近",
+      "pose": [
+        -704.5047,
+        -141.241379,
+        129.111984,
+        -179.874054,
+        0.26584,
+        68.714996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.297801,
+        29.123173,
+        82.948092,
+        -22.211307,
+        -89.908593,
+        21.152631
+      ],
+      "jointSolvedFrom": "robot-main.area-2-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P33"
+    },
+    "group-rack.p34.far": {
+      "robotName": "DERIVED__group-rack.p34.far",
+      "alias": "group-rack.p34.far",
+      "label": "收集瓶组4号位·远接近",
+      "pose": [
+        -512.004761,
+        137.337341,
+        -28.292572,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -33.739353,
+        23.296908,
+        127.190716,
+        -60.722261,
+        -90.122582,
+        -12.289896
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P34"
+    },
+    "group-rack.p34.mid": {
+      "robotName": "DERIVED__group-rack.p34.mid",
+      "alias": "group-rack.p34.mid",
+      "label": "收集瓶组4号位·中接近",
+      "pose": [
+        -512.004761,
+        137.337341,
+        -30.292572,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -33.739353,
+        23.590356,
+        127.267167,
+        -61.09216,
+        -90.122582,
+        -12.289896
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P34"
+    },
+    "group-rack.p34.near": {
+      "robotName": "DERIVED__group-rack.p34.near",
+      "alias": "group-rack.p34.near",
+      "label": "收集瓶组4号位·近接近",
+      "pose": [
+        -712.004761,
+        137.337341,
+        -30.292572,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -23.922457,
+        41.343311,
+        91.199143,
+        -42.790281,
+        -90.176259,
+        -2.473138
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P34"
+    },
+    "group-rack.p35.far": {
+      "robotName": "DERIVED__group-rack.p35.far",
+      "alias": "group-rack.p35.far",
+      "label": "收集瓶组5号位·远接近",
+      "pose": [
+        -509.00469999999996,
+        -2.574367,
+        -28.792374000000002,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -17.741417,
+        21.378597,
+        131.103551,
+        -62.733498,
+        -90.210908,
+        3.707806
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P35"
+    },
+    "group-rack.p35.mid": {
+      "robotName": "DERIVED__group-rack.p35.mid",
+      "alias": "group-rack.p35.mid",
+      "label": "收集瓶组5号位·中接近",
+      "pose": [
+        -509.00469999999996,
+        -2.574367,
+        -30.792374000000002,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -17.741417,
+        21.694786,
+        131.183846,
+        -63.129983,
+        -90.210908,
+        3.707806
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P35"
+    },
+    "group-rack.p35.near": {
+      "robotName": "DERIVED__group-rack.p35.near",
+      "alias": "group-rack.p35.near",
+      "label": "收集瓶组5号位·近接近",
+      "pose": [
+        -709.0047,
+        -2.574367,
+        -30.792374000000002,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -12.29446,
+        39.679002,
+        94.75236,
+        -44.682709,
+        -90.241603,
+        9.154677
+      ],
+      "jointSolvedFrom": "robot-main.area-2-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P35"
+    },
+    "group-rack.p36.far": {
+      "robotName": "DERIVED__group-rack.p36.far",
+      "alias": "group-rack.p36.far",
+      "label": "收集瓶组6号位·远接近",
+      "pose": [
+        -506.00476100000003,
+        -142.09964,
+        -28.975506000000003,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.029467,
+        23.013138,
+        127.973502,
+        -61.227354,
+        -90.30979,
+        21.419485
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P36"
+    },
+    "group-rack.p36.mid": {
+      "robotName": "DERIVED__group-rack.p36.mid",
+      "alias": "group-rack.p36.mid",
+      "label": "收集瓶组6号位·中接近",
+      "pose": [
+        -506.00476100000003,
+        -142.09964,
+        -30.975506000000003,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.029467,
+        23.311141,
+        128.050098,
+        -61.601954,
+        -90.30979,
+        21.419485
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P36"
+    },
+    "group-rack.p36.near": {
+      "robotName": "DERIVED__group-rack.p36.near",
+      "alias": "group-rack.p36.near",
+      "label": "收集瓶组6号位·近接近",
+      "pose": [
+        -706.004761,
+        -142.09964,
+        -30.975506000000003,
+        -179.635666,
+        -0.070574,
+        68.71505
+      ],
+      "joint": null,
+      "jointSolved": [
+        -0.065196,
+        40.905166,
+        92.252174,
+        -43.398106,
+        -90.309595,
+        21.383757
+      ],
+      "jointSolvedFrom": "robot-main.area-2-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 6,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P36"
+    },
+    "collector-group-staging-put.far": {
+      "robotName": "DERIVED__collector-group-staging-put.far",
+      "alias": "collector-group-staging-put.far",
+      "label": "收集器组暂放位·远接近",
+      "pose": [
+        566.225037,
+        -48.989025,
+        138.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": null,
+      "jointSolved": [
+        -201.979861,
+        9.554714,
+        109.326085,
+        -28.689279,
+        -88.978635,
+        -0.355218
+      ],
+      "jointSolvedFrom": "robot-main.area-6-13",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P37"
+    },
+    "collector-group-staging-put.mid": {
+      "robotName": "DERIVED__collector-group-staging-put.mid",
+      "alias": "collector-group-staging-put.mid",
+      "label": "收集器组暂放位·中接近",
+      "pose": [
+        566.225037,
+        -48.989025,
+        48.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": null,
+      "jointSolved": [
+        -201.979861,
+        17.356636,
+        116.841108,
+        -44.006224,
+        -88.978635,
+        -0.355218
+      ],
+      "jointSolvedFrom": "robot-main.area-6-13",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P37"
+    },
+    "collector-group-staging-put.near": {
+      "robotName": "DERIVED__collector-group-staging-put.near",
+      "alias": "collector-group-staging-put.near",
+      "label": "收集器组暂放位·近接近",
+      "pose": [
+        566.225037,
+        -48.989025,
+        48.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": null,
+      "jointSolved": [
+        -201.979861,
+        17.356636,
+        116.841108,
+        -44.006224,
+        -88.978635,
+        -0.355218
+      ],
+      "jointSolvedFrom": "robot-main.area-6-13",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P37"
+    },
+    "collector-group-staging-pick.far": {
+      "robotName": "DERIVED__collector-group-staging-pick.far",
+      "alias": "collector-group-staging-pick.far",
+      "label": "收集器组取暂放位·远接近",
+      "pose": [
+        564.125061,
+        -48.989025,
+        137.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": null,
+      "jointSolved": [
+        -202.069859,
+        9.352754,
+        109.755629,
+        -28.914903,
+        -88.978825,
+        -0.445237
+      ],
+      "jointSolvedFrom": "robot-main.area-6-15",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P39"
+    },
+    "collector-group-staging-pick.mid": {
+      "robotName": "DERIVED__collector-group-staging-pick.mid",
+      "alias": "collector-group-staging-pick.mid",
+      "label": "收集器组取暂放位·中接近",
+      "pose": [
+        564.125061,
+        -48.989025,
+        47.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": null,
+      "jointSolved": [
+        -202.069859,
+        17.227136,
+        117.257771,
+        -44.291427,
+        -88.978825,
+        -0.445237
+      ],
+      "jointSolvedFrom": "robot-main.area-6-15",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P39"
+    },
+    "collector-group-staging-pick.near": {
+      "robotName": "DERIVED__collector-group-staging-pick.near",
+      "alias": "collector-group-staging-pick.near",
+      "label": "收集器组取暂放位·近接近",
+      "pose": [
+        564.125061,
+        -48.989025,
+        47.205982,
+        179.931229,
+        1.141721,
+        -111.462234
+      ],
+      "joint": null,
+      "jointSolved": [
+        -202.069859,
+        17.227136,
+        117.257771,
+        -44.291427,
+        -88.978825,
+        -0.445237
+      ],
+      "jointSolvedFrom": "robot-main.area-6-15",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P39"
+    },
+    "bottle-group-staging-put.far": {
+      "robotName": "DERIVED__bottle-group-staging-put.far",
+      "alias": "bottle-group-staging-put.far",
+      "label": "收集瓶组暂放位·远接近",
+      "pose": [
+        302.24118,
+        -63.754578,
+        137.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": null,
+      "jointSolved": [
+        -210.948845,
+        -24.784549,
+        138.024693,
+        -23.629481,
+        -90.086835,
+        80.571845
+      ],
+      "jointSolvedFrom": "robot-main.area-6-14",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P38"
+    },
+    "bottle-group-staging-put.mid": {
+      "robotName": "DERIVED__bottle-group-staging-put.mid",
+      "alias": "bottle-group-staging-put.mid",
+      "label": "收集瓶组暂放位·中接近",
+      "pose": [
+        302.24118,
+        -63.754578,
+        47.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": null,
+      "jointSolved": [
+        -210.948845,
+        -13.102259,
+        149.620849,
+        -46.907927,
+        -90.086835,
+        80.571845
+      ],
+      "jointSolvedFrom": "robot-main.area-6-14",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P38"
+    },
+    "bottle-group-staging-put.near": {
+      "robotName": "DERIVED__bottle-group-staging-put.near",
+      "alias": "bottle-group-staging-put.near",
+      "label": "收集瓶组暂放位·近接近",
+      "pose": [
+        302.24118,
+        -63.754578,
+        47.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": null,
+      "jointSolved": [
+        -210.948845,
+        -13.102259,
+        149.620849,
+        -46.907927,
+        -90.086835,
+        80.571845
+      ],
+      "jointSolvedFrom": "robot-main.area-6-14",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P38"
+    },
+    "bottle-group-staging-pick.far": {
+      "robotName": "DERIVED__bottle-group-staging-pick.far",
+      "alias": "bottle-group-staging-pick.far",
+      "label": "收集瓶组取暂放位·远接近",
+      "pose": [
+        302.24118,
+        -63.254578,
+        137.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": null,
+      "jointSolved": [
+        -210.855872,
+        -24.78947,
+        138.027004,
+        -23.627095,
+        -90.087583,
+        80.664815
+      ],
+      "jointSolvedFrom": "robot-main.area-6-16",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P40"
+    },
+    "bottle-group-staging-pick.mid": {
+      "robotName": "DERIVED__bottle-group-staging-pick.mid",
+      "alias": "bottle-group-staging-pick.mid",
+      "label": "收集瓶组取暂放位·中接近",
+      "pose": [
+        302.24118,
+        -63.254578,
+        47.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": null,
+      "jointSolved": [
+        -210.855872,
+        -13.107085,
+        149.623874,
+        -46.906351,
+        -90.087583,
+        80.664815
+      ],
+      "jointSolvedFrom": "robot-main.area-6-16",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P40"
+    },
+    "bottle-group-staging-pick.near": {
+      "robotName": "DERIVED__bottle-group-staging-pick.near",
+      "alias": "bottle-group-staging-pick.near",
+      "label": "收集瓶组取暂放位·近接近",
+      "pose": [
+        302.24118,
+        -63.254578,
+        47.006161,
+        179.981461,
+        0.370639,
+        158.644455
+      ],
+      "joint": null,
+      "jointSolved": [
+        -210.855872,
+        -13.107085,
+        149.623874,
+        -46.906351,
+        -90.087583,
+        80.664815
+      ],
+      "jointSolvedFrom": "robot-main.area-6-16",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P40"
+    },
+    "staging-a.p46.high": {
+      "robotName": "DERIVED__staging-a.p46.high",
+      "alias": "staging-a.p46.high",
+      "label": "中转A收集器1号位·高位接近",
+      "pose": [
+        476.754913,
+        -139.894058,
+        211.87761,
+        179.716415,
+        -0.84658,
+        -20.243717
+      ],
+      "joint": null,
+      "jointSolved": [
+        -217.54443,
+        4.53377,
+        102.466975,
+        -17.732929,
+        -90.320368,
+        -107.133928
+      ],
+      "jointSolvedFrom": "robot-main.area-7-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P46"
+    },
+    "staging-a.p46.near": {
+      "robotName": "DERIVED__staging-a.p46.near",
+      "alias": "staging-a.p46.near",
+      "label": "中转A收集器1号位·近接近",
+      "pose": [
+        476.754913,
+        -139.894058,
+        31.87761,
+        179.716415,
+        -0.84658,
+        -20.243717
+      ],
+      "joint": null,
+      "jointSolved": [
+        -217.54443,
+        18.355605,
+        119.318175,
+        -48.405963,
+        -90.320368,
+        -107.133928
+      ],
+      "jointSolvedFrom": "robot-main.area-7-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P46"
+    },
+    "staging-a.p47.high": {
+      "robotName": "DERIVED__staging-a.p47.high",
+      "alias": "staging-a.p47.high",
+      "label": "中转A收集器2号位·高位接近",
+      "pose": [
+        524.754883,
+        -138.394058,
+        211.877628,
+        -179.439148,
+        -0.535087,
+        -20.253899
+      ],
+      "joint": null,
+      "jointSolved": [
+        -214.637384,
+        10.716703,
+        95.22296,
+        -16.156413,
+        -89.619236,
+        -104.220128
+      ],
+      "jointSolvedFrom": "robot-main.area-7-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P47"
+    },
+    "staging-a.p47.near": {
+      "robotName": "DERIVED__staging-a.p47.near",
+      "alias": "staging-a.p47.near",
+      "label": "中转A收集器2号位·近接近",
+      "pose": [
+        524.754883,
+        -138.394058,
+        31.877628,
+        -179.439148,
+        -0.535087,
+        -20.253899
+      ],
+      "joint": null,
+      "jointSolved": [
+        -214.637384,
+        23.222089,
+        111.418205,
+        -44.857044,
+        -89.619236,
+        -104.220128
+      ],
+      "jointSolvedFrom": "robot-main.area-7-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P47"
+    },
+    "staging-a.p48.high": {
+      "robotName": "DERIVED__staging-a.p48.high",
+      "alias": "staging-a.p48.high",
+      "label": "中转A收集器3号位·高位接近",
+      "pose": [
+        570.703613,
+        -138.3022,
+        211.812102,
+        -179.99379,
+        -0.504997,
+        -22.028391
+      ],
+      "joint": null,
+      "jointSolved": [
+        -211.889648,
+        16.356365,
+        87.932419,
+        -14.616435,
+        -90.1956,
+        -99.696225
+      ],
+      "jointSolvedFrom": "robot-main.area-7-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P48"
+    },
+    "staging-a.p48.near": {
+      "robotName": "DERIVED__staging-a.p48.near",
+      "alias": "staging-a.p48.near",
+      "label": "中转A收集器3号位·近接近",
+      "pose": [
+        570.703613,
+        -138.3022,
+        31.812102,
+        -179.99379,
+        -0.504997,
+        -22.028391
+      ],
+      "joint": null,
+      "jointSolved": [
+        -211.889648,
+        27.691897,
+        103.783785,
+        -41.803333,
+        -90.1956,
+        -99.696225
+      ],
+      "jointSolvedFrom": "robot-main.area-7-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P48"
+    },
+    "staging-a.p49.high": {
+      "robotName": "DERIVED__staging-a.p49.high",
+      "alias": "staging-a.p49.high",
+      "label": "中转A收集器4号位·高位接近",
+      "pose": [
+        468.347534,
+        43.342899,
+        210.596384,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -186.067626,
+        -0.792436,
+        108.456505,
+        -18.661898,
+        -90.512178,
+        104.101569
+      ],
+      "jointSolvedFrom": "robot-main.area-7-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P49"
+    },
+    "staging-a.p49.near": {
+      "robotName": "DERIVED__staging-a.p49.near",
+      "alias": "staging-a.p49.near",
+      "label": "中转A收集器4号位·近接近",
+      "pose": [
+        468.347534,
+        43.342899,
+        30.596384,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -186.067626,
+        14.399205,
+        125.955822,
+        -51.352857,
+        -90.512178,
+        104.101569
+      ],
+      "jointSolvedFrom": "robot-main.area-7-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P49"
+    },
+    "staging-a.p50.high": {
+      "robotName": "DERIVED__staging-a.p50.high",
+      "alias": "staging-a.p50.high",
+      "label": "中转A收集器5号位·高位接近",
+      "pose": [
+        515.799683,
+        44.142952,
+        210.987446,
+        -179.734192,
+        0.436151,
+        159.995575
+      ],
+      "joint": null,
+      "jointSolved": [
+        -185.384405,
+        5.967464,
+        101.045847,
+        -17.410166,
+        -90.579666,
+        104.783941
+      ],
+      "jointSolvedFrom": "robot-main.area-7-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P50"
+    },
+    "staging-a.p50.near": {
+      "robotName": "DERIVED__staging-a.p50.near",
+      "alias": "staging-a.p50.near",
+      "label": "中转A收集器5号位·近接近",
+      "pose": [
+        515.799683,
+        44.142952,
+        30.987446,
+        -179.734192,
+        0.436151,
+        159.995575
+      ],
+      "joint": null,
+      "jointSolved": [
+        -185.384405,
+        19.570289,
+        117.655431,
+        -47.622576,
+        -90.579666,
+        104.783941
+      ],
+      "jointSolvedFrom": "robot-main.area-7-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P50"
+    },
+    "staging-a.p51.high": {
+      "robotName": "DERIVED__staging-a.p51.high",
+      "alias": "staging-a.p51.high",
+      "label": "中转A收集器6号位·高位接近",
+      "pose": [
+        564.796143,
+        44.242912,
+        211.177755,
+        -179.528931,
+        -0.12765,
+        159.996124
+      ],
+      "joint": null,
+      "jointSolved": [
+        -184.885612,
+        12.761912,
+        92.646666,
+        -15.204389,
+        -90.633305,
+        105.282586
+      ],
+      "jointSolvedFrom": "robot-main.area-7-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P51"
+    },
+    "staging-a.p51.near": {
+      "robotName": "DERIVED__staging-a.p51.near",
+      "alias": "staging-a.p51.near",
+      "label": "中转A收集器6号位·近接近",
+      "pose": [
+        564.796143,
+        44.242912,
+        31.177754999999998,
+        -179.528931,
+        -0.12765,
+        159.996124
+      ],
+      "joint": null,
+      "jointSolved": [
+        -184.885612,
+        24.836879,
+        108.690004,
+        -43.322694,
+        -90.633305,
+        105.282586
+      ],
+      "jointSolvedFrom": "robot-main.area-7-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P51"
+    },
+    "staging-b.p53.high": {
+      "robotName": "DERIVED__staging-b.p53.high",
+      "alias": "staging-b.p53.high",
+      "label": "中转B收集瓶1号位·高位接近",
+      "pose": [
+        325.56665,
+        -214.909851,
+        269.677399,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -229.912977,
+        -18.277368,
+        112.193653,
+        -3.579648,
+        -90.319081,
+        61.204052
+      ],
+      "jointSolvedFrom": "robot-main.area-8-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P53"
+    },
+    "staging-b.p53.near": {
+      "robotName": "DERIVED__staging-b.p53.near",
+      "alias": "staging-b.p53.near",
+      "label": "中转B收集瓶1号位·近接近",
+      "pose": [
+        325.56665,
+        -214.909851,
+        79.677399,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -229.912977,
+        -6.516613,
+        137.284769,
+        -40.431519,
+        -90.319081,
+        61.204052
+      ],
+      "jointSolvedFrom": "robot-main.area-8-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P53"
+    },
+    "staging-b.p54.high": {
+      "robotName": "DERIVED__staging-b.p54.high",
+      "alias": "staging-b.p54.high",
+      "label": "中转B收集瓶2号位·高位接近",
+      "pose": [
+        325.902649,
+        -173.825851,
+        269.659149,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -225.015577,
+        -20.887538,
+        113.752967,
+        -2.521833,
+        -90.296088,
+        66.101404
+      ],
+      "jointSolvedFrom": "robot-main.area-8-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P54"
+    },
+    "staging-b.p54.near": {
+      "robotName": "DERIVED__staging-b.p54.near",
+      "alias": "staging-b.p54.near",
+      "label": "中转B收集瓶2号位·近接近",
+      "pose": [
+        325.902649,
+        -173.825851,
+        89.659149,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -225.015577,
+        -10.555202,
+        138.321837,
+        -37.423038,
+        -90.296088,
+        66.101404
+      ],
+      "jointSolvedFrom": "robot-main.area-8-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P54"
+    },
+    "staging-b.p55.high": {
+      "robotName": "DERIVED__staging-b.p55.high",
+      "alias": "staging-b.p55.high",
+      "label": "中转B收集瓶3号位·高位接近",
+      "pose": [
+        325.245758,
+        -130.817856,
+        269.481316,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -219.228661,
+        -23.099514,
+        114.997194,
+        -1.548425,
+        -90.268276,
+        71.888255
+      ],
+      "jointSolvedFrom": "robot-main.area-8-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P55"
+    },
+    "staging-b.p55.near": {
+      "robotName": "DERIVED__staging-b.p55.near",
+      "alias": "staging-b.p55.near",
+      "label": "中转B收集瓶3号位·近接近",
+      "pose": [
+        325.245758,
+        -130.817856,
+        89.481316,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -219.228661,
+        -12.988168,
+        140.037749,
+        -36.700327,
+        -90.268276,
+        71.888255
+      ],
+      "jointSolvedFrom": "robot-main.area-8-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P55"
+    },
+    "staging-b.p56.high": {
+      "robotName": "DERIVED__staging-b.p56.high",
+      "alias": "staging-b.p56.high",
+      "label": "中转B收集瓶4号位·高位接近",
+      "pose": [
+        285.856964,
+        -217.965408,
+        269.279671,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -235.914985,
+        -23.606341,
+        115.303065,
+        -1.371252,
+        -90.346317,
+        55.202096
+      ],
+      "jointSolvedFrom": "robot-main.area-8-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P56"
+    },
+    "staging-b.p56.near": {
+      "robotName": "DERIVED__staging-b.p56.near",
+      "alias": "staging-b.p56.near",
+      "label": "中转B收集瓶4号位·近接近",
+      "pose": [
+        285.856964,
+        -217.965408,
+        89.279671,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -235.914985,
+        -13.531779,
+        140.444088,
+        -36.586838,
+        -90.346317,
+        55.202096
+      ],
+      "jointSolvedFrom": "robot-main.area-8-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P56"
+    },
+    "staging-b.p57.high": {
+      "robotName": "DERIVED__staging-b.p57.high",
+      "alias": "staging-b.p57.high",
+      "label": "中转B收集瓶5号位·高位接近",
+      "pose": [
+        285.28775,
+        -175.398285,
+        269.295341,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -230.981603,
+        -26.946269,
+        116.927447,
+        0.353681,
+        -90.324013,
+        60.135436
+      ],
+      "jointSolvedFrom": "robot-main.area-8-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P57"
+    },
+    "staging-b.p57.near": {
+      "robotName": "DERIVED__staging-b.p57.near",
+      "alias": "staging-b.p57.near",
+      "label": "中转B收集瓶5号位·近接近",
+      "pose": [
+        285.28775,
+        -175.398285,
+        89.295341,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -230.981603,
+        -17.441032,
+        142.796192,
+        -35.0203,
+        -90.324013,
+        60.135436
+      ],
+      "jointSolvedFrom": "robot-main.area-8-5",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P57"
+    },
+    "staging-b.p58.high": {
+      "robotName": "DERIVED__staging-b.p58.high",
+      "alias": "staging-b.p58.high",
+      "label": "中转B收集瓶6号位·高位接近",
+      "pose": [
+        284.164185,
+        -133.240723,
+        269.750397,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -225.165095,
+        -29.630317,
+        118.010802,
+        1.962928,
+        -90.296799,
+        65.951887
+      ],
+      "jointSolvedFrom": "robot-main.area-8-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P58"
+    },
+    "staging-b.p58.near": {
+      "robotName": "DERIVED__staging-b.p58.near",
+      "alias": "staging-b.p58.near",
+      "label": "中转B收集瓶6号位·近接近",
+      "pose": [
+        284.164185,
+        -133.240723,
+        89.750397,
+        179.996826,
+        -0.383869,
+        159.048111
+      ],
+      "joint": null,
+      "jointSolved": [
+        -225.165095,
+        -20.81556,
+        144.470445,
+        -33.311473,
+        -90.296799,
+        65.951887
+      ],
+      "jointSolvedFrom": "robot-main.area-8-6",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P58"
+    },
+    "staging-a-return.p78.high": {
+      "robotName": "DERIVED__staging-a-return.p78.high",
+      "alias": "staging-a-return.p78.high",
+      "label": "中转A返还1号位·高位接近",
+      "pose": [
+        656.565308,
+        -136.320084,
+        223.858173,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": null,
+      "jointSolved": [
+        -207.902046,
+        27.691467,
+        69.324413,
+        -6.670031,
+        -90.013384,
+        -95.736836
+      ],
+      "jointSolvedFrom": "robot-main.area-7-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P78"
+    },
+    "staging-a-return.p78.near": {
+      "robotName": "DERIVED__staging-a-return.p78.near",
+      "alias": "staging-a-return.p78.near",
+      "label": "中转A返还1号位·近接近",
+      "pose": [
+        656.565308,
+        -136.320084,
+        28.858173,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": null,
+      "jointSolved": [
+        -207.902046,
+        37.085418,
+        87.202263,
+        -33.941831,
+        -90.013384,
+        -95.736836
+      ],
+      "jointSolvedFrom": "robot-main.area-7-7",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P78"
+    },
+    "staging-a-return.p79.high": {
+      "robotName": "DERIVED__staging-a-return.p79.high",
+      "alias": "staging-a-return.p79.high",
+      "label": "中转A返还2号位·高位接近",
+      "pose": [
+        703.76532,
+        -134.319946,
+        223.671589,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": null,
+      "jointSolved": [
+        -205.990332,
+        34.54614,
+        58.259907,
+        -2.467451,
+        -90.004343,
+        -93.825129
+      ],
+      "jointSolvedFrom": "robot-main.area-7-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P79"
+    },
+    "staging-a-return.p79.near": {
+      "robotName": "DERIVED__staging-a-return.p79.near",
+      "alias": "staging-a-return.p79.near",
+      "label": "中转A返还2号位·近接近",
+      "pose": [
+        703.76532,
+        -134.319946,
+        28.671589,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": null,
+      "jointSolved": [
+        -205.990332,
+        42.388591,
+        77.171934,
+        -29.221928,
+        -90.004343,
+        -93.825129
+      ],
+      "jointSolvedFrom": "robot-main.area-7-8",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P79"
+    },
+    "staging-a-return.p80.high": {
+      "robotName": "DERIVED__staging-a-return.p80.high",
+      "alias": "staging-a-return.p80.high",
+      "label": "中转A返还3号位·高位接近",
+      "pose": [
+        751.76532,
+        -134.319839,
+        223.732935,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": null,
+      "jointSolved": [
+        -204.412163,
+        42.721618,
+        43.982735,
+        3.628031,
+        -89.997065,
+        -92.246965
+      ],
+      "jointSolvedFrom": "robot-main.area-7-9",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P80"
+    },
+    "staging-a-return.p80.near": {
+      "robotName": "DERIVED__staging-a-return.p80.near",
+      "alias": "staging-a-return.p80.near",
+      "label": "中转A返还3号位·近接近",
+      "pose": [
+        751.76532,
+        -134.319839,
+        28.732935,
+        -179.717361,
+        0.145224,
+        -22.000912
+      ],
+      "joint": null,
+      "jointSolved": [
+        -204.412163,
+        48.388953,
+        65.455597,
+        -23.512165,
+        -89.997065,
+        -92.246965
+      ],
+      "jointSolvedFrom": "robot-main.area-7-9",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P80"
+    },
+    "staging-a-return.p81.high": {
+      "robotName": "DERIVED__staging-a-return.p81.high",
+      "alias": "staging-a-return.p81.high",
+      "label": "中转A返还4号位·高位接近",
+      "pose": [
+        651.44574,
+        47.118221,
+        224.09554500000002,
+        178.651016,
+        0.486494,
+        159.974716
+      ],
+      "joint": null,
+      "jointSolved": [
+        -184.630036,
+        23.224342,
+        76.289898,
+        -10.387495,
+        -89.04372,
+        105.56511
+      ],
+      "jointSolvedFrom": "robot-main.area-7-10",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P81"
+    },
+    "staging-a-return.p81.near": {
+      "robotName": "DERIVED__staging-a-return.p81.near",
+      "alias": "staging-a-return.p81.near",
+      "label": "中转A返还4号位·近接近",
+      "pose": [
+        651.44574,
+        47.118221,
+        29.095545,
+        178.651016,
+        0.486494,
+        159.974716
+      ],
+      "joint": null,
+      "jointSolved": [
+        -184.630036,
+        33.659241,
+        93.771802,
+        -38.304297,
+        -89.04372,
+        105.56511
+      ],
+      "jointSolvedFrom": "robot-main.area-7-10",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P81"
+    },
+    "staging-a-return.p82.high": {
+      "robotName": "DERIVED__staging-a-return.p82.high",
+      "alias": "staging-a-return.p82.high",
+      "label": "中转A返还5号位·高位接近",
+      "pose": [
+        698.511902,
+        48.683285,
+        224.03771,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -183.625705,
+        30.125055,
+        65.90657,
+        -7.016302,
+        -90.557467,
+        106.543105
+      ],
+      "jointSolvedFrom": "robot-main.area-7-11",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P82"
+    },
+    "staging-a-return.p82.near": {
+      "robotName": "DERIVED__staging-a-return.p82.near",
+      "alias": "staging-a-return.p82.near",
+      "label": "中转A返还5号位·近接近",
+      "pose": [
+        698.511902,
+        48.683285,
+        29.03771,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -183.625705,
+        39.142143,
+        83.837717,
+        -33.964537,
+        -90.557467,
+        106.543105
+      ],
+      "jointSolvedFrom": "robot-main.area-7-11",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P82"
+    },
+    "staging-a-return.p83.high": {
+      "robotName": "DERIVED__staging-a-return.p83.high",
+      "alias": "staging-a-return.p83.high",
+      "label": "中转A返还6号位·高位接近",
+      "pose": [
+        746.637146,
+        48.642899,
+        224.203407,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -183.400659,
+        37.678676,
+        53.28861,
+        -1.950654,
+        -90.561612,
+        106.768117
+      ],
+      "jointSolvedFrom": "robot-main.area-7-12",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P83"
+    },
+    "staging-a-return.p83.near": {
+      "robotName": "DERIVED__staging-a-return.p83.near",
+      "alias": "staging-a-return.p83.near",
+      "label": "中转A返还6号位·近接近",
+      "pose": [
+        746.637146,
+        48.642899,
+        29.203407,
+        -179.939468,
+        0.999947,
+        159.992996
+      ],
+      "joint": null,
+      "jointSolved": [
+        -183.400659,
+        44.888863,
+        72.74347,
+        -28.615701,
+        -90.561612,
+        106.768117
+      ],
+      "jointSolvedFrom": "robot-main.area-7-12",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P83"
+    },
+    "collect-bottle-put.far": {
+      "robotName": "DERIVED__collect-bottle-put.far",
+      "alias": "collect-bottle-put.far",
+      "label": "收集瓶放入位·远接近",
+      "pose": [
+        291.01651,
+        -347.923584,
+        233.45546,
+        179.416183,
+        -1.045475,
+        159.180557
+      ],
+      "joint": null,
+      "jointSolved": [
+        -245.666638,
+        -9.058803,
+        111.113917,
+        -10.875348,
+        -90.440762,
+        45.325911
+      ],
+      "jointSolvedFrom": "robot-main.area-11-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P71"
+    },
+    "collect-bottle-put.near": {
+      "robotName": "DERIVED__collect-bottle-put.near",
+      "alias": "collect-bottle-put.near",
+      "label": "收集瓶放入位·近接近",
+      "pose": [
+        291.01651,
+        -347.923584,
+        153.45546,
+        179.416183,
+        -1.045475,
+        159.180557
+      ],
+      "joint": null,
+      "jointSolved": [
+        -245.666638,
+        -5.146252,
+        121.441447,
+        -25.11543,
+        -90.440762,
+        45.325911
+      ],
+      "jointSolvedFrom": "robot-main.area-11-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P71"
+    },
+    "collect-bottle-pick.far": {
+      "robotName": "DERIVED__collect-bottle-pick.far",
+      "alias": "collect-bottle-pick.far",
+      "label": "收集瓶取出位·远接近",
+      "pose": [
+        291.51651,
+        -344.423584,
+        219.655426,
+        179.416183,
+        -1.045475,
+        159.180557
+      ],
+      "joint": null,
+      "jointSolved": [
+        -245.390166,
+        -8.92907,
+        113.283126,
+        -13.173269,
+        -90.435411,
+        45.602334
+      ],
+      "jointSolvedFrom": "robot-main.area-11-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P72"
+    },
+    "collect-bottle-pick.near": {
+      "robotName": "DERIVED__collect-bottle-pick.near",
+      "alias": "collect-bottle-pick.near",
+      "label": "收集瓶取出位·近接近",
+      "pose": [
+        291.51651,
+        -344.423584,
+        139.655426,
+        179.416183,
+        -1.045475,
+        159.180557
+      ],
+      "joint": null,
+      "jointSolved": [
+        -245.390166,
+        -4.457899,
+        123.328302,
+        -27.689616,
+        -90.435411,
+        45.602334
+      ],
+      "jointSolvedFrom": "robot-main.area-11-2",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P72"
+    },
+    "collect-holder-put.far": {
+      "robotName": "DERIVED__collect-holder-put.far",
+      "alias": "collect-holder-put.far",
+      "label": "收集器放入位·远接近",
+      "pose": [
+        285.907501,
+        -181.49160799999999,
+        227.558533,
+        -179.884613,
+        -0.421101,
+        163.780075
+      ],
+      "joint": null,
+      "jointSolved": [
+        -232.208663,
+        -26.629384,
+        123.525951,
+        -6.612527,
+        -90.468759,
+        54.176106
+      ],
+      "jointSolvedFrom": "robot-main.area-11-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P73"
+    },
+    "collect-holder-put.near": {
+      "robotName": "DERIVED__collect-holder-put.near",
+      "alias": "collect-holder-put.near",
+      "label": "收集器放入位·近接近",
+      "pose": [
+        285.907501,
+        -361.491608,
+        227.558533,
+        -179.884613,
+        -0.421101,
+        163.780075
+      ],
+      "joint": null,
+      "jointSolved": [
+        -247.617236,
+        -8.800406,
+        112.313325,
+        -13.300971,
+        -90.51657,
+        38.767439
+      ],
+      "jointSolvedFrom": "robot-main.area-11-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P73"
+    },
+    "collect-holder-pick.far": {
+      "robotName": "DERIVED__collect-holder-pick.far",
+      "alias": "collect-holder-pick.far",
+      "label": "收集器取出位·远接近",
+      "pose": [
+        285.907501,
+        -181.49160799999999,
+        227.558533,
+        -179.884613,
+        -0.421101,
+        163.780075
+      ],
+      "joint": null,
+      "jointSolved": [
+        -232.208663,
+        -26.629384,
+        123.525951,
+        -6.612527,
+        -90.468759,
+        54.176106
+      ],
+      "jointSolvedFrom": "robot-main.area-11-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P74"
+    },
+    "collect-holder-pick.near": {
+      "robotName": "DERIVED__collect-holder-pick.near",
+      "alias": "collect-holder-pick.near",
+      "label": "收集器取出位·近接近",
+      "pose": [
+        285.907501,
+        -361.491608,
+        227.558533,
+        -179.884613,
+        -0.421101,
+        163.780075
+      ],
+      "joint": null,
+      "jointSolved": [
+        -247.617236,
+        -8.800406,
+        112.313325,
+        -13.300971,
+        -90.51657,
+        38.767439
+      ],
+      "jointSolvedFrom": "robot-main.area-11-4",
+      "tool": 1,
+      "user": 0,
+      "rail": 3,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P74"
+    },
+    "scrape-holder-put.far": {
+      "robotName": "DERIVED__scrape-holder-put.far",
+      "alias": "scrape-holder-put.far",
+      "label": "刮板收集器放置位·远接近",
+      "pose": [
+        340.28857400000004,
+        643.794067,
+        102.187897,
+        -179.743683,
+        0.475554,
+        -111.873482
+      ],
+      "joint": null,
+      "jointSolved": [
+        -125.995925,
+        35.019901,
+        77.857271,
+        -23.422253,
+        -90.29228,
+        76.042613
+      ],
+      "jointSolvedFrom": "robot-main.area-10-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P68"
+    },
+    "scrape-holder-put.near": {
+      "robotName": "DERIVED__scrape-holder-put.near",
+      "alias": "scrape-holder-put.near",
+      "label": "刮板收集器放置位·近接近",
+      "pose": [
+        500.28857400000004,
+        643.794067,
+        102.187897,
+        -179.743683,
+        0.475554,
+        -111.873482
+      ],
+      "joint": null,
+      "jointSolved": [
+        -135.535601,
+        46.199194,
+        57.534218,
+        -14.280918,
+        -90.189217,
+        66.503493
+      ],
+      "jointSolvedFrom": "robot-main.area-10-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P68"
+    },
+    "scrape-holder-put.x-plus": {
+      "robotName": "DERIVED__scrape-holder-put.x-plus",
+      "alias": "scrape-holder-put.x-plus",
+      "label": "刮板收集器放置位·+X靠拢",
+      "pose": [
+        521.288574,
+        643.794067,
+        102.187897,
+        -179.743683,
+        0.475554,
+        -111.873482
+      ],
+      "joint": null,
+      "jointSolved": [
+        -136.612746,
+        48.17123,
+        53.78991,
+        -12.507841,
+        -90.177592,
+        65.42641
+      ],
+      "jointSolvedFrom": "robot-main.area-10-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P68"
+    },
+    "scrape-holder-put.x-minus": {
+      "robotName": "DERIVED__scrape-holder-put.x-minus",
+      "alias": "scrape-holder-put.x-minus",
+      "label": "刮板收集器放置位·−X靠拢",
+      "pose": [
+        519.288574,
+        643.794067,
+        102.187897,
+        -179.743683,
+        0.475554,
+        -111.873482
+      ],
+      "joint": null,
+      "jointSolved": [
+        -136.511799,
+        47.976338,
+        54.161915,
+        -12.685039,
+        -90.178681,
+        65.527352
+      ],
+      "jointSolvedFrom": "robot-main.area-10-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P68"
+    },
+    "scrape-holder-put.y-plus": {
+      "robotName": "DERIVED__scrape-holder-put.y-plus",
+      "alias": "scrape-holder-put.y-plus",
+      "label": "刮板收集器放置位·+Y靠拢",
+      "pose": [
+        520.288574,
+        644.794067,
+        102.187897,
+        -179.743683,
+        0.475554,
+        -111.873482
+      ],
+      "joint": null,
+      "jointSolved": [
+        -136.509335,
+        48.207004,
+        53.721612,
+        -12.475404,
+        -90.178707,
+        65.529816
+      ],
+      "jointSolvedFrom": "robot-main.area-10-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P68"
+    },
+    "scrape-holder-put.y-minus": {
+      "robotName": "DERIVED__scrape-holder-put.y-minus",
+      "alias": "scrape-holder-put.y-minus",
+      "label": "刮板收集器放置位·−Y靠拢",
+      "pose": [
+        520.288574,
+        642.794067,
+        102.187897,
+        -179.743683,
+        0.475554,
+        -111.873482
+      ],
+      "joint": null,
+      "jointSolved": [
+        -136.615398,
+        47.940726,
+        54.229811,
+        -12.717235,
+        -90.177563,
+        65.423759
+      ],
+      "jointSolvedFrom": "robot-main.area-10-1",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P68"
+    },
+    "scrape-holder-pick.far": {
+      "robotName": "DERIVED__scrape-holder-pick.far",
+      "alias": "scrape-holder-pick.far",
+      "label": "刮板收集器取出过渡点·远接近",
+      "pose": [
+        339.52844200000004,
+        640.49408,
+        101.087921,
+        -179.372452,
+        0.624566,
+        -110.869919
+      ],
+      "joint": null,
+      "jointSolved": [
+        -126.031933,
+        34.498788,
+        79.104153,
+        -24.38922,
+        -90.60104,
+        75.002546
+      ],
+      "jointSolvedFrom": "robot-main.area-10-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P77"
+    },
+    "scrape-holder-pick.near": {
+      "robotName": "DERIVED__scrape-holder-pick.near",
+      "alias": "scrape-holder-pick.near",
+      "label": "刮板收集器取出过渡点·近接近",
+      "pose": [
+        499.52844200000004,
+        640.49408,
+        101.087921,
+        -179.372452,
+        0.624566,
+        -110.869919
+      ],
+      "joint": null,
+      "jointSolved": [
+        -135.627957,
+        45.51805,
+        59.155931,
+        -15.510739,
+        -90.452845,
+        65.407532
+      ],
+      "jointSolvedFrom": "robot-main.area-10-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P77"
+    },
+    "scrape-holder-pick.retreat-0": {
+      "robotName": "DERIVED__scrape-holder-pick.retreat-0",
+      "alias": "scrape-holder-pick.retreat-0",
+      "label": "刮板收集器取出过渡点·退离1",
+      "pose": [
+        519.528442,
+        640.49408,
+        100.087921,
+        -179.372452,
+        0.624566,
+        -110.869919
+      ],
+      "joint": null,
+      "jointSolved": [
+        -136.659518,
+        47.388106,
+        55.784815,
+        -14.013611,
+        -90.436461,
+        64.376093
+      ],
+      "jointSolvedFrom": "robot-main.area-10-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P77"
+    },
+    "scrape-holder-pick.retreat-1": {
+      "robotName": "DERIVED__scrape-holder-pick.retreat-1",
+      "alias": "scrape-holder-pick.retreat-1",
+      "label": "刮板收集器取出过渡点·退离2",
+      "pose": [
+        509.52844200000004,
+        640.49408,
+        100.087921,
+        -179.372452,
+        0.624566,
+        -110.869919
+      ],
+      "joint": null,
+      "jointSolved": [
+        -136.148122,
+        46.455919,
+        57.552946,
+        -14.847642,
+        -90.444592,
+        64.887429
+      ],
+      "jointSolvedFrom": "robot-main.area-10-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P77"
+    },
+    "scrape-holder-pick.retreat-2": {
+      "robotName": "DERIVED__scrape-holder-pick.retreat-2",
+      "alias": "scrape-holder-pick.retreat-2",
+      "label": "刮板收集器取出过渡点·退离3",
+      "pose": [
+        489.52844200000004,
+        640.49408,
+        100.087921,
+        -179.372452,
+        0.624566,
+        -110.869919
+      ],
+      "joint": null,
+      "jointSolved": [
+        -135.098909,
+        44.690558,
+        60.873953,
+        -16.399137,
+        -90.461219,
+        65.936518
+      ],
+      "jointSolvedFrom": "robot-main.area-10-3",
+      "tool": 1,
+      "user": 0,
+      "rail": 2,
+      "status": "validated",
+      "allowedMotion": [
+        "move_l"
+      ],
+      "derivedFrom": "P77"
+    }
+  }
+}

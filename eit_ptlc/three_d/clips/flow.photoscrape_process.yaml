@@ -1,0 +1,625 @@
+schema: ptlc.clip/v3
+name: flow.photoscrape_process
+label: 拍照刮板-执行
+description: '由 PointRegistry 与上位机 operation 编译; 禁止手工填写生产关节角。显式假设: 本段开始时已挂 1 号刀, 机械臂在
+  P1 安全位。板的落点由编译期的取放基准点静态定出(见 clip_compiler.PLATE_POINT_SLOT), 以 plate 原语写进片段; 实时页则由
+  PlateBinding 按调度器账本跟手, 两条链互不干涉。'
+operation:
+  name: photoscrape_process
+  inputs:
+    sample_id: ''
+    save_dir: ''
+    before_path: ''
+    band_id: band_01
+    mode: manual
+    fixed_summary_path: ''
+    fixed_band_id: fixed_01
+    reconcile_photo: true
+assumptions:
+  vision:
+    voff_rz:
+      valid: true
+      dx_mm: 0.0
+      dy_mm: 0.0
+      drz_deg: 0.0
+      err: 0
+    voff_xy:
+      valid: true
+      dx_mm: 0.0
+      dy_mm: 0.0
+      drz_deg: 0.0
+      err: 0
+flowNotes:
+- 条件分支按“条件成立”那一支编排; 实机按现场反馈选
+- while 循环只编一轮; 实机的轮数由运行期条件决定
+- 条件分支按“条件成立”那一支编排; 实机按现场反馈选
+- for 循环只编第 1 轮(pz=未知); 实机跑完整轮数
+- 'photoscrape.scrape 按演示标称条带表现: 板cm bbox (2.0, 8.0, 18.0, 10.0), 5 列(真机按步距 1.2mm
+  ≈ 133 列); 逐刀展开 2 刀 × 每刀切深 0.5mm(总深 1mm), 末刀才露玻璃; 收集按条带中线一趟 −X 回扫 —— 真实刀路由 PLC SoftMotion
+  按每次视觉 summary 插补, 真值用「实机对照」'
+- '粉桶进粉按演示条带折算: 有效面积 480mm²(标称带 ×0.15, 对齐真机参考带 480mm²) × 总深 1mm × 松散系数 1.6 = 768mm³,
+  逐刀累加; 真机粉量由视觉轮廓面积逐次给出'
+- 条件分支按“条件成立”那一支编排; 实机按现场反馈选
+source:
+  operation: config/operation/03_photoscrape/photoscrape_process.yaml
+  referencePointHash: 4b62a7049b8df0c5e0e8d34920f8cb64695f6dafe73eb04960c3301f9991c673
+  kinematicsCommit: 37730d08b08c74061ae10d4fa5565b4c4c914885
+  calibrationVersion: cr5-ptlc-2026-08-01-rail-carriage-center
+  railCalib:
+    axis: axis_11y
+    zeroOffsetMm: 500.0
+    sign: -1
+    rangeMm:
+    - -54.9
+    - 845.1
+home:
+  axis_mm:
+    axis_11y: 500.0
+    axis_9x: 335.0
+    axis_10z: 0.0
+    axis_8y: 0.0
+  joints_deg:
+  - -154.523621
+  - -47.783794
+  - 93.294029
+  - 44.639656
+  - -89.062752
+  - 124.999908
+  actuators:
+    ps_rotate: 0.0
+    ps_press: 0.0
+    ps_locator: 0.0
+    ps_shade: 0.0
+    col_extend: 0.0
+    col_lift: 0.0
+    col_press: 0.0
+    smp_locator: 0.0
+    rob_flip_suction: 0.0
+  linkages:
+    rob_grip_plate96: 0.0
+    rob_grip_vial: 0.0
+    col_clamp: 0.0
+    dev_t1_cyl1: 1.0
+    dev_t1_cyl2: 1.0
+    dev_t1_cyl3: 1.0
+    dev_t1_cyl4: 1.0
+    dev_t2_cyl1: 1.0
+    dev_t2_cyl2: 1.0
+    dev_t2_cyl3: 1.0
+    dev_t2_cyl4: 1.0
+steps:
+- label: 起手·装吸盘
+  dur: 0.0
+  do:
+    tool:
+      action: lock
+      id: TOOL_SUCTION
+      snap: true
+- label: STA_SCRAPE_HOLDER 显示(前置段已放入)
+  at: 0
+  dur: 0
+  do:
+    state:
+      id: STA_SCRAPE_HOLDER
+      value: true
+- label: 板在位(前置段已放入)
+  at: 0
+  dur: 0
+  do:
+    plate:
+      id: plate
+      at: scrape_table
+- label: photoscrape.press_cylinder 夹紧/伸出
+  dur: 0.5
+  ease: inout
+  do:
+    actuator:
+      id: ps_press
+      to: 1.0
+- label: 拍照8Y·板送进暗箱
+  dur: 3.5
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 420.0
+- label: 遮光气缸·落下
+  dur: 0.5
+  ease: inout
+  do:
+    actuator:
+      id: ps_shade
+      to: 1.0
+- label: 刮板台·相机曝光
+  dur: 0.3
+  do:
+    wait: {}
+- label: 遮光气缸·回上位
+  dur: 0.5
+  ease: inout
+  do:
+    actuator:
+      id: ps_shade
+      to: 0.0
+- label: 拍照8Y·板退出暗箱
+  dur: 3.5
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 0.0
+- label: '人工确认: {''binop'': ''+'', ''left'': {''binop'': ''+'', ''left'': {''lit'':
+    ''识别到的条带: ''}, ''right'': {''call'': ''str'', ''args'': [{''field'': {''var'':
+    ''vis''}, ''name'': ''band_ids''}]}}, ''right'': {''lit'': '' — 对照标注图输入要刮取的 band_id''}}'
+  dur: 0.35
+  do:
+    wait: {}
+- label: '人工确认: {''binop'': ''+'', ''left'': {''binop'': ''+'', ''left'': {''binop'':
+    ''+'', ''left'': {''lit'': ''拍照刮板下发门 (''}, ''right'': {''field'': {''var'': ''vis''},
+    ''name'': ''message''}}, ''right'': {''var'': ''gate_preview''}}, ''right'': {''lit'':
+    ''). 对照叠加图选择: 下发当前路径 / 手绘区域 / 跳过刮板 / 中止取板''}}'
+  dur: 0.35
+  do:
+    wait: {}
+- label: 刮取·主轴启动(Ø2 铣刀)
+  dur: 0.4
+  do:
+    spindle:
+      id: ps_spindle
+      'on': true
+- label: 刮取·板对位条带下缘(8Y) 第1/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 5.018
+- label: 刮取·9X 对位第1列 第1/2刀
+  dur: 1.715
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 129.234
+- label: 刮取·下刀(面20.5 + 累计切深0.5mm) 第1/2刀
+  dur: 4.2
+  ease: inout
+  do:
+    axis:
+      id: axis_10z
+      to_mm: 21.0
+- label: 刮取·第1列冲程(↑) 第1/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 25.018
+- label: 刮取·硅胶刮松 1/5 第1/2刀
+  at: 16.215
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.2
+- label: 刮取·9X 步进第2/5列 第1/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 161.234
+- label: 刮取·第2列冲程(↓) 第1/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 5.018
+- label: 刮取·硅胶刮松 2/5 第1/2刀
+  at: 18.115
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.4
+- label: 刮取·9X 步进第3/5列 第1/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 193.234
+- label: 刮取·第3列冲程(↑) 第1/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 25.018
+- label: 刮取·硅胶刮松 3/5 第1/2刀
+  at: 20.015
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.6
+- label: 刮取·9X 步进第4/5列 第1/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 225.234
+- label: 刮取·第4列冲程(↓) 第1/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 5.018
+- label: 刮取·硅胶刮松 4/5 第1/2刀
+  at: 21.915
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.8
+- label: 刮取·9X 步进第5/5列 第1/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 257.234
+- label: 刮取·第5列冲程(↑) 第1/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 25.018
+- label: 刮取·硅胶刮松 5/5 第1/2刀
+  at: 23.815
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 1.0
+- label: 收集·9X 让位-90mm(粉桶对准条带末端) 第1/2刀
+  dur: 0.617
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 183.234
+- label: 收集·板对位条带中线(8Y) 第1/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 15.018
+- label: 收集·粉桶压过条带回扫(−X) 第1/2刀
+  dur: 6.0
+  ease: linear
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 23.234
+- label: 收集·切到第1层 第1/2刀
+  at: 26.332
+  dur: 6.0
+  ease: step
+  do:
+    scrape:
+      id: plate
+      phase: pass
+      to: 1
+- label: 收集·硅胶粉收尽露第1层残余硅胶 第1/2刀
+  at: 26.332
+  dur: 6.0
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: clear
+      to: 1.0
+- label: 收集·粉进桶(累计 1/2) 第1/2刀
+  at: 26.332
+  dur: 6.0
+  ease: linear
+  do:
+    powder:
+      id: powder_scrape_holder
+      phase: fill
+      to: 384.0
+- label: 刮取·板对位条带下缘(8Y) 第2/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 5.018
+- label: 刮取·9X 对位第1列 第2/2刀
+  dur: 0.883
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 129.234
+- label: 刮取·loosen 前沿归零 第2/2刀
+  at: 32.332
+  dur: 0.001
+  ease: step
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.0
+- label: 刮取·clear 前沿归零 第2/2刀
+  at: 32.332
+  dur: 0.001
+  ease: step
+  do:
+    scrape:
+      id: plate
+      phase: clear
+      to: 0.0
+- label: 刮取·下刀(面20.5 + 累计切深1mm) 第2/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_10z
+      to_mm: 21.5
+- label: 刮取·第1列冲程(↑) 第2/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 25.018
+- label: 刮取·硅胶刮松 1/5 第2/2刀
+  at: 32.733
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.2
+- label: 刮取·9X 步进第2/5列 第2/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 161.234
+- label: 刮取·第2列冲程(↓) 第2/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 5.018
+- label: 刮取·硅胶刮松 2/5 第2/2刀
+  at: 34.633
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.4
+- label: 刮取·9X 步进第3/5列 第2/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 193.234
+- label: 刮取·第3列冲程(↑) 第2/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 25.018
+- label: 刮取·硅胶刮松 3/5 第2/2刀
+  at: 36.533
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.6
+- label: 刮取·9X 步进第4/5列 第2/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 225.234
+- label: 刮取·第4列冲程(↓) 第2/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 5.018
+- label: 刮取·硅胶刮松 4/5 第2/2刀
+  at: 38.433
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 0.8
+- label: 刮取·9X 步进第5/5列 第2/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 257.234
+- label: 刮取·第5列冲程(↑) 第2/2刀
+  dur: 1.5
+  ease: linear
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 25.018
+- label: 刮取·硅胶刮松 5/5 第2/2刀
+  at: 40.333
+  dur: 1.5
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: loosen
+      to: 1.0
+- label: 收集·9X 让位-90mm(粉桶对准条带末端) 第2/2刀
+  dur: 0.617
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 183.234
+- label: 收集·板对位条带中线(8Y) 第2/2刀
+  dur: 0.4
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 15.018
+- label: 收集·粉桶压过条带回扫(−X) 第2/2刀
+  dur: 6.0
+  ease: linear
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 23.234
+- label: 收集·切到第2层 第2/2刀
+  at: 42.85
+  dur: 6.0
+  ease: step
+  do:
+    scrape:
+      id: plate
+      phase: pass
+      to: 2
+- label: 收集·硅胶粉收尽露玻璃 第2/2刀
+  at: 42.85
+  dur: 6.0
+  ease: linear
+  do:
+    scrape:
+      id: plate
+      phase: clear
+      to: 1.0
+- label: 收集·粉进桶(累计 2/2) 第2/2刀
+  at: 42.85
+  dur: 6.0
+  ease: linear
+  do:
+    powder:
+      id: powder_scrape_holder
+      phase: fill
+      to: 768.0
+- label: 刮取·抬刀(全部刀次完成)
+  dur: 0.86
+  ease: inout
+  do:
+    axis:
+      id: axis_10z
+      to_mm: 0.0
+- label: 刮取·主轴停转
+  dur: 0.4
+  do:
+    spindle:
+      id: ps_spindle
+      'on': false
+- label: 刮取·9X 回停放位
+  dur: 2.078
+  ease: inout
+  do:
+    axis:
+      id: axis_9x
+      to_mm: 335.0
+- label: 拍照8Y·板送进暗箱
+  dur: 3.375
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 420.0
+- label: 遮光气缸·落下
+  dur: 0.5
+  ease: inout
+  do:
+    actuator:
+      id: ps_shade
+      to: 1.0
+- label: 刮板台·相机曝光
+  dur: 0.3
+  do:
+    wait: {}
+- label: 遮光气缸·回上位
+  dur: 0.5
+  ease: inout
+  do:
+    actuator:
+      id: ps_shade
+      to: 0.0
+- label: 拍照8Y·板退出暗箱
+  dur: 3.5
+  ease: inout
+  do:
+    axis:
+      id: axis_8y
+      to_mm: 0.0
+- label: 旋转气缸·翻料倒粉
+  dur: 0.5
+  ease: inout
+  do:
+    actuator:
+      id: ps_rotate
+      to: 1.0
+compiled:
+  moveLTrajectories: {}
+  staleJointPoints: []
+  plateAnchorChecks: []
+  dataOnlyMechanisms: []
+  scrapeRegions:
+    plate:
+      frame: plate-cm
+      plateSizeCm:
+      - 20.0
+      - 20.0
+      bandCm:
+      - 2.0
+      - 8.0
+      - 18.0
+      - 10.0
+      loosen:
+        axis: x
+        dir: 1
+      clear:
+        axis: x
+        dir: -1
+      passes: 2
+      depthPerPassMm: 0.5
+      totalDepthMm: 1.0

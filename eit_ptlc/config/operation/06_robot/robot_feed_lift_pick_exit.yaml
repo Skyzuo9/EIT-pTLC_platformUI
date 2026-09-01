@@ -1,0 +1,75 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 feed-lift.pick-exit 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+schema: ptlc.script/v1
+kind: operation
+name: robot_feed_lift_pick_exit
+label: 升降仓吸板-退出
+note: '2/2 持板退回原点'
+ui: {subgroup: 升降仓, order: 12}
+vars:
+- {name: station_id, scope: local, type: STRING, io: in, default: default, comment: feed-lift.pick-exit 主选择值, enum: [default]}
+resources: [robot]
+body:
+- op: if
+  cond:
+    binop: ==
+    left: {var: station_id}
+    right: {lit: default}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P21}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: feed-lift.approach_near}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: feed-lift.approach_far}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 30}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P5}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: P1}
+      motion: {lit: move_j}
+      acc: {lit: 50}
+      vel: {lit: 37}
+      cp: {lit: 2}
+    mode: RUN
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: P1}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  elifs: []
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'feed-lift.pick-exit: 无效选择值'}

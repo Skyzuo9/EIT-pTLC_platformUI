@@ -1,0 +1,68 @@
+# [废弃/未接线] 早期"上样-点样"样板, 已被 sampling_execute (primary) 取代且当前无任何 run_script 调用它。
+# 保留仅作隐藏示例; 点样几何的运行前逐带覆盖 (x_start/x_end/y_height 旋钮 + base-by-read) 只在 sampling_execute 维护。
+# 若重新启用本流程, 须照 sampling_execute 补 spot_x_* 旋钮与 args, 以免两处讲不同故事。
+schema: ptlc.script/v1
+kind: operation
+name: sampling_spot
+label: 上样-点样 (废弃, 见 sampling_execute)
+ui:
+  role: helper
+  hidden: true
+  order: 40
+vars:
+- {name: plate_spec, scope: local, type: STRING, io: in, default: "4×6", comment: 上样吸液孔板规格, enum: ['4×6', '6×8']}
+- {name: plate_no, scope: local, type: STRING, io: in, default: "1", comment: 上样吸液盘位号, enum: ['1', '2']}
+- {name: well, scope: local, type: STRING, io: in, default: "A1", comment: 上样吸液孔位}
+resources:
+- station:sampling
+body:
+- op: comment
+  text: 真空区间 (上样准备->吸液 抽废液; 资源门按引用计数开关泵, 异常与并发流程都不会漏关或误关)
+- op: with_resources
+  resources:
+  - device:vacuum_pump
+  body:
+  - op: call
+    action: sampling.prep
+    mode: RUN
+    args:
+      air_buffer_ml:
+        lit: 0.5
+      asp_speed:
+        lit: 50
+      step_delay:
+        lit: 2500
+  - op: call
+    action: sampling.aspirate
+    mode: RUN
+    args:
+      plate_spec:
+        var: plate_spec
+      plate_no:
+        var: plate_no
+      well:
+        var: well
+      sample_volume_ml:
+        lit: 0.1
+      asp_speed:
+        lit: 100
+      step_delay:
+        lit: 1500
+- op: comment
+  text: 单条带点样+连续吹干 (不需真空, 在真空区间之外; 气保持 ON 到清洗位停气)
+- op: call
+  action: sampling.spot_band_layer
+  mode: RUN
+  args:
+    ref_spot:
+      lit: spot_pose
+    spot_disp_speed:
+      lit: 6
+    spot_speed_mm_s:
+      lit: 40
+    dry_speed_mm_s:
+      lit: 20
+    dry_cycles:
+      lit: 2
+    step_delay:
+      lit: 1500

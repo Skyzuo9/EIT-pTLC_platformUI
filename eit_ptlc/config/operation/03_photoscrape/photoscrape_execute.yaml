@@ -1,0 +1,51 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_execute
+label: 拍照刮板-执行 [compat wrapper]
+ui:
+  role: helper
+  station: photo_scrape
+  hidden: true
+  order: 36
+vars:
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 拍照图保存目录
+- name: before_path
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: before图路径
+- name: band_id
+  scope: local
+  type: STRING
+  io: in
+  default: band_01
+  comment: 默认条带ID
+resources:
+- station:photo_scrape
+body:
+- op: comment
+  text: "compat: 正式四段执行入口为 photoscrape_process; 本 wrapper 仅保留给旧引用"
+- op: run_script
+  script: photoscrape_process
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+    before_path:
+      var: before_path
+    band_id:
+      var: band_id
+  outputs: {}

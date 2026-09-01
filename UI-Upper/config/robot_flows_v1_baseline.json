@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "captured_at": "2026-06-20",
+  "artifact": "robot_flows_v1_baseline.yaml",
+  "artifact_sha256": "abbeecba4e043c9b767b39a7659a7fd5175c6546cd75cedd130bb6efcf1cdfca",
+  "behavior_source": "robot program v0.11 global.lua GetTool_Path/PutTool_Path",
+  "flows": [
+    "tool.pick.1",
+    "tool.put.1",
+    "tool.pick.2",
+    "tool.put.2",
+    "tool.pick.3",
+    "tool.put.3",
+    "test.gripper.p2"
+  ],
+  "frozen_fields": [
+    "point order",
+    "move_j/move_l",
+    "acc/vel/cp",
+    "tool action order",
+    "wait duration",
+    "entry/exit anchors",
+    "fail-stop behavior"
+  ]
+}

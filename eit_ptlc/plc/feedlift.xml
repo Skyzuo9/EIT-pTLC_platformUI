@@ -1,0 +1,494 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-07-03T21:03:31.881173" />
+  <contentHeader name="20260702.project" modificationDateTime="2026-07-03T19:13:53.8824805">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="FeedLift_L2" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="上料step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="下料step">
+              <type>
+                <INT />
+              </type>
+            </variable>
+            <variable name="bActionDone">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bActionError">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="L2_StartTrig">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="feedlift_TO">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* FeedLift 工位 L2 统一动作派发器
+   按 FeedLift_L2_ActionCode 派发到纯设备原子动作 (不含机器人/相机/CNC 握手).
+   Start 上升沿接受请求 -&gt; RUNNING 每周期调用对应原子 -&gt; bActionDone=DONE / bActionError=ERROR. *)
+L2_StartTrig(CLK := FeedLift_L2_Start);
+
+CASE FeedLift_L2_State OF
+	0:  (* IDLE *)
+		FeedLift_L2_Step := 0;
+		IF L2_StartTrig.Q THEN
+			FeedLift_L2_AcceptedSeq := FeedLift_L2_RequestSeq;
+			FeedLift_L2_ActiveCode  := FeedLift_L2_ActionCode;
+			FeedLift_L2_ErrorCode   := 0;
+			FeedLift_L2_Retryable   := FALSE;
+			bActionDone  := FALSE;
+			bActionError := FALSE;
+			上料step := 0;
+			下料step := 0;
+			CASE FeedLift_L2_ActionCode OF
+				11, 12, 21, 22, 91:
+					FeedLift_L2_SafeState := 0;
+					FeedLift_L2_State     := 10;   (* RUNNING *)
+			ELSE
+				FeedLift_L2_ErrorCode    := 101;  (* 未知动作码 *)
+				FeedLift_L2_Retryable    := TRUE;
+				FeedLift_L2_CompletedSeq := FeedLift_L2_AcceptedSeq;
+				FeedLift_L2_State        := 30;   (* REJECTED *)
+			END_CASE
+		END_IF
+
+	10: (* RUNNING *)
+		IF FeedLift_L2_Reset THEN FeedLift_L2_State := 0; RETURN; END_IF   (* RUNNING 中 RESET: 中止挂死动作 *)
+		CASE FeedLift_L2_ActiveCode OF
+			11: A11_feed_raise();
+			12: A12_feed_lower();
+			21: A21_unload_ready();
+			22: A22_unload_bury();
+			91: A91_endcheck();
+		END_CASE
+		IF bActionDone THEN
+			bActionDone              := FALSE;
+			FeedLift_L2_CompletedSeq := FeedLift_L2_AcceptedSeq;
+			FeedLift_L2_State        := 20;   (* DONE *)
+		ELSIF bActionError THEN              (* 设备预条件未满足 -&gt; 报错交上位机 *)
+			bActionError             := FALSE;
+			FeedLift_L2_Retryable    := TRUE;
+			FeedLift_L2_CompletedSeq := FeedLift_L2_AcceptedSeq;
+			FeedLift_L2_State        := 40;   (* ERROR; ErrorCode 由原子置 *)
+		END_IF
+
+	20, 30, 40, 50:  (* 终态: 等 Start 落沿或 Reset 回 IDLE *)
+		IF (NOT FeedLift_L2_Start) OR FeedLift_L2_Reset THEN
+			FeedLift_L2_State := 0;
+		END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="50_action" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="f66a7361-893a-453f-8407-8f140228ebba">
+                    <pathStructure isFolder="False" name="FeedLift_L2" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="976336a0-9e2f-5dfc-aac3-1e29caeae553" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>976336a0-9e2f-5dfc-aac3-1e29caeae553</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A11_feed_raise">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* FeedLift feed_raise: bounded 1Z jog; final PE1 stable TRUE *)
+CASE 上料step OF
+	0:
+		Z1JOG_pos:=FALSE;
+		feedlift_TO(IN:=FALSE, PT:=T#200MS);
+		IF FeedLift_1Z_SearchLowTarget &gt;= FeedLift_1Z_SearchHighTarget THEN
+			FeedLift_L2_ErrorCode:=303;
+			上料step:=0;
+			bActionError:=TRUE;
+		ELSIF 玻璃上料轴1ZDATE.bHomed AND 玻璃升降接近开关1 AND 上料进料传感器 AND NOT Alarm.0 THEN
+			上料step:=10;
+		ELSE
+			feedlift_TO(IN:=TRUE, PT:=T#10S);
+			IF feedlift_TO.Q THEN
+				FeedLift_L2_ErrorCode:=301;
+				上料step:=0;
+				bActionError:=TRUE;
+			END_IF
+		END_IF
+	10:
+		feedlift_TO(IN:=FALSE, PT:=T#200MS);
+		IF 玻璃升降光电开关1 THEN
+			Z1JOG_pos:=FALSE;
+			上料step:=20;
+		ELSIF 玻璃上料轴1ZDATE.fActPos &lt; FeedLift_1Z_SearchHighTarget THEN
+			Z1JOG_pos:=TRUE;
+		ELSE
+			Z1JOG_pos:=FALSE;
+			FeedLift_L2_ErrorCode:=304;
+			上料step:=0;
+			bActionError:=TRUE;
+		END_IF
+	20:
+		Z1JOG_pos:=FALSE;
+		feedlift_TO(IN:=玻璃升降光电开关1, PT:=T#200MS);
+		IF feedlift_TO.Q THEN
+			上料step:=0;
+			bActionDone:=TRUE;
+		ELSIF NOT 玻璃升降光电开关1 THEN
+			IF 玻璃上料轴1ZDATE.fActPos &lt; FeedLift_1Z_SearchHighTarget THEN
+				上料step:=10;
+			ELSE
+				FeedLift_L2_ErrorCode:=304;
+				上料step:=0;
+				bActionError:=TRUE;
+			END_IF
+		END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="50_action" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="f66a7361-893a-453f-8407-8f140228ebba">
+                    <pathStructure isFolder="False" name="FeedLift_L2" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="976336a0-9e2f-5dfc-aac3-1e29caeae553">
+                      <pathStructure isFolder="False" name="A11_feed_raise" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="5cdd6c84-d881-53a5-8504-6ec42f5f90f6" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>5cdd6c84-d881-53a5-8504-6ec42f5f90f6</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A22_unload_bury">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* FeedLift unload_bury: bounded 2Z jog to make PE2 stable FALSE; reverse once if low misses *)
+CASE 下料step OF
+	0:
+		Z2JOG_POS:=FALSE;
+		Z2JOG_NEG:=FALSE;
+		feedlift_TO(IN:=FALSE, PT:=T#200MS);
+		IF FeedLift_2Z_SearchLowTarget &gt;= FeedLift_2Z_SearchHighTarget THEN
+			FeedLift_L2_ErrorCode:=303;
+			下料step:=0;
+			bActionError:=TRUE;
+		ELSIF 玻璃升降光电开关2 AND 玻璃升降接近开关2 THEN
+			下料step:=10;
+		ELSE
+			feedlift_TO(IN:=TRUE, PT:=T#10S);
+			IF feedlift_TO.Q THEN
+				FeedLift_L2_ErrorCode:=302;
+				下料step:=0;
+				bActionError:=TRUE;
+			END_IF
+		END_IF
+	10:
+		Z2JOG_POS:=FALSE;
+		IF NOT 玻璃升降光电开关2 THEN
+			Z2JOG_NEG:=FALSE;
+			下料step:=30;
+		ELSIF 玻璃上料轴2ZDATE.fActPos &gt; FeedLift_2Z_SearchLowTarget THEN
+			Z2JOG_NEG:=TRUE;
+		ELSE
+			Z2JOG_NEG:=FALSE;
+			下料step:=20;
+		END_IF
+	20:
+		Z2JOG_NEG:=FALSE;
+		IF NOT 玻璃升降光电开关2 THEN
+			Z2JOG_POS:=FALSE;
+			下料step:=30;
+		ELSIF 玻璃上料轴2ZDATE.fActPos &lt; FeedLift_2Z_SearchHighTarget THEN
+			Z2JOG_POS:=TRUE;
+		ELSE
+			Z2JOG_POS:=FALSE;
+			FeedLift_L2_ErrorCode:=305;
+			下料step:=0;
+			bActionError:=TRUE;
+		END_IF
+	30:
+		Z2JOG_POS:=FALSE;
+		Z2JOG_NEG:=FALSE;
+		feedlift_TO(IN:=NOT 玻璃升降光电开关2, PT:=T#200MS);
+		IF feedlift_TO.Q THEN
+			下料step:=0;
+			bActionDone:=TRUE;
+		ELSIF 玻璃升降光电开关2 THEN
+			IF 玻璃上料轴2ZDATE.fActPos &gt; FeedLift_2Z_SearchLowTarget THEN
+				下料step:=10;
+			ELSIF 玻璃上料轴2ZDATE.fActPos &lt; FeedLift_2Z_SearchHighTarget THEN
+				下料step:=20;
+			ELSE
+				FeedLift_L2_ErrorCode:=305;
+				下料step:=0;
+				bActionError:=TRUE;
+			END_IF
+		END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="50_action" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="f66a7361-893a-453f-8407-8f140228ebba">
+                    <pathStructure isFolder="False" name="FeedLift_L2" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="976336a0-9e2f-5dfc-aac3-1e29caeae553">
+                      <pathStructure isFolder="False" name="A22_unload_bury" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="78e9deea-f141-59c8-889a-a4b112deb8f1" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>78e9deea-f141-59c8-889a-a4b112deb8f1</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A91_endcheck">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* DEBUG: no-jog photoelectric stable-state confirmation *)
+FeedLift_L2_Step := 91;
+CASE FeedLift_DebugAxis OF
+	1:
+		feedlift_TO(IN:=(玻璃升降光电开关1 = FeedLift_DebugExpectedFinal), PT:=T#200MS);
+		IF feedlift_TO.Q THEN bActionDone:=TRUE; END_IF
+	2:
+		feedlift_TO(IN:=(玻璃升降光电开关2 = FeedLift_DebugExpectedFinal), PT:=T#200MS);
+		IF feedlift_TO.Q THEN bActionDone:=TRUE; END_IF
+ELSE
+	FeedLift_L2_ErrorCode:=306;
+	bActionError:=TRUE;
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="50_action" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="f66a7361-893a-453f-8407-8f140228ebba">
+                    <pathStructure isFolder="False" name="FeedLift_L2" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="976336a0-9e2f-5dfc-aac3-1e29caeae553">
+                      <pathStructure isFolder="False" name="A91_endcheck" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="691bec8f-a34d-44fd-992c-252015ad0300" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>691bec8f-a34d-44fd-992c-252015ad0300</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A12_feed_lower">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* 上料: 机器人吸住玻璃后, Z1 相对下降 5mm 让位 *)
+CASE 上料step OF
+	0:
+		玻璃上料轴1ZDATE.fRelTarget:=-5.0;
+		玻璃上料轴1ZDATE.xMoveRel:=TRUE;
+		上料step:=10;
+	10:
+		IF 玻璃上料轴1ZDATE.bReMoveDone THEN
+			玻璃上料轴1ZDATE.xMoveRel:=FALSE;
+			上料step:=0;
+			bActionDone:=TRUE;
+		END_IF
+END_CASE
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="50_action" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="f66a7361-893a-453f-8407-8f140228ebba">
+                    <pathStructure isFolder="False" name="FeedLift_L2" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="976336a0-9e2f-5dfc-aac3-1e29caeae553">
+                      <pathStructure isFolder="False" name="A12_feed_lower" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="7c007acc-e0ba-53c2-afe6-f2494052ac76" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>7c007acc-e0ba-53c2-afe6-f2494052ac76</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A21_unload_ready">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* FeedLift unload_ready: bounded 2Z search PE2 then leave until PE2 stable FALSE *)
+CASE 下料step OF
+	0:
+		Z2JOG_POS:=FALSE;
+		Z2JOG_NEG:=FALSE;
+		feedlift_TO(IN:=FALSE, PT:=T#200MS);
+		IF FeedLift_2Z_SearchLowTarget &gt;= FeedLift_2Z_SearchHighTarget THEN
+			FeedLift_L2_ErrorCode:=303;
+			下料step:=0;
+			bActionError:=TRUE;
+		ELSIF 玻璃上料轴2ZDATE.bHomed AND 下料出料传感器 AND NOT Alarm.1 THEN
+			IF 玻璃升降光电开关2 THEN
+				下料step:=20;
+			ELSE
+				下料step:=10;
+			END_IF
+		ELSE
+			feedlift_TO(IN:=TRUE, PT:=T#10S);
+			IF feedlift_TO.Q THEN
+				FeedLift_L2_ErrorCode:=302;
+				下料step:=0;
+				bActionError:=TRUE;
+			END_IF
+		END_IF
+	10:
+		feedlift_TO(IN:=FALSE, PT:=T#200MS);
+		Z2JOG_NEG:=FALSE;
+		IF 玻璃升降光电开关2 THEN
+			Z2JOG_POS:=FALSE;
+			下料step:=20;
+		ELSIF 玻璃上料轴2ZDATE.fActPos &lt; FeedLift_2Z_SearchHighTarget THEN
+			Z2JOG_POS:=TRUE;
+		ELSE
+			Z2JOG_POS:=FALSE;
+			FeedLift_L2_ErrorCode:=305;
+			下料step:=0;
+			bActionError:=TRUE;
+		END_IF
+	20:
+		Z2JOG_POS:=FALSE;
+		IF NOT 玻璃升降光电开关2 THEN
+			Z2JOG_NEG:=FALSE;
+			下料step:=30;
+		ELSIF 玻璃上料轴2ZDATE.fActPos &gt; FeedLift_2Z_SearchLowTarget THEN
+			Z2JOG_NEG:=TRUE;
+		ELSE
+			Z2JOG_NEG:=FALSE;
+			FeedLift_L2_ErrorCode:=305;
+			下料step:=0;
+			bActionError:=TRUE;
+		END_IF
+	30:
+		Z2JOG_POS:=FALSE;
+		Z2JOG_NEG:=FALSE;
+		feedlift_TO(IN:=NOT 玻璃升降光电开关2, PT:=T#200MS);
+		IF feedlift_TO.Q THEN
+			下料step:=0;
+			bActionDone:=TRUE;
+		ELSIF 玻璃升降光电开关2 THEN
+			IF 玻璃上料轴2ZDATE.fActPos &gt; FeedLift_2Z_SearchLowTarget THEN
+				下料step:=20;
+			ELSE
+				FeedLift_L2_ErrorCode:=305;
+				下料step:=0;
+				bActionError:=TRUE;
+			END_IF
+		END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="50_action" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="f66a7361-893a-453f-8407-8f140228ebba">
+                    <pathStructure isFolder="False" name="FeedLift_L2" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="976336a0-9e2f-5dfc-aac3-1e29caeae553">
+                      <pathStructure isFolder="False" name="A21_unload_ready" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="c1d4a8bb-6456-5f3a-8e56-1f184dba018f" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>c1d4a8bb-6456-5f3a-8e56-1f184dba018f</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="50_action">
+          <Object Name="FeedLift_L2" ObjectId="976336a0-9e2f-5dfc-aac3-1e29caeae553">
+            <Object Name="A11_feed_raise" ObjectId="5cdd6c84-d881-53a5-8504-6ec42f5f90f6" />
+            <Object Name="A22_unload_bury" ObjectId="78e9deea-f141-59c8-889a-a4b112deb8f1" />
+            <Object Name="A91_endcheck" ObjectId="691bec8f-a34d-44fd-992c-252015ad0300" />
+            <Object Name="A12_feed_lower" ObjectId="7c007acc-e0ba-53c2-afe6-f2494052ac76" />
+            <Object Name="A21_unload_ready" ObjectId="c1d4a8bb-6456-5f3a-8e56-1f184dba018f" />
+          </Object>
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

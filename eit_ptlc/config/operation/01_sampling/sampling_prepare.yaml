@@ -1,0 +1,135 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_prepare
+label: 上样-准备
+ui:
+  role: station_phase
+  station: sampling
+  phase: prepare
+  primary: true
+  order: 11
+# 上样四段之一: 点样前用轻清洗充液(sampling.flush)一次吸满25mL分段把 上样流路/针外壁/点样头
+# 三条流路灌满, 消除管内空气顺应性(点样"吹空气"根因), 再把 7Y 移到放板位等机器人放板。
+# flush 7 参数由 {lit} 提升为带 ui 的 in 旋钮: 运行前预检面板可覆盖。
+# 真空泵段内自闭合 (外壁段打废液需真空), try/finally 保证异常也关泵; 跑完真空必关, 可单独安全重跑。
+# 旧重清洗 sampling.clean 版保留在 sampling_prepare_legacy「上样-准备(旧)」, 供换样/初始化深度去污。
+vars:
+- name: flush_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 17.0
+  comment: 上样流路充液体积 (mL); 泵→三通15.7+针1.1≈16.8 的 1.01×
+  ui:
+    label: 上样流路充液体积 (mL)
+    group: 充液润洗
+    min: 0.1
+    max: 25.0
+- name: outer_wash_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 5.0
+  comment: 针外壁清洗体积 (mL)
+  ui:
+    label: 针外壁清洗体积 (mL)
+    group: 充液润洗
+    min: 0.1
+    max: 25.0
+- name: spot_head_volume_ml
+  scope: local
+  type: FLOAT
+  io: in
+  default: 3.0
+  comment: 点样头清洗体积 (mL)
+  ui:
+    label: 点样头清洗体积 (mL)
+    group: 充液润洗
+    min: 0.1
+    max: 25.0
+- name: asp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 250
+  comment: 吸液速度 V (DT, 半步/s)
+  ui:
+    label: 吸液速度 V
+    group: 充液润洗
+    min: 1
+    max: 500
+- name: flush_disp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 300
+  comment: 充液/外壁打速 V (偏高冲刷贴壁气泡)
+  ui:
+    label: 充液/外壁打速 V
+    group: 充液润洗
+    min: 1
+    max: 500
+- name: spot_head_disp_speed
+  scope: local
+  type: INT
+  io: in
+  default: 100
+  comment: 点样头打速 V
+  ui:
+    label: 点样头打速 V
+    group: 充液润洗
+    min: 1
+    max: 500
+- name: step_delay
+  scope: local
+  type: INT
+  io: in
+  default: 1500
+  comment: 步间延时 M (ms)
+  ui:
+    label: 步间延时 (ms)
+    group: 充液润洗
+    min: 0
+    max: 10000
+resources:
+- station:sampling
+body:
+- op: call
+  action: sampling.init
+  mode: RUN
+- op: comment
+  text: 真空区间 (外壁段5mL打废液需真空抽走; 资源门按引用计数开关泵, 异常与并发流程都不会漏关或误关)
+- op: with_resources
+  resources:
+  - device:vacuum_pump
+  body:
+  - op: call
+    action: sampling.flush
+    mode: RUN
+    args:
+      flush_volume_ml:
+        var: flush_volume_ml
+      outer_wash_volume_ml:
+        var: outer_wash_volume_ml
+      spot_head_volume_ml:
+        var: spot_head_volume_ml
+      asp_speed:
+        var: asp_speed
+      flush_disp_speed:
+        var: flush_disp_speed
+      spot_head_disp_speed:
+        var: spot_head_disp_speed
+      step_delay:
+        var: step_delay
+- op: comment
+  text: 放板移轴 (7Y 到放板位; 为机器人放板做准备, 不需真空)
+- op: call
+  action: sampling.place_axis
+  mode: RUN
+note: '充液润洗(一次吸满25mL, 三通阀分段切换):
+
+  1. 充上样流路 17mL (三通=上样针侧, 消除管内空气顺应性)
+
+  2. 冲针外壁 5mL (直进废液, 不回流路)
+
+  3. 冲点样头 3mL (三通=点样头侧, 打到A0)'

@@ -1,0 +1,54 @@
+schema: ptlc.script/v1
+kind: operation
+name: feedlift_load_cycle
+label: 升降上料-周期 (伺服升轴↔机械臂吸板 交错; R2 单站 cycle)
+ui:
+  role: cycle
+  primary: true
+  order: 70
+# 复刻旧机器人 PL4_Path(FID1 升降取料 / global.lua:398) 与旧 PLC FeedLift_L2 上料编排的内部同步,
+# 上位机直驱机器人后在编排层显式交错。
+# 契约自然序 (plc_feedlift.yaml:3): feed_raise(11) ->[机器人吸住玻璃]-> feed_lower(12) ->[机器人取走持板退回]
+#   旧 PL4 WaitValue(==1)=presented 后吸 -> WaitValue(==2)=raise/退 (global.lua:398).
+# 本 cycle 自管末端工具与地轨, 且顺序不可对调: 先 robot_tool_ensure(1) 换到吸盘, 再 rail_move_safe(1)
+#   确保地轨在升降上料站(位1, 168.0); 已在位则 L2 派发幂等快速确认, 不在位则先校验机械臂在 P1 安全位再移轨。
+#   ⚠ 换刀必须排在移轨之前 —— robot_tool_ensure 需要换刀时会自己 rail_move_safe(4) 把地轨开到工具站(500.0)
+#   且换完不还原 (robot_tool_pick 收尾只回 P1)。若先移轨再换刀, 位1 那趟就被推翻成 168->500->168 白跑一趟,
+#   还会把 feed_raise 夹在地轨往返中间。提前后回位由恒生效的 rail_move_safe(1) 承担, 不再依赖
+#   robot_feed_lift_pick_enter 里那条 rail.ensure(1) —— 后者在 auto_rail 关闭时是空操作。
+#   当前已挂吸盘时 tool_ensure 整段跳过, 只花一次 robot.query。
+# 退役 transfer_feed_to_spotting 的升降取料段并入此 cycle (R2: 仅碰 feedlift 动作 + feedlift 侧机器人接口 op)。
+resources: [station:feedlift, robot]
+# 板数由「光电触发位 + 1Z 行程」实测, 不再只靠软件计数 (见 controller/feedlift_count.py):
+#   p0 = 取板前探测 -> 绝对盘点并对账 (此刻账面仍是取板前的数, 故 reconcile 只能放这里)
+#   p1 = 取板后探测 -> 与 p0 相减判定实取张数, 双张/空吸当次拦停, 不让第二张流进下游
+#
+# ⚠ 每次探测前必须先让光电退成 FALSE, 否则测的是陈旧值:
+#   feed_raise 在光电已 TRUE 时是幂等直通 (A11 step5 原地确认 300ms 即 DONE, 轴一步不动)。
+#   - p0 前: 平台多半停在上个 cycle 的触发位, 光电仍 TRUE, 故显式补 feed_clear。
+#   - p1 前: 不必补 —— 取板后堆顶已降一个节距, feed_lower(−5mm) 又降 5mm, 光电必然 FALSE
+#     (即使空吸、堆顶仍在光束处, −5mm 也足以退出去), feed_lower 天然承担了清零。
+vars:
+  - {name: p0, scope: local, type: DICT, comment: 取板前板堆探测 (z_mm/count/residual)}
+  - {name: p1, scope: local, type: DICT, comment: 取板后板堆探测 (z_mm/count/taken)}
+body:
+  - {op: comment, text: "[phase: prepare] 先换刀再移轨: 换刀需要动作时会自己把地轨开到工具站(位4)且不还原, 排在移轨之后会让位1那趟白跑 (168->500->168)"}
+  - {op: run_script, script: robot_tool_ensure, inputs: {needed: {lit: 1}}, outputs: {}}
+  - {op: comment, text: "[phase: prepare] 确定地轨在升降上料站(位1); 不在则先安全移轨(先校验机械臂在 P1 安全位再移)"}
+  - {op: run_script, script: rail_move_safe, inputs: {target: {lit: 1}}, outputs: {}}
+  - {op: comment, text: "[phase: load] 先降轴至光电消失再升至取料光电 —— 两步缺一不可, 见下方说明"}
+  - {op: call, action: feedlift.feed_clear, mode: RUN}
+  - {op: call, action: feedlift.feed_raise, mode: RUN}
+  - {op: call, action: feedlift.probe_stack, mode: RUN,
+     args: {magazine: {lit: feed}, reconcile: {lit: true}}, assign: {var: p0}}
+  - {op: comment, text: "[phase: execute] 机器人进升降取料 (rotary-down 翻下->降 P21->suction-on 吸住玻璃)"}
+  - {op: run_script, script: robot_feed_lift_pick_enter, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: comment, text: "[phase: unload] 降轴5mm让位 (吸住后给机器人撤离空间)"}
+  - {op: call, action: feedlift.feed_lower, mode: RUN}
+  - {op: comment, text: 机器人持板退回 P1}
+  - {op: run_script, script: robot_feed_lift_pick_exit, inputs: {station_id: {lit: default}}, outputs: {}}
+  - {op: comment, text: "[phase: verify] 探测行程: 再升轴顶到新顶板, 与取板前位置相减判定实取张数 (≠1 即报错停机)"}
+  - {op: call, action: feedlift.feed_raise, mode: RUN}
+  - {op: call, action: feedlift.probe_stack, mode: RUN,
+     args: {magazine: {lit: feed}, z_prev: {field: {var: p0}, name: z_mm}, expect_taken: {lit: 1}},
+     assign: {var: p1}}

@@ -1,0 +1,302 @@
+# 单点控制点表 (PC Manual Mode) — 上位机复刻 HMI 手动屏所需的 PLC 变量清单
+#
+# 真源: PLC 工程 20260702.project 的 `PLC_Cyinder_气缸动作` (51 个 FB_cylinder 调用)
+#       与 `PLC_Servo_伺服/伺服调用` (11 个 FB_SERVOAXIS 调用)。
+# ⚠️ name 字段是 OPC UA BrowseName, 区分大小写且含中文, 逐字复制自 PLC 声明 —— 不要手敲改写。
+#    改名前先用 codesys_read_pou 核对, 否则运行时静默读写失败。
+#
+# 语义要点 (来自 FB_cylinder / FB_SERVOAXIS 源码):
+#  · 全部 51 个执行器 cylinder_type=0 (单控阀), 且 xManualRetract 恒空 ⇒ 手动位是**电平二态**:
+#    TRUE=阀通电(伸出/开), FALSE=阀断电(缩回/关)。前端用单个开/关开关, 不是伸/缩两个按钮。
+#  · FB 内 `IF xManualAuto THEN 用自动位 ELSE 用手动位`; xManualAuto 接线为
+#    `ManualAuto AND NOT PC_Manual_Active` ⇒ 单点模式生效时走手动位, 无需动柜面手/自动旋钮。
+#  · fb_off 接 FB 的 xPosExtend (阀断电时应为 TRUE 的到位信号, 多为"原点"/"上位")
+#    fb_on  接 FB 的 xPosRetract (阀通电时应为 TRUE 的到位信号, 多为"动点"/"下位")
+#    两者任一缺失 = PLC 该口悬空或自引用, 无真实传感器, 面板只显示命令态。
+#  · alarm_bit = cyinderAlarm(INT) 的位号; 缺失 = PLC 未接 bAlarm。
+#  · 轴的 fJogVel/fAcc/fDec 在 `伺服调用` 里是**硬编码常量**, 未接 <轴>DATE 结构体成员
+#    ⇒ 上位机写 fJogVel 无效。jog_vel_fixed 只作只读显示。fVelocity 已接线, 定位速度可写(受 vel_max 限幅)。
+#
+# 工位归组用于设备节点页 /nodes/plc.<station> 的面板分栏; 标注"现场可调"的按现场习惯改。
+# stations 的键必须等于设备节点 id 去掉 plc. 前缀, 即 bootstrap._ALL_L2_STATIONS 各项
+# .lower() (注意 StagingA -> staginga, 没有下划线) —— 拼错面板会静默不显示。
+
+version: 1
+
+# OPC UA 容器寻址。
+# 符号表(20260702.Device.Application.xml)里 GVL 与 PROGRAM 实例都平铺成 Application/<容器>/<变量>,
+# 但 OPC UA browse 树的层级与符号表**不一样** —— 2026-07-28 连真机 (192.168.0.50) 实测:
+#   Application 的直接子节点 = Programs / Tasks / GlobalVars (+ 设备铭牌变量)
+#   GVL          -> Application/GlobalVars/<GVL>   (cyinder_date / GVL / HMI_Date / Host_Computer / IO / servoaxisdate)
+#   PROGRAM 实例 -> Application/Programs/<POU>     (PLC_PCManual)
+# 故 search 给出候选前缀, 驱动按序探测并缓存命中项; 末尾空前缀作兜底。
+containers:
+  root: [DeviceSet, Inovance-ARM-Linux, Resources, Application]
+  search: [[GlobalVars], [Programs], []]
+  names:
+    cylinder: cyinder_date     # 51 对 <设备>手动/<设备>自动 + cyinderAlarm
+    servo: servoaxisdate       # 11 个 <轴>DATE : servo 结构体
+    gvl: GVL                   # ManualAuto / MODE_State
+    io: IO                     # 气缸到位反馈 (%IX, 只读)
+    hmi: HMI_Date              # 一键回原点
+    pcmanual: PLC_PCManual     # 单点模式握手 (PROGRAM 实例, 见 40_Man/PLC_PCManual)
+
+# 单点模式握手 (PLC_PCManual PROGRAM 内; 不占 plc_nodes.yaml 节点表)
+host:
+  container: pcmanual
+  enable: PC_Manual_Enable        # PC 写 BOOL: 请求进入
+  keepalive: PC_Manual_Keepalive  # PC 写 DINT: 每秒 +1, PLC 停变 3s 判死
+  active: PC_Manual_Active        # PLC 写 BOOL: 唯一权威生效判定
+  reject: PC_Manual_Reject        # PLC 写 INT: 0无 1心跳超时 2 L2占用 3未就绪 4下载中 5设备运行中
+
+# 全局状态/命令
+globals:
+  manual_auto:    {container: gvl, name: ManualAuto, type: Boolean}   # TRUE=自动档, FALSE=手动档
+  mode_state:     {container: gvl, name: MODE_State, type: Int16}     # 0停止 1运行 2故障 3急停 4初始化
+  cylinder_alarm: {container: cylinder, name: cyinderAlarm, type: Int16}
+  one_key_home:   {container: hmi, name: 一键回原点, type: Boolean}    # 置 TRUE 触发, PLC 全轴回零后自清
+  # 三色灯/蜂鸣器实际输出位: PLC 侧 FB_Mode 是唯一写者, 上位机只读采集, 绝不能写.
+  # 名字逐字来自符号 XML(20260702.Device.Application.xml L4612/L4641-4643).
+  # ⚠ 原始色位与实体灯脱钩(2026-08-02 取证: 运行版 FB_Mode 在运行态误置 三色灯红
+  # 恒 TRUE 而实体红灯不亮), 所以 signal_light 事件的颜色改由 mode_state 推导
+  # (manual_service._SIGNAL_BY_MODE); 三个色位仅保留给 /api/manual/state 做诊断,
+  # 蜂鸣器位未见污染仍作为事件的 buzzer 字段.
+  signal_red:     {container: io, name: 三色灯红, type: Boolean}       # %QX0.0 (诊断用)
+  signal_yellow:  {container: io, name: 三色灯黄, type: Boolean}       # %QX0.1 (诊断用)
+  signal_green:   {container: io, name: 三色灯绿, type: Boolean}       # %QX0.2 (诊断用)
+  signal_buzzer:  {container: io, name: 蜂鸣器, type: Boolean}         # %QX0.3 事件 buzzer 字段
+
+stations:
+
+  # ── 展开工位: 展缸1/2 各 4 个气缸 + 各 12 个电池阀 ──────────────────────────
+  develop:
+    cylinders:
+      - {id: dev_t1_cyl1, label: 展缸1气缸1, alarm_bit: 0,
+         manual: {container: cylinder, name: 展缸1气缸1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1气缸1自动, type: Boolean},
+         fb_off: {container: io, name: 展缸1气缸1原点}, fb_on: {container: io, name: 展缸1气缸1动点}}
+      - {id: dev_t1_cyl2, label: 展缸1气缸2, alarm_bit: 1,
+         manual: {container: cylinder, name: 展缸1气缸2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1气缸2自动, type: Boolean},
+         fb_off: {container: io, name: 展缸1气缸2原点}, fb_on: {container: io, name: 展缸1气缸2动点}}
+      - {id: dev_t1_cyl3, label: 展缸1气缸3, alarm_bit: 2,
+         manual: {container: cylinder, name: 展缸1气缸3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1气缸3自动, type: Boolean},
+         fb_off: {container: io, name: 展缸1气缸3原点}, fb_on: {container: io, name: 展缸1气缸3动点}}
+      - {id: dev_t1_cyl4, label: 展缸1气缸4, alarm_bit: 3,
+         manual: {container: cylinder, name: 展缸1气缸4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1气缸4自动, type: Boolean},
+         fb_off: {container: io, name: 展缸1气缸4原点}, fb_on: {container: io, name: 展缸1气缸4动点}}
+      - {id: dev_t2_cyl1, label: 展缸2气缸1, alarm_bit: 4,
+         manual: {container: cylinder, name: 展缸2气缸1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2气缸1自动, type: Boolean},
+         fb_off: {container: io, name: 展缸2气缸1原点}, fb_on: {container: io, name: 展缸2气缸1动点}}
+      - {id: dev_t2_cyl2, label: 展缸2气缸2, alarm_bit: 5,
+         manual: {container: cylinder, name: 展缸2气缸2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2气缸2自动, type: Boolean},
+         fb_off: {container: io, name: 展缸2气缸2原点}, fb_on: {container: io, name: 展缸2气缸2动点}}
+      - {id: dev_t2_cyl3, label: 展缸2气缸3, alarm_bit: 6,
+         manual: {container: cylinder, name: 展缸2气缸3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2气缸3自动, type: Boolean},
+         fb_off: {container: io, name: 展缸2气缸3原点}, fb_on: {container: io, name: 展缸2气缸3动点}}
+      - {id: dev_t2_cyl4, label: 展缸2气缸4, alarm_bit: 7,
+         manual: {container: cylinder, name: 展缸2气缸4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2气缸4自动, type: Boolean},
+         fb_off: {container: io, name: 展缸2气缸4原点}, fb_on: {container: io, name: 展缸2气缸4动点}}
+      # 电池阀: PLC 未接到位传感器与报警口, 仅命令态可见
+      - {id: dev_t1_fill1, label: 展缸1进液电池阀1,
+         manual: {container: cylinder, name: 展缸1进液电池阀1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1进液电池阀1自动, type: Boolean}}
+      - {id: dev_t1_fill2, label: 展缸1进液电池阀2,
+         manual: {container: cylinder, name: 展缸1进液电池阀2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1进液电池阀2自动, type: Boolean}}
+      - {id: dev_t1_fill3, label: 展缸1进液电池阀3,
+         manual: {container: cylinder, name: 展缸1进液电池阀3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1进液电池阀3自动, type: Boolean}}
+      - {id: dev_t1_fill4, label: 展缸1进液电池阀4,
+         manual: {container: cylinder, name: 展缸1进液电池阀4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1进液电池阀4自动, type: Boolean}}
+      - {id: dev_t1_drain1, label: 展缸1排液电池阀1,
+         manual: {container: cylinder, name: 展缸1排液电池阀1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1排液电池阀1自动, type: Boolean}}
+      - {id: dev_t1_drain2, label: 展缸1排液电池阀2,
+         manual: {container: cylinder, name: 展缸1排液电池阀2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1排液电池阀2自动, type: Boolean}}
+      - {id: dev_t1_drain3, label: 展缸1排液电池阀3,
+         manual: {container: cylinder, name: 展缸1排液电池阀3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1排液电池阀3自动, type: Boolean}}
+      - {id: dev_t1_drain4, label: 展缸1排液电池阀4,
+         manual: {container: cylinder, name: 展缸1排液电池阀4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1排液电池阀4自动, type: Boolean}}
+      - {id: dev_t1_blow1, label: 展缸1吹气电池阀1,
+         manual: {container: cylinder, name: 展缸1吹气电池阀1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1吹气电池阀1自动, type: Boolean}}
+      - {id: dev_t1_blow2, label: 展缸1吹气电池阀2,
+         manual: {container: cylinder, name: 展缸1吹气电池阀2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1吹气电池阀2自动, type: Boolean}}
+      - {id: dev_t1_blow3, label: 展缸1吹气电池阀3,
+         manual: {container: cylinder, name: 展缸1吹气电池阀3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1吹气电池阀3自动, type: Boolean}}
+      - {id: dev_t1_blow4, label: 展缸1吹气电池阀4,
+         manual: {container: cylinder, name: 展缸1吹气电池阀4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸1吹气电池阀4自动, type: Boolean}}
+      - {id: dev_t2_fill1, label: 展缸2进液电池阀1,
+         manual: {container: cylinder, name: 展缸2进液电池阀1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2进液电池阀1自动, type: Boolean}}
+      - {id: dev_t2_fill2, label: 展缸2进液电池阀2,
+         manual: {container: cylinder, name: 展缸2进液电池阀2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2进液电池阀2自动, type: Boolean}}
+      - {id: dev_t2_fill3, label: 展缸2进液电池阀3,
+         manual: {container: cylinder, name: 展缸2进液电池阀3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2进液电池阀3自动, type: Boolean}}
+      - {id: dev_t2_fill4, label: 展缸2进液电池阀4,
+         manual: {container: cylinder, name: 展缸2进液电池阀4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2进液电池阀4自动, type: Boolean}}
+      - {id: dev_t2_drain1, label: 展缸2排液电池阀1,
+         manual: {container: cylinder, name: 展缸2排液电池阀1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2排液电池阀1自动, type: Boolean}}
+      - {id: dev_t2_drain2, label: 展缸2排液电池阀2,
+         manual: {container: cylinder, name: 展缸2排液电池阀2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2排液电池阀2自动, type: Boolean}}
+      - {id: dev_t2_drain3, label: 展缸2排液电池阀3,
+         manual: {container: cylinder, name: 展缸2排液电池阀3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2排液电池阀3自动, type: Boolean}}
+      - {id: dev_t2_drain4, label: 展缸2排液电池阀4,
+         manual: {container: cylinder, name: 展缸2排液电池阀4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2排液电池阀4自动, type: Boolean}}
+      - {id: dev_t2_blow1, label: 展缸2吹气电池阀1,
+         manual: {container: cylinder, name: 展缸2吹气电池阀1手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2吹气电池阀1自动, type: Boolean}}
+      - {id: dev_t2_blow2, label: 展缸2吹气电池阀2,
+         manual: {container: cylinder, name: 展缸2吹气电池阀2手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2吹气电池阀2自动, type: Boolean}}
+      - {id: dev_t2_blow3, label: 展缸2吹气电池阀3,
+         manual: {container: cylinder, name: 展缸2吹气电池阀3手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2吹气电池阀3自动, type: Boolean}}
+      - {id: dev_t2_blow4, label: 展缸2吹气电池阀4,
+         manual: {container: cylinder, name: 展缸2吹气电池阀4手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 展缸2吹气电池阀4自动, type: Boolean}}
+
+  # ── 收集工位 ────────────────────────────────────────────────────────────
+  collect:
+    cylinders:
+      - {id: col_press, label: 收集下压气缸, alarm_bit: 8,
+         manual: {container: cylinder, name: 收集下压气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 收集下压气缸自动, type: Boolean},
+         fb_off: {container: io, name: 收集平台下压气缸原点},
+         note: "PLC 未接下压到位传感器 (xPosRetract 自引用命令位), 通电后无到位反馈"}
+      - {id: col_clamp, label: 收集夹持气缸, alarm_bit: 9,
+         manual: {container: cylinder, name: 收集夹持气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 收集夹持气缸自动, type: Boolean},
+         fb_off: {container: io, name: 收集平台夹持气缸原点}, fb_on: {container: io, name: 收集平台夹持气缸动点}}
+      - {id: col_lift, label: 收集升降气缸, alarm_bit: 10,
+         manual: {container: cylinder, name: 收集升降气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 收集升降气缸自动, type: Boolean},
+         fb_off: {container: io, name: 收集平台升降气缸原点}, fb_on: {container: io, name: 收集平台升降气缸动点}}
+      - {id: col_extend, label: 收集伸缩气缸, alarm_bit: 11,
+         manual: {container: cylinder, name: 收集伸缩气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 收集伸缩气缸自动, type: Boolean},
+         fb_off: {container: io, name: 收集平台推出气缸原点}, fb_on: {container: io, name: 收集平台推出气缸动点}}
+      - {id: col_fill, label: 收集进液2通阀,
+         manual: {container: cylinder, name: 收集进液手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 收集进液自动, type: Boolean}}
+      - {id: col_drain, label: 收集排液3通阀,
+         manual: {container: cylinder, name: 收集排液手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 收集排液自动, type: Boolean}}
+      - {id: col_pdrain, label: 收集正压排液阀,
+         manual: {container: cylinder, name: 收集正压排液手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 收集正压排液自动, type: Boolean}}
+
+  # ── 拍照刮板工位 ────────────────────────────────────────────────────────
+  photoscrape:
+    cylinders:
+      - {id: ps_shade, label: 刮板拍照遮光气缸, alarm_bit: 12,
+         manual: {container: cylinder, name: 刮板拍照遮光气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 刮板拍照遮光气缸自动, type: Boolean},
+         fb_off: {container: io, name: 刮板拍照遮光气缸上位}, fb_on: {container: io, name: 刮板拍照遮光气缸下位},
+         note: "遮光在上位是 8Y 绝对定位的前置互锁; 落下后 8Y 无法 MoveAbs"}
+      - {id: ps_rotate, label: 刮板拍照旋转气缸, alarm_bit: 13,
+         manual: {container: cylinder, name: 刮板拍照旋转气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 刮板拍照旋转气缸自动, type: Boolean},
+         fb_off: {container: io, name: 刮板拍照旋转气缸原点}, fb_on: {container: io, name: 刮板拍照旋转气缸动点},
+         note: "PLC 互锁: 需 刮板轴9X fActPos>330, 未满足时写手动位无效(阀不通电)"}
+      - {id: ps_press, label: 刮板拍照下压气缸, alarm_bit: 14,
+         manual: {container: cylinder, name: 刮板拍照下压气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 刮板拍照下压气缸自动, type: Boolean},
+         fb_off: {container: io, name: 刮板拍照下压气缸上位},
+         note: "PLC 未接下压到位传感器 (xPosRetract 自引用命令位)"}
+      - {id: ps_vacuum, label: 刮板拍照真空阀,
+         manual: {container: cylinder, name: 刮板拍照真空手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 刮板拍照真空自动, type: Boolean},
+         note: "PLC 隐患: 与 上样点样三通电池阀 共用 cylinder_46 实例(重复调用), FB 内部计时/状态共享"}
+      - {id: ps_motor, label: 刮板拍照无刷电机,
+         manual: {container: cylinder, name: 刮板拍照无刷电机手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 刮板拍照无刷电机自动, type: Boolean}}
+      - {id: ps_locator, label: 刮板拍照定位气缸,
+         manual: {container: cylinder, name: 刮板拍照定位气缸手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 刮板拍照定位气缸自动, type: Boolean}}
+    axes:
+      - {id: axis_8y, label: 拍照轴8Y, struct: 拍照轴8YDATE, jog_vel_fixed: 50.0, vel_max: 50.0,
+         note: "定位互锁: 需 刮板拍照遮光气缸上位 且 刮板轴10Z fActPos<6; 点动无互锁, 慎用"}
+      - {id: axis_9x, label: 刮板轴9X, struct: 刮板轴9XDATE, jog_vel_fixed: 50.0, vel_max: 50.0,
+         note: "定位互锁: 需 刮板轴10Z fActPos<6; 点动无互锁"}
+      - {id: axis_10z, label: 刮板轴10Z, struct: 刮板轴10ZDATE, jog_vel_fixed: 50.0, vel_max: 30.0,
+         note: "抬起(<6)是 8Y/9X 定位的前置条件"}
+
+  # ── 上样点样工位 ────────────────────────────────────────────────────────
+  sampling:
+    cylinders:
+      - {id: smp_locator, label: 上样定位气缸,
+         manual: {container: cylinder, name: 上样定位手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 上样定位自动, type: Boolean}}
+      - {id: smp_3way, label: 上样点样三通电池阀,
+         manual: {container: cylinder, name: 上样点样三通电池阀手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 上样点样三通电池阀自动, type: Boolean},
+         note: "PLC 隐患: 与 刮板拍照真空阀 共用 cylinder_46 实例(重复调用)"}
+      - {id: smp_blow, label: 上样吹气二通阀,
+         manual: {container: cylinder, name: 上样吹气手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 上样吹气自动, type: Boolean}}
+    axes:
+      - {id: axis_3y, label: 打样瓶上料轴3Y, struct: 打样瓶上料轴3YDATE, jog_vel_fixed: 50.0, vel_max: 50.0,
+         note: "归 sampling (依据 Host 契约 Sampling_3Y_Target/_ActPos); 标定去使能手推时(5Z<3)本轴被断使能"}
+      - {id: axis_4x, label: 上样轴4X, struct: 上样轴4X轴DATE, jog_vel_fixed: 5.0, vel_max: 10.0,
+         note: "定位互锁: 需 上样轴5Z fActPos<3 (抬起); 标定去使能手推时本轴被断使能"}
+      - {id: axis_5z, label: 上样轴5Z, struct: 上样轴5Z轴DATE, jog_vel_fixed: 20.0, vel_max: 20.0,
+         note: "抬起(<3)是 4X/3Y 动作的前置条件"}
+      - {id: axis_6x, label: 点样轴6X, struct: 点样轴6XDATE, jog_vel_fixed: 50.0, vel_max: 50.0}
+      - {id: axis_7y, label: 点样轴7Y, struct: 点样轴7YDATE, jog_vel_fixed: 50.0, vel_max: 50.0}
+
+  # ── 上下料升降 ──────────────────────────────────────────────────────────
+  feedlift:
+    axes:
+      - {id: axis_1z, label: 玻璃上料轴1Z, struct: 玻璃上料轴1ZDATE, jog_vel_fixed: 15.0, vel_max: 30.0,
+         note: "FeedLift_L2 光电搜索会经 GVL.Z1JOG_pos/neg 并联驱动本轴; 单点会话要求 L2 全空闲, 故无冲突"}
+      - {id: axis_2z, label: 玻璃上料轴2Z, struct: 玻璃上料轴2ZDATE, jog_vel_fixed: 15.0, vel_max: 30.0,
+         note: "FeedLift_L2 光电搜索会经 GVL.Z2JOG_POS/NEG 并联驱动本轴"}
+
+  # ── 地轨 ────────────────────────────────────────────────────────────────
+  rail:
+    axes:
+      - {id: axis_11y, label: 地轨轴11Y, struct: 地轨轴11YDATE, jog_vel_fixed: 50.0, vel_max: 100.0,
+         note: "地轨移动会带动机械臂; 点动前确认臂在安全位"}
+
+  # ── 泵站 ────────────────────────────────────────────────────────────────
+  pump:
+    cylinders:
+      - {id: pump_vacuum, label: 大真空泵,
+         manual: {container: cylinder, name: 大真空泵手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 大真空泵自动, type: Boolean},
+         note: "自动档下由 PLC_Pump_泵管理 按真空票聚合驱动; 单点接管期间排液/抽吸将失去真空源"}
+
+  # ── 中转托盘位 (中转A/B 两个定位缸, StagingA_L2 一个通道管两个) ──────────
+  # 键名是设备节点 id 去 plc. 前缀 (StagingA.lower() = staginga, 无下划线)
+  staginga:
+    cylinders:
+      - {id: sta_powder_locator, label: 粉末收集器定位气缸,
+         manual: {container: cylinder, name: 粉末收集器定位手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 粉末收集器定位自动, type: Boolean},
+         note: "中转A定位缸 (StagingA_L2 动作码24); 物理在刮板工位旁, 语义属中转"}
+      - {id: col_bottle_locator, label: 溶液收集瓶定位气缸,
+         manual: {container: cylinder, name: 溶液收集瓶定位手动, type: Boolean},
+         auto_ro: {container: cylinder, name: 溶液收集瓶定位自动, type: Boolean},
+         note: "中转B定位缸 (StagingA_L2 动作码25); 物理在收集平台, 语义属中转"}

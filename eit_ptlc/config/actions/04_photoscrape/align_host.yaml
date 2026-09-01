@@ -1,0 +1,14 @@
+# 对位检查回显 (host kind, 上位机纯读, 不进 PLC L2 FSM; spec 2026-07-16 §5):
+# 读 9X/8Y/10Z ActPos + live-read gcode → 位置/Δ/建议 plate_origin(只显示不回写) + 预格式化 text。
+# D1 内环每轮门前调用, prompt 直接拼 result.text (VM 零算术)。
+photoscrape.align_readout:
+  kind: host
+  method: align_readout
+  label: 对位-读数回显
+  desc: |-
+    执行步骤：上位机读取9X/8Y/10Z实际位置和当前 gcode 配置，计算实读相对原点角的偏差，并生成建议 plate_origin 新值与可直接用于人工门的格式化文本；不写回配置。
+    前置与安全：对应实际位置节点必须已导出并可读；这是纯读 host 动作，不下发 PLC L2、轴运动或配置修改。
+    完成与异常：成功返回三轴实读、偏差、建议值和文本；节点未下装、读取或配置解析失败返回 ERROR。
+    实现核对：runtime/bootstrap.py::_align_readout 读取 PLC 三轴镜像并调用 controller/align_check.py::build_align_readout。
+  modes: []
+  params: []

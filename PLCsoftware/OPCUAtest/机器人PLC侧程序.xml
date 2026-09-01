@@ -1,0 +1,1645 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Inovance company" productName="InoProShop(V1.9.1.6)" productVersion="InoProShop(V1.9.1.6)" creationDateTime="2026-06-18T00:45:14.1197507" />
+  <contentHeader name="CHL-DZ-BJDX-11 宁波数字孪生（东方理工）研究院制备薄层色谱全自动化工作站.project" modificationDateTime="2026-06-17T21:37:38.1461871">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous>
+      <pou name="Robotic_Process_机器人流程" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="RB_Control_0">
+              <type>
+                <derived name="FB_RB_Control" />
+              </type>
+            </variable>
+            <variable name="TON">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="R_TRIG">
+              <type>
+                <array>
+                  <dimension lower="1" upper="2" />
+                  <baseType>
+                    <derived name="R_TRIG" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+R_TRIG[1](CLK:=collect_Old_Plate_Slot&gt;0);
+R_TRIG[2](CLK:=scrape_Old_Plate_Slot&gt;0);
+//机器人流程
+IF MODE_State=1 THEN	
+	IF R_TRIG[1].Q THEN
+		收集瓶组站位符:=TRUE;
+	END_IF
+	IF R_TRIG[2].Q THEN
+		收集器组站位符:=TRUE;
+	END_IF
+
+	CASE 机器人流程 OF
+		0:
+			IF Status=0 THEN
+				IF 上样点样允许放硅胶板 THEN
+					机器人流程:=10;
+				ELSIF  上样点样允许取硅胶板 AND scrape_Step=0 AND NOT 刮板拍照工位站位符 THEN 
+					机器人流程:=20;
+				ELSIF 拍照工位允许取硅胶板去展开 AND (Expand_Step=0 OR Expand_Step=30) THEN
+					机器人流程:=30;
+				ELSIF 展开工位允许取硅胶板 AND scrape_Step=0 AND NOT 刮板拍照工位站位符 THEN       //刮板拍照空闲
+					机器人流程:=40;
+				ELSIF scrape_Fetch_Rack_Plate&gt;0 AND NOT 刮板拍照暂存工位传感器 THEN 
+					机器人流程:=70;
+				ELSIF collect_Fetch_Rack_Plate&gt;0 AND NOT 收集平台暂存工位传感器 THEN
+					机器人流程:=60;
+				ELSIF collect_Old_Plate_Slot&gt;0 AND 收集平台暂存工位传感器 AND NOT 收集瓶组站位符  THEN
+					机器人流程:=80;
+				ELSIF scrape_Old_Plate_Slot&gt;0 AND 刮板拍照暂存工位传感器 AND  NOT 收集器组站位符 THEN
+					机器人流程:=90;
+				ELSIF 拍照工位允许放收集器 AND 刮板拍照暂存工位传感器 AND scrape_Consume_Slot&gt;0 THEN 
+					机器人流程:=100;
+				ELSIF 拍照工位允许取收集器 AND collect_Step=0 THEN           //收集工位空闲
+					机器人流程:=110;
+				ELSIF 收集工位允许放收集瓶 AND 收集平台暂存工位传感器 AND collect_Consume_Slot&gt;0 THEN
+					机器人流程:=120;
+				ELSIF 收集工位允许取收集器 AND collect_Powder_Return_Slot&gt;0 THEN
+					机器人流程:=130;
+				ELSIF 收集工位允许机器人取收集瓶放暂存工位 AND collect_Consume_Slot&gt;0 THEN
+					机器人流程:=140;
+				ELSIF 拍照工位允许取硅胶板放废料区 THEN
+					机器人流程:=50;
+				END_IF
+			END_IF
+			
+
+	
+//	取升降机硅胶板放点样机构上
+
+		10:                                                  
+			ParameterList3:=1;                           //取1号吸盘工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				ParameterList3:=0; 
+				机器人流程:=11;
+			END_IF
+		11:
+			A10_取升降机硅胶板();
+			IF 取升降硅胶板完成 THEN
+				取升降硅胶板完成:=FALSE;
+				机器人流程:=12;		
+			END_IF
+		12:
+			A15_放点样硅胶板();
+			IF 放点样硅胶板完成 THEN
+				FunctionID:=0;
+				放点样硅胶板完成:=FALSE;
+				机器人流程:=0;
+			END_IF
+			
+				
+
+
+
+
+//取点样硅胶板放拍照机构上
+		20:
+			ParameterList3:=1;                           //取1号吸盘工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=21;
+			END_IF
+		21:
+			A20_取点样硅胶板();
+			IF 取点样硅胶板完成 THEN
+				
+				机器人流程:=22;
+			END_IF
+		22:
+			IF 拍照工位允许放硅胶板 THEN
+				
+				机器人流程:=23;
+			END_IF
+		23:
+			A35_放拍照硅胶板();
+			IF 放拍照硅胶板完成 THEN
+				FunctionID:=0;
+				放拍照硅胶板完成:=FALSE;
+				机器人流程:=0;
+			END_IF
+
+
+
+
+//取拍照机构硅胶板放展缸
+		30:
+			ParameterList3:=1;                           //取1号吸盘工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=31;
+			END_IF
+		31:
+			A32_取拍照硅胶板();
+			IF 取拍照硅胶板完成 THEN
+				
+				机器人流程:=32;
+			END_IF
+		32:
+			IF 展开工位允许放硅胶板1 THEN
+				机器人流程:=33;
+			END_IF
+		33:
+			A25_放展缸硅胶板();
+			IF 展开工位机器人放硅胶板完成 THEN
+				FunctionID:=0;
+				机器人流程:=0;
+			END_IF
+				
+				
+
+
+
+//取展缸硅胶板到拍照刮取机构
+		40:
+			ParameterList3:=1;                           //取1号吸盘工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=41;
+			END_IF
+		41:
+			A30_取展缸硅胶板();
+			IF 取展缸硅胶板完成 THEN
+				取展缸硅胶板完成:=FALSE;
+				展开工位允许取硅胶板:=FALSE;
+				机器人流程:=42;
+			END_IF
+		42:
+			IF 拍照工位允许放硅胶板 THEN
+				机器人流程:=43;
+			END_IF
+		43:
+			A35_放拍照硅胶板();
+			IF 放拍照硅胶板完成 THEN
+				FunctionID:=0;
+				放拍照硅胶板完成:=FALSE;
+				机器人流程:=0;
+			END_IF
+			
+			
+
+
+
+
+
+//取拍照刮取硅胶板放到废料区
+		50:
+			ParameterList3:=1;                           //取1号吸盘工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=51;
+			END_IF
+		51:
+			A32_取拍照硅胶板();
+			IF 取拍照硅胶板完成 THEN
+				取拍照硅胶板完成:=FALSE;
+				机器人流程:=52;
+			END_IF
+		52:
+			A65_放废料硅胶板();
+			IF 取刮板硅胶板放废料区完成 THEN
+				拍照工位允许取硅胶板放废料区:=FALSE;
+				取刮板硅胶板放废料区完成:=FALSE;
+				FunctionID:=0;
+				
+				机器人流程:=0;
+			END_IF
+
+
+
+
+
+
+
+//取收集瓶组到暂存工位
+		60:
+			ParameterList3:=2;            //取2号大夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=61;
+			END_IF
+		61:
+			A41_取收集瓶组放暂存工位();
+			IF 取收集瓶组放暂存工位完成 THEN
+				collect_Fetch_Rack_Plate:=0;
+				FunctionID:=0;
+				机器人流程:=0;
+				取收集瓶组放暂存工位完成:=FALSE;
+			END_IF
+			
+			
+
+
+
+
+
+//取收集器组到暂存工位
+		70:
+			ParameterList3:=2;            //取2号大夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=71;
+			END_IF
+		71:
+			A40_取收集器组放暂存工位();
+			IF 取收集器组放暂存工位完成 THEN
+				scrape_Fetch_Rack_Plate:=0;
+				FunctionID:=0;
+				机器人流程:=0;
+				取收集器组放暂存工位完成:=FALSE;
+			END_IF
+		
+		
+		
+		
+		
+//取收集瓶暂存工位到仓库
+		80:
+			ParameterList3:=2;            //取2号大夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=81;
+			END_IF
+		81:
+			A71_取暂存收集瓶放仓库();
+			IF 取暂存收集瓶组放仓库完成 THEN
+				collect_Old_Plate_Slot:=0;
+				FunctionID:=0;
+				机器人流程:=0;
+				取暂存收集瓶组放仓库完成:=FALSE;
+			END_IF		
+		
+		
+		
+		
+		
+	
+	
+	
+
+
+//取收集器暂存工位到仓库
+		90:
+			ParameterList3:=2;            //取2号大夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=91;
+			END_IF
+		91:
+			A70_取暂存收集器组放仓库();
+			IF 取暂存收集器组放仓库完成 THEN
+				scrape_Old_Plate_Slot:=0;
+				FunctionID:=0;
+				机器人流程:=0;
+				取暂存收集器组放仓库完成:=FALSE;
+			END_IF	
+
+
+
+
+
+
+
+//取暂存收集器到刮取位
+		100:
+			ParameterList3:=3;                           //取3号小夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=101;
+			END_IF	
+		101:
+			A45_取暂存收集器放刮板位();
+			IF 取暂存收集器放刮板位完成 THEN
+				scrape_Consume_Slot:=0;
+				FunctionID:=0;
+				取暂存收集器放刮板位完成:=FALSE;
+				机器人流程:=0;
+			END_IF
+			
+			
+
+
+
+
+
+
+//取刮板拍照收集器到收集工位
+		110:
+			ParameterList3:=3;                           //取3号小夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=111;
+			END_IF
+		111:
+			A55_取刮板收集器放到收集工位();
+			IF 取刮板收集器放到收集工位完成 THEN
+				FunctionID:=0;
+				取刮板收集器放到收集工位完成:=FALSE;
+				机器人流程:=0;
+			END_IF
+			
+	
+	
+	
+	
+	
+	
+	
+//取暂存收集瓶到收集工位	
+		120:
+			ParameterList3:=3;                           //取3号小夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=121;
+			END_IF
+		121:
+			A50_取暂存收集瓶放收集工位();
+			IF 取暂存收集瓶放收集工位完成 THEN
+				FunctionID:=0;
+				取暂存收集瓶放收集工位完成:=FALSE;
+				机器人流程:=0;
+			END_IF
+			
+			
+
+
+
+
+
+
+//取收集器到暂存工位
+		130:
+			ParameterList3:=3;                           //取3号小夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=131;
+			END_IF
+		131:
+			A60_取收集器放暂存工位();
+			IF 取收集器放暂存工位完成 THEN
+				collect_Powder_Return_Slot:=0;
+				收集器组站位符:=FALSE;
+				收集工位放收集器完成:=TRUE;
+				FunctionID:=0;
+				机器人流程:=0;
+				取收集器放暂存工位完成:=FALSE;
+			END_IF
+			
+			
+
+
+
+
+//取收集瓶到暂存工位
+		140:
+			ParameterList3:=3;                           //取3号小夹持工具
+			A00_取放工具();
+			IF 取工具完成 THEN
+				取工具完成:=FALSE;
+				机器人流程:=141;
+			END_IF
+		141:
+			A65_取收集瓶放暂存工位();
+			IF 取收集瓶放暂存工位完成 THEN
+				scrape_Consume_Slot:=0;
+				收集瓶组站位符:=FALSE;
+				FunctionID:=0;
+				机器人流程:=0;
+				取收集瓶放暂存工位完成:=FALSE;
+			END_IF
+			
+
+
+    END_CASE
+END_IF</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875" />
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>fc639678-050c-4cde-a1a3-a9148621e875</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/coverType" handleUnknown="implementation">
+      <isCover value="True" />
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A30_取展缸硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+CASE 取展缸硅胶板step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[5];     //地轨去展开位
+		地轨轴11YDATE.xMoveAbs:=TRUE;
+		IF 地轨轴11YDATE.bAbMoveDone THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			取展缸硅胶板step:=10;
+		END_IF
+	10:
+		IF  ParameterList1&gt;0 AND Status=0 THEN
+			FunctionID:=5;                                  //取展缸硅胶板
+			Execute:=1;
+			取展缸硅胶板step:=20;
+		END_IF
+	20:
+		IF RO_ParameterList1&gt;0 AND Status=2 THEN                       //取硅胶板完成
+			Execute:=0;
+			取展缸硅胶板完成:=TRUE;
+			取展缸硅胶板step:=0;
+		END_IF
+END_CASE
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A30_取展缸硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="f07d3734-7c1b-4891-bd29-fe56a4b1c62b" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>f07d3734-7c1b-4891-bd29-fe56a4b1c62b</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A60_取收集器放暂存工位">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE 取收集器放暂存工位step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去取收集组位置暂存位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取收集器放暂存工位step:=5;
+			
+	5:
+		IF 地轨轴11YDATE.bAbMoveDone  THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			FunctionID:=12;  
+			ParameterList8:=6;                               //放收集器回暂存工位
+			Execute:=1;
+			取收集器放暂存工位step:=10;
+		END_IF
+	10:
+		IF RO_ParameterList8=6  THEN                       //放收集器回暂存工位完成
+			收集工位机器人到达收集器位置:=TRUE;
+			取收集器放暂存工位step:=30;
+		END_IF
+	30:
+		IF 收集工位机器人取收集器放回暂存工位 THEN
+			ParameterList8:=7;                               //机器人去取收集器
+			ParameterList7:=collect_Powder_Return_Slot;
+			收集工位机器人取收集器放回暂存工位:=FALSE;
+			取收集器放暂存工位step:=40;
+		END_IF
+	40:
+		IF RO_ParameterList8=7 AND Status=2 THEN                         //到达夹持位置
+			Execute:=0;
+			取收集器放暂存工位完成:=TRUE;
+			取收集器放暂存工位step:=0;
+		END_IF
+END_CASE
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A60_取收集器放暂存工位" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="3ea51071-b13d-467e-aaf7-2cd65b5d5f92" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>3ea51071-b13d-467e-aaf7-2cd65b5d5f92</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A00_取放工具">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+CASE 取工具setp OF
+	0:
+		IF RO_ParameterList3=ParameterList3 THEN
+			取工具完成:=TRUE;
+			取工具setp:=0;
+		ELSE
+			取工具setp:=5;
+		END_IF
+	5:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[4];     //地轨去取工具位置
+		地轨轴11YDATE.xMoveAbs:=TRUE;
+		IF 地轨轴11YDATE.bAbMoveDone THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			FunctionID:=23;                              //取工具ID
+			Execute:=1;                                  //机器人启动                        
+			取工具setp:=10;
+		END_IF
+	10:
+		IF RO_ParameterList3=ParameterList3 AND Status=2 THEN                               //取工具完成                                   
+			Execute:=0;
+			取工具完成:=TRUE;
+			取工具setp:=0;
+		END_IF
+END_CASE
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A00_取放工具" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="564696a8-beb6-4872-85dc-41e4ed0fb501" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>564696a8-beb6-4872-85dc-41e4ed0fb501</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A35_放拍照硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+CASE 放拍照硅胶板step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[2];     //地轨去刮板拍照位
+		地轨轴11YDATE.xMoveAbs:=TRUE;
+		IF 地轨轴11YDATE.bAbMoveDone AND Status=0 THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE;
+				FunctionID:=6;                              //放拍照硅胶板
+				ParameterList5:=1;                           //放硅胶板到刮板拍照位
+				Execute:=1;                                  //机器人启动                        
+				放拍照硅胶板step:=10;
+		END_IF
+	10:
+		IF RO_ParameterList5=1 AND Status=2 THEN              //放硅胶板完成
+			Execute:=0; 
+			ParameterList5:=0;
+			拍照工位放硅胶板完成:=TRUE;
+			放拍照硅胶板完成:=TRUE;
+			放拍照硅胶板step:=0;
+		END_IF
+END_CASE
+
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A35_放拍照硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="0fddc811-1130-4815-b03a-466fd4a87c27" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>0fddc811-1130-4815-b03a-466fd4a87c27</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A65_放废料硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+CASE 取刮板硅胶板放废料区step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[1];     //地轨去上样点样位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			IF 地轨轴11YDATE.bAbMoveDone THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE;
+				取刮板硅胶板放废料区step:=5;
+            END_IF
+	5:
+		IF  升降下料伺服允许放料 AND  Status=0 THEN
+			
+			FunctionID:=8; 
+			ParameterList4:=3;                                     //机器人放到废料区
+			Execute:=1; 
+			取刮板硅胶板放废料区step:=10;
+		END_IF
+	10:
+		IF RO_ParameterList4=3 AND Status=2  THEN                               //机器人放废料区完成
+			Execute:=0; 
+			刮板拍照工位站位符:=FALSE;
+			升降下料机器人放废料完成:=TRUE;
+			取刮板硅胶板放废料区完成:=TRUE;
+			取刮板硅胶板放废料区step:=0;
+		END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A65_放废料硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="aec6a032-db1f-4d3f-8eb9-ea63ceff0acb" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>aec6a032-db1f-4d3f-8eb9-ea63ceff0acb</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A41_取收集瓶组放暂存工位">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE 取收集瓶组放暂存工位step OF
+	0:
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[6];     //地轨去取收集组位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取收集瓶组放暂存工位step:=10;
+	10:
+		IF 地轨轴11YDATE.bAbMoveDone AND Status=0 THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE;
+				FunctionID:=21;                              //取收集瓶组
+				ParameterList6:=collect_Fetch_Rack_Plate+6;       //取收集瓶组坐标
+				Execute:=1;                                  //机器人启动                        
+				取收集瓶组放暂存工位step:=20;
+			END_IF
+	20:
+		IF RO_ParameterList6=ParameterList6 AND Status=2 THEN             //取收集瓶组完成
+			Execute:=0;
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去收集工位
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取收集瓶组放暂存工位step:=30;
+		END_IF
+	30:
+		IF 地轨轴11YDATE.bAbMoveDone AND Status=0 THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE;
+				FunctionID:=22;                              //放收集瓶组
+				ParameterList6:=14;                         //放收集瓶组
+				Execute:=1;                                  //机器人启动                        
+				取收集瓶组放暂存工位step:=40;
+		END_IF
+	40:
+		IF RO_ParameterList6=14 AND Status=2 THEN                        //放收集瓶完成
+			Execute:=0; 
+			ParameterList6:=0;
+			溶液收集瓶定位自动:=TRUE;
+			取收集瓶组放暂存工位完成:=TRUE;
+			取收集瓶组放暂存工位step:=0;
+		END_IF
+END_CASE
+
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A41_取收集瓶组放暂存工位" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="d95b4ba5-0d97-435b-b0bb-6e8cc6db97fc" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>d95b4ba5-0d97-435b-b0bb-6e8cc6db97fc</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A40_取收集器组放暂存工位">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+CASE 取收集器组放暂存工位step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[6];     //地轨去取收集组位置
+		地轨轴11YDATE.xMoveAbs:=TRUE;
+		取收集器组放暂存工位step:=10;
+	
+	10:
+		IF 地轨轴11YDATE.bAbMoveDone  AND Status=0 THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE;
+				FunctionID:=19;                              //取收集器组
+				ParameterList6:=scrape_Fetch_Rack_Plate;       //取收集器组坐标
+				Execute:=1;                                  //机器人启动                        
+				取收集器组放暂存工位step:=20;
+			END_IF
+	20:
+		IF RO_ParameterList6=ParameterList6 AND Status=2 THEN             //取收集器组完成
+			Execute:=0;
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去收集
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取收集器组放暂存工位step:=30;
+		END_IF
+	30:
+		IF 地轨轴11YDATE.bAbMoveDone AND Status=0 THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE;
+				FunctionID:=20;                              //放收集器组
+				ParameterList6:=13;                         //取收集器组坐标
+				Execute:=1;                                  //机器人启动                        
+				取收集器组放暂存工位step:=40;
+		END_IF
+	40:
+		IF RO_ParameterList6=13  AND Status=2 THEN                        //放收集器完成
+			Execute:=0; 
+			粉末收集器定位自动:=TRUE;
+			取收集器组放暂存工位完成:=TRUE;
+			取收集器组放暂存工位step:=0;
+		END_IF
+	
+END_CASE
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A40_取收集器组放暂存工位" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="5b1febde-3c72-45f3-acbd-91647e57af18" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>5b1febde-3c72-45f3-acbd-91647e57af18</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A15_放点样硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+CASE 放点样硅胶板step OF
+	0:	IF  Status=0 THEN
+	  		ParameterList4:=0;
+			FunctionID:=2;                         //放点样硅胶板
+			ParameterList2:=1;                     //机器人放硅胶板
+			Execute:=1;
+			放点样硅胶板step:=10;
+	  	END_IF
+		
+	10:
+		IF RO_ParameterList2=1 AND Status=2 THEN         //机器人放硅胶板完成
+			上样点样放硅胶板完成:=TRUE;
+			Execute:=0;
+			放点样硅胶板完成:=TRUE;
+			放点样硅胶板step:=0;
+		END_IF
+END_CASE
+
+
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A15_放点样硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="558ab1b0-2772-4e3e-b70d-24800d22ef4d" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>558ab1b0-2772-4e3e-b70d-24800d22ef4d</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A55_取刮板收集器放到收集工位">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+CASE 取刮板收集器放到收集工位step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[2];     //地轨去取收集组位置暂存位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取刮板收集器放到收集工位step:=1;
+	1:
+		IF 地轨轴11YDATE.bAbMoveDone AND 拍照工位允许取收集器 AND  Status=0 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			拍照工位机器人退出工位完成:=FALSE;
+			FunctionID:=11;
+			Execute:=1;
+			ParameterList5:=4;                          //机器人去夹持工位
+			取刮板收集器放到收集工位step:=10;
+		END_IF
+	10:
+		IF RO_ParameterList5=4 THEN
+			拍照工位机器人到达收集器夹持位:=TRUE;
+			取刮板收集器放到收集工位step:=20;
+		END_IF
+	20:
+		IF 拍照工位机器人退出 THEN
+			
+			拍照工位机器人到达收集器夹持位:=FALSE;
+			ParameterList5:=5;                          //机器人退出工位
+			取刮板收集器放到收集工位step:=30;
+		END_IF
+	30:
+		IF RO_ParameterList5=5 THEN
+			拍照工位机器人退出完成:=TRUE;
+			Execute:=0;
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去收集工位
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取刮板收集器放到收集工位step:=40;
+		END_IF
+	40:
+		IF 地轨轴11YDATE.bAbMoveDone THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;                     
+			取刮板收集器放到收集工位step:=50;
+		END_IF
+	50:
+		IF 收集工位允许放收集器 AND  Status=0 THEN
+			FunctionID:=12;                             //放收集工位收集器
+			ParameterList8:=1;                         //机器人放收集器到夹持工位
+			Execute:=1;
+			取刮板收集器放到收集工位step:=60;
+		END_IF
+	60:
+		IF RO_ParameterList8=1 THEN
+			
+			收集工位放收集器到工位:=TRUE;
+			取刮板收集器放到收集工位step:=70;
+		END_IF
+	70:
+		IF 收集工位允许机器人退出工位 THEN
+			ParameterList8:=2;                     //机器人退出工位
+			取刮板收集器放到收集工位step:=80;
+		END_IF
+	80:
+		IF RO_ParameterList8=2 AND Status=2 THEN                //机器人退出工位完成
+			Execute:=0;
+			收集工位机器人退出完成:=TRUE;
+			收集工位放收集器到工位:=FALSE;
+			取刮板收集器放到收集工位完成:=TRUE;
+			取刮板收集器放到收集工位step:=0;
+		END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A55_取刮板收集器放到收集工位" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="5af5c769-d101-4fed-8424-0b60bc59f96a" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>5af5c769-d101-4fed-8424-0b60bc59f96a</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A45_取暂存收集器放刮板位">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE 取暂存收集器放刮板位step OF
+	0:
+		IF RO_ParameterList3=3 THEN
+			ParameterList3:=0;
+			Execute:=0;
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[2];     //地轨去刮板拍照位
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取暂存收集器放刮板位step:=10;
+		END_IF
+	10:
+		IF 地轨轴11YDATE.bAbMoveDone THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;                     
+			取暂存收集器放刮板位step:=20;
+		END_IF
+	20:
+		IF 拍照工位允许放收集器 AND Status=0 THEN
+			FunctionID:=9;                              //取暂存收集器
+			ParameterList7:=scrape_Consume_Slot;           //取收集器
+			Execute:=1;
+			取暂存收集器放刮板位step:=30;
+		END_IF
+	30:
+		IF RO_ParameterList7=ParameterList7  THEN                   //取收集器完成
+			Execute:=0;
+			取暂存收集器放刮板位step:=40;
+		END_IF
+	40:
+		IF Status=0 THEN
+			FunctionID:=10;                             //放收集器
+			ParameterList5:=2;                         //机器人放收集器到夹持工位
+			Execute:=1;
+			取暂存收集器放刮板位step:=45;
+		END_IF
+	45:
+		IF RO_ParameterList5=2 THEN
+			拍照工位机器人到达夹持位:=TRUE;
+			取暂存收集器放刮板位step:=50;
+		END_IF
+	50:
+		IF 拍照工位机器人退出工位 THEN
+			ParameterList5:=3;                         //机器人退出工位
+			拍照工位机器人到达夹持位:=FALSE;
+			取暂存收集器放刮板位step:=60;
+		END_IF
+	60:
+		IF RO_ParameterList5=3 AND Status=2 THEN                    //机器人退出工位完成
+			Execute:=0;
+			拍照工位机器人退出工位完成:=TRUE;
+			取暂存收集器放刮板位完成:=TRUE;
+			取暂存收集器放刮板位step:=0;
+		END_IF	
+	
+	
+	
+	
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A45_取暂存收集器放刮板位" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="2ab1cd71-33cd-46f5-8221-09ee6a370e35" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>2ab1cd71-33cd-46f5-8221-09ee6a370e35</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A20_取点样硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+CASE 取点样硅胶板step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[1];     //地轨去上样点样位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			IF 地轨轴11YDATE.bAbMoveDone THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE; 
+				取点样硅胶板step:=5;
+			END_IF
+	5:
+		IF  Status=0 THEN    //上样点样完成，展开准备完成
+			FunctionID:=3;                              //取点样硅胶板
+			ParameterList2:=2;                          //取硅胶板参数
+			Execute:=1;                                  //机器人启动                        
+			取点样硅胶板step:=10;
+		END_IF
+	10:
+		IF RO_ParameterList2=2 AND Status=2 THEN
+			Execute:=0;
+			ParameterList2:=0;
+			上样点样允许取硅胶板:=FALSE;
+			取点样硅胶板完成:=TRUE;
+			取点样硅胶板step:=0;
+		END_IF
+END_CASE
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A20_取点样硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="bacc8407-4e21-4ebb-a246-2f1fd13dde9a" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>bacc8407-4e21-4ebb-a246-2f1fd13dde9a</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A25_放展缸硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+CASE 放展缸硅胶板step OF
+	0:	
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[5];     //地轨去展开位
+		地轨轴11YDATE.xMoveAbs:=TRUE;
+		IF 地轨轴11YDATE.bAbMoveDone AND Status=0 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			展开工位机器人到达准备点:=TRUE;
+			放展缸硅胶板step:=5;
+		END_IF
+	5:
+		IF 展开工位允许放硅胶板 THEN
+			FunctionID:=4;                              //放展缸硅胶板
+			Execute:=1;                                  //机器人启动       
+			展开工位机器人到达准备点:=FALSE;
+			放展缸硅胶板step:=10;
+		END_IF
+			
+	10:
+		IF RO_ParameterList1&gt;0 AND Status=2 THEN                       //放硅胶板完成
+			展开工位机器人放硅胶板完成:=TRUE;
+			FunctionID:=0;
+			Execute:=0;
+			放展缸硅胶板step:=0;
+		END_IF
+END_CASE
+
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A25_放展缸硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="ea2acb61-59c2-41ee-a935-170ab1847d33" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>ea2acb61-59c2-41ee-a935-170ab1847d33</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A50_取暂存收集瓶放收集工位">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+CASE 取暂存收集瓶放收集工位step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去取收集组位置暂存位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取暂存收集瓶放收集工位step:=1;
+	1:
+		IF 地轨轴11YDATE.bAbMoveDone AND Status=0 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			FunctionID:=13;                             //取收集瓶
+			ParameterList9:=collect_Consume_Slot;           //取收集瓶参数
+			Execute:=1;
+			取暂存收集瓶放收集工位step:=5;
+		END_IF
+	5:
+		IF RO_ParameterList9=ParameterList9 AND 收集工位允许放收集瓶 THEN        //取收集瓶完成
+			Execute:=0;
+			取暂存收集瓶放收集工位step:=6;
+		END_IF
+	6:
+		IF Status=0 THEN
+			FunctionID:=15;  
+			ParameterList8:=3;
+			Execute:=1;
+			取暂存收集瓶放收集工位step:=10;
+		END_IF
+	10:
+		IF RO_ParameterList8=3 AND Status=2 THEN
+				Execute:=0;
+			收集工位放收集瓶完成:=TRUE;
+			取暂存收集瓶放收集工位完成:=TRUE;
+			取暂存收集瓶放收集工位step:=0;
+		END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A50_取暂存收集瓶放收集工位" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="87126398-68b8-41a9-85d3-6101f25bed78" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>87126398-68b8-41a9-85d3-6101f25bed78</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A71_取暂存收集瓶放仓库">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+
+
+CASE 取暂存收集瓶组放仓库step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去取收集组位置暂存位置
+		地轨轴11YDATE.xMoveAbs:=TRUE;
+		溶液收集瓶定位自动:=FALSE;
+		取暂存收集瓶组放仓库step:=10;
+	10:
+		IF 地轨轴11YDATE.bAbMoveDone AND  Status=0 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			FunctionID:=14;                              //放收集器/瓶到仓库
+			ParameterList6:=16;                          //取暂存收集器组
+			Execute:=1; 
+			取暂存收集瓶组放仓库step:=20;
+		END_IF
+	20:
+		IF RO_ParameterList6=16 AND Status=2 THEN                      //取完成
+			Execute:=0; 
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[6];     //地轨去放收集组位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取暂存收集瓶组放仓库step:=30;
+		END_IF
+	30:
+		IF 地轨轴11YDATE.bAbMoveDone AND Status=0 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			ParameterList6:=collect_Old_Plate_Slot+6;               //取暂存收集瓶组
+			Execute:=1; 
+			取暂存收集瓶组放仓库step:=40;
+		END_IF
+	40:
+		IF RO_ParameterList6=collect_Old_Plate_Slot+6  AND Status=2 THEN
+			取暂存收集瓶组放仓库完成:=TRUE;
+			Execute:=0; 
+			取暂存收集瓶组放仓库step:=0;
+		END_IF
+END_CASE
+
+
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A71_取暂存收集瓶放仓库" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="814d67cd-794f-4cf4-bc74-8e38da794518" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>814d67cd-794f-4cf4-bc74-8e38da794518</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A65_取收集瓶放暂存工位">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+CASE 取收集瓶放暂存工位step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去取收集组位置暂存位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取收集瓶放暂存工位step:=5;
+	5:
+		IF 地轨轴11YDATE.bAbMoveDone AND 收集工位允许机器人取收集瓶放暂存工位 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			收集工位放收集瓶完成:=FALSE;
+			FunctionID:=12;
+			ParameterList8:=4;                               //到收集工位取收集瓶
+			Execute:=1;
+			取收集瓶放暂存工位step:=6;
+		END_IF
+	6:
+		
+		IF  RO_ParameterList8=4 AND Status=2 THEN
+			取收集瓶放暂存工位step:=10;
+			收集工位机器人放收集瓶到暂存工位完成:=TRUE;
+			Execute:=0;
+		END_IF
+	10:
+		IF Status=0 THEN
+			ParameterList8:=5;                               //放收集瓶到暂存工位
+			Execute:=1;
+			ParameterList9:=collect_Consume_Slot;
+			取收集瓶放暂存工位step:=20;
+		END_IF
+	20:
+		IF RO_ParameterList8=5 AND Status=2 THEN                         //放收集瓶到暂存工位完成
+			Execute:=0;
+			取收集瓶放暂存工位step:=0;
+			取收集瓶放暂存工位完成:=TRUE;
+		END_IF
+END_CASE
+	</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A65_取收集瓶放暂存工位" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="d2e74b95-ac2e-407a-8d3b-bd4dd44dc764" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>d2e74b95-ac2e-407a-8d3b-bd4dd44dc764</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A10_取升降机硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE 取升降硅胶板step OF
+		0:
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[1];     //地轨去上样点样位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			IF 地轨轴11YDATE.bAbMoveDone THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE; 
+				IF 升降上料伺服允许取料 AND Status=0 THEN
+					FunctionID:=1;                              //取升降硅胶板ID
+					ParameterList4:=1;                           //去升降机构位置
+					Execute:=1;                                  //机器人启动 
+					取升降硅胶板step:=10;
+				END_IF
+			END_IF
+			
+		10:
+			IF RO_ParameterList4=1 THEN                   //机器人到位
+				升降上料机器人已吸住物料:=TRUE;
+				取升降硅胶板step:=15;
+			END_IF
+		15:
+			IF 升降上料伺服下降完成  THEN
+				ParameterList4:=2;                        //机器人取物料
+				取升降硅胶板step:=20;
+			END_IF
+			
+		20:
+			IF RO_ParameterList4=2 AND Status=2 THEN                //机器人取物料完成
+				ParameterList4:=0;
+				Execute:=0;
+				升降上料机器人取料完成:=TRUE;
+				取升降硅胶板完成:=TRUE;
+				取升降硅胶板step:=0;
+			END_IF
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A10_取升降机硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="bc47bead-de13-46b4-abd5-8ba31173a7df" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>bc47bead-de13-46b4-abd5-8ba31173a7df</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A70_取暂存收集器组放仓库">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+
+CASE 取暂存收集器组放仓库step OF
+	0:
+		IF RO_ParameterList3=2 THEN
+			Execute:=0; 
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[3];     //地轨去取收集组位置暂存位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取暂存收集器组放仓库step:=10;
+			粉末收集器定位自动:=FALSE;
+		END_IF
+	10:
+		IF 地轨轴11YDATE.bAbMoveDone AND  Status=0 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			粉末收集器定位自动:=FALSE;
+			溶液收集瓶定位自动:=FALSE;
+			FunctionID:=14;                              //放收集器/瓶到仓库
+			ParameterList6:=15;                          //取暂存收集器组
+			Execute:=1; 
+			取暂存收集器组放仓库step:=20;
+		END_IF
+	20:
+		IF RO_ParameterList6=15 AND  Status=2 THEN                      //取完成
+			Execute:=0; 
+			地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[6];     //地轨去放收集组位置
+			地轨轴11YDATE.xMoveAbs:=TRUE;
+			取暂存收集器组放仓库step:=30;
+		END_IF
+	30:
+		IF 地轨轴11YDATE.bAbMoveDone AND  Status=0 THEN
+			地轨轴11YDATE.xMoveAbs:=FALSE;
+			ParameterList6:=scrape_Old_Plate_Slot;               //取暂存收集器组
+			Execute:=1;
+			取暂存收集器组放仓库step:=40;
+		END_IF
+	40:
+		IF RO_ParameterList6=scrape_Old_Plate_Slot AND Status=2 THEN
+			Execute:=0;
+			取暂存收集器组放仓库完成:=TRUE;
+			取暂存收集器组放仓库step:=0;
+		END_IF
+	
+END_CASE</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A70_取暂存收集器组放仓库" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="866e02aa-d15b-4b44-8438-8fdc2ec4ca3d" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>866e02aa-d15b-4b44-8438-8fdc2ec4ca3d</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/action" handleUnknown="implementation">
+      <action name="A32_取拍照硅胶板">
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">CASE 取拍照硅胶完step OF
+	0:
+		地轨轴11YDATE.fAbsTarget:=HMI_地轨轴11Y.position[2];     //地轨去刮板拍照位
+		地轨轴11YDATE.xMoveAbs:=TRUE;
+		IF 地轨轴11YDATE.bAbMoveDone THEN
+				地轨轴11YDATE.xMoveAbs:=FALSE;
+				取拍照硅胶完step:=5;
+		END_IF
+	5:		
+		IF (拍照工位允许取硅胶板去展开 OR 拍照工位允许取硅胶板放废料区) AND Status=0 THEN    
+			FunctionID:=6;                              
+			ParameterList5:=6;                           //机器人取硅胶板
+			Execute:=1;             
+			拍照工位允许取硅胶板去展开 := FALSE;
+			取拍照硅胶完step:=10;
+		END_IF
+	10:
+		IF RO_ParameterList5=6 AND Status=2 THEN
+			Execute:=0;
+			ParameterList6:=0;
+			取拍照硅胶板完成:=TRUE;
+			取拍照硅胶完step:=0;
+		IF 拍照工位允许取硅胶板放废料区 THEN
+			拍照工位机器人取硅胶板完成 := TRUE;
+		END_IF
+		END_IF
+END_CASE
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/pathstructure" handleUnknown="discard">
+            <pathStructure isFolder="False" name="Device" namespace="1ee21fdd-5562-44a0-a3ce-665d74916d50" factoryName="Inovance.InoPro.InoDeviceObject.DeviceObjectFactory" factoryGuid="{84d12aa5-3225-473b-9df6-18af40889bdf}" objectGuid="ea0913c2-01c3-4246-ae88-1c6b39cb02f1">
+              <pathStructure isFolder="False" name="Plc Logic" namespace="00000000-0000-0000-0000-000000000000" factoryName="_3S.CoDeSys.PlcLogicObject.PlcLogicObjectFactory" factoryGuid="{8ceeba4e-ac7a-4fbd-9415-bfb2d98668ab}" objectGuid="d065fd5a-a37a-40a0-bdcf-fa3012d36936">
+                <pathStructure isFolder="False" name="Application" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="_3S.CoDeSys.ApplicationObject.ApplicationObjectFactory" factoryGuid="{ECADC42E-716E-4ff3-A93C-0CD143F9743F}" objectGuid="60805218-a29d-437c-87e4-65307711d826">
+                  <pathStructure isFolder="True" name="40_Man" namespace="00000000-0000-0000-0000-000000000000" factoryName="Inovance.InoPro.InoNavigators.FolderObjectFactory" factoryGuid="{BA66A801-C738-4176-B072-DFE26ACE36D3}" objectGuid="0e01dd90-0a9e-496b-8d0a-e91a3eea9c35">
+                    <pathStructure isFolder="False" name="Robotic_Process_机器人流程" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.POUObjectFactory" factoryGuid="{39C4ED2B-903C-464c-9041-7DF4ECEE9609}" objectGuid="fc639678-050c-4cde-a1a3-a9148621e875">
+                      <pathStructure isFolder="False" name="A32_取拍照硅胶板" namespace="e5b60c93-5445-4e40-ada9-cd9c005549b4" factoryName="Inovance.InoPro.InoPOUObject.ActionObjectFactory" factoryGuid="{00393DE5-D8B3-4ff3-845F-37AAB59A22C5}" objectGuid="ed26e042-4c03-4576-8744-43822861cb47" />
+                    </pathStructure>
+                  </pathStructure>
+                </pathStructure>
+              </pathStructure>
+            </pathStructure>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>ed26e042-4c03-4576-8744-43822861cb47</ObjectId>
+          </data>
+        </addData>
+      </action>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="40_Man">
+          <Object Name="Robotic_Process_机器人流程" ObjectId="fc639678-050c-4cde-a1a3-a9148621e875">
+            <Object Name="A30_取展缸硅胶板" ObjectId="f07d3734-7c1b-4891-bd29-fe56a4b1c62b" />
+            <Object Name="A60_取收集器放暂存工位" ObjectId="3ea51071-b13d-467e-aaf7-2cd65b5d5f92" />
+            <Object Name="A00_取放工具" ObjectId="564696a8-beb6-4872-85dc-41e4ed0fb501" />
+            <Object Name="A35_放拍照硅胶板" ObjectId="0fddc811-1130-4815-b03a-466fd4a87c27" />
+            <Object Name="A65_放废料硅胶板" ObjectId="aec6a032-db1f-4d3f-8eb9-ea63ceff0acb" />
+            <Object Name="A41_取收集瓶组放暂存工位" ObjectId="d95b4ba5-0d97-435b-b0bb-6e8cc6db97fc" />
+            <Object Name="A40_取收集器组放暂存工位" ObjectId="5b1febde-3c72-45f3-acbd-91647e57af18" />
+            <Object Name="A15_放点样硅胶板" ObjectId="558ab1b0-2772-4e3e-b70d-24800d22ef4d" />
+            <Object Name="A55_取刮板收集器放到收集工位" ObjectId="5af5c769-d101-4fed-8424-0b60bc59f96a" />
+            <Object Name="A45_取暂存收集器放刮板位" ObjectId="2ab1cd71-33cd-46f5-8221-09ee6a370e35" />
+            <Object Name="A20_取点样硅胶板" ObjectId="bacc8407-4e21-4ebb-a246-2f1fd13dde9a" />
+            <Object Name="A25_放展缸硅胶板" ObjectId="ea2acb61-59c2-41ee-a935-170ab1847d33" />
+            <Object Name="A50_取暂存收集瓶放收集工位" ObjectId="87126398-68b8-41a9-85d3-6101f25bed78" />
+            <Object Name="A71_取暂存收集瓶放仓库" ObjectId="814d67cd-794f-4cf4-bc74-8e38da794518" />
+            <Object Name="A65_取收集瓶放暂存工位" ObjectId="d2e74b95-ac2e-407a-8d3b-bd4dd44dc764" />
+            <Object Name="A10_取升降机硅胶板" ObjectId="bc47bead-de13-46b4-abd5-8ba31173a7df" />
+            <Object Name="A70_取暂存收集器组放仓库" ObjectId="866e02aa-d15b-4b44-8438-8fdc2ec4ca3d" />
+            <Object Name="A32_取拍照硅胶板" ObjectId="ed26e042-4c03-4576-8744-43822861cb47" />
+          </Object>
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

@@ -1,0 +1,321 @@
+# 由 tools/gen_robot_point_operations.py 从 robot_flows_v2.yaml 模板 tool.put 生成
+# 点位驱动: 可直接编辑各步点位/速度档; 进/出 require_anchor 为安全门
+# 【手改·勿重生成 (G-1)】卸刀按工具差异手插安全收起: slot-1 卸吸盘前 rotary-down (下降态),
+#   slot-2/3 卸夹爪前 gripper-close (闭合态); 各分支去掉抬升后回 home (卸->装连续, home 由 pick 收尾)。
+#   生成器自校验只比 move 点不校验 tool_action, 重运行会静默抹掉本手插。
+schema: ptlc.script/v1
+kind: operation
+name: robot_tool_put
+label: 卸刀
+note: '手腕工具放回刀库'
+ui: {subgroup: 刀库, order: 82}
+vars:
+- name: tool_id
+  scope: local
+  type: INT
+  io: in
+  default: 1
+  comment: tool.put 主选择值
+  enum:
+    - {value: 1, label: 1 吸盘}
+    - {value: 2, label: 2 大夹爪}
+    - {value: 3, label: 3 小夹爪}
+resources: [robot]
+body:
+- op: if
+  cond:
+    binop: ==
+    left: {var: tool_id}
+    right: {lit: 1}
+  then:
+  - op: call
+    action: robot.require_anchor
+    args:
+      point_id: {lit: robot-main.home}
+      joint_tol_deg: {lit: 2.0}
+      pos_tol_mm: {lit: 5.0}
+      rot_tol_deg: {lit: 5.0}
+    mode: RUN
+  - op: call
+    action: rail.ensure
+    args:
+      Rail_Target_Position: {lit: 4}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: rotary-down}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: robot-main.tool-change.ready}
+      motion: {lit: move_j}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 50}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: tool-change-aux-on}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: robot-main.tool-change.slot-1.approach-high}
+      motion: {lit: move_l}
+      acc: {lit: 60}
+      vel: {lit: 50}
+      cp: {lit: 20}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: robot-main.tool-change.slot-1.approach-near}
+      motion: {lit: move_l}
+      acc: {lit: 12}
+      vel: {lit: 15}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: robot-main.tool-change.slot-1.target}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 5}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: quick-change-release}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.tool_action
+    args:
+      action: {lit: tool-change-aux-off}
+      timeout_ms: {lit: 3000}
+    mode: RUN
+  - op: call
+    action: robot.set_mounted_tool
+    args:
+      tool_id: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: robot-main.tool-change.slot-1.approach-near}
+      motion: {lit: move_l}
+      acc: {lit: 6}
+      vel: {lit: 10}
+      cp: {lit: 0}
+    mode: RUN
+  - op: call
+    action: robot.move_to_point
+    args:
+      point_id_or_robot_name: {lit: robot-main.tool-change.slot-1.approach-high}
+      motion: {lit: move_l}
+      acc: {lit: 18}
+      vel: {lit: 20}
+      cp: {lit: 20}
+    mode: RUN
+  elifs:
+  - cond:
+      binop: ==
+      left: {var: tool_id}
+      right: {lit: 2}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: robot-main.home}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 4}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-close}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.ready}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 50}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-2.approach-high}
+        motion: {lit: move_l}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-2.approach-near}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-2.target}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: quick-change-release}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: tool-change-aux-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.set_mounted_tool
+      args:
+        tool_id: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-2.approach-near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-2.approach-high}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 20}
+      mode: RUN
+  - cond:
+      binop: ==
+      left: {var: tool_id}
+      right: {lit: 3}
+    body:
+    - op: call
+      action: robot.require_anchor
+      args:
+        point_id: {lit: robot-main.home}
+        joint_tol_deg: {lit: 2.0}
+        pos_tol_mm: {lit: 5.0}
+        rot_tol_deg: {lit: 5.0}
+      mode: RUN
+    - op: call
+      action: rail.ensure
+      args:
+        Rail_Target_Position: {lit: 4}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: gripper-close}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.ready}
+        motion: {lit: move_j}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 50}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-3.approach-high}
+        motion: {lit: move_l}
+        acc: {lit: 60}
+        vel: {lit: 50}
+        cp: {lit: 20}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-3.approach-near}
+        motion: {lit: move_l}
+        acc: {lit: 12}
+        vel: {lit: 15}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-3.target}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 5}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: quick-change-release}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.tool_action
+      args:
+        action: {lit: tool-change-aux-off}
+        timeout_ms: {lit: 3000}
+      mode: RUN
+    - op: call
+      action: robot.set_mounted_tool
+      args:
+        tool_id: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-3.approach-near}
+        motion: {lit: move_l}
+        acc: {lit: 6}
+        vel: {lit: 10}
+        cp: {lit: 0}
+      mode: RUN
+    - op: call
+      action: robot.move_to_point
+      args:
+        point_id_or_robot_name: {lit: robot-main.tool-change.slot-3.approach-high}
+        motion: {lit: move_l}
+        acc: {lit: 18}
+        vel: {lit: 20}
+        cp: {lit: 20}
+      mode: RUN
+  else:
+  - op: raise
+    error: ROBOT_FLOW_SELECTOR
+    message: {lit: 'tool.put: 无效选择值'}

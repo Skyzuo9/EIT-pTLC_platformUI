@@ -1,0 +1,65 @@
+schema: ptlc.script/v1
+kind: operation
+name: photoscrape_before_photo_cycle
+label: 拍照刮板-before拍照周期 (准备 -> 上料 -> 拍照 -> 下料)
+ui:
+  role: station_task
+  station: photo_scrape
+  primary: false
+  order: 29
+# before-photo 专用站内任务。边界: 机器人已持点样后板到拍照位, 本任务放板、拍 before.jpg、再取板。
+# 不放接粉收集器、不下压、不刮取; 后续 after-scrape 的 photoscrape_process 通过 before_path 输入使用本图。
+vars:
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: ''
+  comment: 拍照图保存目录
+- name: before_path
+  scope: local
+  type: STRING
+  io: out
+  default: ''
+  comment: before图输出路径
+resources:
+- robot
+- station:photo_scrape
+- station:rail
+body:
+- op: comment
+  text: "prepare: 工位初始化并到放板位"
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: "load: 点样后板放入拍照刮板夹具并定位; 不放接粉收集器"
+- op: run_script
+  script: photoscrape_plate_load
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: "execute: 拍 before.jpg, 并把真实 before_path 输出给后续视觉分析"
+- op: run_script
+  script: photoscrape_before_photo_capture
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+  outputs:
+    before_path:
+      var: before_path
+- op: comment
+  text: "unload: 松定位并取板, 机器人继续持板去展开"
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}

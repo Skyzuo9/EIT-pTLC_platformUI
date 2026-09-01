@@ -1,0 +1,246 @@
+schema: ptlc.script/v1
+kind: operation
+name: ptlc_full_v2
+label: pTLC 全流程 v2
+vars:
+- name: sample_id
+  scope: local
+  type: STRING
+  io: in
+  default: DEMO-001
+  comment: 样品ID
+- name: save_dir
+  scope: local
+  type: STRING
+  io: in
+  default: var/photoscrape/demo
+  comment: 拍照图保存目录
+- name: before_path
+  scope: local
+  type: STRING
+  io: var
+  default: ''
+  comment: before图路径(由 before-photo 输出)
+- name: collector_hole
+  scope: local
+  type: INT
+  io: var
+  default: 1
+  comment: 本轮粉末收集器该用的中转A孔号(由 ensure_collector_staged 输出; 取件与归还须同孔)
+- name: bottle_hole
+  scope: local
+  type: INT
+  io: var
+  default: 1
+  comment: 本轮玻璃收集瓶该用的中转B孔号(由 ensure_bottle_staged 输出; 取瓶与成品瓶回位须同孔)
+# 独占资源只在根脚本获取一次 (operation/vm/thread.py 只对根 resources 调 res_gate.acquire,
+# run_script 调子脚本时子脚本的 resources 声明是失效的), 故凡本流程全程会碰到的独占资源都必须
+# 列在这里 —— 包括流程体自己直接 call 的 rail.move / staging_a.locator_a·b, 以及各子脚本要用的
+# 中转区、耗材整组与三个夹具位。
+resources:
+- robot
+- station:feedlift
+- station:sampling
+- station:photo_scrape
+- station:develop
+- station:collect
+- station:rail
+- consumable-group
+- staging-a
+- staging-b
+- scrape-holder
+- collect-holder
+- collect-bottle
+body:
+- op: comment
+  text: '0) 流程起手式 (TL-3): 启动自检 + 工具对账门 (HITL); TL-2 落地后转读挂载工具+条件取用全自动'
+- op: run_script
+  script: robot_startup_check
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: '耗材余量预检: 放在点样之前 —— 不足若等到备耗材那步才发现, 样品已点样展开, 中断就白费一个样品; 在这里拦下时样品还没动'
+- op: call
+  action: material.check_availability
+  args:
+    need_collector:
+      lit: true
+    need_bottle:
+      lit: true
+  mode: RUN
+- op: comment
+  text: '安全态门 (HITL): 只确认机器人在安全态、末端为空; 挂的是哪把刀不由人声明, 交给下面的智能换刀读权威态自行判定'
+- op: human
+  kind: confirm
+  on_cancel: raise
+  prompt:
+    lit: 确认机器人处于安全态且末端已空 (吸盘无残留板 / 夹爪无残留件)? 当前挂载工具由系统读 robot_tool_state.json 自行判定并按需换到吸盘, 无需人工声明
+- op: comment
+  text: '起手换刀: 读权威工具态 -> 已是吸盘则跳过, 否则自动换到吸盘。不用 set_mounted_tool 盲写 —— 那会覆盖持久化的真实值, 若上轮实际留着大夹爪, 后续所有 robot_tool_ensure(1) 都会误判为已就位而跳过换刀'
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 1
+  outputs: {}
+- op: comment
+  text: '1) 上样 + 点样 (SP-1: sampling cycle 内含升降上料取板 -> 放板上样 -> 点样)'
+- op: run_script
+  script: sampling_cycle
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 2) 上样 -> 刮板拍照 (展开前拍照; PS-5 展开前段)
+- op: comment
+  text: '入口态: sampling_cycle 末段 sampling_unload 已取板, 机器人持板停 P1、地轨在位1(168mm) —— 此处不得再取一次板 (会把手上的板压回刚腾空的上样座)'
+- op: comment
+  text: '地轨到拍照区(位2)由 photoscrape_plate_load 自管 (cycle 内首步 rail_move_safe(2); 且位1≡位2=168mm, 本段实为零位移)'
+- op: comment
+  text: '刮板 before-photo cycle: 准备->板上料->拍 before.jpg->板下料, 输出 before_path'
+- op: run_script
+  script: photoscrape_before_photo_cycle
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+  outputs:
+    before_path:
+      var: before_path
+- op: comment
+  text: 3) 刮板 -> 展开缸1 + 展开 (before-photo 后机器人已持板; DV-1 develop_cycle)
+- op: comment
+  text: '地轨到展开区(位5): 全流程唯一保留的显式移轨。develop_load 进缸靠的是 robot_tank_put 入口注入的 rail.ensure(5), 而 rail.ensure 在 auto_rail 关时是空操作; 用 rail_move_safe 显式带到位, 使本段与 auto_rail 解耦'
+- op: run_script
+  script: rail_move_safe
+  inputs:
+    target:
+      lit: 5
+  outputs: {}
+- op: comment
+  text: '展开 cycle (DV-1): init->plate_retract->robot_tank_put->plate_extend->清洗/润洗/上液->[DV-2
+    HITL 显影门]->plate_retract->robot_tank_pick (持板出缸)'
+- op: run_script
+  script: develop_cycle
+  inputs:
+    tank:
+      lit: 1
+  outputs: {}
+- op: comment
+  text: 4) 展开缸1 -> 刮板拍照 (展开后拍照位; PS-5 展开后段放板)
+- op: comment
+  text: '地轨到拍照区(位2)由 photoscrape_plate_load 自管 (首步 rail_move_safe(2)); 板在 before-photo cycle 末段已被取回机器人手上, 这里是重新放回刮板台, 不是重复'
+- op: comment
+  text: '刮板侧准备+板上料: cam_x335 -> 机器人放板 -> locate_cylinder(true) (板已持出缸)'
+- op: run_script
+  script: photoscrape_prepare
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: photoscrape_plate_load
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: '5) 备耗材: 收集器入刮板夹具(接粉) + 瓶预备 [收集器须刮取前就位, 复刻旧 FID100->刮取->FID110]'
+- op: comment
+  text: '耗材就位保证 (按账本决策): 中转板还有未用孔就原地复用不动整板; 中转空则取新板; 中转板耗尽则先把满板送回原库位再取新板。整板转运用的工具2大夹爪由 ensure_* 内部按需切换'
+- op: run_script
+  script: ensure_collector_staged
+  inputs: {}
+  outputs:
+    hole:
+      var: collector_hole
+- op: run_script
+  script: ensure_bottle_staged
+  inputs: {}
+  outputs:
+    hole:
+      var: bottle_hole
+- op: comment
+  text: '段级兜底: 两个 ensure_* 退出时已各自把本区夹紧, 此处成对再写一次保持顶层编排的显式终态 (直接赋值, 幂等)'
+- op: call
+  action: staging_a.locator_a
+  args:
+    target:
+      lit: true
+  mode: RUN
+- op: call
+  action: staging_a.locator_b
+  args:
+    target:
+      lit: true
+  mode: RUN
+- op: comment
+  text: 取单件才切工具3小夹爪 (整板转运是大夹爪, 组中转点 P37/P39 按大夹爪示教; 单件取点 P46-51 才是小夹爪)
+- op: run_script
+  script: robot_tool_ensure
+  inputs:
+    needed:
+      lit: 3
+  outputs: {}
+- op: comment
+  text: 收集器链放入刮板接粉夹具 (PS-1 place 与 PS-3 process 之间; 见耗材链)
+- op: run_script
+  script: transfer_collector_staging_a_to_scrape
+  inputs:
+    slot_id:
+      var: collector_hole
+  outputs: {}
+- op: comment
+  text: 6) 拍照刮取 (PS-3 process; 收集器已就位
+  开头 press_cylinder(true) 下压夹紧开拍; 粉末落入刮板夹具上的收集器): null
+- op: run_script
+  script: photoscrape_process
+  inputs:
+    sample_id:
+      var: sample_id
+    save_dir:
+      var: save_dir
+    before_path:
+      var: before_path
+  outputs: {}
+- op: comment
+  text: 7) 收集周期 (收集器+瓶+气缸原子交错; 取代黑盒 collect_full
+  见 A5): null
+- op: comment
+  text: '地轨由 collect_cycle 自管: collect_load 首步先 rail_move_safe(2) 回刮板位取接粉收集器, 之后才 rail_move_safe(3) 到收集位。顶层若先移到位3, 只会被立刻推翻并白跑一趟 168->350->168'
+- op: run_script
+  script: collect_cycle
+  inputs:
+    collector_slot:
+      var: collector_hole
+    bottle_slot:
+      var: bottle_hole
+  outputs: {}
+- op: call
+  action: staging_a.locator_b
+  args:
+    target:
+      lit: false
+  mode: RUN
+- op: call
+  action: staging_a.locator_a
+  args:
+    target:
+      lit: false
+  mode: RUN
+- op: comment
+  text: 8) 收尾 - 硅胶板 -> 废料 (PS-5 下料段 + LU-4 feedlift 下料 cycle)
+- op: comment
+  text: '换刀回吸盘与地轨回位2 均由 photoscrape_unload 自管 (其 body 前两步就是 robot_tool_ensure(1) + rail_move_safe(2), 后者专为"换刀会把地轨带到工具位"而设)'
+- op: comment
+  text: '刮板侧下料取废板: locate_cylinder(false) -> 机器人取板 -> retr_stoprot; 接粉夹具已由 collect_load
+    释放, photoscrape_unload 自身还会幂等再放一次 press(false) 兜底 (保证短流程也不卡板)'
+- op: run_script
+  script: photoscrape_unload
+  inputs: {}
+  outputs: {}
+- op: comment
+  text: 地轨到位1 由 feedlift_unload_cycle 自管 (cycle 开头 rail_move_safe(1); 位1≡位2 物理可达)
+- op: comment
+  text: 'feedlift 下料 cycle (LU-4): unload_ready -> robot_suction_put(waste) -> unload_bury;
+    收尾停吸盘 (周期自洽, 下轮入口即吸盘)'
+- op: run_script
+  script: feedlift_unload_cycle
+  inputs: {}
+  outputs: {}

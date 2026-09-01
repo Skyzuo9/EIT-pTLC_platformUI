@@ -1,0 +1,47 @@
+schema: ptlc.script/v1
+kind: operation
+name: sampling_load
+label: 上样-上料
+ui:
+  role: station_phase
+  station: sampling
+  phase: load
+  primary: true
+  order: 12
+# 上样四段之二: 升降上料取板 -> 机器人放板入点样位 -> 本站定位夹紧, 形成连贯上料动作。
+# feedlift_load_cycle 自守卫末端工具(吸盘)与地轨(位1)且末态机器人持板退回 P1;
+# 本 step 另自守卫点样座 (place_release + place_axis), 故可单独点跑。
+# ⚠ 7Y 那两步不能省: PLC 契约序是 place_axis(31) ->[机器人放板]-> place_locate(32), 且
+#   place_locate 的 desc 明写"7Y已在放板位…PLC本动作不检查这些编排前置"(plc_sampling.yaml:88)。
+#   跑完整 cycle 时 7Y 是被上一段 sampling_prepare 收尾的 place_axis 顺带带到位的, 单独点跑没人做。
+vars: []
+resources:
+- robot
+- station:sampling
+- station:feedlift
+body:
+- op: comment
+  text: '自守卫点样座: 先松定位夹具再把 7Y 移到放板位 (place_axis 是绝对移动, 已在位则 bAbMoveDone 直通, 故无条件调即"不在位才移")。放在取板之前 —— 7Y 若超时可在机械臂空手时干净中止, 排在取板后则会让机械臂持板无处可放'
+- op: call
+  action: sampling.place_release
+  mode: RUN
+- op: call
+  action: sampling.place_axis
+  mode: RUN
+- op: comment
+  text: 'load: 升降上料取板(feedlift_load_cycle) -> 机器人放板到点样位 -> 定位夹紧; 内含缺口B 2D相机纠偏占位'
+- op: run_script
+  script: feedlift_load_cycle
+  inputs: {}
+  outputs: {}
+- op: run_script
+  script: robot_suction_put
+  inputs:
+    station_id:
+      lit: spotting
+  outputs: {}
+- op: comment
+  text: 机器人放板后定位夹紧
+- op: call
+  action: sampling.place_locate
+  mode: RUN
